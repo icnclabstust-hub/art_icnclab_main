@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neo4j 圖譜視覺化演示</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .demo-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .demo-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .graph-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .legend {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .legend h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .legend ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .legend li {
+            padding: 5px 0;
+            color: #856404;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .stat-card h4 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .test-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .test-button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #0c5460;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .mermaid {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        footer {
+            text-align: center;
+            color: #666;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Neo4j 藝術史知識圖譜演示</h1>
+        <p class="subtitle">互動式圖譜視覺化 - OpenWebUI 整合預覽</p>
+
+        <!-- 示例1: 藝術家與作品 -->
+        <div class="demo-section">
+            <h2>📊 示例 1: 達文西與其作品</h2>
+
+            <div class="legend">
+                <h3>💡 圖例說明</h3>
+                <ul>
+                    <li>👨‍🎨 方框 = 藝術家</li>
+                    <li>🖼️ 方框 = 藝術品</li>
+                    <li>🎨 菱形 = 藝術風格</li>
+                    <li>📅 菱形 = 時代/時期</li>
+                    <li>→ 箭頭 = 關係</li>
+                </ul>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <h4>節點數量</h4>
+                    <div class="number">6</div>
+                </div>
+                <div class="stat-card">
+                    <h4>關係數量</h4>
+                    <div class="number">10</div>
+                </div>
+                <div class="stat-card">
+                    <h4>查詢深度</h4>
+                    <div class="number">2</div>
+                </div>
+            </div>
+
+            <div class="graph-container">
+                <div class="mermaid">
+graph TD
+    N0[👨‍🎨 Leonardo da Vinci]
+    N1[🖼️ Mona Lisa]
+    N2[🖼️ The Last Supper]
+    N3[🖼️ Virgin of the Rocks]
+    N4{🎨 High Renaissance}
+    N5{📅 15th-16th Century}
+    N0 -->|創作| N1
+    N0 -->|創作| N2
+    N0 -->|創作| N3
+    N0 -->|屬於| N4
+    N4 -->|時期| N5
+    N1 -->|風格| N4
+    N2 -->|風格| N4
+    N3 -->|風格| N4
+                </div>
+            </div>
+        </div>
+
+        <!-- 示例2: 藝術家關係 -->
+        <div class="demo-section">
+            <h2>🕸️ 示例 2: 文藝復興三傑關係</h2>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <h4>節點數量</h4>
+                    <div class="number">8</div>
+                </div>
+                <div class="stat-card">
+                    <h4>關係數量</h4>
+                    <div class="number">12</div>
+                </div>
+                <div class="stat-card">
+                    <h4>藝術家數</h4>
+                    <div class="number">3</div>
+                </div>
+            </div>
+
+            <div class="graph-container">
+                <div class="mermaid">
+graph TD
+    N0[👨‍🎨 Leonardo da Vinci]
+    N1[👨‍🎨 Michelangelo]
+    N2[👨‍🎨 Raphael]
+    N3{🎨 High Renaissance}
+    N4{📅 Renaissance Period}
+    N5[🖼️ Sistine Chapel]
+    N6[🖼️ School of Athens]
+    N7[🏛️ Florence]
+
+    N0 -->|同時代| N1
+    N1 -->|同時代| N2
+    N2 -->|師從影響| N0
+    N0 -->|屬於| N3
+    N1 -->|屬於| N3
+    N2 -->|屬於| N3
+    N3 -->|時期| N4
+    N1 -->|創作| N5
+    N2 -->|創作| N6
+    N0 -->|活動於| N7
+    N1 -->|活動於| N7
+    N2 -->|活動於| N7
+                </div>
+            </div>
+        </div>
+
+        <!-- 示例3: 風格演變 -->
+        <div class="demo-section">
+            <h2>🎭 示例 3: 藝術風格演變</h2>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <h4>節點數量</h4>
+                    <div class="number">10</div>
+                </div>
+                <div class="stat-card">
+                    <h4>關係數量</h4>
+                    <div class="number">9</div>
+                </div>
+                <div class="stat-card">
+                    <h4>風格類型</h4>
+                    <div class="number">5</div>
+                </div>
+            </div>
+
+            <div class="graph-container">
+                <div class="mermaid">
+graph LR
+    N0{📅 Medieval}
+    N1{🎨 Gothic}
+    N2{📅 Early Renaissance}
+    N3{🎨 Renaissance}
+    N4{📅 High Renaissance}
+    N5{🎨 Mannerism}
+    N6{📅 Baroque Period}
+    N7{🎨 Baroque}
+    N8{📅 Rococo Period}
+    N9{🎨 Rococo}
+
+    N0 -->|演變| N1
+    N1 -->|影響| N2
+    N2 -->|發展| N3
+    N3 -->|成熟| N4
+    N4 -->|轉變| N5
+    N5 -->|演變| N6
+    N6 -->|發展| N7
+    N7 -->|演變| N8
+    N8 -->|發展| N9
+                </div>
+            </div>
+        </div>
+
+        <!-- 測試查詢 -->
+        <div class="demo-section">
+            <h2>🧪 測試 Neo4j 連接</h2>
+
+            <div class="info-box">
+                <strong>💡 提示:</strong> 這些按鈕會測試您本地的 Neo4j 連接。確保 Neo4j 運行在 http://localhost:7474
+            </div>
+
+            <button class="test-button" onclick="testNeo4jConnection()">測試 Neo4j 連接</button>
+            <button class="test-button" onclick="testGraphQuery()">測試圖譜查詢</button>
+            <button class="test-button" onclick="showCypherExample()">顯示 Cypher 查詢</button>
+
+            <div id="test-result" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Cypher 查詢示例 -->
+        <div class="demo-section">
+            <h2>💻 Cypher 查詢示例</h2>
+
+            <p>以下是生成上述圖譜的 Cypher 查詢:</p>
+
+            <div class="code-block">
+MATCH (source)
+WHERE source.name IN ["Leonardo da Vinci", "Mona Lisa"]
+   OR source.title IN ["Leonardo da Vinci", "Mona Lisa"]
+OPTIONAL MATCH path = (source)-[r*1..2]-(related)
+WITH source, relationships(path) as rels
+UNWIND rels as rel
+WITH DISTINCT source, rel, startNode(rel) as start, endNode(rel) as end
+RETURN
+    collect(DISTINCT {
+        id: id(source),
+        label: labels(source)[0],
+        name: coalesce(source.name, source.title, '未知')
+    }) as source_nodes,
+    collect(DISTINCT {
+        id: id(start),
+        label: labels(start)[0],
+        name: coalesce(start.name, start.title, '未知')
+    }) as all_nodes,
+    collect(DISTINCT {
+        source: id(start),
+        target: id(end),
+        relationship: type(rel)
+    }) as edges
+            </div>
+        </div>
+
+        <!-- 整合說明 -->
+        <div class="demo-section">
+            <h2>🔗 OpenWebUI 整合</h2>
+
+            <div class="info-box">
+                <strong>✅ 已完成:</strong>
+                <ul style="margin-top: 10px; padding-left: 20px;">
+                    <li>✓ Neo4j 圖譜查詢功能</li>
+                    <li>✓ Mermaid 圖表生成</li>
+                    <li>✓ 實體自動提取</li>
+                    <li>✓ 多種圖表樣式</li>
+                    <li>✓ 關係類型中文化</li>
+                </ul>
+            </div>
+
+            <p style="margin-top: 20px;">
+                <strong>下一步:</strong> 將 <code>enhanced_openwebui_rag_function_v6_with_graph_viz.py</code>
+                上傳到 OpenWebUI 的 Functions 設置中即可使用!
+            </p>
+
+            <button class="test-button" onclick="window.open('啟動圖譜視覺化功能.md', '_blank')">
+                查看完整設置指南
+            </button>
+        </div>
+
+        <footer>
+            <p><strong>Neo4j 藝術史知識圖譜系統</strong></p>
+            <p>版本 6.0.0 | 2025-11-27</p>
+            <p style="margin-top: 10px; color: #999; font-size: 0.9em;">
+                使用 Mermaid.js 渲染 | 支持 OpenWebUI 整合
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // 初始化 Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#667eea',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#5568d3',
+                lineColor: '#764ba2',
+                secondaryColor: '#f8f9fa',
+                tertiaryColor: '#fff'
+            }
+        });
+
+        // 測試 Neo4j 連接
+        async function testNeo4jConnection() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.innerHTML = '<p style="color: #666;">🔍 測試連接中...</p>';
+
+            try {
+                const response = await fetch('http://localhost:7474');
+                if (response.ok) {
+                    resultDiv.innerHTML = '<p style="color: #28a745; font-weight: bold;">✅ Neo4j 連接成功!</p>';
+                } else {
+                    resultDiv.innerHTML = `<p style="color: #dc3545;">❌ 連接失敗: HTTP ${response.status}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: #dc3545;">❌ 無法連接到 Neo4j。請確保服務正在運行。<br>錯誤: ${error.message}</p>`;
+            }
+        }
+
+        // 測試圖譜查詢
+        async function testGraphQuery() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.innerHTML = '<p style="color: #666;">🔍 執行圖譜查詢...</p>';
+
+            const query = `
+                MATCH (n)
+                RETURN count(n) as nodeCount,
+                       count(DISTINCT labels(n)[0]) as labelCount
+            `;
+
+            try {
+                const response = await fetch('http://localhost:7474/db/neo4j/tx/commit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + btoa('neo4j:CHANGE_ME_NEO4J_PASSWORD')
+                    },
+                    body: JSON.stringify({
+                        statements: [{
+                            statement: query
+                        }]
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const results = data.results[0].data[0].row;
+                    resultDiv.innerHTML = `
+                        <p style="color: #28a745; font-weight: bold;">✅ 查詢成功!</p>
+                        <p>節點總數: ${results[0]}</p>
+                        <p>標籤類型: ${results[1]}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p style="color: #dc3545;">❌ 查詢失敗: HTTP ${response.status}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: #dc3545;">❌ 查詢錯誤: ${error.message}</p>`;
+            }
+        }
+
+        // 顯示 Cypher 示例
+        function showCypherExample() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.innerHTML = `
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                    <h4 style="color: #667eea;">💡 基礎 Cypher 查詢示例</h4>
+                    <div style="background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 8px; margin-top: 10px; font-family: monospace; overflow-x: auto;">
+                        // 查詢所有藝術家<br>
+                        MATCH (a:Artist) RETURN a.name LIMIT 10;<br><br>
+                        // 查詢藝術家及其作品<br>
+                        MATCH (a:Artist)-[:CREATED]->(w:Artwork)<br>
+                        RETURN a.name, w.title LIMIT 10;<br><br>
+                        // 查詢藝術家之間的關係<br>
+                        MATCH (a1:Artist)-[r]-(a2:Artist)<br>
+                        RETURN a1.name, type(r), a2.name LIMIT 10;
+                    </div>
+                    <p style="margin-top: 10px; color: #666;">
+                        💡 在 Neo4j Browser (<a href="http://localhost:7474" target="_blank">http://localhost:7474</a>) 中執行這些查詢來探索您的數據!
+                    </p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

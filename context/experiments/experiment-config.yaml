@@ -1,0 +1,180 @@
+# 多模態RAG系統實驗配置
+#
+# 此配置定義了25個RAG+LLM組合的實驗矩陣
+
+experiment_matrix:
+  # RAG框架變體 (5種)
+  rag_frameworks:
+    advanced_rag:
+      description: "高級RAG - 多重檢索策略"
+      features:
+        - hybrid_search
+        - query_expansion
+        - re_ranking
+        - context_compression
+      vector_db: chromadb
+      embedding_model: "BAAI/bge-m3"
+
+    vector_rag:
+      description: "純向量RAG - 傳統embedding檢索"
+      features:
+        - semantic_search
+        - similarity_threshold
+      vector_db: qdrant
+      embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+
+    multilingual_rag:
+      description: "多語言RAG - 跨語言檢索"
+      features:
+        - cross_lingual_search
+        - translation_augmentation
+      vector_db: weaviate
+      embedding_model: "BAAI/bge-m3"
+      translation_service: deepl
+
+    graph_rag:
+      description: "圖RAG - 知識圖譜增強"
+      features:
+        - knowledge_graph
+        - entity_linking
+        - relationship_traversal
+      vector_db: chromadb
+      graph_db: neo4j
+      embedding_model: "BAAI/bge-m3"
+
+    self_reflection_rag:
+      description: "自反思RAG - 迭代改進"
+      features:
+        - query_refinement
+        - answer_validation
+        - confidence_scoring
+        - iterative_search
+      vector_db: qdrant
+      embedding_model: "BAAI/bge-m3"
+
+  # LLM模型 (5種)
+  llm_models:
+    gpt4:
+      provider: "openai"
+      model: "gpt-4-turbo-preview"
+      max_tokens: 4096
+      temperature: 0.1
+
+    claude3:
+      provider: "anthropic"
+      model: "claude-3-sonnet-20240229"
+      max_tokens: 4096
+      temperature: 0.1
+
+    gpt_oss:
+      provider: "ollama"
+      model: "llama2:20b"
+      max_tokens: 2048
+      temperature: 0.1
+
+    gemma:
+      provider: "ollama"
+      model: "gemma:4b"
+      max_tokens: 2048
+      temperature: 0.2
+
+    specialized:
+      provider: "huggingface"
+      model: "microsoft/DialoGPT-large"
+      max_tokens: 1024
+      temperature: 0.15
+
+# 實驗配置
+experiment_settings:
+  # 數據集配置
+  datasets:
+    test_queries:
+      path: "data/test/art_history_queries.json"
+      size: 100
+      languages: ["zh", "en", "fr"]
+
+    knowledge_base:
+      path: "data/processed/art_knowledge_base"
+      documents: 5000
+      images: 1000
+      audio: 100
+
+  # 評估指標
+  metrics:
+    retrieval:
+      - "precision@k"
+      - "recall@k"
+      - "map"
+      - "ndcg@k"
+    generation:
+      - "bleu"
+      - "rouge"
+      - "bert_score"
+      - "semantic_similarity"
+    multimodal:
+      - "image_relevance"
+      - "cross_modal_consistency"
+
+  # 實驗參數
+  parameters:
+    k_values: [1, 3, 5, 10]
+    chunk_sizes: [256, 512, 1024]
+    overlap_ratios: [0.1, 0.2, 0.3]
+
+# 服務端點配置
+services:
+  vector_databases:
+    chromadb:
+      url: "http://localhost:8000"
+      api_version: "v1"
+    qdrant:
+      url: "http://localhost:6333"
+      api_version: "v1"
+    weaviate:
+      url: "http://localhost:8081"
+      api_version: "v1"
+
+  llm_providers:
+    openai:
+      api_key: "${OPENAI_API_KEY}"
+      base_url: "https://api.openai.com/v1"
+    anthropic:
+      api_key: "${ANTHROPIC_API_KEY}"
+      base_url: "https://api.anthropic.com/v1"
+    ollama:
+      base_url: "http://localhost:11435"
+    huggingface:
+      api_key: "${HUGGINGFACE_TOKEN}"
+      base_url: "https://api-inference.huggingface.co"
+
+# 實驗追蹤配置
+tracking:
+  mlflow:
+    tracking_uri: "http://localhost:5000"
+    experiment_name: "art_history_multimodal_rag"
+
+  monitoring:
+    prometheus:
+      url: "http://localhost:9090"
+    grafana:
+      url: "http://localhost:3001"
+
+# 多模態處理配置
+multimodal:
+  image_processing:
+    enabled: true
+    models:
+      clip: "openai/clip-vit-large-patch14"
+      blip: "Salesforce/blip-image-captioning-base"
+    endpoint: "http://localhost:8020"
+
+  audio_processing:
+    enabled: true
+    models:
+      whisper: "openai/whisper-large-v2"
+      wav2vec: "facebook/wav2vec2-large-960h"
+    endpoint: "http://localhost:8021"
+
+  cross_modal_fusion:
+    strategy: "attention_weighted"
+    temperature: 0.1

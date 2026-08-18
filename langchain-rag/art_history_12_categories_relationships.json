@@ -1,0 +1,274 @@
+[
+  {
+    "from": "Leonardo da Vinci",
+    "to": "Mona Lisa",
+    "type": "CREATED_BY",
+    "properties": {
+      "creation_year": 1503
+    }
+  },
+  {
+    "from": "Leonardo da Vinci",
+    "to": "The Last Supper",
+    "type": "CREATED_BY",
+    "properties": {
+      "creation_year": 1495
+    }
+  },
+  {
+    "from": "Michelangelo Buonarroti",
+    "to": "David",
+    "type": "CREATED_BY",
+    "properties": {
+      "creation_year": 1501
+    }
+  },
+  {
+    "from": "Leonardo da Vinci",
+    "to": "High Renaissance",
+    "type": "BELONGS_TO_MOVEMENT",
+    "properties": {
+      "role": "founding figure"
+    }
+  },
+  {
+    "from": "Michelangelo Buonarroti",
+    "to": "High Renaissance",
+    "type": "BELONGS_TO_MOVEMENT",
+    "properties": {
+      "role": "master"
+    }
+  },
+  {
+    "from": "Leonardo da Vinci",
+    "to": "Sfumato",
+    "type": "DEVELOPED_TECHNIQUE",
+    "properties": {
+      "innovation_level": "inventor"
+    }
+  },
+  {
+    "from": "Leonardo da Vinci",
+    "to": "Oil Painting",
+    "type": "MASTERED_TECHNIQUE",
+    "properties": {
+      "skill_level": "expert"
+    }
+  },
+  {
+    "from": "Mona Lisa",
+    "to": "Sfumato",
+    "type": "DEMONSTRATES_TECHNIQUE",
+    "properties": {
+      "prominence": "primary"
+    }
+  },
+  {
+    "from": "The Last Supper",
+    "to": "Linear Perspective",
+    "type": "DEMONSTRATES_TECHNIQUE",
+    "properties": {
+      "innovation": "compositional"
+    }
+  },
+  {
+    "from": "The Last Supper",
+    "to": "Religious Motif",
+    "type": "DEPICTS_THEME",
+    "properties": {
+      "theme_type": "Biblical"
+    }
+  },
+  {
+    "from": "Mona Lisa",
+    "to": "Portrait",
+    "type": "EXEMPLIFIES_GENRE",
+    "properties": {
+      "style": "Renaissance portraiture"
+    }
+  },
+  {
+    "from": "Mona Lisa",
+    "to": "Louvre Museum",
+    "type": "HOUSED_IN",
+    "properties": {
+      "acquisition_date": "1797"
+    }
+  },
+  {
+    "from": "David",
+    "to": "Florence",
+    "type": "CREATED_IN",
+    "properties": {
+      "original_location": "Palazzo della Signoria"
+    }
+  },
+  {
+    "from": "Leonardo da Vinci",
+    "to": "Verrocchio's Workshop",
+    "type": "APPRENTICED_AT",
+    "properties": {
+      "period": "1466-1476"
+    }
+  },
+  {
+    "from": "Michelangelo Buonarroti",
+    "to": "Medici Family",
+    "type": "PATRONIZED_BY",
+    "properties": {
+      "patron": "Lorenzo de Medici"
+    }
+  },
+  {
+    "from": "Leonardo da Vinci",
+    "to": "Florence",
+    "type": "BORN_IN",
+    "properties": {
+      "birth_year": 1452
+    }
+  },
+  {
+    "from": "Michelangelo Buonarroti",
+    "to": "Rome",
+    "type": "WORKED_IN",
+    "properties": {
+      "major_period": "1508-1512"
+    }
+  },
+  {
+    "from": "Leonardo da Vinci",
+    "to": "15th Century",
+    "type": "ACTIVE_DURING",
+    "properties": {
+      "active_years": "1452-1519"
+    }
+  },
+  {
+    "from": "Lorenzo de Medici",
+    "to": "Medici Rule in Florence",
+    "type": "REPRESENTS_PERIOD",
+    "properties": {
+      "significance": "patron ruler"
+    }
+  },
+  {
+    "from": "Sistine Chapel Ceiling Commission",
+    "to": "Michelangelo Buonarroti",
+    "type": "COMMISSIONED_ARTIST",
+    "properties": {
+      "commissioner": "Pope Julius II"
+    }
+  },
+  {
+    "from": "Publication of Vasari's Lives",
+    "to": "Giorgio Vasari",
+    "type": "AUTHORED_BY",
+    "properties": {
+      "publication_year": 1550
+    }
+  },
+  {
+    "from": "Lives of the Most Excellent Painters, Sculptors, and Architects",
+    "to": "Giorgio Vasari",
+    "type": "WRITTEN_BY",
+    "properties": {
+      "genre": "art history"
+    }
+  },
+  {
+    "from": "De Pictura",
+    "to": "Leon Battista Alberti",
+    "type": "AUTHORED_BY",
+    "properties": {
+      "subject": "perspective theory"
+    }
+  },
+  {
+    "from": "sfumato",
+    "to": "暈塗法",
+    "type": "TRANSLATED_AS",
+    "properties": {
+      "language_pair": "Italian-Chinese"
+    }
+  },
+  {
+    "from": "contrapposto",
+    "to": "對位法",
+    "type": "TRANSLATED_AS",
+    "properties": {
+      "language_pair": "Italian-Chinese"
+    }
+  },
+  {
+    "from": "chiaroscuro",
+    "to": "明暗法",
+    "type": "TRANSLATED_AS",
+    "properties": {
+      "language_pair": "Italian-Chinese"
+    }
+  },
+  {
+    "from": "Linear Perspective",
+    "to": "Oil Painting",
+    "type": "ENHANCED_BY",
+    "properties": {
+      "improvement": "spatial depth"
+    }
+  },
+  {
+    "from": "Contrapposto",
+    "to": "Renaissance sculpture",
+    "type": "REVIVED_IN",
+    "properties": {
+      "revival_period": "15th century"
+    }
+  },
+  {
+    "from": "Early Renaissance",
+    "to": "15th Century",
+    "type": "OCCURRED_DURING",
+    "properties": {
+      "overlap": "majority"
+    }
+  },
+  {
+    "from": "High Renaissance",
+    "to": "16th Century",
+    "type": "OCCURRED_DURING",
+    "properties": {
+      "peak_period": "1495-1520"
+    }
+  },
+  {
+    "from": "Early Renaissance",
+    "to": "Florence",
+    "type": "ORIGINATED_IN",
+    "properties": {
+      "starting_point": "1400s"
+    }
+  },
+  {
+    "from": "High Renaissance",
+    "to": "Rome",
+    "type": "CENTERED_IN",
+    "properties": {
+      "papal_patronage": "Julius II, Leo X"
+    }
+  },
+  {
+    "from": "Medici Family",
+    "to": "Florence",
+    "type": "BASED_IN",
+    "properties": {
+      "dominance_period": "1434-1737"
+    }
+  },
+  {
+    "from": "Verrocchio's Workshop",
+    "to": "Florence",
+    "type": "LOCATED_IN",
+    "properties": {
+      "district": "Oltrarno"
+    }
+  }
+]

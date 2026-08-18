@@ -1,0 +1,162 @@
+[
+  {
+    "from": "Mona Lisa",
+    "type": "CREATED_BY",
+    "to": "Leonardo da Vinci",
+    "properties": {
+      "creation_year": 1503
+    }
+  },
+  {
+    "from": "The Last Supper",
+    "type": "CREATED_BY",
+    "to": "Leonardo da Vinci",
+    "properties": {
+      "creation_year": 1495
+    }
+  },
+  {
+    "from": "David",
+    "type": "CREATED_BY",
+    "to": "Michelangelo Buonarroti",
+    "properties": {
+      "creation_year": 1504
+    }
+  },
+  {
+    "from": "Water Lilies",
+    "type": "CREATED_BY",
+    "to": "Claude Monet",
+    "properties": {
+      "creation_year": 1919
+    }
+  },
+  {
+    "from": "The Starry Night",
+    "type": "CREATED_BY",
+    "to": "Vincent van Gogh",
+    "properties": {
+      "creation_year": 1889
+    }
+  },
+  {
+    "from": "Leonardo da Vinci",
+    "type": "BELONGS_TO_MOVEMENT",
+    "to": "Renaissance",
+    "properties": {
+      "involvement_level": "Founding figure"
+    }
+  },
+  {
+    "from": "Michelangelo Buonarroti",
+    "type": "BELONGS_TO_MOVEMENT",
+    "to": "Renaissance",
+    "properties": {
+      "involvement_level": "Master"
+    }
+  },
+  {
+    "from": "Claude Monet",
+    "type": "BELONGS_TO_MOVEMENT",
+    "to": "Impressionism",
+    "properties": {
+      "involvement_level": "Founder"
+    }
+  },
+  {
+    "from": "Vincent van Gogh",
+    "type": "BELONGS_TO_MOVEMENT",
+    "to": "Post-Impressionism",
+    "properties": {
+      "involvement_level": "Key figure"
+    }
+  },
+  {
+    "from": "Pablo Picasso",
+    "type": "BELONGS_TO_MOVEMENT",
+    "to": "Cubism",
+    "properties": {
+      "involvement_level": "Co-founder"
+    }
+  },
+  {
+    "from": "Leonardo da Vinci",
+    "type": "BORN_IN",
+    "to": "Italy",
+    "properties": {
+      "birth_year": 1452
+    }
+  },
+  {
+    "from": "Claude Monet",
+    "type": "WORKED_IN",
+    "to": "Paris",
+    "properties": {
+      "work_period": "1860-1926"
+    }
+  },
+  {
+    "from": "Vincent van Gogh",
+    "type": "WORKED_IN",
+    "to": "Paris",
+    "properties": {
+      "work_period": "1886-1888"
+    }
+  },
+  {
+    "from": "Renaissance",
+    "type": "ORIGINATED_IN",
+    "to": "Florence",
+    "properties": {
+      "origin_year": 1400
+    }
+  },
+  {
+    "from": "Impressionism",
+    "type": "ORIGINATED_IN",
+    "to": "Paris",
+    "properties": {
+      "origin_year": 1860
+    }
+  },
+  {
+    "from": "Mona Lisa",
+    "type": "HOUSED_IN",
+    "to": "Louvre Museum",
+    "properties": {
+      "acquisition_date": "1797"
+    }
+  },
+  {
+    "from": "The Starry Night",
+    "type": "HOUSED_IN",
+    "to": "Museum of Modern Art",
+    "properties": {
+      "acquisition_date": "1941"
+    }
+  },
+  {
+    "from": "Pablo Picasso",
+    "type": "INFLUENCED_BY",
+    "to": "Vincent van Gogh",
+    "properties": {
+      "influence_type": "Color and expression"
+    }
+  },
+  {
+    "from": "Claude Monet",
+    "type": "INFLUENCED_BY",
+    "to": "Leonardo da Vinci",
+    "properties": {
+      "influence_type": "Light studies"
+    }
+  },
+  {
+    "from": "Post-Impressionism",
+    "type": "DEVELOPED_FROM",
+    "to": "Impressionism",
+    "properties": {
+      "development_type": "Reaction and evolution"
+    }
+  }
+]

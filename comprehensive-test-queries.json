@@ -1,0 +1,164 @@
+{
+  "artist_queries": [
+    {
+      "query": "達文西的作品",
+      "type": "artist",
+      "language": "zh",
+      "expected_keywords": ["Leonardo", "da Vinci"]
+    },
+    {
+      "query": "米開朗基羅的雕塑",
+      "type": "artist",
+      "language": "zh",
+      "expected_keywords": ["Michelangelo", "sculpture"]
+    },
+    {
+      "query": "拉斐爾的繪畫",
+      "type": "artist",
+      "language": "zh",
+      "expected_keywords": ["Raphael", "painting"]
+    },
+    {
+      "query": "林布蘭的作品",
+      "type": "artist",
+      "language": "zh",
+      "expected_keywords": ["Rembrandt"]
+    },
+    {
+      "query": "Leonardo da Vinci artworks",
+      "type": "artist",
+      "language": "en",
+      "expected_keywords": ["Leonardo", "da Vinci"]
+    }
+  ],
+  "artwork_queries": [
+    {
+      "query": "蒙娜麗莎",
+      "type": "artwork",
+      "language": "zh",
+      "expected_keywords": ["Mona Lisa"]
+    },
+    {
+      "query": "最後的晚餐",
+      "type": "artwork",
+      "language": "zh",
+      "expected_keywords": ["Last Supper"]
+    },
+    {
+      "query": "大衛像",
+      "type": "artwork",
+      "language": "zh",
+      "expected_keywords": ["David"]
+    },
+    {
+      "query": "創世紀",
+      "type": "artwork",
+      "language": "zh",
+      "expected_keywords": ["Creation", "Adam"]
+    },
+    {
+      "query": "雅典學院",
+      "type": "artwork",
+      "language": "zh",
+      "expected_keywords": ["School of Athens"]
+    },
+    {
+      "query": "維納斯的誕生",
+      "type": "artwork",
+      "language": "zh",
+      "expected_keywords": ["Birth of Venus"]
+    },
+    {
+      "query": "夜巡",
+      "type": "artwork",
+      "language": "zh",
+      "expected_keywords": ["Night Watch"]
+    }
+  ],
+  "period_queries": [
+    {
+      "query": "文藝復興時期的繪畫",
+      "type": "period",
+      "language": "zh",
+      "expected_keywords": ["Renaissance", "painting"]
+    },
+    {
+      "query": "巴洛克風格",
+      "type": "period",
+      "language": "zh",
+      "expected_keywords": ["Baroque"]
+    },
+    {
+      "query": "文藝復興雕塑",
+      "type": "period",
+      "language": "zh",
+      "expected_keywords": ["Renaissance", "sculpture"]
+    },
+    {
+      "query": "Renaissance art",
+      "type": "period",
+      "language": "en",
+      "expected_keywords": ["Renaissance"]
+    },
+    {
+      "query": "Baroque paintings",
+      "type": "period",
+      "language": "en",
+      "expected_keywords": ["Baroque", "painting"]
+    }
+  ],
+  "material_queries": [
+    {
+      "query": "油畫作品",
+      "type": "material",
+      "language": "zh",
+      "expected_keywords": ["oil", "painting"]
+    },
+    {
+      "query": "大理石雕塑",
+      "type": "material",
+      "language": "zh",
+      "expected_keywords": ["marble", "sculpture"]
+    },
+    {
+      "query": "壁畫",
+      "type": "material",
+      "language": "zh",
+      "expected_keywords": ["fresco"]
+    }
+  ],
+  "concept_queries": [
+    {
+      "query": "宗教題材的藝術作品",
+      "type": "concept",
+      "language": "zh",
+      "expected_keywords": ["religious", "sacred"]
+    },
+    {
+      "query": "肖像畫",
+      "type": "concept",
+      "language": "zh",
+      "expected_keywords": ["portrait"]
+    },
+    {
+      "query": "神話題材",
+      "type": "concept",
+      "language": "zh",
+      "expected_keywords": ["mythological", "mythology"]
+    }
+  ],
+  "collection_queries": [
+    {
+      "query": "羅浮宮收藏的作品",
+      "type": "collection",
+      "language": "zh",
+      "expected_keywords": ["Louvre"]
+    },
+    {
+      "query": "梵蒂岡博物館",
+      "type": "collection",
+      "language": "zh",
+      "expected_keywords": ["Vatican"]
+    }
+  ]
+}

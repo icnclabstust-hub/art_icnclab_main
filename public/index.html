@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>藝術史資料庫系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 50px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .service-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .service-card h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .service-card p {
+            font-size: 0.95em;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .service-card.chat {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .service-card.api {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .service-card.monitor {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .status {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .status h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .status-online {
+            background: #43e97b;
+            color: white;
+        }
+
+        .icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .services {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 藝術史資料庫系統</h1>
+        <p class="subtitle">Art History Database System</p>
+
+        <div class="services">
+            <a href="/chat/" class="service-card chat">
+                <div class="icon">💬</div>
+                <h2>AI 聊天助手</h2>
+                <p>與 AI 助手對話，探索藝術史知識，獲取專業解答與分析</p>
+            </a>
+
+            <a href="/api/" class="service-card api">
+                <div class="icon">🔌</div>
+                <h2>API 服務</h2>
+                <p>存取藝術史資料庫 API，整合數據至您的應用程式</p>
+            </a>
+
+            <a href="/grafana/" class="service-card monitor">
+                <div class="icon">📊</div>
+                <h2>系統監控</h2>
+                <p>查看系統運行狀態、效能指標與資源使用情況</p>
+            </a>
+        </div>
+
+        <div class="status">
+            <h3>系統狀態</h3>
+            <div class="status-item">
+                <span>Open WebUI (AI 聊天)</span>
+                <span class="status-badge status-online">運行中</span>
+            </div>
+            <div class="status-item">
+                <span>API 服務</span>
+                <span class="status-badge status-online">運行中</span>
+            </div>
+            <div class="status-item">
+                <span>資料庫</span>
+                <span class="status-badge status-online">運行中</span>
+            </div>
+            <div class="status-item">
+                <span>Ollama (LLM)</span>
+                <span class="status-badge status-online">運行中</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 簡單的健康檢查
+        async function checkHealth() {
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    console.log('系統運行正常');
+                }
+            } catch (error) {
+                console.warn('健康檢查失敗:', error);
+            }
+        }
+
+        // 每30秒檢查一次
+        checkHealth();
+        setInterval(checkHealth, 30000);
+    </script>
+</body>
+</html>

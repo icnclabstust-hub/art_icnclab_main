@@ -1,0 +1,162 @@
+# =============================================================================
+# 藝術史資料庫 RAG 系統完整配置
+# =============================================================================
+
+# 系統基礎配置
+system:
+  version: "1.0.0"
+  environment: "production"
+  gpu_acceleration: true
+  cuda_device: "cuda:0"
+
+# 向量資料庫配置
+vector_databases:
+  chromadb:
+    host: "localhost"
+    port: 8000
+    collection_prefix: "art_history"
+    distance_metric: "cosine"
+
+    # 不同集合配置
+    collections:
+      artwork_descriptions:
+        embedding_model: "bge-m3"
+        dimension: 1024
+        index_type: "HNSW"
+
+      artist_biographies:
+        embedding_model: "multilingual-bert"
+        dimension: 768
+        index_type: "IVF_FLAT"
+
+      historical_periods:
+        embedding_model: "bge-m3"
+        dimension: 1024
+        specialized: true
+
+# LLM 配置
+llm_models:
+  primary:
+    name: "llama3.1:8b"
+    provider: "ollama"
+    base_url: "http://localhost:11434"
+    context_length: 8192
+    temperature: 0.1
+
+  fallback:
+    name: "llama3:8b"
+    provider: "ollama"
+    base_url: "http://localhost:11434"
+
+  specialized:
+    art_expert:
+      name: "llama3.1:8b"
+      system_prompt: |
+        你是一位專業的藝術史學者，精通中國、西方和現代藝術史。
+        請用專業但易懂的語言回答藝術相關問題，並提供準確的歷史背景。
+
+# RAG 配置
+rag_systems:
+  basic_text_rag:
+    enabled: true
+    embedding_model: "bge-m3"
+    chunk_size: 512
+    chunk_overlap: 50
+    top_k_retrieval: 5
+    rerank: true
+
+  multimodal_rag:
+    enabled: true
+    text_weight: 0.6
+    image_weight: 0.4
+    image_processor_url: "http://localhost:8080"
+    clip_model: "clip-vit-base-patch32"
+    fusion_strategy: "late_fusion"
+
+  expert_domain_rag:
+    enabled: true
+    knowledge_graphs: true
+    entity_extraction: true
+    temporal_reasoning: true
+    specialized_models:
+      - "art-classification"
+      - "period-detection"
+      - "style-analysis"
+
+# CUDA ML 服務配置
+cuda_ml_service:
+  endpoint: "http://localhost:8080"
+  models:
+    image_classification:
+      model_path: "/app/models/art_classifier.pth"
+      input_size: [224, 224]
+      batch_size: 32
+
+    feature_extraction:
+      model_type: "resnet50"
+      output_dim: 2048
+
+    similarity_search:
+      method: "cosine"
+      threshold: 0.8
+
+# 資料處理管道
+data_pipelines:
+  document_ingestion:
+    supported_formats: ["pdf", "txt", "md", "docx", "html"]
+    preprocessing:
+      - text_cleaning
+      - language_detection
+      - chunk_splitting
+      - embedding_generation
+
+  image_processing:
+    supported_formats: ["jpg", "png", "tiff", "webp"]
+    preprocessing:
+      - resize_normalize
+      - feature_extraction
+      - metadata_extraction
+
+  metadata_enrichment:
+    auto_tagging: true
+    entity_recognition: true
+    period_classification: true
+    style_analysis: true
+
+# 快取配置
+caching:
+  embedding_cache:
+    enabled: true
+    ttl: 3600
+    max_size: "1GB"
+
+  llm_response_cache:
+    enabled: true
+    ttl: 1800
+    max_size: "500MB"
+
+# 監控和日誌
+monitoring:
+  metrics:
+    response_time: true
+    accuracy: true
+    gpu_utilization: true
+
+  logging:
+    level: "INFO"
+    include_queries: true
+    include_responses: false
+
+# 安全配置
+security:
+  rate_limiting:
+    requests_per_minute: 100
+    burst_allowance: 20
+
+  authentication:
+    required: true
+    jwt_secret: "${JWT_SECRET}"
+
+  data_privacy:
+    anonymize_logs: true
+    encrypt_embeddings: false

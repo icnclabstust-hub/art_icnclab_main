@@ -1,0 +1,140 @@
+[
+  {
+    "from": "Mona Lisa",
+    "type": "CREATED_BY",
+    "to": "Leonardo da Vinci",
+    "properties": {
+      "creation_year": 1503,
+      "creation_location": "Florence/France",
+      "commission_type": "Portrait commission",
+      "attribution_certainty": 1.0
+    }
+  },
+  {
+    "from": "Water Lilies (Nymphéas)",
+    "type": "CREATED_BY",
+    "to": "Claude Monet",
+    "properties": {
+      "creation_year": 1919,
+      "creation_location": "Giverny",
+      "commission_type": "Personal project",
+      "attribution_certainty": 1.0
+    }
+  },
+  {
+    "from": "Mona Lisa",
+    "type": "USES_TECHNIQUE",
+    "to": "Sfumato",
+    "properties": {
+      "skill_level": "Master",
+      "innovation": "Perfected the technique"
+    }
+  },
+  {
+    "from": "Mona Lisa",
+    "type": "HOUSED_IN",
+    "to": "Louvre Museum",
+    "properties": {
+      "acquisition_date": "1797",
+      "display_status": "Permanent display"
+    }
+  },
+  {
+    "from": "Water Lilies (Nymphéas)",
+    "type": "HOUSED_IN",
+    "to": "Museum of Modern Art",
+    "properties": {
+      "acquisition_date": "Various",
+      "display_status": "Rotating display"
+    }
+  },
+  {
+    "from": "Mona Lisa",
+    "type": "EXHIBITED_AT",
+    "to": "Leonardo da Vinci: Painter at the Court of Milan",
+    "properties": {
+      "exhibition_title": "Leonardo da Vinci: Painter at the Court of Milan",
+      "date": "2011-2012",
+      "venue": "National Gallery London",
+      "role": "Featured work",
+      "significance": "Rare loan"
+    }
+  },
+  {
+    "from": "Claude Monet",
+    "type": "INFLUENCED_BY",
+    "to": "Leonardo da Vinci",
+    "properties": {
+      "influence_type": "Light studies and atmospheric effects",
+      "evidence": "Documented in Monet's writings",
+      "period": "1860s onwards",
+      "degree": 0.7,
+      "specific_aspects": [
+        "Light observation",
+        "Atmospheric perspective"
+      ]
+    }
+  },
+  {
+    "from": "Leonardo da Vinci",
+    "type": "BORN_IN",
+    "to": "Italy",
+    "properties": {
+      "birth_year": 1452
+    }
+  },
+  {
+    "from": "Leonardo da Vinci",
+    "type": "WORKED_IN",
+    "to": "France",
+    "properties": {
+      "work_period": "1516-1519",
+      "major_works_created": [
+        "Late period works"
+      ]
+    }
+  },
+  {
+    "from": "Claude Monet",
+    "type": "WORKED_IN",
+    "to": "France",
+    "properties": {
+      "work_period": "1840-1926",
+      "major_works_created": [
+        "Impression Sunrise",
+        "Water Lilies"
+      ]
+    }
+  },
+  {
+    "from": "Louvre Museum",
+    "type": "CREATED_IN",
+    "to": "Paris",
+    "properties": {}
+  },
+  {
+    "from": "Museum of Modern Art",
+    "type": "CREATED_IN",
+    "to": "New York",
+    "properties": {}
+  },
+  {
+    "from": "Leonardo da Vinci",
+    "type": "CRITIQUED_BY",
+    "to": "John Ruskin",
+    "properties": {
+      "criticism_type": "Historical analysis",
+      "publication": "Modern Painters",
+      "assessment": "Praise for naturalistic observation"
+    }
+  },
+  {
+    "from": "Leonardo da Vinci: Painter at the Court of Milan",
+    "type": "CREATED_BY",
+    "to": "Luke Syson",
+    "properties": {
+      "curatorial_approach": "Technical and historical analysis",
+      "exhibition_concept": "Complete painting oeuvre"
+    }
+  }
+]

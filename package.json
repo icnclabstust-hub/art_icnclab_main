@@ -1,0 +1,53 @@
+{
+  "name": "art-history-database",
+  "version": "1.0.0",
+  "description": "專注於RAG集成的藝術史資料庫爬蟲系統，透過精簡的4個AI Agent協同工作，建立高品質的藝術史資料收集、處理與API服務系統。",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write src/ agents/",
+    "install:playwright": "playwright install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@elastic/elasticsearch": "^9.1.1",
+    "axios": "^1.12.2",
+    "bcrypt": "^6.0.0",
+    "cheerio": "^1.2.0",
+    "chromadb": "^3.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "form-data": "^4.0.4",
+    "helmet": "^8.1.0",
+    "joi": "^18.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
+    "neo4j-driver": "^6.2.0",
+    "node-cron": "^4.2.1",
+    "openai": "^7.4.0",
+    "pg": "^8.16.3",
+    "playwright": "^1.55.1",
+    "puppeteer": "^25.3.0",
+    "redis": "^6.2.1",
+    "uuid": "^13.0.0",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "chai": "^6.0.1",
+    "eslint": "^9.36.0",
+    "jest": "^30.1.3",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
+    "sinon": "^21.0.0",
+    "supertest": "^7.1.4"
+  }
+}

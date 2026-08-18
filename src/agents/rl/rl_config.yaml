@@ -1,0 +1,124 @@
+# RL-Agentic RAG 配置文件
+
+# Agent 配置
+agent:
+  state_dim: 1064              # 狀態維度
+  action_dim: 10               # 動作數量
+  device: "auto"               # cuda, cpu, or auto
+
+# 網絡架構
+network:
+  hidden_dims: [512, 256, 128] # 隱藏層維度
+  dropout: 0.2                 # Dropout 率
+  activation: "relu"           # 激活函數
+
+# 學習參數
+learning:
+  learning_rate: 0.0001        # 學習率
+  gamma: 0.99                  # 折扣因子
+  batch_size: 64               # 批次大小
+  buffer_capacity: 100000      # 經驗池容量
+  target_update_freq: 1000     # 目標網絡更新頻率
+  train_frequency: 4           # 訓練頻率
+
+# 探索策略
+exploration:
+  epsilon_start: 1.0           # 初始探索率
+  epsilon_end: 0.05            # 最終探索率
+  epsilon_decay: 0.995         # 衰減率
+  strategy: "epsilon_greedy"   # epsilon_greedy, ucb, thompson_sampling
+
+# 獎勵函數權重
+reward_weights:
+  confidence: 0.4              # 置信度權重
+  speed: 0.3                   # 速度權重
+  satisfaction: 0.2            # 用戶滿意度權重
+  diversity: 0.1               # 多樣性權重
+
+# 獎勵懲罰
+reward_penalties:
+  timeout: -0.5                # 超時懲罰
+  low_confidence: -0.3         # 低置信度懲罰
+  error: -1.0                  # 錯誤懲罰
+
+# 訓練配置
+training:
+  num_episodes: 100            # 訓練回合數
+  max_steps_per_episode: 50    # 每回合最大步數
+  save_interval: 10            # 保存間隔
+  eval_interval: 5             # 評估間隔
+  warmup_steps: 1000           # 預熱步數（開始訓練前收集經驗）
+
+# 數據配置
+data:
+  training_data_path: "data/training_queries.json"
+  validation_data_path: "data/validation_queries.json"
+  test_data_path: "data/test_queries.json"
+  cache_dir: "cache/rl_data"
+
+# 模型保存
+model:
+  save_dir: "models/rl"
+  checkpoint_prefix: "rl_agent_episode_"
+  final_model_name: "rl_agent_final.pt"
+  keep_last_n: 5               # 保留最近 N 個檢查點
+
+# 日誌與監控
+logging:
+  log_dir: "runs/rl_training"
+  tensorboard_enabled: true
+  mlflow_enabled: false
+  mlflow_tracking_uri: "http://localhost:5000"
+  mlflow_experiment_name: "rl_agentic_rag"
+  log_level: "INFO"            # DEBUG, INFO, WARNING, ERROR
+
+# Redis 配置（用於經驗回放持久化）
+redis:
+  enabled: false
+  host: "localhost"
+  port: 6379
+  db: 0
+  password: null
+  experience_ttl: 86400        # 經驗過期時間（秒）
+
+# RAG 系統集成
+rag_integration:
+  api_url: "http://localhost:8006"  # RAG Strategy Server
+  timeout: 30                       # 請求超時（秒）
+  retry_attempts: 3                 # 重試次數
+
+  # 策略映射
+  strategies:
+    0: "vector_rag"
+    1: "graph_rag"
+    2: "hybrid_rag"
+    3: "advanced_rag"
+    4: "agentic_rag"
+    5: "self_rag"
+    6: "adaptive_rag"
+    7: "multimodal_rag"
+    8: "dynamic_weight_0.3"
+    9: "dynamic_weight_0.7"
+
+# 部署配置
+deployment:
+  mode: "training"             # training, inference, ab_test
+  ab_test_ratio: 0.5           # A/B 測試比例
+  fallback_strategy: "hybrid_rag"  # 失敗時的回退策略
+  monitoring_enabled: true
+  performance_threshold: 0.7   # 性能閾值
+
+# 評估指標
+evaluation:
+  metrics:
+    - "average_reward"
+    - "strategy_accuracy"
+    - "response_time"
+    - "user_satisfaction"
+    - "diversity_score"
+
+  # 成功標準
+  success_criteria:
+    min_avg_reward: 0.7
+    max_avg_response_time: 5.0
+    min_user_satisfaction: 0.8

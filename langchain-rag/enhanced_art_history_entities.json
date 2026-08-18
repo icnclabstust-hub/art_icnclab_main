@@ -1,0 +1,662 @@
+[
+  {
+    "type": "Artist",
+    "name": "Leonardo da Vinci",
+    "properties": {
+      "name": "Leonardo da Vinci",
+      "full_name": "Leonardo di ser Piero da Vinci",
+      "birth_year": 1452,
+      "death_year": 1519,
+      "birth_place": "Vinci, Republic of Florence",
+      "death_place": "Amboise, Kingdom of France",
+      "nationality": "Italian",
+      "gender": "Male",
+      "biography": "Renaissance polymath: painter, scientist, engineer, inventor, anatomist",
+      "education": [
+        "Andrea del Verrocchio's workshop"
+      ],
+      "teachers": [
+        "Andrea del Verrocchio"
+      ],
+      "students": [
+        "Francesco Melzi",
+        "Gian Giacomo Caprotti"
+      ],
+      "art_movements": [
+        "High Renaissance",
+        "Renaissance"
+      ],
+      "periods": [
+        "Early Renaissance",
+        "High Renaissance"
+      ],
+      "primary_medium": [
+        "Oil painting",
+        "Drawing",
+        "Fresco"
+      ],
+      "signature_techniques": [
+        "Sfumato",
+        "Chiaroscuro",
+        "Anatomical accuracy"
+      ],
+      "notable_works": [
+        "Mona Lisa",
+        "The Last Supper",
+        "Vitruvian Man",
+        "Lady with an Ermine"
+      ],
+      "awards_honors": [
+        "Court artist to Francis I of France"
+      ],
+      "exhibitions": [
+        "Leonardo da Vinci: Painter at the Court of Milan"
+      ],
+      "collections": [
+        "Louvre",
+        "National Gallery London",
+        "Uffizi"
+      ],
+      "artistic_evolution": "From traditional workshop training to revolutionary innovations",
+      "historical_significance": "Epitome of Renaissance universal genius",
+      "market_value_trend": "Priceless - most valuable artworks in history",
+      "social_background": "Illegitimate son of notary, rose through talent",
+      "family_connections": [
+        "Ser Piero da Vinci (father)"
+      ],
+      "workshop_location": "Milan, Florence, France",
+      "patrons": [
+        "Ludovico Sforza",
+        "Francis I of France",
+        "Cesare Borgia"
+      ],
+      "influences": [
+        "Classical antiquity",
+        "Nature observation",
+        "Verrocchio"
+      ],
+      "legacy": "Scientific method in art, perfectionism, interdisciplinary approach"
+    },
+    "subcategory": null,
+    "aliases": []
+  },
+  {
+    "type": "Artist",
+    "name": "Claude Monet",
+    "properties": {
+      "name": "Claude Monet",
+      "full_name": "Oscar-Claude Monet",
+      "birth_year": 1840,
+      "death_year": 1926,
+      "birth_place": "Paris, France",
+      "death_place": "Giverny, France",
+      "nationality": "French",
+      "gender": "Male",
+      "biography": "Founder and leading figure of Impressionism",
+      "education": [
+        "École des Beaux-Arts (briefly)",
+        "Self-taught"
+      ],
+      "teachers": [
+        "Eugène Boudin",
+        "Johan Jongkind"
+      ],
+      "students": [
+        "Blanche Hoschedé-Monet"
+      ],
+      "art_movements": [
+        "Impressionism"
+      ],
+      "periods": [
+        "Late 19th century",
+        "Early 20th century"
+      ],
+      "primary_medium": [
+        "Oil painting",
+        "Pastels"
+      ],
+      "signature_techniques": [
+        "Plein air painting",
+        "Broken color",
+        "Light studies"
+      ],
+      "notable_works": [
+        "Water Lilies",
+        "Impression, Sunrise",
+        "Rouen Cathedral",
+        "Haystacks"
+      ],
+      "exhibitions": [
+        "First Impressionist Exhibition 1874",
+        "Salon des Indépendants"
+      ],
+      "collections": [
+        "Musée Marmottan",
+        "Metropolitan Museum",
+        "National Gallery London"
+      ],
+      "artistic_evolution": "From landscape realism to light abstraction",
+      "historical_significance": "Revolutionized modern painting through light studies",
+      "workshop_location": "Giverny gardens",
+      "patrons": [
+        "Paul Durand-Ruel",
+        "Gustave Caillebotte"
+      ],
+      "influences": [
+        "Eugène Boudin",
+        "Japanese prints",
+        "Turner"
+      ],
+      "legacy": "Foundation of modern art through Impressionism"
+    },
+    "subcategory": null,
+    "aliases": []
+  },
+  {
+    "type": "Artist",
+    "name": "Frida Kahlo",
+    "properties": {
+      "name": "Frida Kahlo",
+      "full_name": "Magdalena Carmen Frida Kahlo y Calderón",
+      "birth_year": 1907,
+      "death_year": 1954,
+      "birth_place": "Coyoacán, Mexico City",
+      "death_place": "Coyoacán, Mexico City",
+      "nationality": "Mexican",
+      "gender": "Female",
+      "biography": "Surrealist painter known for self-portraits and Mexican culture",
+      "education": [
+        "Self-taught"
+      ],
+      "art_movements": [
+        "Surrealism",
+        "Mexican Muralism",
+        "Mexicanidad"
+      ],
+      "periods": [
+        "20th century modernism"
+      ],
+      "primary_medium": [
+        "Oil painting",
+        "Mixed media"
+      ],
+      "signature_techniques": [
+        "Symbolic self-portraiture",
+        "Mexican folk art elements"
+      ],
+      "notable_works": [
+        "The Two Fridas",
+        "Self-Portrait with Thorn Necklace",
+        "The Broken Column"
+      ],
+      "exhibitions": [
+        "First solo exhibition 1953",
+        "Posthumous international recognition"
+      ],
+      "historical_significance": "Icon of Mexican identity and feminist art",
+      "social_background": "Middle-class Mexican family, political activism",
+      "patrons": [
+        "Diego Rivera",
+        "André Breton"
+      ],
+      "influences": [
+        "Mexican folk art",
+        "Pre-Columbian art",
+        "European Surrealism"
+      ],
+      "legacy": "Feminist icon, Mexican cultural ambassador through art"
+    },
+    "subcategory": null,
+    "aliases": []
+  },
+  {
+    "type": "Painting",
+    "name": "Mona Lisa",
+    "properties": {
+      "title": "Mona Lisa",
+      "alternative_titles": [
+        "La Gioconda",
+        "La Joconde"
+      ],
+      "creation_date": "1503-1519",
+      "completion_date": "1519",
+      "artist": "Leonardo da Vinci",
+      "dimensions": "77 cm × 53 cm (30 in × 21 in)",
+      "medium": "Oil",
+      "support": "Poplar wood panel",
+      "technique": [
+        "Sfumato",
+        "Chiaroscuro",
+        "Oil glazing"
+      ],
+      "style": "High Renaissance",
+      "genre": "Portrait",
+      "subject_matter": [
+        "Portrait",
+        "Landscape background"
+      ],
+      "description": "Portrait of Lisa Gherardini with enigmatic smile and atmospheric landscape",
+      "iconography": [
+        "Enigmatic smile",
+        "Hands placement",
+        "Veil",
+        "Landscape"
+      ],
+      "composition": "Three-quarter view with pyramidal composition",
+      "color_palette": [
+        "Earth tones",
+        "Subtle greens",
+        "Warm flesh tones"
+      ],
+      "condition": "Good with minor cracking",
+      "provenance": [
+        "Francis I of France",
+        "French Royal Collection",
+        "Louvre acquisition 1797"
+      ],
+      "exhibitions": [
+        "Permanent display Louvre",
+        "Rare loans to other museums"
+      ],
+      "publications": [
+        "Countless scholarly articles",
+        "Popular culture references"
+      ],
+      "current_location": "Louvre Museum, Paris",
+      "insurance_value": "Priceless",
+      "market_value": "Estimated over $1 billion",
+      "signature": false,
+      "inscription": "None visible",
+      "frame": "Modern protective case",
+      "historical_context": "Renaissance humanism and portraiture innovation",
+      "cultural_significance": "Global icon of art and culture",
+      "technical_analysis": "X-ray reveals under-drawings and painting process",
+      "conservation_history": [
+        "1911 theft recovery",
+        "Modern climate control",
+        "Protective glass"
+      ],
+      "related_works": [
+        "Lady with an Ermine",
+        "Portrait of Ginevra de' Benci"
+      ]
+    },
+    "subcategory": null,
+    "aliases": []
+  },
+  {
+    "type": "Painting",
+    "name": "Water Lilies (Nymphéas)",
+    "properties": {
+      "title": "Water Lilies (Nymphéas)",
+      "alternative_titles": [
+        "Les Nymphéas",
+        "Water Lily Pond"
+      ],
+      "creation_date": "1897-1926",
+      "completion_date": "Various dates - series",
+      "artist": "Claude Monet",
+      "dimensions": "Various sizes - largest 2m x 6m",
+      "medium": "Oil",
+      "support": "Canvas",
+      "technique": [
+        "Plein air painting",
+        "Broken brushwork",
+        "Color layering"
+      ],
+      "style": "Impressionism",
+      "genre": "Landscape",
+      "subject_matter": [
+        "Water garden",
+        "Light reflections",
+        "Natural abstraction"
+      ],
+      "description": "Series of paintings of Monet's water garden at Giverny",
+      "iconography": [
+        "Water lilies",
+        "Bridge",
+        "Weeping willows",
+        "Light reflections"
+      ],
+      "composition": "Horizontal panoramic views, some without horizon line",
+      "color_palette": [
+        "Blues",
+        "Greens",
+        "Purples",
+        "Yellow highlights"
+      ],
+      "condition": "Varies by individual painting",
+      "provenance": [
+        "Artist's estate",
+        "Various museums and private collections"
+      ],
+      "exhibitions": [
+        "Orangerie installation",
+        "Major Monet retrospectives"
+      ],
+      "current_location": "Multiple museums worldwide",
+      "historical_context": "Late Impressionism and abstraction development",
+      "cultural_significance": "Bridge between Impressionism and abstract art",
+      "related_works": [
+        "Japanese Bridge series",
+        "Rouen Cathedral series"
+      ]
+    },
+    "subcategory": null,
+    "aliases": []
+  },
+  {
+    "type": "Museum",
+    "name": "Louvre Museum",
+    "properties": {
+      "name": "Louvre Museum",
+      "full_name": "Musée du Louvre",
+      "location": "Rue de Rivoli, Paris",
+      "city": "Paris",
+      "country": "France",
+      "founded_year": 1793,
+      "founder": "French Republic",
+      "museum_type": "National art museum",
+      "specialization": [
+        "European painting",
+        "Ancient civilizations",
+        "Decorative arts"
+      ],
+      "collection_size": 380000,
+      "permanent_collection": [
+        "Mona Lisa",
+        "Venus de Milo",
+        "Winged Victory"
+      ],
+      "notable_works": [
+        "Mona Lisa",
+        "Liberty Leading the People",
+        "Wedding at Cana"
+      ],
+      "annual_visitors": 9600000,
+      "director": "Laurence des Cars",
+      "curators": [
+        "Department curators for each collection"
+      ],
+      "building_architect": "Pierre Lescot, I.M. Pei (pyramid)",
+      "building_style": "French Renaissance with modern additions",
+      "website": "www.louvre.fr",
+      "opening_hours": "9 AM - 6 PM (varies by day)",
+      "admission_policy": "Paid admission with exceptions",
+      "educational_programs": [
+        "School programs",
+        "Adult courses",
+        "Audio guides"
+      ],
+      "research_facilities": true,
+      "conservation_lab": true,
+      "library": true,
+      "gift_shop": true,
+      "restaurant": true,
+      "accessibility": [
+        "Wheelchair access",
+        "Audio descriptions",
+        "Touch tours"
+      ],
+      "partnerships": [
+        "International museum loans",
+        "Academic collaborations"
+      ],
+      "funding_sources": [
+        "French government",
+        "Admissions",
+        "Donations",
+        "Sponsorships"
+      ],
+      "mission_statement": "Preserve and present art heritage for public education",
+      "acquisition_policy": "Strategic acquisitions filling collection gaps",
+      "deaccession_policy": "Rarely deaccessions due to national treasure status"
+    },
+    "subcategory": null,
+    "aliases": []
+  },
+  {
+    "type": "Museum",
+    "name": "Museum of Modern Art",
+    "properties": {
+      "name": "Museum of Modern Art",
+      "full_name": "The Museum of Modern Art",
+      "location": "11 West 53rd Street, Manhattan",
+      "city": "New York",
+      "country": "United States",
+      "founded_year": 1929,
+      "founder": "Group of influential patrons led by Abby Aldrich Rockefeller",
+      "museum_type": "Modern and contemporary art museum",
+      "specialization": [
+        "Modern art",
+        "Contemporary art",
+        "Design",
+        "Film"
+      ],
+      "collection_size": 200000,
+      "permanent_collection": [
+        "The Starry Night",
+        "Les Demoiselles d'Avignon",
+        "Campbell's Soup Cans"
+      ],
+      "notable_works": [
+        "The Starry Night",
+        "The Persistence of Memory",
+        "Broadway Boogie-Woogie"
+      ],
+      "annual_visitors": 3000000,
+      "director": "Glenn D. Lowry",
+      "building_architect": "Yoshio Taniguchi (2004 renovation)",
+      "building_style": "Modern architecture",
+      "website": "www.moma.org",
+      "educational_programs": [
+        "MoMA Learning",
+        "Teacher programs",
+        "Family programs"
+      ],
+      "research_facilities": true,
+      "conservation_lab": true,
+      "library": true,
+      "mission_statement": "Help people understand and enjoy modern and contemporary art"
+    },
+    "subcategory": null,
+    "aliases": []
+  },
+  {
+    "type": "Exhibition",
+    "name": "Leonardo da Vinci: Painter at the Court of Milan",
+    "properties": {
+      "title": "Leonardo da Vinci: Painter at the Court of Milan",
+      "subtitle": "Complete paintings and drawings",
+      "venue": "National Gallery, London",
+      "start_date": "2011-11-09",
+      "end_date": "2012-02-05",
+      "duration": 88,
+      "exhibition_type": "Monographic retrospective",
+      "curator": [
+        "Luke Syson",
+        "Larry Keith"
+      ],
+      "organizer": "National Gallery London",
+      "sponsor": [
+        "Credit Suisse",
+        "Ernst & Young"
+      ],
+      "theme": "Leonardo's painting practice and technique",
+      "concept": "First exhibition to unite Leonardo's surviving paintings",
+      "featured_artists": [
+        "Leonardo da Vinci"
+      ],
+      "artworks": [
+        "Lady with an Ermine",
+        "Salvator Mundi",
+        "The Virgin of the Rocks"
+      ],
+      "number_of_works": 65,
+      "catalog": "Comprehensive scholarly catalog",
+      "catalog_authors": [
+        "Luke Syson",
+        "Larry Keith",
+        "Ashok Roy"
+      ],
+      "visitor_count": 324000,
+      "reviews": [
+        "Five stars Guardian",
+        "Exceptional Times review"
+      ],
+      "press_coverage": [
+        "International media attention",
+        "Documentary films"
+      ],
+      "educational_programs": [
+        "Lectures",
+        "Drawing workshops",
+        "School visits"
+      ],
+      "lectures": [
+        "Technical analysis talks",
+        "Renaissance context lectures"
+      ],
+      "guided_tours": true,
+      "audio_guide": true,
+      "multimedia": [
+        "Interactive displays",
+        "Digital reconstructions"
+      ],
+      "significance": "Unprecedented gathering of Leonardo paintings",
+      "innovations": [
+        "Advanced technical analysis display",
+        "Digital x-ray presentations"
+      ]
+    },
+    "subcategory": null,
+    "aliases": []
+  },
+  {
+    "type": "Technique",
+    "name": "Sfumato",
+    "properties": {
+      "name": "Sfumato",
+      "alternative_names": [
+        "Sfumare",
+        "Smoky technique"
+      ],
+      "category": "Painting technique",
+      "description": "Subtle gradations of tone without harsh outlines",
+      "origin_period": "High Renaissance",
+      "origin_location": "Italy",
+      "inventor": "Leonardo da Vinci",
+      "development_history": "Evolved from Leonardo's anatomical and optical studies",
+      "materials_required": [
+        "Oil paints",
+        "Multiple glazes",
+        "Fine brushes"
+      ],
+      "tools_required": [
+        "Soft brushes",
+        "Palette knife",
+        "Glazing medium"
+      ],
+      "process_steps": [
+        "Underpainting",
+        "Multiple glaze layers",
+        "Subtle blending"
+      ],
+      "difficulty_level": "Expert",
+      "time_required": "Months to years",
+      "notable_practitioners": [
+        "Leonardo da Vinci",
+        "Correggio",
+        "Later followers"
+      ],
+      "masterpieces_using": [
+        "Mona Lisa",
+        "Lady with an Ermine",
+        "The Virgin of the Rocks"
+      ],
+      "variations": [
+        "Venetian sfumato",
+        "Northern European adaptations"
+      ],
+      "related_techniques": [
+        "Chiaroscuro",
+        "Glazing",
+        "Impasto"
+      ],
+      "advantages": [
+        "Atmospheric effects",
+        "Psychological depth",
+        "Luminous quality"
+      ],
+      "limitations": [
+        "Time-intensive",
+        "Requires expert skill",
+        "Fragile layers"
+      ],
+      "preservation_concerns": [
+        "Layer separation",
+        "Darkening glazes"
+      ],
+      "modern_adaptations": [
+        "Digital sfumato effects",
+        "Contemporary oil techniques"
+      ],
+      "teaching_traditions": [
+        "Academic art education",
+        "Classical ateliers"
+      ],
+      "cultural_significance": "Epitome of Renaissance painting sophistication"
+    },
+    "subcategory": null,
+    "aliases": []
+  },
+  {
+    "type": "Critic",
+    "name": "John Ruskin",
+    "properties": {
+      "name": "John Ruskin",
+      "full_name": "John Ruskin",
+      "birth_year": 1819,
+      "death_year": 1900,
+      "nationality": "British",
+      "specialization": [
+        "Art criticism",
+        "Social criticism",
+        "Architecture"
+      ],
+      "major_works": [
+        "Modern Painters",
+        "The Stones of Venice"
+      ],
+      "influence": "Champion of Turner and Pre-Raphaelites",
+      "writing_style": "Detailed aesthetic analysis with moral philosophy"
+    },
+    "subcategory": null,
+    "aliases": []
+  },
+  {
+    "type": "Curator",
+    "name": "Harald Szeemann",
+    "properties": {
+      "name": "Harald Szeemann",
+      "birth_year": 1933,
+      "death_year": 2005,
+      "nationality": "Swiss",
+      "specialization": [
+        "Contemporary art",
+        "Avant-garde movements"
+      ],
+      "major_exhibitions": [
+        "When Attitudes Become Form",
+        "Documenta 5"
+      ],
+      "curatorial_philosophy": "Art as research and experimentation",
+      "institutions": [
+        "Kunsthalle Bern",
+        "Independent curator"
+      ]
+    },
+    "subcategory": null,
+    "aliases": []
+  }
+]

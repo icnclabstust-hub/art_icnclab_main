@@ -1,0 +1,156 @@
+# 自動化爬蟲系統配置文件
+# 用於自動收集文藝復興和巴洛克時期的藝術史資料
+
+# ======================================
+# 爬蟲基礎設定
+# ======================================
+crawler:
+  # 資料來源啟用設定
+  sources:
+    harvard: true        # Harvard Art Museums API
+    met: true           # Metropolitan Museum API
+    europeana: false    # Europeana API (需要額外API key)
+
+  # 重點收集時期 (優先順序由高到低)
+  focus_periods:
+    - renaissance      # 文藝復興 (1400-1600)
+    - baroque         # 巴洛克 (1600-1750)
+    - neoclassical    # 新古典主義 (1750-1830)
+    - romanticism     # 浪漫主義 (1780-1850)
+    # - rococo        # 洛可可 (可選)
+
+  # 爬取策略
+  strategy:
+    batch_size: 50              # 每批次處理數量
+    max_results_per_artist: 30  # 每位藝術家最多收集作品數
+    max_results_per_keyword: 20 # 每個關鍵詞最多收集作品數
+    delay_between_requests: 0.5 # 請求間隔(秒)
+
+# ======================================
+# 排程設定
+# ======================================
+schedule:
+  enabled: true                      # 是否啟用自動排程
+  interval_hours: 24                 # 爬取間隔(小時)
+  start_time: "02:00"               # 每日開始時間 (24小時制)
+  timezone: "Asia/Taipei"           # 時區
+
+# ======================================
+# API 金鑰設定
+# ======================================
+api_keys:
+  harvard: "CHANGE_ME_HARVARD_API_KEY"
+  europeana: ""  # 如需使用請填入
+
+# ======================================
+# 資料輸出設定
+# ======================================
+output:
+  directory: "./automated_crawler_data"
+  save_raw_data: true              # 是否保存原始JSON資料
+  save_processed_data: true        # 是否保存處理後的資料
+  generate_reports: true           # 是否生成爬取報告
+
+# ======================================
+# RAG 系統整合設定
+# ======================================
+rag_system:
+  # Neo4j 圖資料庫
+  neo4j:
+    enabled: true
+    url: "bolt://localhost:7687"
+    user: "neo4j"
+    password: "your_password"
+    database: "neo4j"
+
+  # ChromaDB 向量資料庫
+  chromadb:
+    enabled: true
+    host: "localhost"
+    port: 8000
+    collection_name: "art_history"
+
+  # 即時傳送設定
+  realtime_sync:
+    enabled: true                   # 爬取後立即傳送到RAG
+    batch_send: true                # 批次傳送(否則逐筆傳送)
+    batch_size: 100                 # 批次大小
+    retry_on_failure: true          # 傳送失敗時重試
+    max_retries: 3                  # 最大重試次數
+
+# ======================================
+# 資料處理設定
+# ======================================
+processing:
+  # 資料清洗
+  cleaning:
+    remove_duplicates: true         # 去除重複
+    validate_fields: true           # 驗證必要欄位
+    normalize_dates: true           # 標準化日期格式
+
+  # 資料增強
+  enrichment:
+    extract_metadata: true          # 提取元資料
+    generate_embeddings: false      # 生成嵌入向量(RAG系統會處理)
+    translate_descriptions: false   # 翻譯描述(可選)
+
+  # 過濾條件
+  filters:
+    require_image: false            # 只保留有圖片的作品
+    require_artist: false           # 只保留有藝術家的作品
+    require_date: false             # 只保留有日期的作品
+    min_description_length: 0       # 描述最小長度
+
+# ======================================
+# 日誌設定
+# ======================================
+logging:
+  level: "INFO"                     # DEBUG, INFO, WARNING, ERROR
+  file: "./logs/automated_crawler.log"
+  max_file_size_mb: 100
+  backup_count: 5
+  console_output: true
+
+# ======================================
+# 監控與通知
+# ======================================
+monitoring:
+  # 效能監控
+  performance:
+    track_api_calls: true
+    track_processing_time: true
+    track_success_rate: true
+
+  # 通知設定
+  notifications:
+    enabled: false
+    # email:
+    #   enabled: false
+    #   smtp_server: ""
+    #   smtp_port: 587
+    #   from_address: ""
+    #   to_addresses: []
+    # slack:
+    #   enabled: false
+    #   webhook_url: ""
+
+# ======================================
+# 進階設定
+# ======================================
+advanced:
+  # 並行處理
+  parallel:
+    enabled: false                  # 是否啟用並行爬取
+    max_workers: 3                  # 最大並行工作數
+
+  # 快取設定
+  cache:
+    enabled: true
+    directory: "./cache"
+    ttl_hours: 168                  # 快取有效期(小時)
+
+  # 錯誤處理
+  error_handling:
+    continue_on_error: true         # 遇到錯誤繼續執行
+    save_error_log: true            # 保存錯誤日誌
+    max_consecutive_errors: 10      # 最大連續錯誤數後停止

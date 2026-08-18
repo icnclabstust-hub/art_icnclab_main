@@ -1,0 +1,231 @@
+# =============================================================================
+# LangChain RAG 架構配置選項
+# =============================================================================
+
+# 基礎配置
+base_config:
+  langchain_version: "0.1.0"
+  python_version: "3.11+"
+
+# 架構選項 1: 基礎文本RAG
+architecture_1_basic_text_rag:
+  name: "基礎文本RAG"
+  description: "適合純文本藝術史資料檢索與問答"
+  components:
+    retriever: "ChromaDBRetriever"
+    embeddings: "BGE-M3Embeddings"
+    llm: "ChatOllama"
+    chain_type: "ConversationalRetrievalChain"
+
+  configuration:
+    chunk_size: 1000
+    chunk_overlap: 200
+    top_k: 5
+    score_threshold: 0.7
+
+  langchain_components:
+    - from: "langchain_community.vectorstores"
+      import: "Chroma"
+    - from: "langchain_community.embeddings"
+      import: "HuggingFaceEmbeddings"
+    - from: "langchain_community.llms"
+      import: "Ollama"
+    - from: "langchain.chains"
+      import: "ConversationalRetrievalChain"
+
+  pros:
+    - "實現簡單快速"
+    - "適合文本密集型查詢"
+    - "記憶體需求較低"
+  cons:
+    - "無法處理圖像內容"
+    - "缺乏多模態理解"
+
+# 架構選項 2: 多模態RAG
+architecture_2_multimodal_rag:
+  name: "多模態融合RAG"
+  description: "同時處理文本、圖像和音頻的綜合RAG系統"
+  components:
+    retriever: "MultimodalRetriever"
+    text_embeddings: "BGE-M3Embeddings"
+    image_embeddings: "CLIPEmbeddings"
+    llm: "ChatOllama"
+    chain_type: "MultimodalRetrievalChain"
+
+  configuration:
+    text_weight: 0.6
+    image_weight: 0.4
+    fusion_strategy: "late_fusion"
+    rerank: true
+
+  langchain_components:
+    - from: "langchain_experimental.multimodal"
+      import: "MultimodalRetriever"
+    - from: "langchain_community.embeddings"
+      import: "OpenCLIPEmbeddings"
+    - from: "custom_chains"
+      import: "MultimodalRetrievalChain"
+
+  integration:
+    cuda_ml_service: "http://localhost:8080"
+    endpoints:
+      image_features: "/image/features"
+      embeddings: "/embeddings"
+      similarity_search: "/similarity/search"
+
+  pros:
+    - "支援圖文並茂的查詢"
+    - "更豐富的檢索結果"
+    - "適合藝術史研究"
+  cons:
+    - "計算資源需求高"
+    - "實現複雜度較高"
+
+# 架構選項 3: 知識圖譜增強RAG
+architecture_3_knowledge_graph_rag:
+  name: "知識圖譜增強RAG"
+  description: "結合知識圖譜的結構化推理RAG系統"
+  components:
+    retriever: "KnowledgeGraphRetriever"
+    embeddings: "BGE-M3Embeddings"
+    knowledge_graph: "Neo4jGraph"
+    llm: "ChatOllama"
+    chain_type: "GraphQAChain"
+
+  configuration:
+    graph_traversal_depth: 2
+    entity_extraction: true
+    relation_scoring: true
+    hybrid_search: true
+
+  langchain_components:
+    - from: "langchain_community.graphs"
+      import: "Neo4jGraph"
+    - from: "langchain.chains.graph_qa"
+      import: "GraphQAChain"
+    - from: "langchain.chains.graph_qa.cypher"
+      import: "GraphCypherQAChain"
+
+  neo4j_integration:
+    uri: "neo4j://localhost:7687"
+    entities:
+      - "Artist"
+      - "Artwork"
+      - "Period"
+      - "Style"
+      - "Museum"
+    relationships:
+      - "CREATED_BY"
+      - "BELONGS_TO_PERIOD"
+      - "HAS_STYLE"
+      - "DISPLAYED_AT"
+
+  pros:
+    - "結構化知識推理"
+    - "複雜關係查詢"
+    - "高度準確性"
+  cons:
+    - "需要知識圖譜建構"
+    - "維護成本較高"
+
+# 架構選項 4: 自適應多策略RAG
+architecture_4_adaptive_multi_strategy_rag:
+  name: "自適應多策略RAG"
+  description: "根據查詢類型自動選擇最佳檢索策略"
+  components:
+    query_router: "QueryTypeClassifier"
+    strategies:
+      text_rag: "ConversationalRetrievalChain"
+      multimodal_rag: "MultimodalRetrievalChain"
+      graph_rag: "GraphQAChain"
+    llm: "ChatOllama"
+
+  routing_logic:
+    text_queries: "包含純文本描述的查詢"
+    visual_queries: "提及顏色、構圖、視覺元素"
+    relational_queries: "涉及藝術家、時期、影響關係"
+
+  langchain_components:
+    - from: "langchain.schema.runnable"
+      import: "RunnableBranch"
+    - from: "custom_components"
+      import: "QueryTypeClassifier"
+    - from: "custom_components"
+      import: "AdaptiveRAGChain"
+
+  pros:
+    - "智能化查詢處理"
+    - "最佳性能選擇"
+    - "用戶體驗優化"
+  cons:
+    - "系統複雜性最高"
+    - "需要查詢分類訓練"
+
+# 架構選項 5: 專家系統RAG
+architecture_5_expert_system_rag:
+  name: "藝術史專家系統RAG"
+  description: "針對藝術史領域優化的專業RAG系統"
+  components:
+    domain_retriever: "ArtHistorySpecializedRetriever"
+    embeddings: "DomainTunedEmbeddings"
+    llm: "ArtExpertLLM"
+    memory: "ConversationSummaryMemory"
+    tools:
+      - "PeriodAnalysisTool"
+      - "StyleComparisonTool"
+      - "ArtistBiographyTool"
+
+  specialized_features:
+    temporal_reasoning: true
+    style_evolution_tracking: true
+    cultural_context_analysis: true
+    artwork_authentication: true
+
+  langchain_components:
+    - from: "langchain.agents"
+      import: "ConversationalAgent"
+    - from: "langchain.tools"
+      import: "BaseTool"
+    - from: "custom_tools"
+      import: "ArtHistoryTools"
+
+  pros:
+    - "領域專業性最高"
+    - "深度藝術史分析"
+    - "專業工具集成"
+  cons:
+    - "開發週期較長"
+    - "需要領域專家參與"
+
+# 推薦架構組合
+recommended_combination:
+  primary: "architecture_2_multimodal_rag"
+  secondary: "architecture_1_basic_text_rag"
+  advanced: "architecture_4_adaptive_multi_strategy_rag"
+
+  rationale: |
+    建議從多模態RAG開始，因為您的系統已具備:
+    1. ChromaDB向量資料庫
+    2. CUDA ML服務支援
+    3. 多模態數據處理能力
+
+    可以逐步演進至自適應多策略RAG以獲得最佳性能。
+
+# 部署考量
+deployment_considerations:
+  resource_requirements:
+    cpu: "8+ cores"
+    memory: "32GB+"
+    gpu: "RTX 4090 or equivalent"
+    storage: "500GB+ SSD"
+
+  scalability:
+    horizontal: "支援多節點部署"
+    vertical: "GPU擴展友好"
+
+  monitoring:
+    metrics:
+      - "查詢響應時間"
+      - "檢索準確率"
+      - "GPU使用率"
+      - "記憶體使用量"

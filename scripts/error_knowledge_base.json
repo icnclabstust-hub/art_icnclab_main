@@ -1,0 +1,95 @@
+{
+  "entries": [
+    {
+      "id": "neo4j_unauthorized",
+      "pattern": "Neo\\.ClientError\\.Security\\.Unauthorized",
+      "log_sources": ["rag_manager_v2.log", "neo4j-native.log", "daily_crawl"],
+      "title": "Neo4j 認證失敗 (Unauthorized)",
+      "diagnosis": "帳密通常沒有真的錯。最常見原因：(1) 連到了錯的 Neo4j 實例/port（例如 WSL 環境本身有另一個系統 Neo4j 服務佔用 7687，我們自己的原生 Neo4j 用的是 7688）(2) 服務還在啟動中就有請求打進來",
+      "fix": [
+        "確認連線字串用的是 bolt://127.0.0.1:7688（不是 7687）",
+        "檢查是否有其他 neo4j 程序佔用相同 port: wsl -d Ubuntu-22.04 -- bash -c \"ps aux | grep neo4j\"",
+        "若懷疑是舊的殘留連線，重啟原生 Neo4j：先 pkill -f neo4j-community，再用 Start-NativeServices.ps1 重新啟動"
+      ]
+    },
+    {
+      "id": "neo4j_auth_rate_limit",
+      "pattern": "Neo\\.ClientError\\.Security\\.AuthenticationRateLimit",
+      "log_sources": ["rag_manager_v2.log", "daily_crawl"],
+      "title": "Neo4j 認證嘗試次數過多被鎖",
+      "diagnosis": "短時間內多次認證失敗觸發了 Neo4j 內建的鎖定機制，這是保護機制副作用，不是真正的密碼問題",
+      "fix": [
+        "先解決真正的連線問題（通常是連錯 port，見 neo4j_unauthorized 診斷）",
+        "等待 30-60 秒讓鎖定自動解除，再重新嘗試連線"
+      ]
+    },
+    {
+      "id": "neo4j_connection_refused",
+      "pattern": "ConnectionRefusedError|Connection refused.*7688|ServiceUnavailable.*Failed to establish connection",
+      "log_sources": ["rag_manager_v2.log", "daily_crawl"],
+      "title": "連不到 Neo4j（Connection refused）",
+      "diagnosis": "Neo4j 服務本身沒有在跑，或是還在啟動中（Neo4j 完整啟動大約需要 15-20 秒）",
+      "fix": [
+        "檢查程序是否存在: wsl -d Ubuntu-22.04 -- bash -c \"ps aux | grep neo4j-community\"",
+        "執行 scripts/Start-NativeServices.ps1 啟動並等待",
+        "若剛執行過 wsl --shutdown，需要多等一段時間讓 WSL 網路完全穩定後再重試"
+      ]
+    },
+    {
+      "id": "chromadb_rust_panic",
+      "pattern": "PanicException: range start index|panicked at rust/sqlite",
+      "log_sources": ["chromadb.log"],
+      "title": "ChromaDB 啟動時 Rust 元件崩潰",
+      "diagnosis": "通常是資料檔案跟目前安裝的 chromadb 版本不相容（例如從別的版本/建置搬過來的 sqlite 檔案）",
+      "fix": [
+        "確認版本: wsl -d Ubuntu-22.04 -- /home/user/.local/bin/chroma --version（目前應為 1.5.9 或以上）",
+        "若懷疑是資料不相容，最安全做法是清空資料夾重新從原始 JSON 同步，而不是硬修資料檔: rm -rf /home/user/native-chromadb/data/*，再重跑 sync_europeana_to_databases.py"
+      ]
+    },
+    {
+      "id": "port_already_in_use",
+      "pattern": "Address already in use|PortBindException|EADDRINUSE",
+      "log_sources": ["rag_manager_v2.log", "neo4j-native.log", "chromadb.log", "openwebui.log"],
+      "title": "Port 被佔用",
+      "diagnosis": "同一個 port 已經有程序在監聽，通常是重複啟動了同一個服務，或是有殘留的舊程序沒清乾淨",
+      "fix": [
+        "查詢是哪個程序佔用: wsl -d Ubuntu-22.04 -- bash -c \"ss -tlnp | grep <port>\"",
+        "確認是不是自己的服務其實已經在跑（用 curl 測試該 port 而不是急著重啟）",
+        "若確定是殘留程序，kill 掉後再重新啟動"
+      ]
+    },
+    {
+      "id": "powershell_chinese_path_mangled",
+      "pattern": "is not recognized as the name of a cmdlet|Unexpected token.*in expression or statement",
+      "log_sources": ["powershell"],
+      "title": "PowerShell 腳本內的中文路徑被讀成亂碼、指令解析錯亂",
+      "diagnosis": "Windows PowerShell 5.1 在沒有 UTF-8 BOM 的情況下，會用系統內碼（非UTF-8）讀取 .ps1 檔案，導致中文字元被誤判，連帶把後面的指令內容切斷",
+      "fix": [
+        "把檔案另存為含 BOM 的 UTF-8: $c = Get-Content $path -Raw -Encoding UTF8; Set-Content $path -Value $c -Encoding UTF8",
+        "新建含中文字元的 .ps1 檔案時，養成習慣存檔後都跑一次這個 BOM 修正"
+      ]
+    },
+    {
+      "id": "google_books_429",
+      "pattern": "429|Too Many Requests",
+      "log_sources": ["daily_crawl"],
+      "title": "Google Books API 被限流",
+      "diagnosis": "免費額度用完，這是預期會發生的狀況，不是程式錯誤",
+      "fix": [
+        "無需處理，import_all_museums_to_neo4j.py 的檔案大小防呆機制會自動略過空檔、改用上一份有效快照",
+        "若想避免，可以拉長 daily_crawl_and_sync.sh 裡各爬蟲之間的間隔時間"
+      ]
+    },
+    {
+      "id": "met_403",
+      "pattern": "403",
+      "log_sources": ["daily_crawl"],
+      "title": "MET Museum API 回應 403",
+      "diagnosis": "start-single-crawler.js 跟 renaissance-baroque-crawler.js 兩個爬蟲同時打 MET API 造成短暫限流碰撞",
+      "fix": [
+        "無需處理，屬於預期範圍內的偶發狀況，資料量會比平常少一些但仍然有效",
+        "若要避免，daily_crawl_and_sync.sh 已經讓每個爬蟲間隔 30 秒，通常足夠"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,207 @@
+ui:
+  title: "藝術史資料庫 AI 助手"
+  description: "專業的藝術史研究與學習平台 - 整合多模態RAG系統"
+  theme: "dark"
+  brand_color: "#8B4513"
+  show_username: true
+  show_timestamps: true
+
+models:
+  default: "llama3.1:8b@hybrid_balanced"
+  model_list_source: "config"  # 使用配置文件中的模型列表
+  custom_models_enabled: true
+
+  # RAG+LLM 組合模型定義
+  combinations:
+    # Llama 3.1 8B 組合
+    - id: "llama3.1:8b@vector_only"
+      display_name: "🔍 Llama 3.1 8B + 向量RAG"
+      description: "語義相似度檢索，適合內容相似性查詢"
+      base_model: "llama3.1:8b"
+      rag_strategy: "vector_only"
+      context_length: 131072
+      temperature: 0.1
+
+    - id: "llama3.1:8b@graph_only"
+      display_name: "🕸️ Llama 3.1 8B + 圖譜RAG"
+      description: "知識圖譜推理，適合關係和結構化查詢"
+      base_model: "llama3.1:8b"
+      rag_strategy: "graph_only"
+      context_length: 131072
+      temperature: 0.1
+
+    - id: "llama3.1:8b@hybrid_balanced"
+      display_name: "⚖️ Llama 3.1 8B + 混合RAG"
+      description: "平衡混合策略，適合大多數查詢（推薦）"
+      base_model: "llama3.1:8b"
+      rag_strategy: "hybrid_balanced"
+      context_length: 131072
+      temperature: 0.1
+
+    - id: "llama3.1:8b@adaptive"
+      display_name: "🧠 Llama 3.1 8B + 自適應RAG"
+      description: "基於歷史性能自動選擇最佳策略"
+      base_model: "llama3.1:8b"
+      rag_strategy: "adaptive"
+      context_length: 131072
+      temperature: 0.1
+
+    - id: "llama3.1:8b@specialized"
+      display_name: "🎯 Llama 3.1 8B + 專門RAG"
+      description: "基於查詢類型自動選擇專門策略"
+      base_model: "llama3.1:8b"
+      rag_strategy: "specialized"
+      context_length: 131072
+      temperature: 0.1
+
+    # Qwen3 4B 組合（快速選項）
+    - id: "qwen3:4b@vector_only"
+      display_name: "🔍 Qwen3 4B + 向量RAG"
+      description: "快速向量檢索，中文表現優秀"
+      base_model: "qwen3:4b"
+      rag_strategy: "vector_only"
+      context_length: 32768
+      temperature: 0.2
+
+    - id: "qwen3:4b@hybrid_balanced"
+      display_name: "⚖️ Qwen3 4B + 混合RAG"
+      description: "快速混合檢索，適合日常中文問答"
+      base_model: "qwen3:4b"
+      rag_strategy: "hybrid_balanced"
+      context_length: 32768
+      temperature: 0.2
+
+    # 純模型選項（不使用RAG）
+    - id: "llama3.1:8b@no_rag"
+      display_name: "💬 Llama 3.1 8B (純模型)"
+      description: "不使用RAG，僅基於預訓練知識"
+      base_model: "llama3.1:8b"
+      rag_strategy: "none"
+      context_length: 131072
+      temperature: 0.3
+
+    - id: "qwen3:4b@no_rag"
+      display_name: "💬 Qwen3 4B (純模型)"
+      description: "不使用RAG，快速基礎對話"
+      base_model: "qwen3:4b"
+      rag_strategy: "none"
+      context_length: 32768
+      temperature: 0.4
+
+rag:
+  enabled: true
+  default_strategy: "hybrid_balanced"
+  api_endpoint: "http://host.docker.internal:8002"
+  timeout: 30
+
+  strategies:
+    - name: "vector_only"
+      display_name: "向量檢索RAG"
+      description: "純向量語義相似度檢索，適合內容相似性查詢"
+      icon: "🔍"
+
+    - name: "graph_only"
+      display_name: "知識圖譜RAG"
+      description: "基於Neo4j的圖譜推理，適合關係和結構化查詢"
+      icon: "🕸️"
+
+    - name: "hybrid_balanced"
+      display_name: "混合平衡RAG"
+      description: "結合向量檢索與圖譜推理，適合大多數查詢"
+      icon: "⚖️"
+
+    - name: "adaptive"
+      display_name: "自適應RAG"
+      description: "基於歷史性能自動選擇最佳策略"
+      icon: "🧠"
+
+    - name: "specialized"
+      display_name: "專門化RAG"
+      description: "基於查詢類型自動選擇專門策略"
+      icon: "🎯"
+
+  collections:
+    - name: "renaissance_baroque"
+      display_name: "文藝復興與巴洛克"
+      description: "包含90件Renaissance和Baroque時期的藝術品詳細資料"
+      total_documents: 90
+
+    - name: "artwork_analysis"
+      display_name: "藝術品分析"
+      description: "藝術品的風格、技法和歷史背景分析"
+
+    - name: "artist_knowledge"
+      display_name: "藝術家知識庫"
+      description: "藝術家生平、作品特色和藝術影響"
+
+functions:
+  custom_functions:
+    - name: "analyze_artwork_style"
+      display_name: "藝術風格分析"
+      description: "分析藝術品的風格特徵和時期歸屬"
+      endpoint: "http://host.docker.internal:8002/query"
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+
+    - name: "find_similar_artworks"
+      display_name: "相似作品搜尋"
+      description: "找到風格或主題相似的藝術作品"
+      endpoint: "http://host.docker.internal:8002/query"
+      method: "POST"
+
+    - name: "artist_relationship_query"
+      display_name: "藝術家關係查詢"
+      description: "查詢藝術家之間的影響關係和歷史聯繫"
+      endpoint: "http://host.docker.internal:8002/query"
+      method: "POST"
+
+prompts:
+  system_prompts:
+    art_expert: |
+      你是一位資深的藝術史學者，專精於：
+      - 中國傳統藝術（書畫、陶瓷、雕塑）
+      - 西方古典到現代藝術史
+      - 藝術品分析與鑑賞
+      - 藝術史背景與文化脈絡
+
+      請基於知識庫內容提供專業而準確的解答，包含相關歷史背景，使用易懂但專業的語言。
+
+    multimodal_analysis: |
+      基於圖像分析結果和文本描述，請提供綜合分析：
+      1. 作品的藝術風格和技法
+      2. 可能的創作時期和文化背景
+      3. 與其他相似作品的比較
+      4. 藝術史價值和影響
+
+  quick_prompts:
+    - "這幅畫作屬於什麼藝術流派？"
+    - "請分析這件作品的藝術特色"
+    - "找出相似風格的其他作品"
+    - "這位藝術家有什麼代表作？"
+    - "文藝復興時期有哪些重要特徵？"
+    - "巴洛克藝術的主要特點是什麼？"
+
+search:
+  enabled: true
+  web_search: false
+  default_provider: "rag"
+  search_suggestions: true
+
+performance:
+  max_concurrent_requests: 5
+  request_timeout: 30
+  cache_enabled: true
+  cache_ttl: 3600
+
+logging:
+  level: "INFO"
+  log_queries: true
+  log_responses: false
+  performance_metrics: true
+
+security:
+  enable_auth: false
+  allow_guest_access: true
+  rate_limiting: true
+  max_requests_per_minute: 60

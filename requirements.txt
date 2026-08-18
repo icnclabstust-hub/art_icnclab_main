@@ -1,0 +1,70 @@
+# 藝術史資料庫 — Python 核心依賴
+# 釘版 2026-08-17
+#
+# 依 CODING_STYLE.md S-16 [MUST] 釘死版本。升級是有意識的動作：
+# 跑 pip-audit → 改版號 → 跑測試 → 更新上方釘版日期。
+#
+# 目標 Python：3.10 與 3.11 皆可安裝（部署機 /opt/arthistory/venv 是 py3.10，
+# pyproject.toml 宣告 target-version = py311）。版號取「同時相容兩者的最新版」，
+# 已逐一比對 PyPI 的 Requires-Python。
+#
+# 【本檔範圍】RAG 服務、爬蟲、API、匯入器等日常執行所需。
+#   需要模型權重或 GPU 的東西（torch / transformers / sentence-transformers /
+#   faiss / CUDA 監控）一律在 requirements-ml.txt，裝了會多好幾 GB。
+#   實際對外服務的 arthistory-rag（unified_rag_manager_v2.py）不需要那些——
+#   嵌入由 ChromaDB server 端處理、生成走 Ollama。
+#
+# ⚠ 版號來源：2026-08-17 查 PyPI，**未在實際部署環境驗證過**。
+#    repo 內既有的四個 venv 都未納入版控，無 freeze 可還原原始版本。
+#    正確做法是在 Ubuntu-22.04 部署機上跑 `pip freeze` 覆蓋此檔。
+
+# ==================== 資料庫 / 檢索 ====================
+neo4j==5.28.4                    # 圖資料庫驅動。不可升 6.x：langchain-neo4j 0.5.0 不接受
+chromadb==1.5.9                  # 向量資料庫
+elasticsearch==9.5.0             # scripts/sync_chromadb_to_elasticsearch.py
+redis==8.1.0                     # 快取與 agent 通訊匯流排
+
+# ==================== LangChain / RAG ====================
+# 必須留在 0.3.x：1.x 已將 langchain.chains / langchain.retrievers 移入
+# langchain-classic，而 knowledge_graph_rag.py、adaptive_rag.py、
+# multimodal_rag.py、optimization_manager.py 都還在用舊路徑。
+langchain==0.3.30
+langchain-core==0.3.86
+langchain-community==0.3.31
+langchain-openai==0.3.35
+langchain-neo4j==0.5.0
+
+# ==================== 數值 ====================
+numpy==2.2.6                     # chromadb 硬相依，且多處檢索邏輯直接使用
+scipy==1.15.3                    # neo4j-graphrag 硬相依（經 langchain-neo4j 拉入）。
+                                 # 不可升到 1.17.x：那需要 py>=3.11，部署機是 py3.10
+
+# ==================== Web 服務 ====================
+fastapi==0.141.1                 # RAG API（RAG_API_PORT=8008）與監控服務
+uvicorn[standard]==0.52.3
+pydantic==2.13.4                 # 亦為 OpenWebUI pipes 的 Valves 定義所需
+flask==3.1.3                     # ml-service/simple-app.py（不含 torch 也能跑）
+flask-cors==6.0.5
+httpx==0.28.1
+requests==2.34.2
+aiohttp==3.14.3                  # MCP tool proxy / registry
+urllib3==2.7.0
+
+# ==================== 爬蟲 / 排程 ====================
+schedule==1.2.2                  # src/crawler/AutomatedCrawlerSystem.py
+
+# ==================== 文件處理 ====================
+PyPDF2==3.0.1                    # src/importer/pdf_processor.py
+pdfplumber==0.11.10
+python-docx==1.2.0               # scripts/eval_step*.py 評測流程
+openpyxl==3.1.5                  # 評測結果輸出 xlsx
+Pillow==12.3.0                   # 多模態 RAG 影像處理
+PyYAML==6.0.3
+
+# ==================== 中文處理 ====================
+OpenCC==1.4.1                    # 簡繁轉換，11 支 OpenWebUI pipe 皆使用
+
+# ==================== 監控 / 效能 ====================
+psutil==7.2.2
+prometheus-client==0.26.0
+tqdm==4.70.0

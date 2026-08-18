@@ -1,0 +1,24 @@
+# 藝術史資料庫 — 開發／稽核工具鏈
+# 釘版 2026-08-18
+#
+# CODING_STYLE.md 的 T-01～T-03 要求這三個工具，但 repo 先前沒有任何檔案宣告
+# 它們的版本，等於閘門存在卻無法重現。此檔補上。
+#
+# 安裝與啟用（T-02 [MUST]）：
+#   pip install -r requirements-dev.txt
+#   pre-commit install
+#
+# 交付前三連（T-03 [MUST]）：
+#   ruff check .
+#   pip-audit
+#   pytest            # 目前 Python 側尚無 pytest 測試，tests/ 為 jest
+
+pre-commit==4.6.2
+
+# ⚠ 必須與 .pre-commit-config.yaml 的 ruff-pre-commit rev 保持一致。
+#   pre-commit 會在自己的隔離環境安裝該 rev 的 ruff；若此處版本不同，
+#   本機直接跑 ruff 與 commit 時 hook 跑的會是兩個版本，結果可能不一致。
+#   目前 .pre-commit-config.yaml 釘 v0.16.2（最新為 0.16.3，刻意不追）。
+ruff==0.16.2
+
+pip-audit==2.10.1

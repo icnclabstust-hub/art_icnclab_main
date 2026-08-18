@@ -1,0 +1,60 @@
+{
+  "artworks": [
+    {
+      "title": "蒙娜麗莎",
+      "artist": "Leonardo da Vinci",
+      "date": "1503-1519",
+      "period": "文藝復興",
+      "style": "Italian Renaissance",
+      "medium": "Oil on poplar panel",
+      "dimensions": "77 cm × 53 cm",
+      "location": "Louvre Museum, Paris",
+      "description": "《蒙娜麗莎》是文藝復興時期最著名的肖像畫之一...",
+      "keywords": [
+        "portrait",
+        "renaissance",
+        "masterpiece"
+      ],
+      "image_url": "https://example.com/mona-lisa.jpg"
+    },
+    {
+      "title": "夜巡",
+      "artist": "Rembrandt van Rijn",
+      "date": "1642",
+      "period": "巴洛克",
+      "style": "Dutch Golden Age",
+      "medium": "Oil on canvas",
+      "dimensions": "363 cm × 437 cm",
+      "location": "Rijksmuseum, Amsterdam",
+      "description": "《夜巡》是荷蘭黃金時代最著名的群像畫...",
+      "keywords": [
+        "baroque",
+        "group portrait",
+        "dutch"
+      ]
+    }
+  ],
+  "_format_guide": {
+    "說明": "這是藝術史資料JSON格式範例",
+    "必填欄位": [
+      "title"
+    ],
+    "選填欄位": [
+      "artist",
+      "date",
+      "period",
+      "style",
+      "medium",
+      "dimensions",
+      "location",
+      "description",
+      "keywords",
+      "image_url"
+    ],
+    "支援格式": [
+      "直接陣列: [{artwork1}, {artwork2}]",
+      "包裝格式: {\"artworks\": [...]}",
+      "單一物件: {title: \"...\", artist: \"...\"}"
+    ]
+  }
+}

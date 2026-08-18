@@ -1,0 +1,32 @@
+# 藝術史資料庫 — ML / GPU 擴充依賴
+# 釘版 2026-08-17
+#
+# 只有以下情境需要安裝，日常執行 RAG 服務不需要：
+#   - 重建向量索引 / 產生嵌入（bge_m3_embedding.py、generate-embeddings.py、
+#     scripts/reindex_chromadb_bge_m3.py、enhanced_neo4j_retriever.py）
+#   - ml-service/app.py（BERT 系模型的 Flask 服務）
+#   - src/agents/rl/（強化學習 agent 與訓練）
+#   - CUDA 相關實驗（cuda_enhanced_rag.py、test_cuda_readiness.py）
+#   - 策略比較圖表（strategy_comparison_analysis.py）
+#
+# 安裝方式（會一併裝好核心依賴）：
+#   pip install -r requirements-ml.txt
+#
+# 體積警告：torch 單獨就是 GB 等級。部署機 /opt/arthistory/venv 從未安裝這些，
+# 對外服務的 arthistory-rag 也不 import 它們。
+
+-r requirements.txt
+
+# ==================== 模型 / 嵌入 ====================
+torch==2.13.0                    # CUDA 版請改用 https://download.pytorch.org/whl/cuXXX 索引安裝
+transformers==5.15.0
+sentence-transformers==5.7.0     # BGE-M3 等嵌入模型；硬相依 torch
+faiss-cpu==1.15.0                # 若走 GPU 檢索請改裝 faiss-gpu
+
+# ==================== 繪圖 ====================
+matplotlib==3.10.9               # 策略比較分析圖表
+# scipy 不在此檔——它是 neo4j-graphrag 的硬相依，已列入 requirements.txt 核心。
+
+# ==================== GPU 監控 ====================
+nvidia-ml-py==13.610.43          # 提供 pynvml；langchain-rag/performance_monitor.py
+GPUtil==1.4.0                    # ml-service/app.py

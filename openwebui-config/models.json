@@ -1,0 +1,485 @@
+{
+  "models": [
+    {
+      "id": "llama3.1:8b@vector_only",
+      "name": "🔍 Llama 3.1 8B + Vector Only RAG",
+      "description": "通用能力強，指令遵循優秀 + 純向量語義檢索",
+      "meta": {
+        "base_model": "llama3.1:8b",
+        "rag_strategy": "vector_only",
+        "context_length": 131072,
+        "temperature": 0.1
+      },
+      "params": {
+        "temperature": 0.1,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "llama3.1:8b@graph_only",
+      "name": "🕸️ Llama 3.1 8B + Graph Only RAG",
+      "description": "通用能力強，指令遵循優秀 + 知識圖譜檢索",
+      "meta": {
+        "base_model": "llama3.1:8b",
+        "rag_strategy": "graph_only",
+        "context_length": 131072,
+        "temperature": 0.1
+      },
+      "params": {
+        "temperature": 0.1,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "llama3.1:8b@hybrid_balanced",
+      "name": "⚖️ Llama 3.1 8B + Hybrid Balanced RAG",
+      "description": "通用能力強，指令遵循優秀 + 向量+圖譜混合",
+      "meta": {
+        "base_model": "llama3.1:8b",
+        "rag_strategy": "hybrid_balanced",
+        "context_length": 131072,
+        "temperature": 0.1
+      },
+      "params": {
+        "temperature": 0.1,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "llama3.1:8b@advanced_rag",
+      "name": "🎯 Llama 3.1 8B + Advanced RAG",
+      "description": "通用能力強，指令遵循優秀 + 多級檢索重排",
+      "meta": {
+        "base_model": "llama3.1:8b",
+        "rag_strategy": "advanced_rag",
+        "context_length": 131072,
+        "temperature": 0.1
+      },
+      "params": {
+        "temperature": 0.1,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "llama3.1:8b@agentic_rag",
+      "name": "🤖 Llama 3.1 8B + Agentic RAG",
+      "description": "通用能力強，指令遵循優秀 + 智能代理推理",
+      "meta": {
+        "base_model": "llama3.1:8b",
+        "rag_strategy": "agentic_rag",
+        "context_length": 131072,
+        "temperature": 0.1
+      },
+      "params": {
+        "temperature": 0.1,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "llama3.1:8b@self_rag",
+      "name": "🔄 Llama 3.1 8B + Self RAG",
+      "description": "通用能力強，指令遵循優秀 + 自我反思迭代",
+      "meta": {
+        "base_model": "llama3.1:8b",
+        "rag_strategy": "self_rag",
+        "context_length": 131072,
+        "temperature": 0.1
+      },
+      "params": {
+        "temperature": 0.1,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "qwen2.5:7b@vector_only",
+      "name": "🔍 Qwen 2.5 7B + Vector Only RAG",
+      "description": "中文優化，平衡性能 + 純向量語義檢索",
+      "meta": {
+        "base_model": "qwen2.5:7b",
+        "rag_strategy": "vector_only",
+        "context_length": 32768,
+        "temperature": 0.2
+      },
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "qwen2.5:7b@graph_only",
+      "name": "🕸️ Qwen 2.5 7B + Graph Only RAG",
+      "description": "中文優化，平衡性能 + 知識圖譜檢索",
+      "meta": {
+        "base_model": "qwen2.5:7b",
+        "rag_strategy": "graph_only",
+        "context_length": 32768,
+        "temperature": 0.2
+      },
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "qwen2.5:7b@hybrid_balanced",
+      "name": "⚖️ Qwen 2.5 7B + Hybrid Balanced RAG",
+      "description": "中文優化，平衡性能 + 向量+圖譜混合",
+      "meta": {
+        "base_model": "qwen2.5:7b",
+        "rag_strategy": "hybrid_balanced",
+        "context_length": 32768,
+        "temperature": 0.2
+      },
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "qwen2.5:7b@advanced_rag",
+      "name": "🎯 Qwen 2.5 7B + Advanced RAG",
+      "description": "中文優化，平衡性能 + 多級檢索重排",
+      "meta": {
+        "base_model": "qwen2.5:7b",
+        "rag_strategy": "advanced_rag",
+        "context_length": 32768,
+        "temperature": 0.2
+      },
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "qwen2.5:7b@agentic_rag",
+      "name": "🤖 Qwen 2.5 7B + Agentic RAG",
+      "description": "中文優化，平衡性能 + 智能代理推理",
+      "meta": {
+        "base_model": "qwen2.5:7b",
+        "rag_strategy": "agentic_rag",
+        "context_length": 32768,
+        "temperature": 0.2
+      },
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "qwen2.5:7b@self_rag",
+      "name": "🔄 Qwen 2.5 7B + Self RAG",
+      "description": "中文優化，平衡性能 + 自我反思迭代",
+      "meta": {
+        "base_model": "qwen2.5:7b",
+        "rag_strategy": "self_rag",
+        "context_length": 32768,
+        "temperature": 0.2
+      },
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "qwen3:8b@vector_only",
+      "name": "🔍 Qwen 3 8B + Vector Only RAG",
+      "description": "Qwen 3系列，性能提升 + 純向量語義檢索",
+      "meta": {
+        "base_model": "qwen3:8b",
+        "rag_strategy": "vector_only",
+        "context_length": 32768,
+        "temperature": 0.2
+      },
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "qwen3:8b@graph_only",
+      "name": "🕸️ Qwen 3 8B + Graph Only RAG",
+      "description": "Qwen 3系列，性能提升 + 知識圖譜檢索",
+      "meta": {
+        "base_model": "qwen3:8b",
+        "rag_strategy": "graph_only",
+        "context_length": 32768,
+        "temperature": 0.2
+      },
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "qwen3:8b@hybrid_balanced",
+      "name": "⚖️ Qwen 3 8B + Hybrid Balanced RAG",
+      "description": "Qwen 3系列，性能提升 + 向量+圖譜混合",
+      "meta": {
+        "base_model": "qwen3:8b",
+        "rag_strategy": "hybrid_balanced",
+        "context_length": 32768,
+        "temperature": 0.2
+      },
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "qwen3:8b@advanced_rag",
+      "name": "🎯 Qwen 3 8B + Advanced RAG",
+      "description": "Qwen 3系列，性能提升 + 多級檢索重排",
+      "meta": {
+        "base_model": "qwen3:8b",
+        "rag_strategy": "advanced_rag",
+        "context_length": 32768,
+        "temperature": 0.2
+      },
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "qwen3:8b@agentic_rag",
+      "name": "🤖 Qwen 3 8B + Agentic RAG",
+      "description": "Qwen 3系列，性能提升 + 智能代理推理",
+      "meta": {
+        "base_model": "qwen3:8b",
+        "rag_strategy": "agentic_rag",
+        "context_length": 32768,
+        "temperature": 0.2
+      },
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "qwen3:8b@self_rag",
+      "name": "🔄 Qwen 3 8B + Self RAG",
+      "description": "Qwen 3系列，性能提升 + 自我反思迭代",
+      "meta": {
+        "base_model": "qwen3:8b",
+        "rag_strategy": "self_rag",
+        "context_length": 32768,
+        "temperature": 0.2
+      },
+      "params": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma2:2b@vector_only",
+      "name": "🔍 Gemma 2 2B + Vector Only RAG",
+      "description": "輕量級模型，快速響應 + 純向量語義檢索",
+      "meta": {
+        "base_model": "gemma2:2b",
+        "rag_strategy": "vector_only",
+        "context_length": 8192,
+        "temperature": 0.3
+      },
+      "params": {
+        "temperature": 0.3,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma2:2b@graph_only",
+      "name": "🕸️ Gemma 2 2B + Graph Only RAG",
+      "description": "輕量級模型，快速響應 + 知識圖譜檢索",
+      "meta": {
+        "base_model": "gemma2:2b",
+        "rag_strategy": "graph_only",
+        "context_length": 8192,
+        "temperature": 0.3
+      },
+      "params": {
+        "temperature": 0.3,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma2:2b@hybrid_balanced",
+      "name": "⚖️ Gemma 2 2B + Hybrid Balanced RAG",
+      "description": "輕量級模型，快速響應 + 向量+圖譜混合",
+      "meta": {
+        "base_model": "gemma2:2b",
+        "rag_strategy": "hybrid_balanced",
+        "context_length": 8192,
+        "temperature": 0.3
+      },
+      "params": {
+        "temperature": 0.3,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma2:2b@advanced_rag",
+      "name": "🎯 Gemma 2 2B + Advanced RAG",
+      "description": "輕量級模型，快速響應 + 多級檢索重排",
+      "meta": {
+        "base_model": "gemma2:2b",
+        "rag_strategy": "advanced_rag",
+        "context_length": 8192,
+        "temperature": 0.3
+      },
+      "params": {
+        "temperature": 0.3,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma2:2b@agentic_rag",
+      "name": "🤖 Gemma 2 2B + Agentic RAG",
+      "description": "輕量級模型，快速響應 + 智能代理推理",
+      "meta": {
+        "base_model": "gemma2:2b",
+        "rag_strategy": "agentic_rag",
+        "context_length": 8192,
+        "temperature": 0.3
+      },
+      "params": {
+        "temperature": 0.3,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma2:2b@self_rag",
+      "name": "🔄 Gemma 2 2B + Self RAG",
+      "description": "輕量級模型，快速響應 + 自我反思迭代",
+      "meta": {
+        "base_model": "gemma2:2b",
+        "rag_strategy": "self_rag",
+        "context_length": 8192,
+        "temperature": 0.3
+      },
+      "params": {
+        "temperature": 0.3,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma3:4b@vector_only",
+      "name": "🔍 Gemma 3 4B + Vector Only RAG",
+      "description": "Gemma 3系列，平衡性能 + 純向量語義檢索",
+      "meta": {
+        "base_model": "gemma3:4b",
+        "rag_strategy": "vector_only",
+        "context_length": 8192,
+        "temperature": 0.25
+      },
+      "params": {
+        "temperature": 0.25,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma3:4b@graph_only",
+      "name": "🕸️ Gemma 3 4B + Graph Only RAG",
+      "description": "Gemma 3系列，平衡性能 + 知識圖譜檢索",
+      "meta": {
+        "base_model": "gemma3:4b",
+        "rag_strategy": "graph_only",
+        "context_length": 8192,
+        "temperature": 0.25
+      },
+      "params": {
+        "temperature": 0.25,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma3:4b@hybrid_balanced",
+      "name": "⚖️ Gemma 3 4B + Hybrid Balanced RAG",
+      "description": "Gemma 3系列，平衡性能 + 向量+圖譜混合",
+      "meta": {
+        "base_model": "gemma3:4b",
+        "rag_strategy": "hybrid_balanced",
+        "context_length": 8192,
+        "temperature": 0.25
+      },
+      "params": {
+        "temperature": 0.25,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma3:4b@advanced_rag",
+      "name": "🎯 Gemma 3 4B + Advanced RAG",
+      "description": "Gemma 3系列，平衡性能 + 多級檢索重排",
+      "meta": {
+        "base_model": "gemma3:4b",
+        "rag_strategy": "advanced_rag",
+        "context_length": 8192,
+        "temperature": 0.25
+      },
+      "params": {
+        "temperature": 0.25,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma3:4b@agentic_rag",
+      "name": "🤖 Gemma 3 4B + Agentic RAG",
+      "description": "Gemma 3系列，平衡性能 + 智能代理推理",
+      "meta": {
+        "base_model": "gemma3:4b",
+        "rag_strategy": "agentic_rag",
+        "context_length": 8192,
+        "temperature": 0.25
+      },
+      "params": {
+        "temperature": 0.25,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma3:4b@self_rag",
+      "name": "🔄 Gemma 3 4B + Self RAG",
+      "description": "Gemma 3系列，平衡性能 + 自我反思迭代",
+      "meta": {
+        "base_model": "gemma3:4b",
+        "rag_strategy": "self_rag",
+        "context_length": 8192,
+        "temperature": 0.25
+      },
+      "params": {
+        "temperature": 0.25,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    }
+  ],
+  "default": "llama3.1:8b@hybrid_balanced"
+}

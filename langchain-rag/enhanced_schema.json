@@ -1,0 +1,17 @@
+{
+  "node_types": [
+    "Artist",
+    "Painting",
+    "Museum",
+    "Movement",
+    "Exhibition",
+    "Technique"
+  ],
+  "relationship_types": [
+    "CREATED_BY",
+    "INFLUENCED_BY",
+    "EXHIBITED_AT"
+  ],
+  "total_entities": 11,
+  "total_relationships": 14
+}

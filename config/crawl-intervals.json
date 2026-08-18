@@ -1,0 +1,113 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-01-01T00:00:00.000Z",
+  "intervalConfigs": {
+    "museums.met": {
+      "baseInterval": 3600000,
+      "currentInterval": 3600000,
+      "minInterval": 1800000,
+      "maxInterval": 86400000,
+      "rateLimit": 1000,
+      "burstLimit": 10,
+      "priority": "high",
+      "enabled": true,
+      "adaptiveEnabled": true,
+      "lastAdjustment": null,
+      "performanceHistory": [],
+      "statistics": {
+        "totalRequests": 0,
+        "successfulRequests": 0,
+        "failedRequests": 0,
+        "averageResponseTime": 0,
+        "lastRequestTime": null
+      }
+    },
+    "museums.louvre": {
+      "baseInterval": 7200000,
+      "currentInterval": 7200000,
+      "minInterval": 3600000,
+      "maxInterval": 86400000,
+      "rateLimit": 2000,
+      "burstLimit": 5,
+      "priority": "high",
+      "enabled": true,
+      "adaptiveEnabled": true,
+      "lastAdjustment": null,
+      "performanceHistory": [],
+      "statistics": {
+        "totalRequests": 0,
+        "successfulRequests": 0,
+        "failedRequests": 0,
+        "averageResponseTime": 0,
+        "lastRequestTime": null
+      }
+    },
+    "museums.british": {
+      "baseInterval": 7200000,
+      "currentInterval": 7200000,
+      "minInterval": 3600000,
+      "maxInterval": 86400000,
+      "rateLimit": 1500,
+      "burstLimit": 8,
+      "priority": "high",
+      "enabled": true,
+      "adaptiveEnabled": true,
+      "lastAdjustment": null,
+      "performanceHistory": [],
+      "statistics": {
+        "totalRequests": 0,
+        "successfulRequests": 0,
+        "failedRequests": 0,
+        "averageResponseTime": 0,
+        "lastRequestTime": null
+      }
+    },
+    "academic.europeana": {
+      "baseInterval": 14400000,
+      "currentInterval": 14400000,
+      "minInterval": 7200000,
+      "maxInterval": 172800000,
+      "rateLimit": 3000,
+      "burstLimit": 5,
+      "priority": "medium",
+      "enabled": true,
+      "adaptiveEnabled": true,
+      "lastAdjustment": null,
+      "performanceHistory": [],
+      "statistics": {
+        "totalRequests": 0,
+        "successfulRequests": 0,
+        "failedRequests": 0,
+        "averageResponseTime": 0,
+        "lastRequestTime": null
+      }
+    },
+    "academic.jstor": {
+      "baseInterval": 86400000,
+      "currentInterval": 86400000,
+      "minInterval": 43200000,
+      "maxInterval": 604800000,
+      "rateLimit": 5000,
+      "burstLimit": 3,
+      "priority": "low",
+      "enabled": true,
+      "adaptiveEnabled": true,
+      "lastAdjustment": null,
+      "performanceHistory": [],
+      "statistics": {
+        "totalRequests": 0,
+        "successfulRequests": 0,
+        "failedRequests": 0,
+        "averageResponseTime": 0,
+        "lastRequestTime": null
+      }
+    }
+  },
+  "globalSettings": {
+    "performanceAnalysisInterval": 300000,
+    "adaptiveAdjustmentEnabled": true,
+    "maxPerformanceHistoryEntries": 100,
+    "errorThreshold": 0.1,
+    "performanceThreshold": 0.5
+  }
+}

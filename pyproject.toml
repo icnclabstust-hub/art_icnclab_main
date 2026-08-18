@@ -1,0 +1,24 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [
+    "langchain-env",
+    "importer_venv",
+    "rl_venv",
+    "langchain-rag/cuda_art_env",
+    "_legacy_archive_20260806",
+    "node_modules",
+    "data",
+    "db_backups",
+]
+
+[tool.ruff.lint]
+# E/W: pycodestyle  F: pyflakes  I: isort  B: bugbear  S: 安全(bandit)  UP: pyupgrade
+select = ["E", "W", "F", "I", "B", "S", "UP"]
+ignore = [
+    "S101",  # assert 用於測試屬正常
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106"]  # 測試內的假密碼常數
+"ml-service/simple-app.py" = ["S311"]  # 模擬服務：random 用於生成假資料，非密碼學用途

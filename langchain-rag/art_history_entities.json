@@ -1,0 +1,413 @@
+[
+  {
+    "type": "Artist",
+    "name": "Leonardo da Vinci",
+    "properties": {
+      "name": "Leonardo da Vinci",
+      "birth_year": 1452,
+      "death_year": 1519,
+      "nationality": "Italian",
+      "biography": "Renaissance polymath, painter, scientist, engineer",
+      "gender": "Male",
+      "art_movements": [
+        "Renaissance",
+        "High Renaissance"
+      ],
+      "notable_works": [
+        "Mona Lisa",
+        "The Last Supper",
+        "Vitruvian Man"
+      ],
+      "techniques_used": [
+        "Sfumato",
+        "Chiaroscuro",
+        "Oil painting"
+      ]
+    }
+  },
+  {
+    "type": "Artist",
+    "name": "Michelangelo Buonarroti",
+    "properties": {
+      "name": "Michelangelo Buonarroti",
+      "birth_year": 1475,
+      "death_year": 1564,
+      "nationality": "Italian",
+      "biography": "Renaissance sculptor, painter, architect, poet",
+      "gender": "Male",
+      "art_movements": [
+        "Renaissance",
+        "High Renaissance"
+      ],
+      "notable_works": [
+        "David",
+        "Pieta",
+        "Sistine Chapel Ceiling"
+      ],
+      "techniques_used": [
+        "Marble sculpture",
+        "Fresco painting"
+      ]
+    }
+  },
+  {
+    "type": "Artist",
+    "name": "Claude Monet",
+    "properties": {
+      "name": "Claude Monet",
+      "birth_year": 1840,
+      "death_year": 1926,
+      "nationality": "French",
+      "biography": "Founder of French Impressionist painting",
+      "gender": "Male",
+      "art_movements": [
+        "Impressionism"
+      ],
+      "notable_works": [
+        "Water Lilies",
+        "Impression, Sunrise",
+        "Rouen Cathedral"
+      ],
+      "techniques_used": [
+        "Plein air painting",
+        "Broken color"
+      ]
+    }
+  },
+  {
+    "type": "Artist",
+    "name": "Vincent van Gogh",
+    "properties": {
+      "name": "Vincent van Gogh",
+      "birth_year": 1853,
+      "death_year": 1890,
+      "nationality": "Dutch",
+      "biography": "Post-Impressionist painter known for emotional directness",
+      "gender": "Male",
+      "art_movements": [
+        "Post-Impressionism"
+      ],
+      "notable_works": [
+        "The Starry Night",
+        "Sunflowers",
+        "The Bedroom"
+      ],
+      "techniques_used": [
+        "Impasto",
+        "Expressive brushwork"
+      ]
+    }
+  },
+  {
+    "type": "Artist",
+    "name": "Pablo Picasso",
+    "properties": {
+      "name": "Pablo Picasso",
+      "birth_year": 1881,
+      "death_year": 1973,
+      "nationality": "Spanish",
+      "biography": "Co-founder of Cubism, prolific artist across multiple periods",
+      "gender": "Male",
+      "art_movements": [
+        "Cubism",
+        "Blue Period",
+        "Rose Period"
+      ],
+      "notable_works": [
+        "Les Demoiselles d'Avignon",
+        "Guernica",
+        "Girl Before a Mirror"
+      ],
+      "techniques_used": [
+        "Cubist fragmentation",
+        "Mixed media"
+      ]
+    }
+  },
+  {
+    "type": "Artwork",
+    "name": "Mona Lisa",
+    "properties": {
+      "title": "Mona Lisa",
+      "creation_date": 1503,
+      "artist": "Leonardo da Vinci",
+      "description": "Portrait of Lisa Gherardini with enigmatic smile",
+      "dimensions": "77 cm × 53 cm",
+      "medium": "Oil on poplar panel",
+      "technique": "Sfumato",
+      "significance": "Most famous painting in the world",
+      "theme": [
+        "Portrait",
+        "Renaissance humanism"
+      ],
+      "style": "High Renaissance"
+    }
+  },
+  {
+    "type": "Artwork",
+    "name": "The Last Supper",
+    "properties": {
+      "title": "The Last Supper",
+      "creation_date": 1495,
+      "artist": "Leonardo da Vinci",
+      "description": "Depiction of Jesus announcing betrayal to disciples",
+      "dimensions": "460 cm × 880 cm",
+      "medium": "Tempera and oil on dry wall",
+      "technique": "Linear perspective",
+      "significance": "Masterpiece of composition and emotion",
+      "theme": [
+        "Religious",
+        "Biblical"
+      ],
+      "style": "High Renaissance"
+    }
+  },
+  {
+    "type": "Artwork",
+    "name": "David",
+    "properties": {
+      "title": "David",
+      "creation_date": 1504,
+      "artist": "Michelangelo Buonarroti",
+      "description": "Biblical hero David before battle with Goliath",
+      "dimensions": "517 cm height",
+      "medium": "Carrara marble",
+      "technique": "Marble sculpture",
+      "significance": "Symbol of the Republic of Florence",
+      "theme": [
+        "Biblical",
+        "Heroic"
+      ],
+      "style": "High Renaissance"
+    }
+  },
+  {
+    "type": "Artwork",
+    "name": "Water Lilies",
+    "properties": {
+      "title": "Water Lilies",
+      "creation_date": 1919,
+      "artist": "Claude Monet",
+      "description": "Series of water lily pond paintings",
+      "dimensions": "Various sizes",
+      "medium": "Oil on canvas",
+      "technique": "Impressionist brushwork",
+      "significance": "Pinnacle of Impressionist landscape",
+      "theme": [
+        "Nature",
+        "Light",
+        "Reflection"
+      ],
+      "style": "Impressionism"
+    }
+  },
+  {
+    "type": "Artwork",
+    "name": "The Starry Night",
+    "properties": {
+      "title": "The Starry Night",
+      "creation_date": 1889,
+      "artist": "Vincent van Gogh",
+      "description": "Night sky over a village with swirling clouds",
+      "dimensions": "73.7 cm × 92.1 cm",
+      "medium": "Oil on canvas",
+      "technique": "Impasto",
+      "significance": "Icon of modern art",
+      "theme": [
+        "Night",
+        "Village",
+        "Cosmic"
+      ],
+      "style": "Post-Impressionism"
+    }
+  },
+  {
+    "type": "Movement",
+    "name": "Renaissance",
+    "properties": {
+      "name": "Renaissance",
+      "start_period": 1400,
+      "end_period": 1600,
+      "origin_location": "Italy",
+      "characteristics": "Revival of classical learning, humanism, perspective",
+      "key_principles": [
+        "Humanism",
+        "Linear perspective",
+        "Classical mythology"
+      ],
+      "major_figures": [
+        "Leonardo da Vinci",
+        "Michelangelo",
+        "Raphael"
+      ],
+      "historical_context": "Transition from Medieval to Early Modern Europe"
+    }
+  },
+  {
+    "type": "Movement",
+    "name": "Impressionism",
+    "properties": {
+      "name": "Impressionism",
+      "start_period": 1860,
+      "end_period": 1886,
+      "origin_location": "France",
+      "characteristics": "Capturing light and momentary effects",
+      "key_principles": [
+        "Plein air painting",
+        "Broken color",
+        "Light effects"
+      ],
+      "major_figures": [
+        "Claude Monet",
+        "Pierre-Auguste Renoir",
+        "Edgar Degas"
+      ],
+      "historical_context": "Industrial revolution and modern urban life"
+    }
+  },
+  {
+    "type": "Movement",
+    "name": "Post-Impressionism",
+    "properties": {
+      "name": "Post-Impressionism",
+      "start_period": 1880,
+      "end_period": 1905,
+      "origin_location": "France",
+      "characteristics": "Reaction against Impressionism's naturalism",
+      "key_principles": [
+        "Symbolic content",
+        "Expressive color",
+        "Form structure"
+      ],
+      "major_figures": [
+        "Vincent van Gogh",
+        "Paul Cézanne",
+        "Paul Gauguin"
+      ],
+      "historical_context": "Search for deeper meaning in art"
+    }
+  },
+  {
+    "type": "Movement",
+    "name": "Cubism",
+    "properties": {
+      "name": "Cubism",
+      "start_period": 1907,
+      "end_period": 1914,
+      "origin_location": "France",
+      "characteristics": "Fragmentation of objects into geometric forms",
+      "key_principles": [
+        "Multiple perspectives",
+        "Geometric abstraction",
+        "Analytical deconstruction"
+      ],
+      "major_figures": [
+        "Pablo Picasso",
+        "Georges Braque"
+      ],
+      "historical_context": "Revolutionary approach to representation"
+    }
+  },
+  {
+    "type": "Location",
+    "name": "Florence",
+    "properties": {
+      "name": "Florence",
+      "country": "Italy",
+      "region": "Tuscany",
+      "cultural_significance": "Birthplace of Renaissance",
+      "artistic_importance": "Center of Renaissance art and culture",
+      "notable_sites": [
+        "Uffizi Gallery",
+        "Palazzo Pitti",
+        "Duomo"
+      ]
+    }
+  },
+  {
+    "type": "Location",
+    "name": "Paris",
+    "properties": {
+      "name": "Paris",
+      "country": "France",
+      "region": "Île-de-France",
+      "cultural_significance": "Capital of art in 19th century",
+      "artistic_importance": "Center of Impressionism and modern art",
+      "notable_sites": [
+        "Louvre",
+        "Musée d'Orsay",
+        "Montmartre"
+      ]
+    }
+  },
+  {
+    "type": "Location",
+    "name": "Rome",
+    "properties": {
+      "name": "Rome",
+      "country": "Italy",
+      "region": "Lazio",
+      "cultural_significance": "Eternal city with layers of history",
+      "artistic_importance": "Center of Baroque art and papal patronage",
+      "notable_sites": [
+        "Vatican Museums",
+        "Sistine Chapel",
+        "Capitoline Museums"
+      ]
+    }
+  },
+  {
+    "type": "Museum",
+    "name": "Louvre Museum",
+    "properties": {
+      "name": "Louvre Museum",
+      "location": "Paris",
+      "founded_year": 1793,
+      "specialization": [
+        "European painting",
+        "Ancient civilizations"
+      ],
+      "notable_collections": [
+        "Mona Lisa",
+        "Venus de Milo",
+        "Liberty Leading the People"
+      ],
+      "visitor_count": 9600000
+    }
+  },
+  {
+    "type": "Museum",
+    "name": "Uffizi Gallery",
+    "properties": {
+      "name": "Uffizi Gallery",
+      "location": "Florence",
+      "founded_year": 1581,
+      "specialization": [
+        "Italian Renaissance"
+      ],
+      "notable_collections": [
+        "Birth of Venus",
+        "Primavera",
+        "Annunciation"
+      ],
+      "visitor_count": 4400000
+    }
+  },
+  {
+    "type": "Museum",
+    "name": "Museum of Modern Art",
+    "properties": {
+      "name": "Museum of Modern Art",
+      "location": "New York",
+      "founded_year": 1929,
+      "specialization": [
+        "Modern and contemporary art"
+      ],
+      "notable_collections": [
+        "The Starry Night",
+        "Les Demoiselles d'Avignon"
+      ],
+      "visitor_count": 3000000
+    }
+  }
+]

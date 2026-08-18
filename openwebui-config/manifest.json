@@ -1,0 +1,186 @@
+{
+  "name": "藝術史RAG+LLM組合選擇器",
+  "version": "1.0.0",
+  "description": "支援在OpenWebUI中切換不同RAG策略和LLM模型的組合",
+  "author": "Art History Database Team",
+  "manifest_version": 2,
+
+  "type": "function",
+  "id": "rag_strategy_selector",
+
+  "meta": {
+    "title": "RAG策略選擇器",
+    "description": "動態切換RAG+LLM組合的智能選擇器",
+    "icon": "🎨"
+  },
+
+  "models": [
+    {
+      "id": "llama3.1:8b@vector_only",
+      "name": "🔍 Llama 3.1 8B + 向量RAG",
+      "description": "語義相似度檢索，適合內容相似性查詢",
+      "owned_by": "custom",
+      "pipeline": {
+        "type": "function",
+        "valves": {
+          "base_model": "llama3.1:8b",
+          "rag_strategy": "vector_only",
+          "rag_api_url": "http://host.docker.internal:8002",
+          "ollama_api_url": "http://host.docker.internal:11434"
+        }
+      }
+    },
+    {
+      "id": "llama3.1:8b@graph_only",
+      "name": "🕸️ Llama 3.1 8B + 圖譜RAG",
+      "description": "知識圖譜推理，適合關係和結構化查詢",
+      "owned_by": "custom",
+      "pipeline": {
+        "type": "function",
+        "valves": {
+          "base_model": "llama3.1:8b",
+          "rag_strategy": "graph_only",
+          "rag_api_url": "http://host.docker.internal:8002",
+          "ollama_api_url": "http://host.docker.internal:11434"
+        }
+      }
+    },
+    {
+      "id": "llama3.1:8b@hybrid_balanced",
+      "name": "⚖️ Llama 3.1 8B + 混合RAG",
+      "description": "平衡混合策略，適合大多數查詢（推薦）",
+      "owned_by": "custom",
+      "pipeline": {
+        "type": "function",
+        "valves": {
+          "base_model": "llama3.1:8b",
+          "rag_strategy": "hybrid_balanced",
+          "rag_api_url": "http://host.docker.internal:8002",
+          "ollama_api_url": "http://host.docker.internal:11434"
+        }
+      }
+    },
+    {
+      "id": "llama3.1:8b@adaptive",
+      "name": "🧠 Llama 3.1 8B + 自適應RAG",
+      "description": "基於歷史性能自動選擇最佳策略",
+      "owned_by": "custom",
+      "pipeline": {
+        "type": "function",
+        "valves": {
+          "base_model": "llama3.1:8b",
+          "rag_strategy": "adaptive",
+          "rag_api_url": "http://host.docker.internal:8002",
+          "ollama_api_url": "http://host.docker.internal:11434"
+        }
+      }
+    },
+    {
+      "id": "llama3.1:8b@specialized",
+      "name": "🎯 Llama 3.1 8B + 專門RAG",
+      "description": "基於查詢類型自動選擇專門策略",
+      "owned_by": "custom",
+      "pipeline": {
+        "type": "function",
+        "valves": {
+          "base_model": "llama3.1:8b",
+          "rag_strategy": "specialized",
+          "rag_api_url": "http://host.docker.internal:8002",
+          "ollama_api_url": "http://host.docker.internal:11434"
+        }
+      }
+    },
+    {
+      "id": "qwen3:4b@vector_only",
+      "name": "🔍 Qwen3 4B + 向量RAG",
+      "description": "快速向量檢索，中文表現優秀",
+      "owned_by": "custom",
+      "pipeline": {
+        "type": "function",
+        "valves": {
+          "base_model": "qwen3:4b",
+          "rag_strategy": "vector_only",
+          "rag_api_url": "http://host.docker.internal:8002",
+          "ollama_api_url": "http://host.docker.internal:11434"
+        }
+      }
+    },
+    {
+      "id": "qwen3:4b@hybrid_balanced",
+      "name": "⚖️ Qwen3 4B + 混合RAG",
+      "description": "快速混合檢索，適合日常中文問答",
+      "owned_by": "custom",
+      "pipeline": {
+        "type": "function",
+        "valves": {
+          "base_model": "qwen3:4b",
+          "rag_strategy": "hybrid_balanced",
+          "rag_api_url": "http://host.docker.internal:8002",
+          "ollama_api_url": "http://host.docker.internal:11434"
+        }
+      }
+    },
+    {
+      "id": "llama3.1:8b@no_rag",
+      "name": "💬 Llama 3.1 8B (純模型)",
+      "description": "不使用RAG，僅基於預訓練知識",
+      "owned_by": "custom",
+      "pipeline": {
+        "type": "function",
+        "valves": {
+          "base_model": "llama3.1:8b",
+          "rag_strategy": "none",
+          "rag_api_url": "http://host.docker.internal:8002",
+          "ollama_api_url": "http://host.docker.internal:11434"
+        }
+      }
+    },
+    {
+      "id": "qwen3:4b@no_rag",
+      "name": "💬 Qwen3 4B (純模型)",
+      "description": "不使用RAG，快速基礎對話",
+      "owned_by": "custom",
+      "pipeline": {
+        "type": "function",
+        "valves": {
+          "base_model": "qwen3:4b",
+          "rag_strategy": "none",
+          "rag_api_url": "http://host.docker.internal:8002",
+          "ollama_api_url": "http://host.docker.internal:11434"
+        }
+      }
+    }
+  ],
+
+  "permissions": {
+    "network": ["http://host.docker.internal:8002", "http://host.docker.internal:11434"],
+    "files": []
+  },
+
+  "valves": {
+    "rag_api_url": {
+      "type": "str",
+      "default": "http://host.docker.internal:8002",
+      "title": "RAG API URL",
+      "description": "RAG系統API的基礎URL"
+    },
+    "ollama_api_url": {
+      "type": "str",
+      "default": "http://host.docker.internal:11434",
+      "title": "Ollama API URL",
+      "description": "Ollama API的基礎URL"
+    },
+    "default_strategy": {
+      "type": "str",
+      "default": "hybrid_balanced",
+      "title": "預設RAG策略",
+      "description": "預設使用的RAG策略"
+    },
+    "enable_strategy_info": {
+      "type": "bool",
+      "default": true,
+      "title": "顯示策略資訊",
+      "description": "在回應中顯示使用的RAG策略資訊"
+    }
+  }
+}
