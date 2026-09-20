@@ -130,6 +130,13 @@ cmd_discover() {
   warn "特別注意：Cypher 對不存在的屬性回傳 null，不報錯。名字打錯時「未到期」條件會變成恆真，"
   warn "          數字照樣印出來，但軟刪除的作品會被算進去——這是本實驗最可能的無聲誤差來源。"
 
+  h "0e. 誰在讀 Artist.source / Artist.sources（決定 E1 的收益是現在還是未來）"
+  echo "  在執行期目錄下 grep。清單為空 = 目前沒有消費端 = 端到端測不出 E1 的差異。"
+  grep -rn --include='*.py' --include='*.js' --include='*.ts' --include='*.cypher' \
+    -E '\ba\.sources?\b|\bartist\.sources?\b|Artist\.sources?' . 2>/dev/null \
+    | grep -vE 'node_modules|/\.git/|venv' | head -20 | ind \
+    || echo "    (沒有任何程式碼讀這兩個欄位)"
+
   h "0d. 受測對象是否存在"
   cy "MATCH (a:$L_ARTIST) WHERE a.$P_ARTIST_NAME CONTAINS 'Gogh'
       RETURN a.$P_ARTIST_NAME AS name, a.source AS old_source, a.sources AS new_sources" | ind
