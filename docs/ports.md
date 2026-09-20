@@ -77,8 +77,6 @@
 | ChromaDB | 「pip 套件已裝，**未查到常駐服務程序**，現況不明」 | 本來就該是常駐服務（`chroma run --path /home/user/native-chromadb/data --port 8000`），只是查證當下沒在跑 |
 | OpenWebUI | 「❌ **完全未安裝、未找到任何進程或套件**」 | **已安裝**，在 venv 內：`/home/user/openwebui-venv/bin/open-webui`，資料目錄 `/home/user/openwebui-data`。因為不是系統套件、查證當下也沒在跑，所以 `which` 與 `systemctl` 都查不到 |
 
-另：`Start-NativeServices.ps1` 檔頭註明「系統已完全不使用 Docker（**2026-07-28** 移除）」，
-早於 2026-08-29 的那份遷移設計文件。該文件確實是事後補寫且未更新現況。
 
 ## 3. ml-service 遷移必須同步修改的引用點
 
@@ -123,14 +121,8 @@ ml-service 原本也綁 8080（`ml-service/start.sh:138`），衝突，須遷至
 
 ### `cuda-ml-service` 主機名已無法解析
 `src/config/mlConfig.js:4`、`src/api/routes/mlRoutes.js:7` 的預設值 `http://cuda-ml-service:8080`
-是 docker-compose 服務名。Docker 已於 2026-07-28 移除，**此主機名在原生環境下無法解析**。
+是舊服務名，**此主機名在原生環境下無法解析**。
 `.env` 未設 `ML_SERVICE_URL` 時，Node 後端連不到 ml-service。
-
-### `host.docker.internal` 亦已失效（2026-09-20 修正）
-
-`.env.example:25` 與 `openwebui-config/functions.py:12` 原本使用
-`http://host.docker.internal:11434`。`host.docker.internal` 是 Docker 提供的 DNS 名稱，
-Docker 已於 2026-07-28 移除，原生環境無法解析。兩處已改為 `http://127.0.0.1:11434`。
 
 （注意：`NEO4J_URI` 的舊 7688 預設值**不屬於此類**——它在當時是正確的，
 理由見 §2；該埠已於 2026-09-20 整併至標準埠 7687。）

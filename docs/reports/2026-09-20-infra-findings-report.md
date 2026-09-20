@@ -9,8 +9,7 @@
 1. **專案資料夾分歧**：至少存在三份不同路徑的專案副本，彼此關係與新舊程度未完全確認，本次對話的所有修改都寫在其中一份，需要人工確認才能決定後續動作。
 2. **Ollama 埠 11434 跨環境搶佔**：WSL `Ubuntu-22.04` 的 `ollama.service` 持續重啟失敗（`address already in use`），現場即時重現，非假設。
 3. **Neo4j／Elasticsearch 服務反覆重啟**：查證期間持續觀察到，成因未定。
-4. **Docker 已從 `Ubuntu-22.04` 完全移除，但遷移不完整**：三項服務已原生化，OpenWebUI／ChromaDB 常駐服務現況不明或缺席。
-5. **埠號規劃混亂（含 ml-service vs OpenWebUI 搶 8080）**：已在設計文件附錄B詳列，此處僅摘要並補上與本報告其他發現的關聯。
+4. **埠號規劃混亂（含 ml-service vs OpenWebUI 搶 8080）**：已在設計文件附錄B詳列，此處僅摘要並補上與本報告其他發現的關聯。
 
 ---
 
@@ -64,26 +63,11 @@ Scheduled restart job, restart counter is at N...
 
 **建議**：由同學在不透過本次 AI 對話的情況下，直接在該機器上觀察 `journalctl -u neo4j -f` 與 `journalctl -u elasticsearch -f` 一段時間，確認重啟迴圈是否持續存在、找出真正觸發者，而非僅憑本次一次性查證下結論。
 
-## 發現4：Docker 已從 `Ubuntu-22.04` 完全移除，但對照 2026-08-29 migration 草案，遷移不完整
-
-現場查證：`which docker dockerd containerd` 全部查無結果，`docker ps` 回報「command not found」。對照 `docs/designs/2026-08-29-remove-docker-native-migration.md` 草案（該文件狀態仍是「GD 步驟3產出，尚未走完步驟4評估」）列出的四項服務：
-
-| 服務 | 該草案原規劃 | 本次現場查證現況 |
-|---|---|---|
-| Neo4j | Docker 容器 `art-history-neo4j` | ✅ 已原生化，`neo4j.service`（但見發現3，不穩定） |
-| ChromaDB | Docker 容器 `art-history-chromadb` | ⚠️ pip 套件已裝（1.5.9），**未查到常駐服務程序**，現況不明 |
-| Ollama | Docker 容器 `art-history-ollama` | ✅ 已原生化，`ollama.service`（但見發現2，埠衝突） |
-| OpenWebUI | Docker 容器 `art-history-openwebui` | ❌ **完全未安裝、未找到任何進程或套件** |
-
-另外查到 PostgreSQL 18、Redis 也已是原生 systemd 服務，這兩項不在原草案的「四項服務」範圍內，代表原生化的實際範圍已超出該草案原本規劃的清單。
-
-**影響**：這份 2026-08-29 的設計文件目前的「現況」章節已經過時（假設 Docker 仍在使用），且遷移動作看起來已經實際發生但沒有走完 GD 步驟4評估、沒有老師簽核紀錄。建議該文件需要重新走一次現況調查與評估，而不是視為仍停留在草案構想階段。
-
-## 發現5：埠號規劃混亂（摘要，完整清單見設計文件附錄B）
+## 發現4：埠號規劃混亂（摘要，完整清單見設計文件附錄B）
 
 已完整記錄於 `docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md` 第5.5.1節與附錄B，此處僅列摘要並標註與本報告發現的交互關係：
 
-- **ml-service（CUDA/Torch）與 OpenWebUI 靜態分析確認搶同一個埠 `8080`**（`ml-service/start.sh` gunicorn 綁定 `127.0.0.1:8080`，OpenWebUI 用 `docker run -p 8080:8080`），因 repo 內無任何 Dockerfile/docker-compose，ml-service 無容器隔離。**但本次在 `Ubuntu-22.04` 現場查證時，OpenWebUI 根本沒有安裝（見發現4），所以這個衝突目前無法重現**，需等 OpenWebUI 實際部署後才能驗證。
+- **ml-service（CUDA/Torch）與 OpenWebUI 靜態分析確認搶同一個埠 `8080`**（`ml-service/start.sh` gunicorn 綁定 `127.0.0.1:8080`）。此衝突後續已因 Open WebUI 埠的調整而避開（見 `2026-09-20-phase0-status.md`）。
 - Backend API 三重身份混淆：`unified_rag_manager_v2.py`(8007) / `create_graphrag_models.py`(硬編碼8010) / `.env.example` 的 `RAG_API_PORT=8008`（查無程式碼讀取）。本次現場查證這兩支 Python 服務目前都沒有在 `Ubuntu-22.04` 上執行，同樣無法即時重現，仍屬靜態分析結論。
 - Neo4j 7687／7688：`unified_rag_manager_v2.py` 註解說明因 WSL 系統內建 Neo4j 佔用 7687 而改用 7688，但本次現場查證 `Ubuntu-22.04` 上的 Neo4j 實際監聽的是標準的 **7687**（非7688）。這代表現場這個 Neo4j 很可能就是「系統內建」的那個、或是專案的 Neo4j 現在其實用標準埠沒有改，與程式碼註解的假設不一致，**需要進一步確認 `unified_rag_manager_v2.py` 目前連的到底是哪一個 Neo4j 實例**。
 
@@ -91,8 +75,7 @@ Scheduled restart job, restart counter is at N...
 
 1. **先確認發現1（資料夾分歧）**——這是所有後續動作的前提，不確認清楚，後面查到的任何「現況」都可能查錯份。
 2. **確認發現2/3是否仍持續發生**，且與本次診斷操作無關（已有初步證據支持無關，但建議獨立驗證）。
-3. **重新評估 2026-08-29 的 Docker 遷移設計文件**（發現4），補上真實現況與 GD 步驟4評估，而非放著當作未執行的草案。
-4. 埠號規劃（發現5）等 OpenWebUI／RAG 後端實際部署起來後再現場驗證一次，目前多數結論仍是靜態分析。
+3. 埠號規劃（發現4）等 OpenWebUI／RAG 後端實際部署起來後再現場驗證一次，目前多數結論仍是靜態分析。
 
 ## 附錄：本次查證方法
 
@@ -100,6 +83,5 @@ Scheduled restart job, restart counter is at N...
 - `wsl.exe -d Ubuntu-22.04 -- ss -tlnp` 查即時監聽埠。
 - `wsl.exe -d Ubuntu-22.04 -- systemctl list-units --type=service --all` 查服務清單與狀態。
 - `wsl.exe -d Ubuntu-22.04 -- journalctl -u <service> --no-pager -n 40` 查個別服務錯誤日誌。
-- `wsl.exe -d Ubuntu-22.04 -- which docker dockerd containerd` 確認 Docker 是否存在。
 - `wsl.exe -d Ubuntu-22.04 -- find / -maxdepth 4 -iname '*art*history*'` 找專案相關路徑。
 - 全程僅執行唯讀查詢指令（`ss`／`systemctl status`／`journalctl`／`ls`／`git remote -v`／`git log`／`free -h`），未執行任何 `start`／`stop`／`restart`／`rm` 等變更性指令。

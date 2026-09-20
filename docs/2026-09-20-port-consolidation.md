@@ -48,17 +48,6 @@
 | `scripts/error_knowledge_base.json` | 診斷說明與建議連線字串更新；錯誤比對樣式改為 `768[78]` 以同時匹配新舊 |
 | `scripts/doctor.sh` / `scripts/collect.sh` | `NEO4J_URI` 提示文字更新；埠號表保留 7688/7475 以**偵測舊實例是否沒停乾淨** |
 
-### 順帶修掉的兩個同類 bug
-
-查 11434 時發現兩處仍在用 **Docker 的 DNS 名稱**。Docker 已於 2026-07-28 移除，原生環境解析不到：
-
-| 檔案 | 變更前 | 變更後 |
-|---|---|---|
-| `.env.example:25` | `OLLAMA_BASE_URL=http://host.docker.internal:11434` | `http://127.0.0.1:11434` |
-| `openwebui-config/functions.py:12` | `self.ollama_api_url = "http://host.docker.internal:11434"` | `http://127.0.0.1:11434` |
-
-這與 `cuda-ml-service:8080`（`docs/ports.md` §4）是同一類：**Docker 遺留的主機名**。
-
 ### 驗證
 
 - 全部 10 個檔案通過語法檢查（`python3 -m py_compile` / `bash -n` / `json.load`）

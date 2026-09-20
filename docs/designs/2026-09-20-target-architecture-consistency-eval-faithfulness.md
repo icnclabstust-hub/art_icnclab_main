@@ -51,7 +51,7 @@
 
 **現況需先解的技術債（非新功能，但會卡住新架構）：**
 
-- Backend API 埠號三方衝突：圖上寫 `:8001`，`docs/designs/2026-08-29-remove-docker-native-migration.md` 記載 ChromaDB 現行佔用 `8001`，`unified_rag_manager_v2.py` 實際預設埠是 `8007`，`.env.example` 卻寫 `8008`。此為現況設定漂移，需在 Phase 0 一併釐清（見第 5.5 節）。
+- Backend API 埠號三方衝突：圖上寫 `:8001`，`unified_rag_manager_v2.py` 實際預設埠是 `8007`，`.env.example` 卻寫 `8008`。此為現況設定漂移，需在 Phase 0 一併釐清（見第 5.5 節）。
 
 ## 4. 方案比較
 
@@ -220,7 +220,6 @@ POST /internal/sync/ack            Phase 2 起，各訂閱者套用完 event 後
 - `langchain-rag/unified_rag_manager_v2.py`：讀取環境變數 `RAG_MANAGER_PORT`，預設 `8007`。
 - `langchain-rag/create_graphrag_models.py:516`：**另一支獨立的 FastAPI 服務**，硬編碼監聽 `8010`，對應 ops 腳本中稱呼的「Multi-DB RAG Server」（`setup-ollama-rag-proxy.sh`、`verify-multi-database-system.sh`、`verify-rag-system.sh`、`check_system_status.sh` 皆打 `:8010/health`／`:8010/query`）。
 - `.env.example` 的 `RAG_API_PORT=8008`：目前找不到任何程式碼實際讀取 `RAG_API_PORT` 這個變數名，但 `scripts/ops/run_tests.sh`、`verify-multi-database-system.sh` 仍會去打 `:8008/health` 並稱為「標準 RAG 服務器」——目前無法確認這是（a）過去存在、現已移除的第三支服務殘留的健康檢查、還是（b）預期以 `RAG_API_PORT=8008` 覆寫 `unified_rag_manager_v2.py` 卻因變數名不符而從未生效。
-- ChromaDB 現行佔用 `8001`（`docs/designs/2026-08-29-remove-docker-native-migration.md` 記載）。
 
 換言之現況可能同時存在（或曾經存在）**三支**不同的 RAG 相關 FastAPI 服務（`unified_rag_manager_v2.py`／`create_graphrag_models.py`／`.env.example` 假設中的第三支），對應到圖上單一個「Backend API」節點。**這已超出本次改版可單方面猜測修正的範圍**——貿然把 `.env.example` 改成 8007 可能反而蓋掉 8008 原本要對應的另一支服務。
 
@@ -230,11 +229,10 @@ POST /internal/sync/ack            Phase 2 起，各訂閱者套用完 event 後
 
 應要求對全 repo 做了一次埠號盤點，發現一個比 Backend API 三方混淆**風險更高**的既有衝突，記錄如下（完整方法與逐項清單見附錄 B）：
 
-- **【高風險，靜態分析高度確信】ml-service（CUDA/Torch）與 OpenWebUI 搶同一個埠 `8080`**：`ml-service/start.sh` 生產模式用 `gunicorn --bind 127.0.0.1:8080` 啟動（`ml-service/app.py:515`、`ml-service/simple-app.py:992` 的開發模式 `app.run(port=8080)` 亦同），而 OpenWebUI 經確認是用 `docker run -p 8080:8080`（`scripts/ops/setup-ollama-rag-proxy.sh:160`）發布到**同一台主機**的 8080。repo 內**找不到任何 Dockerfile 或 docker-compose 檔案**，代表 ml-service 只能是原生行程直接綁主機埠，不像 OpenWebUI 有 Docker 網路命名空間隔離。兩者若在同一台主機上同時啟動，必有一方绑定失敗或流量被搶走。此為現況既有問題，**與本次 RAG 架構改版無關**，但因為影響到「Backend API 最終要落在哪個埠」的判斷基礎，建議一併處理。
+- **【高風險，靜態分析高度確信】ml-service（CUDA/Torch）與 OpenWebUI 搶同一個埠 `8080`**：`ml-service/start.sh` 生產模式用 `gunicorn --bind 127.0.0.1:8080` 啟動（`ml-service/app.py:515`、`ml-service/simple-app.py:992` 的開發模式亦同），與 OpenWebUI 的 8080 相同。兩者若在同一台主機上同時啟動，必有一方綁定失敗。此為既有問題，**與本次 RAG 架構改版無關**，但影響「Backend API 最終要落在哪個埠」的判斷基礎（後續處理見 `docs/reports/2026-09-20-phase0-status.md`）。
 - 現場即時查證（2026-09-20）：Windows 主機與目前執行中的 WSL 發行版 `Ubuntu`（`wsl -l -v` 顯示另有 `Ubuntu-22.04` 目前是 Stopped 狀態，本次未啟動它）都只查到 `11434`（Ollama）在監聽，其餘服務目前都沒在跑，所以無法「即時重現」上述衝突，**此結論屬靜態程式碼分析，強烈建議實際同時啟動 OpenWebUI 與 ml-service 做一次即時驗證**，並確認真正的部署目標是 `Ubuntu` 還是 `Ubuntu-22.04` 這個發行版本（兩者目前只有一個在跑，需要確認哪個才是圖上說的「WSL2 + Ubuntu 22.04」）。
 - **【已知且已有 workaround，非待辦】** Neo4j：WSL 系統本身內建的 Neo4j 服務已佔用 `7687`，本專案原生 Neo4j 因此改用 `7688`（`unified_rag_manager_v2.py:154` 註解已說明），純供紀錄，不需再處理。
 - **【確認為死碼，暫不構成實際衝突，但具誤導性】** `config/production.js` 的 Node 應用 `app.port: 8080`：與 OpenWebUI/ml-service 同數字，但追查後 `src/app.js`（真正的啟動進入點）是讀 `process.env.API_PORT || 3000`，完全不 `require('config')`（`config` 套件甚至不在 `package.json` 依賴清單中）。`config/*.js` 整組檔案目前對執行沒有任何實際影響，建議之後統一清理或明確標記為 deprecated，避免有人誤以為改這裡有用。
-- **【疑似死配置，待確認】** `config/nginx/nginx.conf` 與 `context/deployment/nginx.conf`／`nginx-simple.conf` 都是假設 Docker Compose 網路存在的設定（upstream 寫 `cuda-ml-service:8080`、`art-database-api:3000`、`art-history-openwebui:8080` 等 Docker service name），但 repo 內沒有對應的 docker-compose 檔案可以佐證這些網路真的被建立過。這些 nginx 設定目前很可能整組都沒在用，建議之後與教師確認是否為前期（RAG 架構轉向前）遺留、可以整組歸檔或刪除。
 
 **修正後的建議處理順序**：Phase 0 埠號調查任務範圍擴大為兩件事——(1) 原本的 Backend API 三重身份確認（8007/8008/8010）；(2) 新發現的 ml-service vs OpenWebUI 8080 衝突排除（建議 ml-service 改用其他埠，例如 8082，因為 OpenWebUI 8080 是對外入口、優先權較高）。這兩項都屬於「現況修復」而非「新架構設計」，性質上可能落在 `CLAUDE.md` 第3節的小型修正豁免範圍內（各自預估都是個位數行數的設定變更、不新增依賴、不變更 schema），但因為涉及對外服務埠號變更，建議仍讓老師知會一聲再動手。
 
@@ -254,7 +252,7 @@ POST /internal/sync/ack            Phase 2 起，各訂閱者套用完 event 後
 
 ## 8. 部署與運維
 
-- 沿用現行本地端 WSL2 + Ubuntu 22.04 部署環境，不引入新的容器編排（對照 `docs/designs/2026-08-29-remove-docker-native-migration.md` 的 Docker-to-Native 遷移方向）。
+- 沿用現行本地端 WSL2 + Ubuntu 22.04 部署環境，不引入新的容器編排。
 - 各 Phase 上線前需完成 `CODE_REVIEW_STANDARD.md` G0–G2；Tier B 對應表 A/B/C/D/G + LLM 專用表 E 必做。
 - 監控：`eval.alerts` 是本次新增的核心監控訊號，建議串接既有 `monitoring/prometheus.yml`／告警管道（沿用現有機制，不重建新的告警系統）。
 - 回滾方式見第 9 節「回滾與退場」（於評估表中詳列，此處摘要：每個 Phase 皆保留舊路徑一段觀察期，確認穩定才收斂/移除舊路徑）。
@@ -275,7 +273,7 @@ POST /internal/sync/ack            Phase 2 起，各訂閱者套用完 event 後
 
 ### 一、既有主幹管線
 
-1. **Open WebUI 前端 (:8080)** — 可重用。已在 `docs/designs/2026-08-29-remove-docker-native-migration.md` 確認為現行 Docker 容器 `art-history-openwebui`，是實際對外入口。
+1. **Open WebUI 前端** — 可重用，是實際對外入口。
 2. **Backend API (FastAPI :8001)** — 需大改後重用。`langchain-rag/unified_rag_manager_v2.py`（1600+ 行）是貨真價實的 FastAPI 服務，具 `/api/v1/query`、`/api/v1/retrieve`、`/health`、`/api/v1/models`、`/api/v1/strategies`、`/api/v1/cache/*`。但埠號實際是 `RAG_MANAGER_PORT` 預設 `8007`（`unified_rag_manager_v2.py:1626`），部署文件卻寫 `RAG_API_PORT=8008`（`.env.example:23`），與圖上 `8001` 三方不一致；`docs/designs/...md` 記載目前 ChromaDB 實際佔用 `8001`，與圖上「Backend API :8001」直接衝突。
 3. **Redis 語意快取 (:6379)** — 需大改後重用。`src/database/connection.js`（`redisClient`, `connectRedis()`）、`src/utils/cacheManager.js`（get/set/del，含 Redis 不可用時退回記憶體快取），`config/default.js:165-167` 有 `redis.host/port`。但這是一般 key-value TTL 快取，非「語意快取」。真正在跑的 `unified_rag_manager_v2.py` 用自己的行程內 LRU+TTL 快取（`QueryCache` class，`unified_rag_manager_v2.py:43-80`，key 為 `md5(query|strategy|max_results)`，精確字串比對），完全沒接 Redis。
 4. **查詢前處理（改寫＋意圖偵測）** — 部分存在。`langchain-rag/multilingual_query_translator.py` 做中英術語翻譯，`langchain-rag/smart_keyword_extractor.py` 做關鍵詞抽取，在 `unified_rag_manager_v2.py:1411-1420` 被呼叫。但沒有意圖分類、沒有依意圖路由的邏輯。
@@ -363,21 +361,19 @@ Faithfulness/safety gatekeeper 線上版本不存在（同上）；Prompt inject
 | 7474 / 7687 | Neo4j（HTTP／Bolt），標準埠 | 系統層級已佔用（WSL 內建 Neo4j） | `docs/designs/2026-08-29-...md` |
 | 7688 | 本專案原生 Neo4j 實際使用埠（避開 7687 衝突的 workaround） | 現行程式碼真實讀取的預設值，已知衝突已解決 | `unified_rag_manager_v2.py:154`（`NEO4J_URI` 預設 `bolt://127.0.0.1:7688`，註解說明原因） |
 | 8000 | ChromaDB 向量搜尋（圖上標註） | 待與下方 8001 對照確認何者為真 | 架構圖 |
-| 8001 | ChromaDB 實際佔用（依既有部署文件） | 依文件記載，本次未即時查證 | `docs/designs/2026-08-29-remove-docker-native-migration.md`；`unified_rag_manager_v2.py:164`（`CHROMADB_PORT` 預設8001） |
 | 8007 | `unified_rag_manager_v2.py`（統一 RAG 管理器） | 現行程式碼真實讀取的預設值 | `unified_rag_manager_v2.py:1626`（`RAG_MANAGER_PORT`） |
 | 8008 | `.env.example` 的 `RAG_API_PORT` | **無任何程式碼讀取此變數名**，疑似孤兒設定 | `.env.example:23`；`requirements.txt:43` 註解提及但無對應程式碼 |
 | 8010 | `create_graphrag_models.py`（Multi-DB RAG Server，ops 腳本稱呼） | 現行程式碼硬編碼綁定 | `create_graphrag_models.py:516`；`scripts/ops/setup-ollama-rag-proxy.sh`、`verify-multi-database-system.sh`、`verify-rag-system.sh`、`check_system_status.sh` |
 | 8010（不同用途，容易混淆） | `src/mcp/mcp_tool_registry.py` 內一筆 CLIP 視覺模型工具的宣告埠 | 與上一列的 Multi-DB RAG Server **同號但不同服務**，屬 MCP 工具註冊表的靜態宣告，未查證是否真的有服務綁在這個埠 | `src/mcp/mcp_tool_registry.py:182` |
 | 8011 | `src/agents/rl/rl_server.py`（RL-Agentic RAG Server） | 現行程式碼真實讀取的預設值 | `src/agents/rl/rl_server.py:304`（`RL_SERVER_PORT`） |
-| **8080** | **OpenWebUI（對外入口，Docker 發布）** | 現行部署真實使用，唯一有找到 `docker run -p` 證據的服務 | `scripts/ops/setup-ollama-rag-proxy.sh:160`（`-p 8080:8080`） |
-| **8080（衝突）** | **ml-service（CUDA/Torch，gunicorn 生產模式／Flask 開發模式）** | **與上一列同埠**，且無 Docker 隔離（repo 內無 Dockerfile/docker-compose） | `ml-service/start.sh`（`gunicorn --bind 127.0.0.1:8080`）；`ml-service/app.py:515`；`ml-service/simple-app.py:992` |
+| **8080** | **OpenWebUI（對外入口）** | 現行部署使用 | `scripts/Start-NativeServices.ps1` |
+| **8080（衝突）** | **ml-service（CUDA/Torch，gunicorn 生產模式／Flask 開發模式）** | **與上一列同埠** | `ml-service/start.sh`（`gunicorn --bind 127.0.0.1:8080`）；`ml-service/app.py:515`；`ml-service/simple-app.py:992` |
 | 8080（死碼） | `config/production.js` 的 Node 應用 `app.port` | 死碼，同上（`src/app.js` 不讀此設定） | `config/production.js:9` |
-| 8080（疑似死配置） | nginx upstream `cuda_ml_service`／`art-history-openwebui` 等 Docker service name 寫法 | 找不到對應 docker-compose 佐證這些網路存在 | `config/nginx/nginx.conf:63`；`context/deployment/nginx.conf:43` |
 | 8888 | nginx（`config/nginx/nginx.conf`）代理 Jupyter | 疑似死配置（同上） | `config/nginx/nginx.conf:219` |
 | 9090 | Prometheus | 待查證是否現行有跑 | `config/nginx/nginx.conf:198`；`monitoring/prometheus.yml` |
 | 9200 | Elasticsearch | 現行程式碼真實讀取的預設值 | `unified_rag_manager_v2.py:181`（`ES_URL` 預設 `https://localhost:9200`） |
 | 11434 | Ollama | **現場即時查證為真：目前唯一在監聽的服務**（Windows 與 WSL `Ubuntu` 皆有） | 本次 `netstat`/`ss` 查證 |
-| 11435 | Ollama RAG Proxy | 依文件記載，本次未即時查證 | `docs/designs/2026-08-29-remove-docker-native-migration.md` |
+| 11435 | Ollama RAG Proxy | 舊文件記載，本次未即時查證 | — |
 
 **結論排序（風險由高到低）：**
 

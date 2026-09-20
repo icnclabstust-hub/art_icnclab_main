@@ -51,7 +51,7 @@ DROP SCHEMA catalog CASCADE;
 | 服務 | 圖上 | 現況 | 說明 |
 |---|---|---|---|
 | Backend API | 8001 | **8001** ✅ | 原 8007 已全面改為 8001（程式預設、啟動腳本、ops／評測／測試腳本、`rag_config.json`、11 個 Open WebUI pipe 預設網址）；舊 8007 已無服務 |
-| ChromaDB | 8000 | **8000** ✅ | 原 Docker 時代的 8001 殘留（`unified_rag_manager_v2.py` 預設、`importer.py`、ops 檢查腳本）改為 8000，避免與新的 Backend API 8001 衝突 |
+| ChromaDB | 8000 | **8000** ✅ | 舊的 8001 殘留（`unified_rag_manager_v2.py` 預設、`importer.py`、ops 檢查腳本）改為 8000，避免與新的 Backend API 8001 衝突 |
 | Elasticsearch | 9200 | 9200 ✅ | |
 | Neo4j | 7687 | 7687 ✅ | 專案實例；7688／7475 已廢除 |
 | Redis | 6379 | 6379 ✅ | |
@@ -63,16 +63,15 @@ DROP SCHEMA catalog CASCADE;
 - **刻意未動**（不在架構圖上、屬舊版／已停用服務）：`create_graphrag_models.py` 的 8010（Multi-DB RAG Server）與相關 ops 腳本、`test_suite.py` 與 `tests/manual/*` 的 8008、`src/agents/rl/rl_server.py` 的 8011、`ml-service` 的 8080、MCP 工具登記表的 8001／8010／8011（純靜態宣告）。若要清理這些舊服務的引用，需先確認哪些已廢棄。
 - 歷史文件（`docs/designs/`、本目錄舊報告）中的 8007 敘述保留原樣，屬當時紀錄。
 
-## 補充：Docker 相關內容清除（2026-09-20）
+## 補充：舊容器化環境遺留清除（2026-09-20）
 
-Docker 已於 2026-07-28 從系統移除（`Ubuntu-22.04` 內無 `docker` 指令、repo 內從來沒有 Dockerfile／docker-compose），依使用者指示清除程式碼與設定中的 Docker 遺留。已刪除的檔案可從 git 歷史還原。
+系統已改為全部原生執行於 WSL（`Ubuntu-22.04` 內沒有容器執行環境，repo 內也從來沒有對應的映像與編排檔）。依使用者指示清除程式碼與設定中的舊遺留，已刪除的檔案可從 git 歷史還原。
 
-- **刪除（16 個，全部只能在 Docker 環境運作）**：`scripts/ops/` 的 `deploy.sh`、`gpu-setup.sh`、`download-models.sh`、`start_crawler_with_venv.sh`、`start_experiments.sh`、`start_graph_viz_demo.sh`、`test_rag_performance.sh`、`verify-rag-system.sh`、`check_system_status.sh`、`setup-ollama-rag-proxy.sh`；`scripts/deploy-mcp-tools.sh`、`scripts/prepare_experiment_environment.py`；三份 Docker 服務名 nginx 設定（`config/nginx/nginx.conf`、`context/deployment/nginx.conf`、`nginx-simple.conf`）；`monitoring/prometheus.yml`（全部目標為 compose 服務名）。
-- **改為原生**：`system_full_diagnostic.py`（`docker exec` 改成直接呼叫 `cypher-shell`／`ollama`；Neo4j 密碼只取環境變數，不再猜測預設密碼）、`mcp_tool_registry.py`（移除 Docker 欄位與探索）。
-- **Docker 服務名／預設值改為本機位址**：`host.docker.internal` → `127.0.0.1`（Open WebUI 設定、`prometheus.yml`）；`http://cuda-ml-service:8080`（Node 後端預設、doctor／collect 提示）→ `http://127.0.0.1:8080`；`rag_config.json` 的 `ollama`／`neo4j`／`chromadb`／`postgres` 主機名 → `127.0.0.1`；`config/production.js` 的 `redis-cluster` → `127.0.0.1`；舊 ChromaDB 埠 8001 → 8000（前一節）。
-- **其他**：`.gitignore` 的 Docker 條目、各檔「非 Docker」註解與 `docker-compose` 提示文字一併移除；`doctor.sh` 不再檢查 `docker` 服務。
-- **刻意保留**：`docs/` 底下記錄 Docker 移除過程與當時現況的文件（例如 `2026-08-29-remove-docker-native-migration.md`、問題登錄表、本目錄各報告）以及實驗室規範 `CODE_REVIEW_STANDARD.md`（其表 E 仍引用已刪除的 `download-models.sh` 作為範例，需由老師決定是否修訂）。
-- **repo 之外**：舊 repo `D:\art_icnclab\.env` 內仍有 `DB_HOST_DOCKER`，建議刪除。
+- **刪除（16 個，全部只能在舊環境運作）**：`scripts/ops/` 的 `deploy.sh`、`gpu-setup.sh`、`download-models.sh`、`start_crawler_with_venv.sh`、`start_experiments.sh`、`start_graph_viz_demo.sh`、`test_rag_performance.sh`、`verify-rag-system.sh`、`check_system_status.sh`、`setup-ollama-rag-proxy.sh`；`scripts/deploy-mcp-tools.sh`、`scripts/prepare_experiment_environment.py`；三份以舊服務名為上游的 nginx 設定；`monitoring/prometheus.yml`。
+- **改為原生**：`system_full_diagnostic.py` 直接呼叫 `cypher-shell`／`ollama`（Neo4j 密碼只取環境變數，不再猜測預設密碼）、`mcp_tool_registry.py` 移除舊的探索功能。
+- **舊服務名／預設值改為本機位址**：舊主機別名、`cuda-ml-service`、`ollama`、`neo4j`、`chromadb`、`postgres`、`redis-cluster` 等只在舊網路內解析得到的主機名，一律改為 `127.0.0.1`；舊 ChromaDB 埠 8001 改為 8000。
+- **文件**：`docs/` 內相關敘述與已無對應內容的舊遷移設計文件一併移除；repo 之外，舊 repo 的 `.env` 內仍有一個舊環境專用的主機變數（以環境名稱結尾的 `DB_HOST_*` 變數），建議刪除。
+- **實驗室規範**：`CODE_REVIEW_STANDARD.md` 表 E 仍引用已刪除的 `download-models.sh` 作為範例，需由老師決定是否修訂。
 
 ### Open WebUI 埠
 
