@@ -679,6 +679,7 @@ class GraphOnlyRAG(RAGStrategy):
                     WITH node as artist, score
                     LIMIT $limit
                     OPTIONAL MATCH (artist)-[r:CREATED]->(artwork:Artwork)
+                    WHERE r.valid_to IS NULL AND coalesce(artwork.is_deleted, false) = false
                     RETURN artist as n, score,
                            collect({rel: type(r), node: artwork}) as relationships
                     """
@@ -735,9 +736,11 @@ class GraphOnlyRAG(RAGStrategy):
                     artwork_title_query = """
                     CALL db.index.fulltext.queryNodes('artwork_title_fulltext', $search_term)
                     YIELD node, score
+                    WHERE coalesce(node.is_deleted, false) = false
                     WITH node as artwork, score
                     LIMIT $limit
                     OPTIONAL MATCH (artwork)-[r]-(related)
+                    WHERE r.valid_to IS NULL AND coalesce(related.is_deleted, false) = false
                     RETURN artwork as n, score,
                            collect({rel: type(r), node: related}) as relationships
                     """
@@ -915,11 +918,12 @@ class AdvancedGraphRAG(RAGStrategy):
                     CALL db.index.fulltext.queryNodes('artist_name_fulltext', $search_term)
                     YIELD node AS artist, score
                     WITH artist, score LIMIT $limit
-                    OPTIONAL MATCH (artist)-[:CREATED]->(artwork:Artwork)
+                    OPTIONAL MATCH (artist)-[c:CREATED]->(artwork:Artwork)
+                    WHERE c.valid_to IS NULL AND coalesce(artwork.is_deleted, false) = false
                     WITH artist, score, collect(DISTINCT artwork) as artworks
                     UNWIND (CASE WHEN size(artworks) = 0 THEN [null] ELSE artworks END) as aw
                     OPTIONAL MATCH (aw)-[r2]->(ext)
-                    WHERE aw IS NULL OR type(r2) IN $ext_types
+                    WHERE aw IS NULL OR (type(r2) IN $ext_types AND r2.valid_to IS NULL)
                     RETURN artist AS n, score, 'Artist' as node_type,
                            collect(DISTINCT CASE WHEN aw IS NOT NULL
                                THEN {rel: 'CREATED', node: aw} END) as hop1,
@@ -940,10 +944,12 @@ class AdvancedGraphRAG(RAGStrategy):
                     artwork_query = """
                     CALL db.index.fulltext.queryNodes('artwork_title_fulltext', $search_term)
                     YIELD node AS artwork, score
+                    WHERE coalesce(artwork.is_deleted, false) = false
                     WITH artwork, score LIMIT $limit
-                    OPTIONAL MATCH (artist:Artist)-[:CREATED]->(artwork)
+                    OPTIONAL MATCH (artist:Artist)-[c:CREATED]->(artwork)
+                    WHERE c.valid_to IS NULL
                     OPTIONAL MATCH (artwork)-[r2]->(ext)
-                    WHERE r2 IS NULL OR type(r2) IN $ext_types
+                    WHERE r2 IS NULL OR (type(r2) IN $ext_types AND r2.valid_to IS NULL)
                     RETURN artwork AS n, score, 'Artwork' as node_type,
                            collect(DISTINCT CASE WHEN artist IS NOT NULL
                                THEN {rel: 'CREATED_BY', node: artist} END) as hop1,

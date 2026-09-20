@@ -1,7 +1,7 @@
 #!/bin/bash
 # 每日爬蟲 + 新架構同步（catalog 為單一真相來源）
 # 流程：爬 10 個來源 -> 各來源攝取進 PostgreSQL catalog（雜湊比對＋內容掃描）
-#       -> 訂閱器增量同步 ChromaDB、Elasticsearch、Neo4j -> 一致性驗證 -> PostgreSQL 備份 -> Neo4j 備份 -> 清 RAG 快取
+#       -> 訂閱器增量同步 ChromaDB、Elasticsearch、Neo4j -> Neo4j 分類關係 -> 一致性驗證 -> PostgreSQL 備份 -> Neo4j 備份 -> 清 RAG 快取
 # 個別步驟失敗不會中斷整體（例如 Yale 403、Google Books 429 屬已知偶發狀況）。
 #
 # 與舊版 daily_crawl_and_sync.sh 並存，尚未取代排程；切換前請先依
@@ -90,8 +90,13 @@ run_step "訂閱器 ChromaDB" python3 -m subscribers run --target chromadb --onc
 run_step "訂閱器 Elasticsearch" python3 -m subscribers run --target elasticsearch --once
 if [ -n "${NEO4J_PASSWORD:-}" ]; then
     run_step "訂閱器 Neo4j" python3 -m subscribers run --target neo4j --once
+    # 訂閱器只寫 Artwork／Artist／CREATED；風格、材質、地點、機構等分類關係由這支規則式腳本
+    # （詞典與屬性比對，不呼叫 LLM）補上。--no-clean 只疊加、可重複執行；預設模式會先刪除分類節點，不可用於每日流程
+    run_step "Neo4j 分類關係（疊加）" python3 classify_art_history_graph.py --no-clean
+    # 保留期清理：只刪除「到期／軟刪除超過 30 天」的關係與作品（以及因此孤立的藝術家）；30 天內的仍可還原
+    run_step "Neo4j 保留期清理（30 天）" python3 -m subscribers purge-neo4j --days 30 --apply
 else
-    log "⚠️ 未設定 NEO4J_PASSWORD，略過 Neo4j 訂閱器"
+    log "⚠️ 未設定 NEO4J_PASSWORD，略過 Neo4j 訂閱器與分類"
 fi
 
 for source in europeana harvard met_museum specialized_art google_books \

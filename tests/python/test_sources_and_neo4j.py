@@ -18,6 +18,9 @@ class FakeResult:
     def consume(self):
         return None
 
+    def single(self):
+        return {"c": 3}
+
 
 class FakeSession:
     def __init__(self, calls, fail=False):
@@ -33,7 +36,7 @@ class FakeSession:
     def run(self, query, **params):
         if self.fail:
             raise ConnectionError("neo4j down")
-        self.calls.append((query.strip().split("\n")[0][:40], params))
+        self.calls.append((query.strip().split("\n")[0][:40], params, query))
         return FakeResult()
 
 
@@ -177,8 +180,77 @@ def test_neo4j_reactivates_returning_documents():
 
     subscriber.handle([document_event("harvard_3")])
 
-    reactivate = calls[-1]
+    reactivate = next(c for c in calls if "is_deleted = false" in c[2])
     assert reactivate[1]["ids"] == ["harvard_3"]
+    assert "REMOVE a.deleted_at, a.valid_to" in reactivate[2]
+
+
+def test_neo4j_upsert_stamps_entity_and_relationship_lifecycle_fields():
+    subscriber, calls = make_subscriber()
+
+    subscriber.handle([document_event("harvard_4", artist="Monet, Claude")])
+
+    entity = next(c for c in calls if "a.valid_from" in c[2])
+    assert entity[1]["ids"] == ["harvard_4"]
+    assert "REMOVE a.valid_to" in entity[2]
+    add_rel = next(c for c in calls if "SET r.valid_from" in c[2])
+    assert add_rel[1]["rows"] == [{"artwork_id": "harvard_4", "names": ["Monet", "Claude"]}]
+    assert "REMOVE r.valid_to" in add_rel[2]
+
+
+def test_neo4j_expires_created_relationships_of_artists_no_longer_listed():
+    subscriber, calls = make_subscriber()
+
+    subscriber.handle([document_event("harvard_5", artist="Renoir")])
+
+    expire = next(c for c in calls if "SET r.valid_to = datetime()" in c[2])
+    assert expire[1]["rows"] == [{"artwork_id": "harvard_5", "names": ["Renoir"]}]
+    assert "NOT x.name IN row.names" in expire[2]
+    assert "r.valid_to IS NULL" in expire[2]
+    assert "DELETE" not in expire[2]
+
+
+def test_neo4j_expiry_is_skipped_by_the_query_when_the_new_artist_list_is_empty():
+    subscriber, calls = make_subscriber()
+
+    subscriber.handle([document_event("harvard_6", artist="")])
+
+    expire = next(c for c in calls if "SET r.valid_to = datetime()" in c[2])
+    assert expire[1]["rows"][0]["names"] == []
+    assert "size(row.names) > 0" in expire[2]
+
+
+def test_neo4j_soft_delete_also_stamps_valid_to():
+    subscriber, calls = make_subscriber()
+
+    subscriber.handle([document_event("harvard_2", op="soft_delete")])
+
+    assert "a.valid_to = datetime()" in calls[0][2]
+    assert "a.is_deleted = true" in calls[0][2]
+
+
+def test_purge_previews_without_deleting_and_applies_with_the_retention_window():
+    from subscribers.neo4j_sub import purge  # noqa: PLC0415
+
+    preview_calls, apply_calls = [], []
+
+    preview = purge(FakeSession(preview_calls), days=30, apply=False)
+    applied = purge(FakeSession(apply_calls), days=30, apply=True)
+
+    assert (
+        preview
+        == applied
+        == {
+            "expired_relationships": 3,
+            "deleted_artworks": 3,
+            "orphan_artists": 3,
+        }
+    )
+    assert not any("DELETE" in c[2] for c in preview_calls)
+    assert all("DELETE" in c[2] for c in apply_calls)
+    assert all(c[1]["days"] == 30 for c in apply_calls)
+    assert any("DETACH DELETE a" in c[2] for c in apply_calls)
+    assert all("duration({days: $days})" in c[2] for c in apply_calls[:2])
 
 
 def test_neo4j_failure_propagates():

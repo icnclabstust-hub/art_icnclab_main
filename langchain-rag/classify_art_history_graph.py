@@ -42,7 +42,8 @@ if not NEO4J_PASSWORD:
         "缺少 NEO4J_PASSWORD 環境變數。請在啟動前設定，例如："
         "NEO4J_PASSWORD=... python3 classify_art_history_graph.py"
     )
-TERMS_FILE = Path(__file__).parent.parent / "../art_history_terms_dictionary.json"
+DEFAULT_TERMS_FILE = Path(__file__).parent / "art_history_terms_dictionary.json"
+TERMS_FILE = Path(os.getenv("TERMS_FILE", str(DEFAULT_TERMS_FILE)))
 
 # 示範/測試節點的標籤（舊 enhanced_graph_builder.py 產生，內容跟真實爬蟲資料無關）
 DEMO_LABELS = [

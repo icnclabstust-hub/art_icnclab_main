@@ -1,4 +1,5 @@
-"""命令列：``python -m subscribers run --target chromadb|elasticsearch|neo4j [--once]``。"""
+"""命令列：``python -m subscribers run --target chromadb|elasticsearch|neo4j [--once]``，
+以及 ``python -m subscribers purge-neo4j [--days 30] [--apply]``（清除超過保留期的到期資料）。"""
 
 import argparse
 import logging
@@ -78,6 +79,25 @@ def _build_subscriber(target: str, allow_empty_graph: bool = False):
     return ElasticsearchSubscriber(es, _chroma_collection(with_embedding_function=False), bulk)
 
 
+def _cmd_purge_neo4j(args: argparse.Namespace) -> int:
+    from neo4j import GraphDatabase  # noqa: PLC0415
+
+    from subscribers.neo4j_sub import purge  # noqa: PLC0415
+
+    password = os.getenv("NEO4J_PASSWORD")
+    if not password:
+        raise SystemExit("缺少 NEO4J_PASSWORD 環境變數")
+    driver = GraphDatabase.driver(
+        os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687"),
+        auth=(os.getenv("NEO4J_USER", "neo4j"), password),
+    )
+    with driver.session() as session:
+        counts = purge(session, args.days, apply=args.apply)
+    mode = "已刪除" if args.apply else "預覽（未刪除，加 --apply 才會刪除）"
+    print(f"[{mode}] 保留 {args.days} 天：" + "／".join(f"{k} {v}" for k, v in counts.items()))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI 進入點。
 
@@ -96,7 +116,15 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument(
         "--allow-empty-graph", action="store_true", help="允許寫入沒有 Artwork 節點的 Neo4j"
     )
+    purge_cmd = sub.add_parser("purge-neo4j", help="清除 Neo4j 超過保留期的到期關係與軟刪除作品")
+    purge_cmd.add_argument("--days", type=int, default=30, help="保留天數（預設 30）")
+    purge_cmd.add_argument("--apply", action="store_true", help="實際刪除（預設只預覽）")
+    purge_cmd.set_defaults(purge=True)
+
     args = parser.parse_args(argv)
+
+    if args.command == "purge-neo4j":
+        return _cmd_purge_neo4j(args)
 
     subscriber = _build_subscriber(args.target, args.allow_empty_graph)
     with connect() as conn:
