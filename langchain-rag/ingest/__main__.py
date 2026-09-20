@@ -135,6 +135,36 @@ def _cmd_backfill(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_retire_stale(args: argparse.Namespace) -> int:
+    import collections  # noqa: PLC0415
+
+    import chromadb  # noqa: PLC0415 -- 只有此指令需要連 ChromaDB
+
+    client = chromadb.HttpClient(
+        host=os.getenv("CHROMADB_HOST", "localhost"), port=int(os.getenv("CHROMADB_PORT", "8000"))
+    )
+    collection = client.get_collection(name=os.getenv("CHROMADB_COLLECTION", DEFAULT_COLLECTION))
+    with connect() as conn:
+        stale = backfill_module.find_stale_chunks(collection, conn)
+        by_source = collections.Counter(c.source for c in stale)
+        print(f"過時 chunk：{len(stale)} 個")
+        for source, n in sorted(by_source.items()):
+            print(f"  {source:32s} {n:5d}")
+        for chunk in stale[: args.show]:
+            current = conn.execute(
+                "SELECT c.external_id FROM catalog.chunks c JOIN catalog.documents d USING (doc_id)"
+                " WHERE d.external_id = %s ORDER BY c.chunk_index LIMIT 1",
+                (chunk.doc_external_id,),
+            ).fetchone()
+            current_id = current[0] if current else "無"
+            print(f"\n  ▸ {chunk.external_id}（文件 {chunk.doc_external_id}；現行：{current_id}）")
+            print(f"    過時文字：{chunk.text[:110]!r}")
+        count = backfill_module.retire_stale_chunks(conn, stale, apply=args.apply)
+    mode = "已寫入 soft_delete 事件" if args.apply else "預覽（未寫入，加 --apply 才會寫入）"
+    print(f"\n[{mode}] {count} 個；寫入後請執行 subscribers（chromadb、elasticsearch）讓事件生效")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI 進入點。
 
@@ -168,6 +198,11 @@ def main(argv: list[str] | None = None) -> int:
     bf.add_argument("--source", action="append", default=[], help="只補登指定來源（可重複）")
     bf.add_argument("--apply", action="store_true", help="實際寫入（預設只預覽）")
     bf.set_defaults(handler=_cmd_backfill)
+
+    rs = sub.add_parser("retire-stale", help="撤出檢索庫中過時的 chunk（catalog 已有更新版本）")
+    rs.add_argument("--apply", action="store_true", help="實際寫入事件（預設只預覽）")
+    rs.add_argument("--show", type=int, default=5, help="預覽時顯示的範例數")
+    rs.set_defaults(handler=_cmd_retire_stale)
 
     args = parser.parse_args(argv)
     return args.handler(args)

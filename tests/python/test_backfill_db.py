@@ -221,3 +221,42 @@ def test_multi_chunk_document_keeps_chunk_order(conn):
         ).fetchall()
     ]
     assert indexes == list(range(len(doc.chunks)))
+
+
+def catalog_doc(conn, external_id="harvard_7", **overrides):
+    ingest_artworks(conn, "harvard", [make_artwork(external_id, **overrides)], simple_document_text)
+
+
+def test_stale_chunks_are_those_of_catalog_documents_that_the_catalog_no_longer_has(conn):
+    catalog_doc(conn, "harvard_7")
+    _, current = chunk_rows("harvard_7")
+    _, unknown = chunk_rows("harvard_99")
+    old_meta = {**current[0][2], "chunk_index": 1}
+    rows = [*current, ("harvard_7_chunk9", "old text", old_meta), *unknown]
+
+    stale = backfill.find_stale_chunks(FakeCollection(rows), conn)
+
+    assert [(c.external_id, c.doc_external_id) for c in stale] == [
+        ("harvard_7_chunk9", "harvard_7")
+    ]
+    assert stale[0].source == "harvard"
+
+
+def test_retiring_stale_chunks_emits_soft_delete_events_only_when_applied(conn):
+    catalog_doc(conn, "harvard_7")
+    conn.execute("DELETE FROM catalog.sync_events")
+    _, current = chunk_rows("harvard_7")
+    meta = {**current[0][2], "chunk_index": 1}
+    stale = backfill.find_stale_chunks(
+        FakeCollection([*current, ("harvard_7_chunk9", "old", meta)]), conn
+    )
+
+    assert backfill.retire_stale_chunks(conn, stale, apply=False) == 1
+    assert count(conn, "SELECT count(*) FROM catalog.sync_events") == 0
+
+    assert backfill.retire_stale_chunks(conn, stale, apply=True) == 1
+    row = conn.execute(
+        "SELECT entity_type, op, payload->>'external_id', payload->>'reason'"
+        " FROM catalog.sync_events"
+    ).fetchone()
+    assert tuple(row) == ("chunk", "soft_delete", "harvard_7_chunk9", "stale_chunk")

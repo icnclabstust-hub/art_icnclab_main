@@ -280,3 +280,72 @@ def backfill_documents(
         if on_progress:
             on_progress(count)
     return stats
+
+
+@dataclass(frozen=True)
+class StaleChunk:
+    """檢索庫中存在、但 catalog 不再包含的 chunk（其所屬文件已在 catalog）。"""
+
+    external_id: str
+    doc_external_id: str
+    source: str
+    text: str
+
+
+def find_stale_chunks(collection, conn: psycopg.Connection) -> list[StaleChunk]:
+    """找出過時 chunk：所屬文件在 catalog、但該 chunk id 不在 catalog 的 chunk 清單。
+
+    多半是更早的切塊方式留下的重複內容（文件變長或變短後 chunk id 改變）。
+    父文件不在 catalog 的 chunk 不算過時（那是待補登資料）。
+
+    Args:
+        collection: chromadb collection。
+        conn: autocommit 的 psycopg 連線。
+
+    Returns:
+        過時 chunk 清單。
+    """
+    doc_ids = {r[0] for r in conn.execute("SELECT external_id FROM catalog.documents").fetchall()}
+    chunk_ids = {r[0] for r in conn.execute("SELECT external_id FROM catalog.chunks").fetchall()}
+    stale = []
+    for chunk_id, text, meta in _iter_chroma_chunks(collection):
+        parent = meta.get("parent_id") or chunk_id
+        if parent in doc_ids and chunk_id not in chunk_ids:
+            stale.append(StaleChunk(chunk_id, parent, str(meta.get("source", "")), text))
+    return stale
+
+
+def retire_stale_chunks(
+    conn: psycopg.Connection, stale: Iterable[StaleChunk], *, apply: bool = False
+) -> int:
+    """對過時 chunk 寫入 soft_delete 事件，由訂閱器從 ChromaDB／ES 刪除。
+
+    Args:
+        conn: autocommit 的 psycopg 連線。
+        stale: ``find_stale_chunks`` 的結果。
+        apply: 為假時只計數；為真才寫入事件。
+
+    Returns:
+        處理（或預計處理）的 chunk 數。
+    """
+    count = 0
+    for chunk in stale:
+        count += 1
+        if not apply:
+            continue
+        conn.execute(
+            "INSERT INTO catalog.sync_events (entity_type, entity_id, op, payload)"
+            " VALUES ('chunk', %s, 'soft_delete', %s)",
+            (
+                chunk_uuid(chunk.external_id),
+                Jsonb(
+                    {
+                        "external_id": chunk.external_id,
+                        "doc_id": str(doc_uuid(chunk.doc_external_id)),
+                        "source": chunk.source,
+                        "reason": "stale_chunk",
+                    }
+                ),
+            ),
+        )
+    return count

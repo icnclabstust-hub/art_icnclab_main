@@ -43,3 +43,11 @@ catalog 只涵蓋這次重新爬取的資料：ChromaDB／ES 共 5,799 個 chunk
 -- 只移除補登的資料（chunk 會隨文件連鎖刪除）
 DELETE FROM catalog.documents WHERE metadata ? 'backfill';
 ```
+
+## 更新：過時 chunk 已撤出，四個資料庫完全一致（2026-09-21）
+
+- **56 個過時 chunk**（`specialized_art` 48、`europeana` 4、`met_museum` 2、`art_institute_chicago` 2）是同一份文件舊的切塊方式留下的重複內容（例如 `met_438427` 過去切成 `_chunk0`／`_chunk1`，現在是單一 chunk），現行版本都在 catalog。
+- 透過正式流程撤出：`python -m ingest retire-stale`（預設預覽，`--apply` 才寫入）對每個 chunk 寫一筆 `soft_delete` 事件（`reason: stale_chunk`），再由 ChromaDB 與 Elasticsearch 訂閱器刪除；執行前先備份（`art_history_db_20260921_015239.dump`）。
+- **結果**：ChromaDB 5,743、Elasticsearch 5,743、catalog chunk 5,743，三者相同；`python -m ingest verify --es` 對 11 個來源全部回報「一致」；Neo4j Artwork 與 catalog 文件逐來源相同（wikipedia_pilot 無圖節點）。再預覽過時 chunk 為 0。
+- 每日流程的驗證步驟現在涵蓋全部 11 個來源；今後若回報「不一致」代表出現新的漂移。
+- **仍未處理**：1 個沒有 `source` 的 Neo4j Artwork 節點（無法判斷來源）；`wikipedia_pilot` 沒有來源介面卡與圖節點。
