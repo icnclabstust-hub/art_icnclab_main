@@ -151,7 +151,7 @@ for cand in "$SNAP/.env" /mnt/d/art_icnclab/.env /mnt/f/art_icnclab/.env; do
       *) printf '      %s=<已遮蔽>\n' "$name" ;;
     esac
   done
-  grep -qE '^NEO4J_URI=' "$cand" || echo "      ⚠ 未設 NEO4J_URI → 程式碼將採預設 7688，但現場 Neo4j 聽 7687"
+  grep -qE '^NEO4J_URI=' "$cand" || echo "      註：未設 NEO4J_URI 時採預設 7688＝專案原生實例（正確）。7687 是系統實例，與專案無關。"
   grep -qE '^ML_SERVICE_URL=' "$cand" || echo "      ⚠ 未設 ML_SERVICE_URL → 預設 http://cuda-ml-service:8080（Docker 已移除，無法解析）"
 done
 

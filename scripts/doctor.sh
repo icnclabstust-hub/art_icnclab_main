@@ -74,7 +74,7 @@ if ! command -v ss >/dev/null 2>&1; then
   echo "  ⚠ 找不到 ss 指令，以下埠號對照表不可信，請先安裝 iproute2"
 else
 echo "  本專案關切的埠對照："
-for p in 11434 7687 7688 8001 8002 8007 8008 8010 8080 3000 5432 6379 9200; do
+for p in 11434 7687 7688 7474 7475 8000 8002 8007 8010 8080 5432 6379 9200; do
   own=$(ss -tlnp 2>/dev/null | awk -v P=":$p\$" '$4 ~ P {print $6; exit}')
   kv "$p" "${own:-(未被佔用)}"
 done
@@ -106,8 +106,8 @@ if [ -f "$ENVF" ]; then
   echo "  關鍵檢定："
   nu=$(grep -E '^NEO4J_URI=' "$ENVF" | head -1)
   if [ -z "$nu" ]; then
-    echo "    ⚠ .env 未設 NEO4J_URI → 程式碼將採預設 bolt://127.0.0.1:7688"
-    echo "      若 Neo4j 實際聽 7687（見 §3），則 RAG 後端連不上任何 Neo4j。"
+    echo "    ⚠ .env 未設 NEO4J_URI → 採預設 7688（專案原生實例，正確值）"
+    echo "      注意：7687 是 WSL 系統的 neo4j.service，與本專案無關。"
   else
     # 與上方同樣遮蔽 URL 內嵌帳密，否則此處會把密碼原樣印出
     echo "    NEO4J_URI = $(printf '%s' "${nu#NEO4J_URI=}" \

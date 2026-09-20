@@ -115,24 +115,28 @@ git log --all --diff-filter=A --name-only --format='%h %ad' \
 
 發現2與發現5其實是同一類 bug：**執行期實際值**與**程式碼假設值**沒有任何一處被共同定義。
 
-### 2.1 一個現在就能證實／推翻的具體故障
+### 2.1 【更正】先前「NEO4J_URI 必然故障」的判斷是錯的
 
-`langchain-rag/unified_rag_manager_v2.py:154`（本次於存檔 repo 查證原文）：
+本計畫稍早版本依 `unified_rag_manager_v2.py:154` 的
+`os.getenv("NEO4J_URI", "bolt://127.0.0.1:7688")`，對照調查報告實測的「現場 Neo4j 聽 7687」，
+推論該預設值指向空埠、RAG 後端必然連不上。**此推論錯誤，已更正。**
 
-```python
-# 原生 Neo4j（WSL 直接執行，非 Docker）；7688 是因為 WSL 環境本身有另一個系統 Neo4j 服務佔用了 7687
-NEO4J_URI = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7688")
-```
+在種子 repo 中找到 `scripts/Start-NativeServices.ps1` 後才看清全貌：這台機器上有**兩個** Neo4j，
 
-報告已查證現場 Neo4j 實際監聽 **7687**。因此：
+| 實例 | 埠 | 誰啟動 | 用途 |
+|---|---|---|---|
+| WSL 系統的 `neo4j.service` | 7687 / 7474 | systemd | **與本專案無關** |
+| 專案原生實例 | **7688 / 7475** | `Start-NativeServices.ps1` 的 `neo4j console` | 本專案使用 |
 
-> **若 `.env` 未設 `NEO4J_URI`，這支程式的預設值 7688 上沒有任何服務，它連不上任何 Neo4j。**
+該腳本啟動 rag-manager-v2 時明確傳入 `NEO4J_URI=bolt://127.0.0.1:7688`。
+所以程式碼第 153 行的註解是**正確且仍然成立**的。調查報告只看到 7687，
+是因為查證當下專案的原生 Neo4j 沒有在跑。
 
-這不只是「註解與現況不一致」的紀錄問題，是會直接故障。驗證只要一行：
+同理更正：ChromaDB 實際用 **8000**（腳本傳 `CHROMADB_PORT=8000`、`diagnose.py:32` 亦為 8000），
+程式碼預設值 8001 從未生效。完整更正見 `docs/ports.md` §2。
 
-```bash
-grep -nE '^NEO4J_URI' <正本>/.env ; ss -tlnp | grep -E '768[78]'
-```
+**這個錯誤的根因值得記下**：我只看了程式碼與 systemd，沒有先找「這套系統實際上是怎麼啟動的」。
+`docs/ports.md` §0 已補上該架構說明。
 
 ### 2.2 死變數
 
@@ -179,32 +183,52 @@ systemctl is-active ollama                        # 要是 inactive，且是 dis
 journalctl -u ollama --since '10 min ago' | grep -c 'address already in use'   # 要是 0
 ```
 
-### 3.2 發現3｜Neo4j／Elasticsearch 反覆重啟
+### 3.2 發現3｜Neo4j／Elasticsearch 反覆重啟（假說A 已由程式碼證實）
 
-報告已排除「本次診斷操作造成」，方向正確。以下把「成因未定」收斂成兩個可檢定的假說。
+#### 假說A：有東西在 systemd 之外啟動 Neo4j —— ✅ 證實
 
-**假說A（Neo4j）**：`Neo4j is already running (pid:492)` 這句話本身就是線索——
-它代表**有東西在 systemd 之外啟動了 Neo4j**（例如 `neo4j console`、某支腳本、或桌面版），
-systemd 的 unit 與那個既存程序互搶。檢定：
+`scripts/Start-NativeServices.ps1` 第 60 行：
+
+```powershell
+Start-WslBackground "/home/user/neo4j-community-2026.06.0/bin/neo4j console > /tmp/neo4j-native.log 2>&1"
+```
+
+`neo4j console` 是**前景模式**啟動，完全不經過 systemd。
+調查報告看到的 `Neo4j is already running (pid:492)`，就是 `neo4j.service` 想啟動時，
+撞上這個由腳本拉起來的原生實例。
+
+觸發來源已查明：
+
+1. 手動執行 `Start-NativeServices.ps1`
+2. `scripts/Run-DailyCrawl.ps1` 第 2 行呼叫它
+3. 該腳本由 **Windows 工作排程器每日 03:00** 觸發
+   （`scripts/ArtHistoryDB-DailyCrawl_TaskExport.xml`）
+4. `scripts/backup_databases.sh` 備份後也要求重新執行它
+
+**修法**：兩個 Neo4j 各司其職，不該互搶。系統的 `neo4j.service` 既然與專案無關，
+應直接停用，免得它一直嘗試啟動又失敗：
 
 ```bash
-ps -o pid,ppid,user,cmd -p 492          # PPID=1 是 systemd；非 1 就是某支腳本，cmd 會指出是誰
-systemctl cat neo4j                      # 看 ExecStart 與 Restart 設定
-systemctl show neo4j -p Restart -p RestartSec
-crontab -l; sudo crontab -l; systemctl list-timers --all | head -20
+sudo systemctl disable --now neo4j     # 系統實例（7687），專案不用
+# 專案實例（7688）維持由 Start-NativeServices.ps1 管理
 ```
-再加 Windows 端：工作排程器（Task Scheduler）是否有定期觸發的項目。
 
-**假說B（Elasticsearch）**：**每 30 秒一輪**的 Start→Stopped 高度符合 OOM 被殺或健康檢查逾時。
-報告量到當下 12Gi/21Gi，看似未用罄，但 ES 預設 heap 會取實體記憶體的一半（約 10Gi），
-在 Neo4j(JVM) + PostgreSQL + Redis + Ollama 同時在跑的情況下，啟動瞬間要到那麼多是會失敗的。檢定：
+停用前請先確認 7687 上那個 Neo4j 沒有別的用途（`cypher-shell -a bolt://127.0.0.1:7687` 看有無資料）。
+
+#### 假說B：Elasticsearch 的 30 秒重啟迴圈 —— 尚未證實
+
+ES **不在** `Start-NativeServices.ps1` 的管理範圍內（該腳本只管 Neo4j/ChromaDB/rag-manager/OpenWebUI），
+所以它是純 systemd 服務，30 秒一輪的 Start→Stopped 仍需查。優先檢定 OOM：
 
 ```bash
-journalctl -u elasticsearch --since '1 hour ago' | grep -iE 'oom|killed|memory|timeout'
-dmesg -T | grep -i 'out of memory'
-grep -rnE '^-Xm[sx]' /etc/elasticsearch/jvm.options /etc/elasticsearch/jvm.options.d/ 2>/dev/null
+journalctl -u elasticsearch --since '2 hours ago' --no-pager \
+  | grep -iE 'oom|killed|out of memory|timeout|failed to start' | tail -8
+dmesg -T | grep -iE 'out of memory|oom-kill' | tail -5
+grep -rhE '^-Xm[sx]' /etc/elasticsearch/jvm.options /etc/elasticsearch/jvm.options.d/ 2>/dev/null
 ```
-若確認為 OOM，修法便宜且成功率高——明確釘死 heap：
+
+ES 預設 heap 取實體記憶體一半（21Gi 機器約 10Gi）。在 Neo4j(JVM) ×2、PostgreSQL、
+Redis、Ollama 並存下，啟動瞬間要到那麼多會失敗。若確認為 OOM，釘死 heap 即可：
 
 ```
 # /etc/elasticsearch/jvm.options.d/heap.options
@@ -212,8 +236,7 @@ grep -rnE '^-Xm[sx]' /etc/elasticsearch/jvm.options /etc/elasticsearch/jvm.optio
 -Xmx2g
 ```
 
-報告建議「由同學直接在機器上 `journalctl -f` 觀察」是對的，但可以更省力——
-請直接跑 §5 的 `scripts/doctor.sh`，它一次把上述所有檢定的輸出印出來。
+`scripts/collect.sh` 已內含上述全部檢定。
 
 ### 3.3 發現4／5｜OpenWebUI 與 8080（已決定：OpenWebUI 用 8080）
 
