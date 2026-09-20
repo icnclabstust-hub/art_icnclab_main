@@ -95,9 +95,10 @@ else
 fi
 
 for source in europeana harvard met_museum specialized_art google_books \
-    art_institute_chicago va_museum cleveland_museum; do
-    # verify 在 catalog 只涵蓋本次爬到的資料時會回報「不一致」（檢索庫另有更早爬取的舊資料），
-    # 屬資訊性輸出，故不套用 run_step 的成敗判定，只記錄結果
+    art_institute_chicago va_museum cleveland_museum yale_university_art_gallery \
+    masterpieces_curated wikipedia_pilot; do
+    # 舊資料補登（2026-09-21）後 catalog 與三庫已完全一致；此處回報「不一致」代表出現新的漂移，需要調查。
+    # 只記錄結果、不套用 run_step 的成敗判定
     log "--- 驗證 $source ---"
     python3 -m ingest verify --source "$source" --es 2>&1 | grep -vE "INFO|Warning|warn" >> "$LOG_FILE"
 done
