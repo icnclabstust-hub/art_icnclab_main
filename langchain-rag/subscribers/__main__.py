@@ -31,7 +31,7 @@ def _chroma_collection(with_embedding_function: bool):
 def _neo4j_subscriber(allow_empty_graph: bool):
     from neo4j import GraphDatabase  # noqa: PLC0415
 
-    from subscribers.neo4j_sub import Neo4jSubscriber  # noqa: PLC0415
+    from subscribers.neo4j_sub import Neo4jSubscriber, ensure_schema  # noqa: PLC0415
 
     password = os.getenv("NEO4J_PASSWORD")
     if not password:
@@ -50,6 +50,8 @@ def _neo4j_subscriber(allow_empty_graph: bool):
                 "目標 Neo4j 沒有任何 Artwork 節點，疑似連到錯的實例"
                 "（例如 WSL 系統自帶的 neo4j.service）。確認無誤才加 --allow-empty-graph"
             )
+    with driver.session() as session:
+        ensure_schema(session)
     return Neo4jSubscriber(driver.session)
 
 

@@ -232,3 +232,24 @@ def test_duplicate_ids_keep_the_last_occurrence_across_files(tmp_path):
     artworks = sources.load_artworks(adapter, [str(first), str(second)])
 
     assert artworks == [{"id": "y", "v": 1}, {"id": "x", "v": 2}]
+
+
+def test_ensure_schema_creates_both_uniqueness_constraints_idempotently():
+    from subscribers.neo4j_sub import ensure_schema  # noqa: PLC0415
+
+    calls = []
+    ensure_schema(FakeSession(calls))
+    ensure_schema(FakeSession(calls))
+
+    statements = [c[0] for c in calls]
+    assert len(statements) == 4
+    assert all(st.startswith("CREATE CONSTRAINT") for st in statements)
+
+
+def test_schema_statements_are_safe_to_rerun_and_cover_the_merge_keys():
+    from subscribers.neo4j_sub import SCHEMA_STATEMENTS  # noqa: PLC0415
+
+    joined = " ".join(SCHEMA_STATEMENTS)
+    assert joined.count("IF NOT EXISTS") == len(SCHEMA_STATEMENTS)
+    assert "(a:Artwork) REQUIRE a.id IS UNIQUE" in joined
+    assert "(a:Artist) REQUIRE a.name IS UNIQUE" in joined

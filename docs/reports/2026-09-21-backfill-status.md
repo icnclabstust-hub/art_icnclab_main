@@ -51,3 +51,10 @@ DELETE FROM catalog.documents WHERE metadata ? 'backfill';
 - **結果**：ChromaDB 5,743、Elasticsearch 5,743、catalog chunk 5,743，三者相同；`python -m ingest verify --es` 對 11 個來源全部回報「一致」；Neo4j Artwork 與 catalog 文件逐來源相同（wikipedia_pilot 無圖節點）。再預覽過時 chunk 為 0。
 - 每日流程的驗證步驟現在涵蓋全部 11 個來源；今後若回報「不一致」代表出現新的漂移。
 - **仍未處理**：1 個沒有 `source` 的 Neo4j Artwork 節點（無法判斷來源）；`wikipedia_pilot` 沒有來源介面卡與圖節點。
+
+## 更新：Neo4j 唯一性約束（2026-09-21）
+
+- **問題**：專案 Neo4j 的 `Artwork.id`、`Artist.name` 沒有唯一性約束（也就沒有索引，只有全文索引）。`MERGE (a:Artwork {id: ...})` 每次都要掃過全部節點，資料變多會變慢，且並行寫入可能建出重複節點。repo 內有些腳本定義了約束，但線上並未套用。
+- **處理**：`subscribers/neo4j_sub.py` 新增 `ensure_schema`（`CREATE CONSTRAINT … IF NOT EXISTS`，可重複執行），Neo4j 訂閱器 CLI 啟動時執行。已先確認線上無重複的 `Artwork.id` 與 `Artist.name`，再套用；`artwork_id_unique`、`artist_name_unique` 皆 ONLINE，節點數維持 7,458，重啟 Neo4j 後約束仍在。
+- **嘗試後還原**：曾把 Neo4j 改為只綁 `127.0.0.1` 以縮小暴露面，但 WSL 的 localhost 轉發不會轉發只綁 127.0.0.1 的服務，Windows 端的 Neo4j Browser（`localhost:7474`）因此連不上；WSL2 本身為 NAT、不對區網開放，暴露風險有限，已還原為 `0.0.0.0` 並確認 Windows 可再連上。若不需要在 Windows 使用 Neo4j Browser，可改綁 `127.0.0.1`。
+- **Neo4j 仍未處理**：沒有例行備份（778MB，社群版無線上備份、未安裝 APOC）；新流程不含 `classify_art_history_graph.py` 產生的豐富關係（Yale 0/281、Harvard 96/195、V&A 139/302 有）；無 `source` 的手工示範節點 `A001`；Phase 2 的原子操作與 30 天保留。

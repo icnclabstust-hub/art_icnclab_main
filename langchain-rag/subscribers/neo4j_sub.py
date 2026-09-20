@@ -41,6 +41,27 @@ MATCH (a:Artwork {id: id})
 SET a.is_deleted = true, a.deleted_at = datetime()
 """
 
+# 唯一性約束同時提供索引：沒有它 MERGE 每次都要掃過全部節點，也擋不住並行寫入造成的重複節點。
+# IF NOT EXISTS 使其可重複執行；線上資料已確認無重複的 Artwork.id 與 Artist.name。
+SCHEMA_STATEMENTS = (
+    "CREATE CONSTRAINT artwork_id_unique IF NOT EXISTS FOR (a:Artwork) REQUIRE a.id IS UNIQUE",
+    "CREATE CONSTRAINT artist_name_unique IF NOT EXISTS FOR (a:Artist) REQUIRE a.name IS UNIQUE",
+)
+
+
+def ensure_schema(session) -> None:
+    """建立訂閱器依賴的唯一性約束（已存在則略過）。
+
+    Args:
+        session: Neo4j session。
+
+    Raises:
+        Exception: 現有資料違反約束（例如已有重複 id）時由 Neo4j 拋出，不會靜默略過。
+    """
+    for statement in SCHEMA_STATEMENTS:
+        session.run(statement).consume()
+
+
 _REACTIVATE_QUERY = """
 MATCH (a:Artwork)
 WHERE a.id IN $ids AND a.is_deleted = true
