@@ -66,6 +66,7 @@ Thumbs.db
 
 # Data directories (exclude actual data but keep structure)
 data/raw/*
+crawlers/data/
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep

@@ -5,7 +5,7 @@ import logging
 import os
 import sys
 
-from ingest import legacy
+from ingest import sources
 from ingest.db import connect
 from ingest.pipeline import ingest_artworks
 from ingest.verify import (
@@ -19,28 +19,20 @@ DEFAULT_COLLECTION = "art_history_bgem3"
 DEFAULT_ES_INDEX = "art_history_hybrid"
 
 
-def _load_artworks(module, source: str, files: list[str]) -> list[dict]:
-    normalizer = module.NORMALIZERS[source]
-    filenames = files or module.resolve_sources().get(source, [])
-    if not filenames:
-        raise SystemExit(f"找不到來源 {source} 的資料檔，請用 --file 指定")
-    artworks = []
-    for filename in filenames:
-        artworks.extend(normalizer(item) for item in module.load_items(filename))
-    return artworks
-
-
 def _cmd_run(args: argparse.Namespace) -> int:
-    module = legacy.load_legacy_module()
-    if args.source not in module.NORMALIZERS:
-        raise SystemExit(f"未知來源：{args.source}（可用：{', '.join(module.NORMALIZERS)}）")
-    artworks = _load_artworks(module, args.source, args.file)
+    if args.source not in sources.source_names():
+        raise SystemExit(f"未知來源：{args.source}（可用：{', '.join(sources.source_names())}）")
+    adapter = sources.get_adapter(args.source)
+    try:
+        artworks = sources.load_artworks(adapter, args.file)
+    except FileNotFoundError as exc:
+        raise SystemExit(str(exc)) from exc
     with connect() as conn:
         stats = ingest_artworks(
             conn,
             args.source,
             artworks,
-            module.build_document_text,
+            adapter.document_text,
             dry_run=args.dry_run,
             prune=args.prune,
         )
