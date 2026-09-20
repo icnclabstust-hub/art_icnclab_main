@@ -73,7 +73,6 @@ async def run_demo():
         print("=" * 50)
         print("💡 提示:")
         print("   • 如需運行完整實驗，請先啟動MCP工具服務")
-        print("   • 使用 ./start_experiments.sh 啟動完整環境")
         print("   • 查看 EXPERIMENT_README.md 了解詳細信息")
 
     except Exception as e:

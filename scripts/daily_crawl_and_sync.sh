@@ -29,7 +29,7 @@ fi
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && nvm use 24 >/dev/null 2>&1
 
-# 原生 Neo4j（WSL 直接執行，非 Docker），標準埠 bolt:7687（系統 neo4j.service 已於 2026-09-20 停用）
+# 原生 Neo4j（WSL 直接執行），標準埠 bolt:7687（系統 neo4j.service 已於 2026-09-20 停用）
 export NEO4J_URI="bolt://127.0.0.1:7687"
 export CHROMADB_HOST="localhost"
 export CHROMADB_PORT="8000"

@@ -4,7 +4,7 @@ const axios = require('axios');
 const { dbManager } = require('../../database/connection');
 const logger = require('../../utils/logger').logger;
 
-const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://cuda-ml-service:8080';
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://127.0.0.1:8080';
 const ML_SERVICE_TIMEOUT = 300000; // 5分鐘超時
 
 // ML服務健康檢查

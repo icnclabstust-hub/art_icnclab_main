@@ -111,7 +111,7 @@ module.exports = {
     ttl: 7200, // 2小時
     maxSize: 1073741824, // 1GB
     redis: {
-      host: 'redis-cluster',
+      host: '127.0.0.1',
       port: 6379,
       password: '${REDIS_PASSWORD}',
       database: 0,

@@ -62,7 +62,7 @@
       "name": "Nomic Embed Text",
       "display_name": "📊 Nomic Embed Text",
       "provider": "ollama",
-      "base_url": "http://ollama:11434",
+      "base_url": "http://127.0.0.1:11434",
       "dimension": 768,
       "description": "高質量文本嵌入模型"
     },
@@ -70,7 +70,7 @@
       "name": "MxBai Embed Large",
       "display_name": "📊 MxBai Embed Large",
       "provider": "ollama",
-      "base_url": "http://ollama:11434",
+      "base_url": "http://127.0.0.1:11434",
       "dimension": 1024,
       "description": "大型嵌入模型，更高精度",
       "enabled": false
@@ -1196,18 +1196,18 @@
   ],
   "database_config": {
     "neo4j": {
-      "uri": "bolt://neo4j:7687",
+      "uri": "bolt://127.0.0.1:7687",
       "user": "neo4j",
       "password": "CHANGE_ME_NEO4J_PASSWORD",
       "database": "neo4j"
     },
     "chromadb": {
-      "host": "chromadb",
+      "host": "127.0.0.1",
       "port": 8000,
       "collection_name": "art_history"
     },
     "postgres": {
-      "host": "postgres",
+      "host": "127.0.0.1",
       "port": 5432,
       "database": "art_history_db",
       "user": "art_user",

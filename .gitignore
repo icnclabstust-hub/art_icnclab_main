@@ -46,8 +46,6 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# Docker
-.dockerignore
 
 # IDE
 .vscode/
@@ -93,8 +91,6 @@ temp/
 .transformers_cache/
 .huggingface/
 
-# Docker volumes
-docker-volumes/
 
 # Python
 __pycache__/

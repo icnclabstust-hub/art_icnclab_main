@@ -25,8 +25,8 @@
         "valves": {
           "base_model": "llama3.1:8b",
           "rag_strategy": "vector_only",
-          "rag_api_url": "http://host.docker.internal:8002",
-          "ollama_api_url": "http://host.docker.internal:11434"
+          "rag_api_url": "http://127.0.0.1:8002",
+          "ollama_api_url": "http://127.0.0.1:11434"
         }
       }
     },
@@ -40,8 +40,8 @@
         "valves": {
           "base_model": "llama3.1:8b",
           "rag_strategy": "graph_only",
-          "rag_api_url": "http://host.docker.internal:8002",
-          "ollama_api_url": "http://host.docker.internal:11434"
+          "rag_api_url": "http://127.0.0.1:8002",
+          "ollama_api_url": "http://127.0.0.1:11434"
         }
       }
     },
@@ -55,8 +55,8 @@
         "valves": {
           "base_model": "llama3.1:8b",
           "rag_strategy": "hybrid_balanced",
-          "rag_api_url": "http://host.docker.internal:8002",
-          "ollama_api_url": "http://host.docker.internal:11434"
+          "rag_api_url": "http://127.0.0.1:8002",
+          "ollama_api_url": "http://127.0.0.1:11434"
         }
       }
     },
@@ -70,8 +70,8 @@
         "valves": {
           "base_model": "llama3.1:8b",
           "rag_strategy": "adaptive",
-          "rag_api_url": "http://host.docker.internal:8002",
-          "ollama_api_url": "http://host.docker.internal:11434"
+          "rag_api_url": "http://127.0.0.1:8002",
+          "ollama_api_url": "http://127.0.0.1:11434"
         }
       }
     },
@@ -85,8 +85,8 @@
         "valves": {
           "base_model": "llama3.1:8b",
           "rag_strategy": "specialized",
-          "rag_api_url": "http://host.docker.internal:8002",
-          "ollama_api_url": "http://host.docker.internal:11434"
+          "rag_api_url": "http://127.0.0.1:8002",
+          "ollama_api_url": "http://127.0.0.1:11434"
         }
       }
     },
@@ -100,8 +100,8 @@
         "valves": {
           "base_model": "qwen3:4b",
           "rag_strategy": "vector_only",
-          "rag_api_url": "http://host.docker.internal:8002",
-          "ollama_api_url": "http://host.docker.internal:11434"
+          "rag_api_url": "http://127.0.0.1:8002",
+          "ollama_api_url": "http://127.0.0.1:11434"
         }
       }
     },
@@ -115,8 +115,8 @@
         "valves": {
           "base_model": "qwen3:4b",
           "rag_strategy": "hybrid_balanced",
-          "rag_api_url": "http://host.docker.internal:8002",
-          "ollama_api_url": "http://host.docker.internal:11434"
+          "rag_api_url": "http://127.0.0.1:8002",
+          "ollama_api_url": "http://127.0.0.1:11434"
         }
       }
     },
@@ -130,8 +130,8 @@
         "valves": {
           "base_model": "llama3.1:8b",
           "rag_strategy": "none",
-          "rag_api_url": "http://host.docker.internal:8002",
-          "ollama_api_url": "http://host.docker.internal:11434"
+          "rag_api_url": "http://127.0.0.1:8002",
+          "ollama_api_url": "http://127.0.0.1:11434"
         }
       }
     },
@@ -145,28 +145,28 @@
         "valves": {
           "base_model": "qwen3:4b",
           "rag_strategy": "none",
-          "rag_api_url": "http://host.docker.internal:8002",
-          "ollama_api_url": "http://host.docker.internal:11434"
+          "rag_api_url": "http://127.0.0.1:8002",
+          "ollama_api_url": "http://127.0.0.1:11434"
         }
       }
     }
   ],
 
   "permissions": {
-    "network": ["http://host.docker.internal:8002", "http://host.docker.internal:11434"],
+    "network": ["http://127.0.0.1:8002", "http://127.0.0.1:11434"],
     "files": []
   },
 
   "valves": {
     "rag_api_url": {
       "type": "str",
-      "default": "http://host.docker.internal:8002",
+      "default": "http://127.0.0.1:8002",
       "title": "RAG API URL",
       "description": "RAG系統API的基礎URL"
     },
     "ollama_api_url": {
       "type": "str",
-      "default": "http://host.docker.internal:11434",
+      "default": "http://127.0.0.1:11434",
       "title": "Ollama API URL",
       "description": "Ollama API的基礎URL"
     },

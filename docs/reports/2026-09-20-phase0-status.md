@@ -62,3 +62,18 @@ DROP SCHEMA catalog CASCADE;
 - `.env.example` 孤兒設定 `RAG_API_PORT=8008`（沒有任何程式讀取）已改為實際使用的 `RAG_MANAGER_PORT=8001`。
 - **刻意未動**（不在架構圖上、屬舊版／已停用服務）：`create_graphrag_models.py` 的 8010（Multi-DB RAG Server）與相關 ops 腳本、`test_suite.py` 與 `tests/manual/*` 的 8008、`src/agents/rl/rl_server.py` 的 8011、`ml-service` 的 8080、MCP 工具登記表的 8001／8010／8011（純靜態宣告）。若要清理這些舊服務的引用，需先確認哪些已廢棄。
 - 歷史文件（`docs/designs/`、本目錄舊報告）中的 8007 敘述保留原樣，屬當時紀錄。
+
+## 補充：Docker 相關內容清除（2026-09-20）
+
+Docker 已於 2026-07-28 從系統移除（`Ubuntu-22.04` 內無 `docker` 指令、repo 內從來沒有 Dockerfile／docker-compose），依使用者指示清除程式碼與設定中的 Docker 遺留。已刪除的檔案可從 git 歷史還原。
+
+- **刪除（16 個，全部只能在 Docker 環境運作）**：`scripts/ops/` 的 `deploy.sh`、`gpu-setup.sh`、`download-models.sh`、`start_crawler_with_venv.sh`、`start_experiments.sh`、`start_graph_viz_demo.sh`、`test_rag_performance.sh`、`verify-rag-system.sh`、`check_system_status.sh`、`setup-ollama-rag-proxy.sh`；`scripts/deploy-mcp-tools.sh`、`scripts/prepare_experiment_environment.py`；三份 Docker 服務名 nginx 設定（`config/nginx/nginx.conf`、`context/deployment/nginx.conf`、`nginx-simple.conf`）；`monitoring/prometheus.yml`（全部目標為 compose 服務名）。
+- **改為原生**：`system_full_diagnostic.py`（`docker exec` 改成直接呼叫 `cypher-shell`／`ollama`；Neo4j 密碼只取環境變數，不再猜測預設密碼）、`mcp_tool_registry.py`（移除 Docker 欄位與探索）。
+- **Docker 服務名／預設值改為本機位址**：`host.docker.internal` → `127.0.0.1`（Open WebUI 設定、`prometheus.yml`）；`http://cuda-ml-service:8080`（Node 後端預設、doctor／collect 提示）→ `http://127.0.0.1:8080`；`rag_config.json` 的 `ollama`／`neo4j`／`chromadb`／`postgres` 主機名 → `127.0.0.1`；`config/production.js` 的 `redis-cluster` → `127.0.0.1`；舊 ChromaDB 埠 8001 → 8000（前一節）。
+- **其他**：`.gitignore` 的 Docker 條目、各檔「非 Docker」註解與 `docker-compose` 提示文字一併移除；`doctor.sh` 不再檢查 `docker` 服務。
+- **刻意保留**：`docs/` 底下記錄 Docker 移除過程與當時現況的文件（例如 `2026-08-29-remove-docker-native-migration.md`、問題登錄表、本目錄各報告）以及實驗室規範 `CODE_REVIEW_STANDARD.md`（其表 E 仍引用已刪除的 `download-models.sh` 作為範例，需由老師決定是否修訂）。
+- **repo 之外**：舊 repo `D:\art_icnclab\.env` 內仍有 `DB_HOST_DOCKER`，建議刪除。
+
+### Open WebUI 埠
+
+`Start-NativeServices.ps1` 現在每次啟動時判斷：**優先使用 8080**，若 Windows 已把 8080 保留（`netsh interface ipv4 show excludedportrange protocol=tcp`）才退回 3000。目前這台機器 8080 落在保留範圍（8037–8136），所以實際仍是 3000；保留範圍會隨 Windows 重開機變動，之後可能自動變成 8080。

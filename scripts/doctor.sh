@@ -37,7 +37,7 @@ run find /mnt/c /mnt/d "$HOME" -maxdepth 3 -type d \
 
 # ---------------------------------------------------------------- 2. 服務狀態
 h "2. 服務狀態（對應發現2/3/4）"
-for s in ollama neo4j elasticsearch postgresql redis-server docker; do
+for s in ollama neo4j elasticsearch postgresql redis-server; do
   st=$( { systemctl is-active  "$s" 2>/dev/null || echo n/a; } | head -1)
   en=$( { systemctl is-enabled "$s" 2>/dev/null || echo n/a; } | head -1)
   nr=$( { systemctl show "$s" -p NRestarts --value 2>/dev/null || echo '?'; } | head -1)
@@ -114,9 +114,8 @@ if [ -f "$ENVF" ]; then
   fi
   ml=$(grep -E '^ML_SERVICE_URL=' "$ENVF" | head -1)
   if [ -z "$ml" ]; then
-    echo "    ⚠ .env 未設 ML_SERVICE_URL → 程式碼將採預設 http://cuda-ml-service:8080"
-    echo "      cuda-ml-service 是 docker-compose 服務名，Docker 已移除後無法解析，"
-    echo "      Node 後端將連不到 ml-service。"
+    echo "    ⚠ .env 未設 ML_SERVICE_URL → 程式碼將採預設 http://127.0.0.1:8080"
+    echo "      請確認 ml-service 有在該埠執行（見 docs 埠號說明）。"
   else
     echo "    ML_SERVICE_URL = $(printf '%s' "${ml#ML_SERVICE_URL=}" \
       | sed -E 's#://[^:/@]+:[^@]*@#://<帳密已遮蔽>@#')"

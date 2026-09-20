@@ -1,7 +1,7 @@
 const mlConfig = {
   // ML服務連接配置
   service: {
-    url: process.env.ML_SERVICE_URL || 'http://cuda-ml-service:8080',
+    url: process.env.ML_SERVICE_URL || 'http://127.0.0.1:8080',
     timeout: parseInt(process.env.ML_SERVICE_TIMEOUT) || 300000, // 5分鐘
     retries: 3,
     retryDelay: 2000

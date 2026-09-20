@@ -152,7 +152,7 @@ for cand in "$SNAP/.env" /mnt/d/art_icnclab/.env /mnt/f/art_icnclab/.env; do
     esac
   done
   grep -qE '^NEO4J_URI=' "$cand" || echo "      註：未設 NEO4J_URI 時採預設 bolt://127.0.0.1:7687（標準埠，2026-09-20 起）"
-  grep -qE '^ML_SERVICE_URL=' "$cand" || echo "      ⚠ 未設 ML_SERVICE_URL → 預設 http://cuda-ml-service:8080（Docker 已移除，無法解析）"
+  grep -qE '^ML_SERVICE_URL=' "$cand" || echo "      ⚠ 未設 ML_SERVICE_URL → 預設 http://127.0.0.1:8080"
 done
 
 h "6. 實際監聽埠"

@@ -188,7 +188,7 @@ class AllRAGMethodsTester {
             console.log(`\n✅ RAG Manager (port 8010): 運行中`);
         } catch (error) {
             console.log(`\n❌ RAG Manager (port 8010): 無法連接`);
-            console.log(`   請確保服務運行: docker exec art-history-rag-manager-v2`);
+            console.log(`   請確保 RAG 後端運行：powershell scripts/Start-NativeServices.ps1`);
         }
 
         // 檢查Neo4j

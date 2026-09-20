@@ -51,8 +51,6 @@ class MCPToolSpec:
     version: str
     endpoint: str | None = None
     port: int | None = None
-    docker_image: str | None = None
-    docker_compose_service: str | None = None
     capabilities: list[str] = None
     resource_requirements: dict[str, Any] = None
     dependencies: list[str] = None
@@ -78,7 +76,6 @@ class MCPToolInstance:
     assigned_agent: str | None = None
     endpoint_url: str | None = None
     process_id: int | None = None
-    docker_container_id: str | None = None
     health_check_url: str | None = None
     last_health_check: datetime | None = None
     metrics: dict[str, Any] = None
@@ -327,10 +324,6 @@ class MCPToolRegistry:
         """自動發現可用的MCP工具"""
         discovered_tools = []
 
-        # 檢查Docker服務
-        docker_services = await self._discover_docker_services()
-        discovered_tools.extend(docker_services)
-
         # 檢查網絡端口
         network_services = await self._discover_network_services()
         discovered_tools.extend(network_services)
@@ -341,32 +334,6 @@ class MCPToolRegistry:
 
         self.logger.info(f"發現 {len(discovered_tools)} 個MCP工具服務")
         return discovered_tools
-
-    async def _discover_docker_services(self) -> list[str]:
-        """發現Docker服務"""
-        discovered = []
-        try:
-            result = await asyncio.create_subprocess_exec(
-                "docker",
-                "ps",
-                "--format",
-                "{{.Names}}:{{.Ports}}",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            stdout, stderr = await result.communicate()
-
-            if result.returncode == 0:
-                lines = stdout.decode().strip().split("\n")
-                for line in lines:
-                    if ":" in line:
-                        name, ports = line.split(":", 1)
-                        discovered.append(f"docker:{name}:{ports}")
-
-        except Exception as e:
-            self.logger.warning(f"Docker服務發現失敗: {str(e)}")
-
-        return discovered
 
     async def _discover_network_services(self) -> list[str]:
         """發現網絡服務"""

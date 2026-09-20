@@ -2,7 +2,7 @@
 /**
  * 紐約大都會博物館 (MET) API 爬蟲
  * 系統性地依「部門 (Department)」涵蓋 MET 全館收藏，取代原本只有 3 個固定關鍵字的做法
- * 不需要 API Key，不依賴 Docker
+ * 不需要 API Key
  */
 
 const axios = require('axios');

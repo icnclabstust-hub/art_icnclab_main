@@ -1,5 +1,4 @@
 ﻿# 一鍵啟動整套系統：全部原生執行於 WSL（Neo4j / ChromaDB / rag-manager-v2 / Open WebUI）
-# 系統已完全不使用 Docker（2026-07-28 移除）
 # 可重複執行：每個服務都會先檢查是否已經在跑，不會重複啟動
 
 $ErrorActionPreference = "Continue"
@@ -18,7 +17,19 @@ function Get-EnvValue($key) {
     if ($line) { return ($line -split "=", 2)[1] }
     return $null
 }
-$WebUiPort = 3000
+# Open WebUI 對外埠：優先用架構圖的 8080；若 Windows 把它保留給 Hyper-V/WinNAT（瀏覽器的 localhost 連不到），
+# 退回 3000。保留範圍會隨系統重開機變動，所以每次啟動時判斷（netsh interface ipv4 show excludedportrange protocol=tcp）。
+function Get-WebUiPort {
+    $preferred = 8080
+    $fallback = 3000
+    foreach ($line in (netsh interface ipv4 show excludedportrange protocol=tcp)) {
+        if ($line -match '^\s*(\d+)\s+(\d+)') {
+            if ($preferred -ge [int]$Matches[1] -and $preferred -le [int]$Matches[2]) { return $fallback }
+        }
+    }
+    return $preferred
+}
+$WebUiPort = Get-WebUiPort
 $Neo4jPassword = Get-EnvValue "NEO4J_PASSWORD"
 $EsPassword = Get-EnvValue "ES_PASSWORD"
 
@@ -79,7 +90,8 @@ if (Test-Port 8001) {
     if (Test-Port 8001) { Write-Log "✅ rag-manager-v2 啟動成功" } else { Write-Log "⚠️ rag-manager-v2 啟動後仍無回應，請檢查 /tmp/rag_manager_v2.log" }
 }
 
-# 4. Open WebUI（原生 WSL）。不用 8080：該埠落在 Windows 保留範圍，瀏覽器的 localhost 連不到；改用 3000
+# 4. Open WebUI（原生 WSL），埠由 Get-WebUiPort 決定
+Write-Log "Open WebUI 使用埠 $WebUiPort（8080 若被 Windows 保留則退回 3000）"
 Write-Log "檢查 Open WebUI (port $WebUiPort)..."
 if (Test-Port $WebUiPort) {
     Write-Log "✅ Open WebUI 已在運作"
