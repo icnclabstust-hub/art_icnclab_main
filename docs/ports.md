@@ -28,15 +28,16 @@
 
 | 埠 | 擁有者 | 設定變數 | 依據 | 狀態 |
 |---|---|---|---|---|
-| **7688** | **Neo4j（專案原生實例，bolt）** | `NEO4J_URI` | `Start-NativeServices.ps1` 以 `neo4j console` 啟動；`diagnose.py:31` | 使用中 |
-| **7475** | Neo4j（專案原生實例，HTTP） | — | 同上 | 使用中 |
-| 7687 / 7474 | **Neo4j（WSL 系統的 systemd 實例，非專案使用）** | — | 調查報告 `ss -tlnp` 實測 | 與專案無關 |
+| **7687** | **Neo4j（專案，bolt）** | `NEO4J_URI` | 2026-09-20 由 7688 遷入標準埠，見 `2026-09-20-port-consolidation.md` | 待機器端套用 |
+| **7474** | **Neo4j（專案，HTTP）** | — | 同上 | 待機器端套用 |
+| ~~7688 / 7475~~ | ~~Neo4j 替代埠~~ | — | **已廢除**（2026-09-20）。`doctor.sh` 仍檢查此兩埠，用以偵測舊實例是否沒停乾淨 | 應為未佔用 |
+| ~~7687 / 7474~~（系統實例） | WSL 系統自帶的 `neo4j.service` | — | 與專案無關，已決定 `systemctl disable --now` 以釋放標準埠 | 待停用 |
 | **8000** | **ChromaDB** | `CHROMADB_PORT` | `Start-NativeServices.ps1` 啟動 `chroma run --port 8000` 並傳入 `CHROMADB_PORT=8000`；`diagnose.py:32` | 使用中 |
 | 8007 | rag-manager-v2 | `RAG_MANAGER_PORT` | `unified_rag_manager_v2.py:1626`；`diagnose.py:33` | 使用中 |
 | **8080** | **Open WebUI** | — | `Start-NativeServices.ps1` 啟動 `open-webui serve --port 8080`；`diagnose.py:34`；使用者決定確認保留 | 使用中 |
 | **8002** | **ml-service** (gunicorn/CUDA) | `ML_SERVICE_URL` | **由 8080 遷出**，見 §3 | 待遷移 |
 | 8010 | create_graphrag_models.py | （硬編碼，應外部化） | 調查報告發現5 | 待修正 |
-| 11434 | Ollama | `OLLAMA_BASE_URL` | `Start-NativeServices.ps1` 傳 `OLLAMA_BASE_URL=http://localhost:11434` | **埠衝突中**，見發現2 |
+| 11434 | Ollama（單一實例） | `OLLAMA_BASE_URL` | 2026-09-20 決定歸目前已在監聽的實例，`Ubuntu-22.04` 的 `ollama.service` 停用 | 待機器端套用 |
 | 5432 | PostgreSQL 18 | — | 原生 systemd 服務 | 使用中 |
 | 6379 | Redis | — | 原生 systemd 服務 | 使用中 |
 | 9200 | Elasticsearch | `ES_PASSWORD` | systemd 服務 | **重啟迴圈中**，見發現3 |
@@ -125,7 +126,14 @@ ml-service 原本也綁 8080（`ml-service/start.sh:138`），衝突，須遷至
 是 docker-compose 服務名。Docker 已於 2026-07-28 移除，**此主機名在原生環境下無法解析**。
 `.env` 未設 `ML_SERVICE_URL` 時，Node 後端連不到 ml-service。
 
-（注意：`NEO4J_URI` 的 7688 預設值**不屬於此類**，理由見 §2。）
+### `host.docker.internal` 亦已失效（2026-09-20 修正）
+
+`.env.example:25` 與 `openwebui-config/functions.py:12` 原本使用
+`http://host.docker.internal:11434`。`host.docker.internal` 是 Docker 提供的 DNS 名稱，
+Docker 已於 2026-07-28 移除，原生環境無法解析。兩處已改為 `http://127.0.0.1:11434`。
+
+（注意：`NEO4J_URI` 的舊 7688 預設值**不屬於此類**——它在當時是正確的，
+理由見 §2；該埠已於 2026-09-20 整併至標準埠 7687。）
 
 ## 5. 結構性修法：讓設定錯誤大聲失敗
 
