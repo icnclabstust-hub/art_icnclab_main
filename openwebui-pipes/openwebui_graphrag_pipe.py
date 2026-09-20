@@ -15,7 +15,7 @@ _opencc = OpenCC("s2twp")
 class Pipe:
     class Valves(BaseModel):
         RAG_MANAGER_URL: str = Field(
-            default="http://localhost:8007",
+            default="http://localhost:8001",
             description="rag-manager-v2 服務位址",
         )
         MODEL_COMBINATION_ID: str = Field(

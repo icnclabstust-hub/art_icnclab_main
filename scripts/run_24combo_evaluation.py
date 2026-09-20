@@ -12,7 +12,7 @@ from pathlib import Path
 import requests
 from docx import Document
 
-RAG_MANAGER_URL = "http://localhost:8007"
+RAG_MANAGER_URL = "http://localhost:8001"
 OUTPUT_ROOT = Path("/mnt/c/Users/user/Desktop/驗證")
 PROGRESS_FILE = OUTPUT_ROOT / "progress.json"
 LOG_FILE = OUTPUT_ROOT / "run_log.txt"

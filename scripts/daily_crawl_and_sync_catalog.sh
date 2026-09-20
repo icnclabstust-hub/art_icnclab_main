@@ -103,6 +103,6 @@ for source in europeana harvard met_museum specialized_art google_books \
 done
 
 log "--- 清除 RAG 查詢快取 ---"
-curl -s -X POST "http://localhost:${RAG_MANAGER_PORT:-8007}/api/v1/cache/clear" >> "$LOG_FILE" 2>&1
+curl -s -X POST "http://localhost:${RAG_MANAGER_PORT:-8001}/api/v1/cache/clear" >> "$LOG_FILE" 2>&1
 
 log "=== 每日爬蟲＋新架構同步結束 ==="

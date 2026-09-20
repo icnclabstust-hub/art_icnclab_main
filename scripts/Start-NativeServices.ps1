@@ -30,7 +30,7 @@ function Write-Log($msg) {
 
 function Test-Port($port) {
     # 在 WSL 內檢查（服務都跑在 WSL）。不從 Windows 連 localhost：Windows 把 TCP 7937-8340 等範圍保留給
-    # Hyper-V/WinNAT（netsh interface ipv4 show excludedportrange protocol=tcp），8000/8007/8080 落在其中，
+    # Hyper-V/WinNAT（netsh interface ipv4 show excludedportrange protocol=tcp），8000/8001/8080 落在其中，
     # WSL 無法轉發到 Windows 的 localhost，從 Windows 測永遠失敗，會誤判成服務沒在跑而重複啟動。
     $null = & wsl.exe -d Ubuntu-22.04 -- bash -c "(echo > /dev/tcp/127.0.0.1/$port) 2>/dev/null"
     return ($LASTEXITCODE -eq 0)
@@ -67,16 +67,16 @@ if (Test-Port 8000) {
     if (Test-Port 8000) { Write-Log "✅ ChromaDB 啟動成功" } else { Write-Log "⚠️ ChromaDB 啟動後仍無回應，請檢查 /tmp/chromadb.log" }
 }
 
-# 3. rag-manager-v2（原生 WSL，依賴 Neo4j/ChromaDB，:8007）
-Write-Log "檢查 rag-manager-v2 (port 8007)..."
-if (Test-Port 8007) {
+# 3. rag-manager-v2（原生 WSL，依賴 Neo4j/ChromaDB，:8001）
+Write-Log "檢查 rag-manager-v2 (port 8001)..."
+if (Test-Port 8001) {
     Write-Log "✅ rag-manager-v2 已在運作"
 } else {
     Write-Log "啟動 rag-manager-v2..."
     $ragCmd = "cd '$WslProjectDir/langchain-rag' && NEO4J_URI=bolt://127.0.0.1:7687 NEO4J_PASSWORD=$Neo4jPassword CHROMADB_PORT=8000 ES_PASSWORD=$EsPassword python3 unified_rag_manager_v2.py > /tmp/rag_manager_v2.log 2>&1"
     Start-WslBackground $ragCmd
     Start-Sleep -Seconds 8
-    if (Test-Port 8007) { Write-Log "✅ rag-manager-v2 啟動成功" } else { Write-Log "⚠️ rag-manager-v2 啟動後仍無回應，請檢查 /tmp/rag_manager_v2.log" }
+    if (Test-Port 8001) { Write-Log "✅ rag-manager-v2 啟動成功" } else { Write-Log "⚠️ rag-manager-v2 啟動後仍無回應，請檢查 /tmp/rag_manager_v2.log" }
 }
 
 # 4. Open WebUI（原生 WSL）。不用 8080：該埠落在 Windows 保留範圍，瀏覽器的 localhost 連不到；改用 3000

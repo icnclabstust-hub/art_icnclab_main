@@ -80,7 +80,7 @@ echo "--------------------------------"
 if docker ps --format '{{.Names}}' | grep -q "^art-history-chromadb$"; then
     # 需要 jq 工具
     if command -v jq &> /dev/null; then
-        COLLECTION_INFO=$(curl -s http://localhost:8001/api/v2/tenants/default_tenant/databases/default_database/collections/aa7a55a2-924e-41b0-a0f7-9b5c031477a4 2>/dev/null)
+        COLLECTION_INFO=$(curl -s http://localhost:8000/api/v2/tenants/default_tenant/databases/default_database/collections/aa7a55a2-924e-41b0-a0f7-9b5c031477a4 2>/dev/null)
 
         if [ ! -z "$COLLECTION_INFO" ]; then
             VECTOR_COUNT=$(echo $COLLECTION_INFO | jq -r '.count // "N/A"')
@@ -195,7 +195,7 @@ echo "--------------------------------"
 
 ENDPOINTS=(
     "http://localhost:7474|Neo4j"
-    "http://localhost:8001|ChromaDB"
+    "http://localhost:8000|ChromaDB"
     "http://localhost:8010|RAG Server"
     "http://localhost:8080|OpenWebUI"
     "http://localhost:11434|Ollama"

@@ -74,7 +74,7 @@ if ! command -v ss >/dev/null 2>&1; then
   echo "  ⚠ 找不到 ss 指令，以下埠號對照表不可信，請先安裝 iproute2"
 else
 echo "  本專案關切的埠對照："
-for p in 11434 7687 7474 7688 7475 8000 8002 8007 8010 8080 5432 6379 9200; do
+for p in 11434 7687 7474 7688 7475 8000 8002 8001 8010 8080 5432 6379 9200; do
   own=$(ss -tlnp 2>/dev/null | awk -v P=":$p\$" '$4 ~ P {print $6; exit}')
   kv "$p" "${own:-(未被佔用)}"
 done

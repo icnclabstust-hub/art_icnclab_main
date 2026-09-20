@@ -80,7 +80,7 @@ if ! check_service "Neo4j" "http://localhost:7474" "7474"; then
     echo -e "${YELLOW}   請啟動 Neo4j: docker start art-history-neo4j${NC}"
 fi
 
-if ! check_service "ChromaDB" "http://localhost:8001/api/v1/heartbeat" "8001"; then
+if ! check_service "ChromaDB" "http://localhost:8000/api/v1/heartbeat" "8000"; then
     SERVICES_OK=false
     echo -e "${YELLOW}   請啟動 ChromaDB: docker start art-history-chromadb${NC}"
 fi

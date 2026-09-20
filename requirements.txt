@@ -41,7 +41,7 @@ scipy==1.15.3                    # neo4j-graphrag 硬相依（經 langchain-neo4
                                  # 不可升到 1.17.x：那需要 py>=3.11，部署機是 py3.10
 
 # ==================== Web 服務 ====================
-fastapi==0.141.1                 # RAG API（RAG_API_PORT=8008）與監控服務
+fastapi==0.141.1                 # RAG API（RAG_MANAGER_PORT=8001）與監控服務
 uvicorn[standard]==0.52.3
 pydantic==2.13.4                 # 亦為 OpenWebUI pipes 的 Valves 定義所需
 flask==3.1.3                     # ml-service/simple-app.py（不含 torch 也能跑）

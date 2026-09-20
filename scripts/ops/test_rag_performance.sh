@@ -77,7 +77,7 @@ test_performance "ChromaDB 列出集合" \
 
 # 測試 6: RAG Manager 健康檢查
 test_performance "RAG Manager 健康檢查" \
-    "curl -s http://localhost:8007/health" \
+    "curl -s http://localhost:8001/health" \
     0.3
 
 # 測試 7: Ollama 狀態
@@ -128,7 +128,7 @@ echo ""
 
 # RAG Manager 狀態
 echo "🔗 RAG Manager 狀態："
-RAG_STATUS=$(curl -s http://localhost:8007/health 2>/dev/null)
+RAG_STATUS=$(curl -s http://localhost:8001/health 2>/dev/null)
 if [ $? -eq 0 ]; then
     echo "$RAG_STATUS" | python3 -m json.tool 2>/dev/null || echo "健康"
 else

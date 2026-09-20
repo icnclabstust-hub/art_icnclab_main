@@ -98,7 +98,7 @@ log "--- 開始: 回報品質分數 ---"
 python3 scripts/report_quality_score.py >> "$LOG_FILE" 2>&1
 
 log "--- 清除 RAG 查詢快取 ---"
-curl -s -X POST http://localhost:8007/api/v1/cache/clear >> "$LOG_FILE" 2>&1
+curl -s -X POST http://localhost:8001/api/v1/cache/clear >> "$LOG_FILE" 2>&1
 
 RUN_END_EPOCH=$(date +%s)
 RUN_END_HUMAN=$(date '+%Y-%m-%d %H:%M:%S')

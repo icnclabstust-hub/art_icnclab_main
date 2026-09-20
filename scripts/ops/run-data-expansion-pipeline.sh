@@ -155,7 +155,7 @@ main() {
     echo "  3. Neo4j 瀏覽器: http://localhost:7474"
     echo ""
     log_info "測試 RAG 系統："
-    echo "  curl -X POST http://localhost:8007/api/v1/query \\"
+    echo "  curl -X POST http://localhost:8001/api/v1/query \\"
     echo "    -H 'Content-Type: application/json' \\"
     echo "    -d '{"
     echo "      \"query\": \"告訴我關於文藝復興時期的藝術\","

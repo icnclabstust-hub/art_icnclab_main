@@ -38,7 +38,7 @@ class UniversalDataImporter:
         neo4j_user: str = "neo4j",
         neo4j_password: str = "CHANGE_ME_NEO4J_PASSWORD",
         chromadb_host: str = "localhost",
-        chromadb_port: int = 8001,
+        chromadb_port: int = 8000,
         ollama_url: str = "http://localhost:11434",
     ):
 

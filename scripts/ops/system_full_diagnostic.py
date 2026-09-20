@@ -147,7 +147,7 @@ class SystemDiagnostic:
         """檢查RAG Manager"""
         print("⚙️ 檢查RAG Manager...")
 
-        cmd = "curl -s http://localhost:8007/health"
+        cmd = "curl -s http://localhost:8001/health"
         result = self.run_command(cmd, "RAG Manager健康檢查")
 
         if result["success"]:

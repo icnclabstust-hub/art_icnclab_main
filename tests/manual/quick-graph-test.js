@@ -3,7 +3,7 @@ const axios = require('axios');
 
 async function quickTest() {
     try {
-        const response = await axios.post('http://localhost:8007/api/v1/query', {
+        const response = await axios.post('http://localhost:8001/api/v1/query', {
             query: 'American paintings',
             model_combination_id: 'llama3.1:8b@graph_only',
             max_results: 3,

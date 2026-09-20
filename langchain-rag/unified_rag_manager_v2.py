@@ -196,7 +196,7 @@ if not NEO4J_PASSWORD:
         "（Start-NativeServices.ps1 已內建設定，不需手動處理）"
     )
 CHROMADB_HOST = os.getenv("CHROMADB_HOST", "localhost")
-CHROMADB_PORT = int(os.getenv("CHROMADB_PORT", "8001"))
+CHROMADB_PORT = int(os.getenv("CHROMADB_PORT", "8000"))
 CHROMADB_COLLECTION = os.getenv("CHROMADB_COLLECTION", "art_history_bgem3")
 
 # 關閉思考鏈的模型前綴（逗號分隔）。qwen3 系列的 <think> 階段佔生成時間大宗
@@ -1658,7 +1658,7 @@ async def root():
 # ==================== 主程序 ====================
 
 if __name__ == "__main__":
-    port = int(os.getenv("RAG_MANAGER_PORT", "8007"))
+    port = int(os.getenv("RAG_MANAGER_PORT", "8001"))
 
     logger.info(f"🚀 啟動 RAG 管理器服務於端口 {port}")
     logger.info(f"   Ollama: {OLLAMA_BASE_URL}")

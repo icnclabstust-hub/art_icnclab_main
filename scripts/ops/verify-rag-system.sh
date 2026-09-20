@@ -12,8 +12,8 @@ echo "1. Neo4j (7474):"
 curl -s http://localhost:7474 > /dev/null && echo "   ✅ 運行中" || echo "   ❌ 未運行"
 
 echo ""
-echo "2. ChromaDB (8001):"
-curl -s http://localhost:8001/api/v1/heartbeat > /dev/null && echo "   ✅ 運行中" || echo "   ❌ 未運行"
+echo "2. ChromaDB (8000):"
+curl -s http://localhost:8000/api/v1/heartbeat > /dev/null && echo "   ✅ 運行中" || echo "   ❌ 未運行"
 
 echo ""
 echo "3. Ollama (11434):"

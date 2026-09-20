@@ -7,7 +7,7 @@
 const axios = require('axios');
 
 // 配置
-const RAG_MANAGER_URL = 'http://localhost:8007';
+const RAG_MANAGER_URL = 'http://localhost:8001';
 const GRAPH_RAG_URL = 'http://localhost:8008';
 
 // 所有RAG策略
@@ -328,7 +328,7 @@ class AllRAGMethodsTester {
         console.log('\n🔗 訪問方式:');
         console.log('   OpenWebUI: http://localhost:8080');
         console.log('   Graph RAG API: http://localhost:8008');
-        console.log('   RAG Manager API: http://localhost:8007');
+        console.log('   RAG Manager API: http://localhost:8001');
 
         console.log('\n' + '═'.repeat(63));
         console.log('測試完成！');

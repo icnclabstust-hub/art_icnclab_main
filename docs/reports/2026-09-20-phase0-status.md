@@ -45,3 +45,20 @@ DROP SCHEMA catalog CASCADE;
 - **處理**：Open WebUI 改用 **3000**（`http://localhost:3000`）；RAG 後端 CORS 加入該來源；`Start-NativeServices.ps1` 改在 WSL 內偵測服務（原本從 Windows 連 localhost 測 8000/8007 永遠失敗，會誤判並重複啟動）。ChromaDB（8000）與 RAG 後端（8007）只在 WSL 內被使用，不需要 Windows 端可連。
 - **登入自動啟動**：已註冊工作排程 `ArtHistoryDB-StartServices`（目前使用者、一般權限、登入時執行 `Start-NativeServices.ps1`，`.env` 位置以 `ART_ENV_FILE` 指向 `D:\art_icnclab\.env`）。重新註冊或改路徑用 `scripts/Register-StartupTask.ps1`；移除用 `Unregister-ScheduledTask -TaskName ArtHistoryDB-StartServices -Confirm:$false`。
 - 與設計文件圖上標示的 8080 不同，屬環境限制；ml-service 與 OpenWebUI 搶 8080 的問題（附錄 B）因此在本機不再發生（Open WebUI 已不用 8080）。
+
+## 補充：埠號對齊架構圖（2026-09-20）
+
+| 服務 | 圖上 | 現況 | 說明 |
+|---|---|---|---|
+| Backend API | 8001 | **8001** ✅ | 原 8007 已全面改為 8001（程式預設、啟動腳本、ops／評測／測試腳本、`rag_config.json`、11 個 Open WebUI pipe 預設網址）；舊 8007 已無服務 |
+| ChromaDB | 8000 | **8000** ✅ | 原 Docker 時代的 8001 殘留（`unified_rag_manager_v2.py` 預設、`importer.py`、ops 檢查腳本）改為 8000，避免與新的 Backend API 8001 衝突 |
+| Elasticsearch | 9200 | 9200 ✅ | |
+| Neo4j | 7687 | 7687 ✅ | 專案實例；7688／7475 已廢除 |
+| Redis | 6379 | 6379 ✅ | |
+| Ollama | 11434 | 11434 ✅ | |
+| Open WebUI | 8080 | **3000** ❌ | Windows 保留 TCP 7937–8340（含 8080），沒有系統管理員權限無法解除保留；改回 8080 只需把 `Start-NativeServices.ps1` 的 `$WebUiPort` 改為 8080，但需先由使用者以系統管理員解除保留（例如重置 WinNAT 動態保留），且屆時 WSL 網路可能需重啟 |
+
+- Open WebUI 資料庫（`/home/user/openwebui-data/webui.db`）已備份為 `/home/user/backups/webui.db_pre_port8001_20260920_220132` 後，把 `function` 表 11 筆 pipe 內容中的 `localhost:8007` 更新為 `localhost:8001`（`integrity_check: ok`）。
+- `.env.example` 孤兒設定 `RAG_API_PORT=8008`（沒有任何程式讀取）已改為實際使用的 `RAG_MANAGER_PORT=8001`。
+- **刻意未動**（不在架構圖上、屬舊版／已停用服務）：`create_graphrag_models.py` 的 8010（Multi-DB RAG Server）與相關 ops 腳本、`test_suite.py` 與 `tests/manual/*` 的 8008、`src/agents/rl/rl_server.py` 的 8011、`ml-service` 的 8080、MCP 工具登記表的 8001／8010／8011（純靜態宣告）。若要清理這些舊服務的引用，需先確認哪些已廢棄。
+- 歷史文件（`docs/designs/`、本目錄舊報告）中的 8007 敘述保留原樣，屬當時紀錄。

@@ -1216,7 +1216,7 @@
   },
   "api_config": {
     "host": "127.0.0.1",
-    "port": 8007,
+    "port": 8001,
     "cors_origins": [
       "*"
     ],

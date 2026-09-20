@@ -6,7 +6,7 @@
 
 const axios = require('axios');
 
-const RAG_MANAGER_URL = 'http://localhost:8007';
+const RAG_MANAGER_URL = 'http://localhost:8001';
 
 async function testChineseQuery(query, description) {
     console.log(`\n${'='.repeat(60)}`);
