@@ -143,14 +143,18 @@ def source_names() -> list[str]:
 
 
 def load_artworks(adapter: SourceAdapter, files: list[str]) -> list[dict]:
-    """讀取並正規化一個來源的所有項目。
+    """讀取並正規化一個來源的所有項目；相同 id 只保留最後一筆。
+
+    多個檔案（或同一檔案）可能含有相同 id 但內容略異（例如 MET 與文藝復興／巴洛克共用 id 空間）。
+    既有匯入是「後寫者覆蓋」，這裡照同一語意先去重，避免同一份文件在一次攝取內被來回改寫、
+    每次執行都產生多餘的變更事件。
 
     Args:
         adapter: 來源介面卡。
         files: 指定檔案；為空時用介面卡自動挑選最新檔。
 
     Returns:
-        正規化後的作品 dict 清單。
+        去重後的正規化作品 dict 清單（依各 id 最後一次出現的順序）。
 
     Raises:
         FileNotFoundError: 找不到任何資料檔。
@@ -158,8 +162,10 @@ def load_artworks(adapter: SourceAdapter, files: list[str]) -> list[dict]:
     filenames = files or adapter.resolve_files()
     if not filenames:
         raise FileNotFoundError(f"找不到來源 {adapter.name} 的資料檔，請用 --file 指定")
-    return [
-        adapter.normalize(item, position)
-        for filename in filenames
-        for position, item in enumerate(adapter.load_items(filename))
-    ]
+    latest: dict[str, dict] = {}
+    for filename in filenames:
+        for position, item in enumerate(adapter.load_items(filename)):
+            artwork = adapter.normalize(item, position)
+            latest.pop(artwork["id"], None)
+            latest[artwork["id"]] = artwork
+    return list(latest.values())

@@ -31,8 +31,10 @@ fi
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && nvm use 24 >/dev/null 2>&1
 
-export DATA_RAW_DIR="${DATA_RAW_DIR:-$PROJECT_DIR/crawlers/data/raw}"
-export NEO4J_URI="${NEO4J_URI:-bolt://127.0.0.1:7687}"
+# 爬蟲固定寫入 crawlers/data/raw；.env 的 DATA_RAW_DIR 是相對路徑（./data/raw），不可沿用
+export DATA_RAW_DIR="$PROJECT_DIR/crawlers/data/raw"
+# 一律用標準埠：舊版 .env 的 NEO4J_URI 仍可能是整併前的 7688（見 docs/reports/2026-09-20-phase0-status.md）
+export NEO4J_URI="bolt://127.0.0.1:7687"
 export CHROMADB_HOST="${CHROMADB_HOST:-localhost}"
 export CHROMADB_PORT="${CHROMADB_PORT:-8000}"
 

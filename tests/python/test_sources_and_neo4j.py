@@ -215,3 +215,20 @@ def test_neo4j_queries_come_from_the_legacy_import_script():
 
     assert queries.artwork == module._ARTWORK_UNWIND_QUERY  # noqa: SLF001
     assert queries.artist == module._ARTIST_UNWIND_QUERY  # noqa: SLF001
+
+
+def test_duplicate_ids_keep_the_last_occurrence_across_files(tmp_path):
+    first, second = tmp_path / "a.json", tmp_path / "b.json"
+    first.write_text(json.dumps([{"id": "x", "v": 1}, {"id": "y", "v": 1}]), encoding="utf-8")
+    second.write_text(json.dumps([{"id": "x", "v": 2}]), encoding="utf-8")
+    adapter = sources.SourceAdapter(
+        name="demo",
+        normalize=lambda item, _position: {"id": item["id"], "v": item["v"]},
+        document_text=lambda artwork: artwork["id"],
+        resolve_files=list,
+        load_items=lambda filename: json.loads(open(filename, encoding="utf-8").read()),
+    )
+
+    artworks = sources.load_artworks(adapter, [str(first), str(second)])
+
+    assert artworks == [{"id": "y", "v": 1}, {"id": "x", "v": 2}]
