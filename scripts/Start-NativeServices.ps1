@@ -18,6 +18,7 @@ function Get-EnvValue($key) {
     if ($line) { return ($line -split "=", 2)[1] }
     return $null
 }
+$WebUiPort = 3000
 $Neo4jPassword = Get-EnvValue "NEO4J_PASSWORD"
 $EsPassword = Get-EnvValue "ES_PASSWORD"
 
@@ -27,24 +28,12 @@ function Write-Log($msg) {
     Add-Content -Path $LogFile -Value $line
 }
 
-function Test-TcpConnect($hostname, $port) {
-    try {
-        $client = New-Object System.Net.Sockets.TcpClient
-        $connectTask = $client.ConnectAsync($hostname, $port)
-        $completed = $connectTask.Wait(3000)
-        $result = $completed -and $client.Connected
-        $client.Close()
-        return $result
-    } catch {
-        return $false
-    }
-}
-
 function Test-Port($port) {
-    # 只要能建立 TCP 連線就算服務有在跑；用 Invoke-WebRequest 檢查 HTTP 狀態碼會誤判
-    # （例如 ChromaDB 新版對根目錄 "/" 回應 404，會被 Invoke-WebRequest 當成例外，誤判成「服務沒在跑」）
-    # WSL 環境下 Windows 對 127.0.0.1 / localhost（常解析成 ::1）的埠轉發偶爾只有其中一個能通，兩個都測，任一成功就算通過
-    return (Test-TcpConnect "127.0.0.1" $port) -or (Test-TcpConnect "localhost" $port)
+    # 在 WSL 內檢查（服務都跑在 WSL）。不從 Windows 連 localhost：Windows 把 TCP 7937-8340 等範圍保留給
+    # Hyper-V/WinNAT（netsh interface ipv4 show excludedportrange protocol=tcp），8000/8007/8080 落在其中，
+    # WSL 無法轉發到 Windows 的 localhost，從 Windows 測永遠失敗，會誤判成服務沒在跑而重複啟動。
+    $null = & wsl.exe -d Ubuntu-22.04 -- bash -c "(echo > /dev/tcp/127.0.0.1/$port) 2>/dev/null"
+    return ($LASTEXITCODE -eq 0)
 }
 
 function Start-WslBackground($bashCommand) {
@@ -90,16 +79,16 @@ if (Test-Port 8007) {
     if (Test-Port 8007) { Write-Log "✅ rag-manager-v2 啟動成功" } else { Write-Log "⚠️ rag-manager-v2 啟動後仍無回應，請檢查 /tmp/rag_manager_v2.log" }
 }
 
-# 4. Open WebUI（原生 WSL，:8080）
-Write-Log "檢查 Open WebUI (port 8080)..."
-if (Test-Port 8080) {
+# 4. Open WebUI（原生 WSL）。不用 8080：該埠落在 Windows 保留範圍，瀏覽器的 localhost 連不到；改用 3000
+Write-Log "檢查 Open WebUI (port $WebUiPort)..."
+if (Test-Port $WebUiPort) {
     Write-Log "✅ Open WebUI 已在運作"
 } else {
     Write-Log "啟動 Open WebUI..."
-    $webuiCmd = "cd /home/user && DATA_DIR=/home/user/openwebui-data OLLAMA_BASE_URL=http://localhost:11434 /home/user/openwebui-venv/bin/open-webui serve --port 8080 > /tmp/openwebui.log 2>&1"
+    $webuiCmd = "cd /home/user && DATA_DIR=/home/user/openwebui-data OLLAMA_BASE_URL=http://localhost:11434 /home/user/openwebui-venv/bin/open-webui serve --port $WebUiPort > /tmp/openwebui.log 2>&1"
     Start-WslBackground $webuiCmd
     Start-Sleep -Seconds 10
-    if (Test-Port 8080) { Write-Log "✅ Open WebUI 啟動成功" } else { Write-Log "⚠️ Open WebUI 啟動後仍無回應，請檢查 /tmp/openwebui.log" }
+    if (Test-Port $WebUiPort) { Write-Log "✅ Open WebUI 啟動成功" } else { Write-Log "⚠️ Open WebUI 啟動後仍無回應，請檢查 /tmp/openwebui.log" }
 }
 
 Write-Log "=== 啟動流程結束 ==="

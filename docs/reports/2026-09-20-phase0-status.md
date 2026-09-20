@@ -37,3 +37,11 @@ DROP SCHEMA catalog CASCADE;
 ```
 
 完整還原（極端情況）：`pg_restore -d art_history_db --clean /var/lib/postgresql/art_history_db_pre_phase0_20260920_180452.dump`。
+
+## 補充：Open WebUI 埠號改用 3000（2026-09-20）
+
+- **現象**：Windows 瀏覽器開 `http://localhost:8080` 出現 `ERR_CONNECTION_REFUSED`，但 Open WebUI 在 WSL 內正常。
+- **根因**：Windows 把 TCP 埠 7937–8340（含 8000、8007、8080）等範圍保留給 Hyper-V／WinNAT（`netsh interface ipv4 show excludedportrange protocol=tcp`），WSL 的 localhost 轉發程式無法在 Windows 端綁定這些埠；只有不在保留範圍的埠（例如 Neo4j 的 7474）有轉發。保留範圍可能隨系統重開機變動。
+- **處理**：Open WebUI 改用 **3000**（`http://localhost:3000`）；RAG 後端 CORS 加入該來源；`Start-NativeServices.ps1` 改在 WSL 內偵測服務（原本從 Windows 連 localhost 測 8000/8007 永遠失敗，會誤判並重複啟動）。ChromaDB（8000）與 RAG 後端（8007）只在 WSL 內被使用，不需要 Windows 端可連。
+- **登入自動啟動**：已註冊工作排程 `ArtHistoryDB-StartServices`（目前使用者、一般權限、登入時執行 `Start-NativeServices.ps1`，`.env` 位置以 `ART_ENV_FILE` 指向 `D:\art_icnclab\.env`）。重新註冊或改路徑用 `scripts/Register-StartupTask.ps1`；移除用 `Unregister-ScheduledTask -TaskName ArtHistoryDB-StartServices -Confirm:$false`。
+- 與設計文件圖上標示的 8080 不同，屬環境限制；ml-service 與 OpenWebUI 搶 8080 的問題（附錄 B）因此在本機不再發生（Open WebUI 已不用 8080）。
