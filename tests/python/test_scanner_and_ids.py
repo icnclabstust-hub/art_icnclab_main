@@ -34,6 +34,27 @@ def test_hidden_characters_are_flagged():
     assert result.rules == ("hidden_characters",)
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "ex­hibition",  # 軟連字號（真實 Yale 資料）
+        "می‌خواهم",  # 波斯文 ZWNJ
+        "क्‍ष",  # 印度系 ZWJ
+        "left‎to right",  # LRM
+    ],
+)
+def test_benign_invisible_characters_are_not_flagged(text):
+    assert scan_artwork(make_artwork(description=text)).clean
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["a​b", "a⁠b", "a‮b", "a⁦b", "tag󠁁"],
+)
+def test_deceptive_invisible_characters_are_flagged(text):
+    assert scan_artwork(make_artwork(description=text)).rules == ("hidden_characters",)
+
+
 def test_leading_bom_alone_is_tolerated():
     assert scan_artwork(make_artwork(title="﻿Water Lilies")).clean
 

@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 
+from ingest import backfill as backfill_module
 from ingest import sources
 from ingest.db import connect
 from ingest.pipeline import ingest_artworks
@@ -91,6 +92,49 @@ def _cmd_verify(args: argparse.Namespace) -> int:
     return 0 if consistent else 1
 
 
+def _cmd_backfill(args: argparse.Namespace) -> int:
+    import chromadb  # noqa: PLC0415 -- 只有 backfill 需要連 ChromaDB 與 Neo4j
+    from neo4j import GraphDatabase  # noqa: PLC0415
+
+    password = os.getenv("NEO4J_PASSWORD")
+    if not password:
+        raise SystemExit("缺少 NEO4J_PASSWORD 環境變數")
+    client = chromadb.HttpClient(
+        host=os.getenv("CHROMADB_HOST", "localhost"), port=int(os.getenv("CHROMADB_PORT", "8000"))
+    )
+    collection = client.get_collection(name=os.getenv("CHROMADB_COLLECTION", DEFAULT_COLLECTION))
+    driver = GraphDatabase.driver(
+        os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687"),
+        auth=(os.getenv("NEO4J_USER", "neo4j"), password),
+    )
+    with connect() as conn, driver.session() as session:
+        managed = {
+            r[0] for r in conn.execute("SELECT external_id FROM catalog.documents").fetchall()
+        }
+        documents, unreadable = backfill_module.read_legacy_documents(collection, session, managed)
+        if args.source:
+            documents = [d for d in documents if d.source in args.source]
+        per_source: dict[str, list[int]] = {}
+        for doc in documents:
+            entry = per_source.setdefault(doc.source, [0, 0])
+            entry[0] += 1
+            entry[1] += len(doc.chunks)
+        print(f"待補登來源（文件／chunk）：{len(documents)} 份文件")
+        for source, (n_docs, n_chunks) in sorted(per_source.items()):
+            print(f"  {source:32s} {n_docs:5d} 份／{n_chunks:5d} chunk")
+        if unreadable["neo4j_node_without_source"]:
+            skipped = unreadable["neo4j_node_without_source"]
+            print(f"  （另有 {skipped} 個 Neo4j 節點沒有 source，無法補登）")
+        stats = backfill_module.backfill_documents(conn, documents, apply=args.apply)
+    mode = "已寫入" if args.apply else "預覽（未寫入，加 --apply 才會寫入）"
+    print(f"[{mode}]")
+    print(f"  文件 {stats.documents}／chunk {stats.chunks}／已存在略過 {stats.skipped_existing}")
+    print(f"  隔離 {stats.quarantined}／撤出事件 {stats.events}")
+    if stats.quarantined_ids:
+        print(f"  隔離的文件：{stats.quarantined_ids[:10]}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI 進入點。
 
@@ -119,6 +163,11 @@ def main(argv: list[str] | None = None) -> int:
     verify.add_argument("--source", required=True)
     verify.add_argument("--es", action="store_true", help="同時比對 Elasticsearch")
     verify.set_defaults(handler=_cmd_verify)
+
+    bf = sub.add_parser("backfill", help="把檢索庫已有、catalog 不認得的舊資料補登進 catalog")
+    bf.add_argument("--source", action="append", default=[], help="只補登指定來源（可重複）")
+    bf.add_argument("--apply", action="store_true", help="實際寫入（預設只預覽）")
+    bf.set_defaults(handler=_cmd_backfill)
 
     args = parser.parse_args(argv)
     return args.handler(args)

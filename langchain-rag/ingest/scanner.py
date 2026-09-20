@@ -6,16 +6,22 @@
 
 import json
 import re
-import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
 RULES_PATH = Path(__file__).with_name("scan_rules.json")
 
-# Cf（格式控制字元）涵蓋零寬字元與雙向控制字元，藝術史文本正常內容不會用到。
-HIDDEN_CHAR_CATEGORIES = {"Cf"}
-# 位元組順序記號 U+FEFF 屬 Cf，但偶爾殘留於字串開頭，僅在其他位置出現才算可疑。
-ALLOWED_LEADING_CHARS = {"﻿"}
+# 只標記「能藏指令或欺騙顯示」的不可見字元，不整類封鎖 Cf：軟連字號（U+00AD）、
+# ZWNJ／ZWJ（U+200C／U+200D，波斯文與印度系文字必用）、LRM／RLM（U+200E／U+200F）都是正常文本，
+# 曾在真實館藏資料（Yale）上因此誤判。
+SUSPICIOUS_HIDDEN_CHARS = frozenset(
+    [0x180E, 0x200B, 0x2060, 0x2061, 0x2062, 0x2063, 0x2064, 0xFEFF]  # 零寬／不可見運算符
+    + list(range(0x202A, 0x202F))  # 雙向嵌入與覆寫
+    + list(range(0x2066, 0x206A))  # 雙向隔離
+    + list(range(0xE0000, 0xE0080))  # Unicode 標籤字元（可用來夾帶 ASCII 指令）
+)
+# 位元組順序記號 U+FEFF 偶爾殘留於字串開頭，僅在其他位置出現才算可疑。
+ALLOWED_LEADING_CHARS = {"\ufeff"}
 
 SYMBOL_RATIO_MIN_LENGTH = 200
 SYMBOL_RATIO_THRESHOLD = 0.6
@@ -53,7 +59,7 @@ def load_rules(path: Path = RULES_PATH) -> list[tuple[str, re.Pattern[str]]]:
 
 def _has_hidden_chars(text: str) -> bool:
     body = text.lstrip("".join(ALLOWED_LEADING_CHARS))
-    return any(unicodedata.category(ch) in HIDDEN_CHAR_CATEGORIES for ch in body)
+    return any(ord(ch) in SUSPICIOUS_HIDDEN_CHARS for ch in body)
 
 
 def _mostly_symbols(text: str) -> bool:
