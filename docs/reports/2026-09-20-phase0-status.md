@@ -76,3 +76,10 @@ DROP SCHEMA catalog CASCADE;
 ### Open WebUI 埠
 
 `Start-NativeServices.ps1` 現在每次啟動時判斷：**優先使用 8080**，若 Windows 已把 8080 保留（`netsh interface ipv4 show excludedportrange protocol=tcp`）才退回 3000。目前這台機器 8080 落在保留範圍（8037–8136），所以實際仍是 3000；保留範圍會隨 Windows 重開機變動，之後可能自動變成 8080。
+
+## 補充：每日排程改指向新架構流程（2026-09-20）
+
+- **問題**：Windows 工作排程 `ArtHistoryDB-DailyCrawl`（每日 03:00）仍指向已不存在的桌面目錄，最近一次結果為錯誤碼 `2147946720`，且原流程直接寫 Neo4j／ChromaDB、繞過 catalog，會讓各庫與 catalog 漂移。
+- **處理**：`scripts/Run-DailyCrawl.ps1` 改為由自身位置推算路徑、先執行 `Start-NativeServices.ps1`（確保服務已啟動），再在 WSL 執行 `daily_crawl_and_sync_catalog.sh`（爬蟲 → catalog 攝取 → ChromaDB／ES／Neo4j 訂閱 → 驗證）；`-SkipCrawl` 可只做攝取與同步。工作排程的動作已改指向新包裝（`.env` 以 `ART_ENV_FILE` 指向 `D:\art_icnclab\.env`），並開啟「錯過時補跑」與「使用電池時也執行」。
+- **驗證**：以與排程相同的呼叫方式執行 `-SkipCrawl`，服務偵測、8 個來源攝取、三個訂閱器全部成功（Yale 仍因來源端 403 失敗，屬預期）。完整含爬蟲的流程尚未實跑，第一次會是 2026-09-21 03:00，請於當天查看 `logs/daily_crawl/catalog_crawl_*.log`。
+- 舊流程 `scripts/daily_crawl_and_sync.sh` 保留但不再被排程使用。
