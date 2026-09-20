@@ -3,15 +3,18 @@
 # 可重複執行：每個服務都會先檢查是否已經在跑，不會重複啟動
 
 $ErrorActionPreference = "Continue"
-$ProjectDir = "c:\Users\user\Desktop\藝術史資料庫\art-history-database"
+# 專案根目錄由腳本位置推算；WSL 內對應路徑為 /mnt/<磁碟機小寫>/...
+$ProjectDir = Split-Path -Parent $PSScriptRoot
+$WslProjectDir = "/mnt/" + $ProjectDir.Substring(0, 1).ToLower() + ($ProjectDir.Substring(2) -replace "\\", "/")
+# .env 預設在專案根目錄；若放在別處（例如舊 repo），以環境變數 ART_ENV_FILE 指定
+$EnvFile = if ($env:ART_ENV_FILE) { $env:ART_ENV_FILE } else { Join-Path $ProjectDir ".env" }
 $LogDir = Join-Path $ProjectDir "logs\startup"
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 $LogFile = Join-Path $LogDir ("start_{0}.log" -f (Get-Date -Format "yyyy-MM-ddTHH-mm-ss"))
 
 # 從 .env 讀取密碼，不寫死在腳本裡避免密碼進 git
 function Get-EnvValue($key) {
-    $envPath = Join-Path $ProjectDir ".env"
-    $line = Get-Content $envPath | Where-Object { $_ -match "^$key=" } | Select-Object -First 1
+    $line = Get-Content $EnvFile | Where-Object { $_ -match "^$key=" } | Select-Object -First 1
     if ($line) { return ($line -split "=", 2)[1] }
     return $null
 }
@@ -81,7 +84,7 @@ if (Test-Port 8007) {
     Write-Log "✅ rag-manager-v2 已在運作"
 } else {
     Write-Log "啟動 rag-manager-v2..."
-    $ragCmd = "cd '/mnt/c/Users/user/Desktop/藝術史資料庫/art-history-database/langchain-rag' && NEO4J_URI=bolt://127.0.0.1:7687 NEO4J_PASSWORD=$Neo4jPassword CHROMADB_PORT=8000 ES_PASSWORD=$EsPassword python3 unified_rag_manager_v2.py > /tmp/rag_manager_v2.log 2>&1"
+    $ragCmd = "cd '$WslProjectDir/langchain-rag' && NEO4J_URI=bolt://127.0.0.1:7687 NEO4J_PASSWORD=$Neo4jPassword CHROMADB_PORT=8000 ES_PASSWORD=$EsPassword python3 unified_rag_manager_v2.py > /tmp/rag_manager_v2.log 2>&1"
     Start-WslBackground $ragCmd
     Start-Sleep -Seconds 8
     if (Test-Port 8007) { Write-Log "✅ rag-manager-v2 啟動成功" } else { Write-Log "⚠️ rag-manager-v2 啟動後仍無回應，請檢查 /tmp/rag_manager_v2.log" }
