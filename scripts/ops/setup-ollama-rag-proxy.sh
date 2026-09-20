@@ -8,7 +8,7 @@ echo "========================================"
 echo ""
 
 # 設置工作目錄
-WORK_DIR="/mnt/c/Users/ssking1999/Desktop/藝術史資料庫/art-history-database"
+WORK_DIR="${WORK_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}"
 cd "$WORK_DIR"
 
 # 顏色定義
