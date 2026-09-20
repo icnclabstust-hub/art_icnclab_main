@@ -1,0 +1,22 @@
+[
+  {
+    "name": "ignore_previous_instructions_en",
+    "pattern": "(?i)\\bignore\\s+(?:all\\s+|any\\s+|the\\s+)*(?:previous|prior|above|earlier)\\s+(?:instructions?|prompts?|rules?)"
+  },
+  {
+    "name": "ignore_previous_instructions_zh",
+    "pattern": "忽略(?:以上|上述|先前|之前|前面)(?:的)?(?:所有)?(?:指令|指示|提示|規則)"
+  },
+  {
+    "name": "reveal_system_prompt",
+    "pattern": "(?i)\\b(?:reveal|show|print|repeat|output)\\s+(?:me\\s+)?(?:your\\s+|the\\s+)?(?:system\\s+prompt|hidden\\s+instructions?)"
+  },
+  {
+    "name": "chat_role_markup",
+    "pattern": "(?i)<\\s*/?\\s*(?:system|assistant)\\s*>|\\[/?INST\\]|<\\|(?:im_start|im_end)\\|>"
+  },
+  {
+    "name": "jailbreak_phrase",
+    "pattern": "(?i)\\bdo\\s+anything\\s+now\\b|\\bDAN\\s+mode\\b|\\bdeveloper\\s+mode\\s+enabled\\b"
+  }
+]
