@@ -5,9 +5,9 @@
       "pattern": "Neo\\.ClientError\\.Security\\.Unauthorized",
       "log_sources": ["rag_manager_v2.log", "neo4j-native.log", "daily_crawl"],
       "title": "Neo4j 認證失敗 (Unauthorized)",
-      "diagnosis": "帳密通常沒有真的錯。最常見原因：(1) 連到了錯的 Neo4j 實例/port（例如 WSL 環境本身有另一個系統 Neo4j 服務佔用 7687，我們自己的原生 Neo4j 用的是 7688）(2) 服務還在啟動中就有請求打進來",
+      "diagnosis": "帳密通常沒有真的錯。最常見原因：(1) 連到了錯的 Neo4j 實例/port（2026-09-20 起本專案使用標準埠 7687；此前為 7688，WSL 系統自帶的 neo4j.service 已停用）(2) 服務還在啟動中就有請求打進來",
       "fix": [
-        "確認連線字串用的是 bolt://127.0.0.1:7688（不是 7687）",
+        "確認連線字串用的是 bolt://127.0.0.1:7687（標準埠；2026-09-20 前為 7688）",
         "檢查是否有其他 neo4j 程序佔用相同 port: wsl -d Ubuntu-22.04 -- bash -c \"ps aux | grep neo4j\"",
         "若懷疑是舊的殘留連線，重啟原生 Neo4j：先 pkill -f neo4j-community，再用 Start-NativeServices.ps1 重新啟動"
       ]
@@ -25,7 +25,7 @@
     },
     {
       "id": "neo4j_connection_refused",
-      "pattern": "ConnectionRefusedError|Connection refused.*7688|ServiceUnavailable.*Failed to establish connection",
+      "pattern": "ConnectionRefusedError|Connection refused.*768[78]|ServiceUnavailable.*Failed to establish connection",
       "log_sources": ["rag_manager_v2.log", "daily_crawl"],
       "title": "連不到 Neo4j（Connection refused）",
       "diagnosis": "Neo4j 服務本身沒有在跑，或是還在啟動中（Neo4j 完整啟動大約需要 15-20 秒）",

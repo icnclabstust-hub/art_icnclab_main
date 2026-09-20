@@ -51,15 +51,17 @@ function Start-WslBackground($bashCommand) {
     Start-Process -FilePath "wsl.exe" -ArgumentList $wslArgs -WindowStyle Hidden
 }
 
-# 1. Neo4j（原生 WSL，bolt:7688 / http:7475 —— 7687/7474 被 WSL 環境本身的系統 Neo4j 服務佔用，改用替代埠）
-Write-Log "檢查 Neo4j (port 7475)..."
-if (Test-Port 7475) {
+# 1. Neo4j（原生 WSL，標準埠 bolt:7687 / http:7474）
+#    2026-09-20 起改用標準埠；此前為 7688/7475，因 WSL 系統自帶的 neo4j.service 佔用標準埠。
+#    該系統服務已 systemctl disable --now，標準埠歸本專案。
+Write-Log "檢查 Neo4j (port 7474)..."
+if (Test-Port 7474) {
     Write-Log "✅ Neo4j 已在運作"
 } else {
     Write-Log "啟動 Neo4j..."
     Start-WslBackground "/home/user/neo4j-community-2026.06.0/bin/neo4j console > /tmp/neo4j-native.log 2>&1"
     Start-Sleep -Seconds 20
-    if (Test-Port 7475) { Write-Log "✅ Neo4j 啟動成功" } else { Write-Log "⚠️ Neo4j 啟動後仍無回應，請檢查 /tmp/neo4j-native.log" }
+    if (Test-Port 7474) { Write-Log "✅ Neo4j 啟動成功" } else { Write-Log "⚠️ Neo4j 啟動後仍無回應，請檢查 /tmp/neo4j-native.log" }
 }
 
 # 2. ChromaDB（原生 WSL，:8000）
@@ -79,7 +81,7 @@ if (Test-Port 8007) {
     Write-Log "✅ rag-manager-v2 已在運作"
 } else {
     Write-Log "啟動 rag-manager-v2..."
-    $ragCmd = "cd '/mnt/c/Users/user/Desktop/藝術史資料庫/art-history-database/langchain-rag' && NEO4J_URI=bolt://127.0.0.1:7688 NEO4J_PASSWORD=$Neo4jPassword CHROMADB_PORT=8000 ES_PASSWORD=$EsPassword python3 unified_rag_manager_v2.py > /tmp/rag_manager_v2.log 2>&1"
+    $ragCmd = "cd '/mnt/c/Users/user/Desktop/藝術史資料庫/art-history-database/langchain-rag' && NEO4J_URI=bolt://127.0.0.1:7687 NEO4J_PASSWORD=$Neo4jPassword CHROMADB_PORT=8000 ES_PASSWORD=$EsPassword python3 unified_rag_manager_v2.py > /tmp/rag_manager_v2.log 2>&1"
     Start-WslBackground $ragCmd
     Start-Sleep -Seconds 8
     if (Test-Port 8007) { Write-Log "✅ rag-manager-v2 啟動成功" } else { Write-Log "⚠️ rag-manager-v2 啟動後仍無回應，請檢查 /tmp/rag_manager_v2.log" }

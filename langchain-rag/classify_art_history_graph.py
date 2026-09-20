@@ -34,7 +34,7 @@ from neo4j import GraphDatabase
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-NEO4J_URI = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7688")  # 原生 Neo4j（WSL 直接執行，非 Docker）
+NEO4J_URI = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687")  # 原生 Neo4j（WSL 直接執行，非 Docker），標準埠
 NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 if not NEO4J_PASSWORD:

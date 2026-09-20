@@ -31,8 +31,10 @@ from neo4j import GraphDatabase
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# 原生 Neo4j（WSL 直接執行，非 Docker）；7688 是因為 WSL 環境本身有另一個系統 Neo4j 服務佔用了 7687
-NEO4J_URI = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7688")
+# 原生 Neo4j（WSL 直接執行，非 Docker），使用標準埠 bolt:7687 / http:7474。
+# 2026-09-20 前曾改用 7688/7475，因 WSL 系統自帶的 neo4j.service 佔用標準埠；
+# 該系統服務已停用，標準埠歸本專案。詳見 docs/2026-09-20-port-consolidation.md
+NEO4J_URI = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687")
 NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 if not NEO4J_PASSWORD:
