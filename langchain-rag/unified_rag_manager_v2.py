@@ -22,6 +22,7 @@ import uvicorn
 
 # ChromaDB 共用 embedding function（BGE-M3，取代預設的英文為主模型）
 from bge_m3_embedding import BGEM3EmbeddingFunction
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -181,6 +182,11 @@ config_path = Path(__file__).parent / "rag_config.json"
 with open(config_path, encoding="utf-8") as f:
     RAG_CONFIG = json.load(f)
 
+# 密碼不放在命令列（同機任何使用者用 ps 都看得到）：由 ENV_FILE 指向的 .env 讀入；
+# 已存在的環境變數優先，所以啟動時明確指定的埠、位址不會被 .env 內的舊值蓋掉
+if os.getenv("ENV_FILE"):
+    load_dotenv(os.environ["ENV_FILE"], override=False)
+
 # 環境變數配置
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 # 原生 Neo4j（WSL 直接執行），使用標準埠 bolt:7687 / http:7474。
@@ -191,8 +197,8 @@ NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 if not NEO4J_PASSWORD:
     raise RuntimeError(
-        "缺少 NEO4J_PASSWORD 環境變數。請在啟動前設定，例如："
-        "NEO4J_PASSWORD=... python3 unified_rag_manager_v2.py"
+        "缺少 NEO4J_PASSWORD 環境變數。請以 ENV_FILE=<.env 路徑> 指定密碼檔，例如："
+        "ENV_FILE=/mnt/f/.../.env python3 unified_rag_manager_v2.py"
         "（Start-NativeServices.ps1 已內建設定，不需手動處理）"
     )
 CHROMADB_HOST = os.getenv("CHROMADB_HOST", "localhost")

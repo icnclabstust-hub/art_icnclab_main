@@ -11,12 +11,6 @@ $LogDir = Join-Path $ProjectDir "logs\startup"
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 $LogFile = Join-Path $LogDir ("start_{0}.log" -f (Get-Date -Format "yyyy-MM-ddTHH-mm-ss"))
 
-# 從 .env 讀取密碼，不寫死在腳本裡避免密碼進 git
-function Get-EnvValue($key) {
-    $line = Get-Content $EnvFile | Where-Object { $_ -match "^$key=" } | Select-Object -First 1
-    if ($line) { return ($line -split "=", 2)[1] }
-    return $null
-}
 # Open WebUI 對外埠：優先用架構圖的 8080；若 Windows 把它保留給 Hyper-V/WinNAT（瀏覽器的 localhost 連不到），
 # 退回 3000。保留範圍會隨系統重開機變動，所以每次啟動時判斷（netsh interface ipv4 show excludedportrange protocol=tcp）。
 function Get-WebUiPort {
@@ -30,8 +24,8 @@ function Get-WebUiPort {
     return $preferred
 }
 $WebUiPort = Get-WebUiPort
-$Neo4jPassword = Get-EnvValue "NEO4J_PASSWORD"
-$EsPassword = Get-EnvValue "ES_PASSWORD"
+# 密碼不經過命令列（ps 看得到）：只把 .env 的 WSL 路徑交給後端，由後端自己讀
+$WslEnvFile = "/mnt/" + $EnvFile.Substring(0, 1).ToLower() + ($EnvFile.Substring(2) -replace "\\", "/")
 
 function Write-Log($msg) {
     $line = "[{0}] {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $msg
@@ -84,7 +78,7 @@ if (Test-Port 8001) {
     Write-Log "✅ rag-manager-v2 已在運作"
 } else {
     Write-Log "啟動 rag-manager-v2..."
-    $ragCmd = "cd '$WslProjectDir/langchain-rag' && NEO4J_URI=bolt://127.0.0.1:7687 NEO4J_PASSWORD=$Neo4jPassword CHROMADB_PORT=8000 ES_PASSWORD=$EsPassword python3 unified_rag_manager_v2.py > /tmp/rag_manager_v2.log 2>&1"
+    $ragCmd = "cd '$WslProjectDir/langchain-rag' && ENV_FILE='$WslEnvFile' NEO4J_URI=bolt://127.0.0.1:7687 CHROMADB_PORT=8000 python3 unified_rag_manager_v2.py > /tmp/rag_manager_v2.log 2>&1"
     Start-WslBackground $ragCmd
     Start-Sleep -Seconds 8
     if (Test-Port 8001) { Write-Log "✅ rag-manager-v2 啟動成功" } else { Write-Log "⚠️ rag-manager-v2 啟動後仍無回應，請檢查 /tmp/rag_manager_v2.log" }
