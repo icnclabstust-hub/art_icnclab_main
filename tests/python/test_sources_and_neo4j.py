@@ -350,3 +350,29 @@ def test_schema_statements_are_safe_to_rerun_and_cover_the_merge_keys():
     assert joined.count("IF NOT EXISTS") == len(SCHEMA_STATEMENTS)
     assert "(a:Artwork) REQUIRE a.id IS UNIQUE" in joined
     assert "(a:Artist) REQUIRE a.name IS UNIQUE" in joined
+
+
+def test_graph_context_hides_lifecycle_fields_and_the_stale_single_source(monkeypatch):
+    pytest.importorskip("chromadb")
+    # 該模組載入時要求密碼環境變數；這裡只測純格式化函式，不會連線
+    monkeypatch.setenv("NEO4J_PASSWORD", "unused")
+    monkeypatch.setenv("ES_PASSWORD", "unused")
+    from unified_rag_manager_v2 import GraphOnlyRAG  # noqa: PLC0415
+
+    artist = {
+        "name": "Vincent van Gogh",
+        "source": "met_museum",
+        "sources": ["cleveland_museum", "europeana"],
+        "valid_from": "2026-09-21T00:00:00Z",
+        "updated_at": "2026-09-21T00:00:00Z",
+    }
+    artwork = {"title": "Vase", "source": "harvard", "date": "1900", "valid_from": "x"}
+
+    artist_text = GraphOnlyRAG._format_graph_node(None, artist, [])  # noqa: SLF001
+    artwork_text = GraphOnlyRAG._format_graph_node(None, artwork, [])  # noqa: SLF001
+
+    assert "sources: ['cleveland_museum', 'europeana']" in artist_text
+    assert "met_museum" not in artist_text
+    assert "valid_from" not in artist_text and "updated_at" not in artist_text
+    assert "source: harvard" in artwork_text and "date: 1900" in artwork_text
+    assert "valid_from" not in artwork_text

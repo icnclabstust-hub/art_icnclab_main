@@ -48,3 +48,10 @@ Neo4j 訂閱器對每筆 document 事件套用：
 - **做法**：`neo4j.conf` 改為 `server.bolt.listen_address=127.0.0.1:7687`、`server.http.listen_address=127.0.0.1:7474`，並加上 `server.jvm.additional=-Djava.net.preferIPv4Stack=true` 讓 Neo4j 只用純 IPv4。
 - **驗證**：`ss` 顯示 `127.0.0.1:7474`、`127.0.0.1:7687`；Windows 端 `localhost:7474` 回 200、`Test-NetConnection localhost -Port 7687` 為 True；RAG 後端健康檢查 Neo4j 為 true。Windows 的 Neo4j Browser 仍可連上，同時 Neo4j 不再監聽所有網卡。
 - **限制**：設定檔位於 Neo4j 安裝目錄（`/home/user/neo4j-community-2026.06.0/conf/neo4j.conf`），不在 repo 內；還原點為同目錄的 `neo4j.conf.bak-ipv4-*`。若重裝 Neo4j 需重新套用這三行。備份腳本（停止→dump→重啟）沿用同一份設定，不受影響。
+
+### 三、Artist.sources 的動態資料庫、召回率與線上服務檢視（2026-09-21）
+- **動態寫入**：重算是「重新計算」而非「累加」，重送事件（至少一次語意）結果相同；重算與寫入失敗會使該批事件整批重試，游標不前進。實測 500 件作品的重算 1.1 秒、全量重算（2,915 位）0.5 秒；最大的樞紐藝術家（`Unknown Artist`，353 件作品）不成問題。全量重算只在一次性補齊時使用，**請勿與每日流程同時執行**（同時寫同一批節點可能死結，後果是該批事件重試，不會壞資料）。
+- **召回率**：全文索引只涵蓋 `Artist.name`，不含來源欄位，檢索命中與排序不受影響。但發現一個**真實的副作用**：`GraphOnlyRAG._format_graph_node` 會把節點的**所有屬性**寫進給模型的文字，因此線上原本就會輸出 `source: met_museum`（梵谷已無 Met 作品，屬過時資訊，可能被模型當成事實引用），Phase 2 新增的 `valid_from` 等生命週期欄位與新的 `sources` 也會一併輸出。已修正為：生命週期欄位不輸出；已有 `sources` 時不輸出舊的單值 `source`。修正前後以同一個查詢（`graph_only`、「Vincent van Gogh」）比對，前者含過時的 `source: met_museum`，後者只留 `sources`，關係列表不變（前 5 筆一致）。
+- **線上服務**：來源重算與綁定變更不需要停機；只有讀取端程式碼要重啟 RAG 後端才會生效，實測從關閉到 `/health` 回報 healthy 約 10 秒，未觸及每日流程。每晚備份（`backup_neo4j.sh`）仍會讓 Neo4j 停約 1 分鐘，這段時間圖檢索會失敗，屬既有限制。
+- **待觀察**：第一次完整夜間流程（2026-09-21 03:00 起）會是重算在真實增量下的首次驗證，跑完後應確認新進藝術家都有 `sources`。
+- **資安提醒**：RAG 後端目前由 `Start-NativeServices.ps1` 以「命令列環境變數」帶入 `NEO4J_PASSWORD`、`ES_PASSWORD`，同一台機器上任何使用者用 `ps` 都能看到明文；建議改為由行程自行讀取 `.env`（後續處理）。

@@ -586,6 +586,12 @@ class HybridESRAG(RAGStrategy):
         return documents
 
 
+# Neo4j 節點上僅供資料維護使用的欄位（軟到期／軟刪除時間戳），不放進提供給模型的文字
+_GRAPH_INTERNAL_KEYS = frozenset(
+    {"valid_from", "valid_to", "is_deleted", "deleted_at", "updated_at"}
+)
+
+
 class GraphOnlyRAG(RAGStrategy):
     """純圖譜檢索 RAG"""
 
@@ -834,9 +840,11 @@ class GraphOnlyRAG(RAGStrategy):
         node_name = node.get("title") or node.get("name", "未知")
         content = f"實體: {node_name}\n"
 
-        # 添加屬性 - 安全處理各種類型
+        # 添加屬性 - 安全處理各種類型；生命週期欄位與舊的單值 source（已由 sources 取代）
+        # 不是給模型看的內容，放進去只會增加雜訊，甚至讓過時的來源被當成事實引用
+        skip_keys = _GRAPH_INTERNAL_KEYS | ({"source"} if node.get("sources") else set())
         for key, value in node.items():
-            if key not in ["name", "title"] and value:
+            if key not in ["name", "title"] and key not in skip_keys and value:
                 # 安全序列化value
                 if isinstance(value, (list, tuple, dict)):
                     content += f"{key}: {str(value)}\n"
