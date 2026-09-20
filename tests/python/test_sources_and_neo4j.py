@@ -171,8 +171,8 @@ def test_neo4j_soft_delete_marks_instead_of_deleting():
 
     subscriber.handle([document_event("harvard_2", op="soft_delete")])
 
-    assert len(calls) == 1
     assert calls[0][1]["ids"] == ["harvard_2"]
+    assert "DELETE" not in calls[0][2].replace("is_deleted", "")
 
 
 def test_neo4j_reactivates_returning_documents():
@@ -227,6 +227,31 @@ def test_neo4j_soft_delete_also_stamps_valid_to():
 
     assert "a.valid_to = datetime()" in calls[0][2]
     assert "a.is_deleted = true" in calls[0][2]
+
+
+def test_artist_sources_are_refreshed_last_for_every_touched_artwork():
+    subscriber, calls = make_subscriber()
+
+    subscriber.handle([document_event("harvard_1"), document_event("harvard_2", op="soft_delete")])
+
+    refresh = calls[-1]
+    assert sorted(refresh[1]["ids"]) == ["harvard_1", "harvard_2"]
+    assert "x.sources = sources" in refresh[2]
+    # 只算現存作品：未到期的關係、未軟刪除的作品
+    assert "r.valid_to IS NULL" in refresh[2]
+    assert "is_deleted" in refresh[2]
+
+
+def test_artist_source_is_only_a_fallback_never_overwritten():
+    from subscribers.neo4j_sub import _REFRESH_ARTIST_SOURCES_QUERY  # noqa: PLC0415
+
+    assert "x.source = coalesce(x.source, head(sources))" in _REFRESH_ARTIST_SOURCES_QUERY
+
+
+def test_refresh_all_artist_sources_returns_the_processed_count():
+    from subscribers.neo4j_sub import refresh_artist_sources  # noqa: PLC0415
+
+    assert refresh_artist_sources(FakeSession([])) == 3
 
 
 def test_purge_previews_without_deleting_and_applies_with_the_retention_window():

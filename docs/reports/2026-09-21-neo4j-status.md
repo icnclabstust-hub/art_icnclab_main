@@ -4,7 +4,7 @@
 
 | # | 項目 | 結果 |
 |---|---|---|
-| 1 | 唯一性約束（`Artwork.id`、`Artist.name`） | ✅ 已建立並確認 ONLINE；訂閱器啟動時自動確保。曾嘗試改綁 `127.0.0.1`，因 WSL 不轉發只綁本機的服務使 Windows 的 Neo4j Browser 連不上而還原 |
+| 1 | 唯一性約束（`Artwork.id`、`Artist.name`） | ✅ 已建立並確認 ONLINE；訂閱器啟動時自動確保。曾嘗試改綁 `127.0.0.1`，因 Java 預設的 IPv6 雙堆疊 socket 不被 WSL 轉發而還原；已於文末更新以純 IPv4 解決 |
 | 2 | 備份 | ✅ `scripts/ops/backup_neo4j.sh`：短暫停止（約 40 秒）→ `neo4j-admin database dump`（`neo4j`、`system`，共約 60MB）→ 無論成敗都重啟 → 保留 7 批 → 鏡像到 F:；已納入每日流程。還原驗證：把鏡像檔載入臨時目錄，`database load` 與 `database check` 結束碼皆為 0 |
 | 3 | 手工示範節點 | ✅ 刪除 `A001`（蒙娜麗莎）、`P001`（達文西）、`PD001`（時期）三個互相連結、無 `source`／`name`、與正式資料無關的種子資料（刪除前已有備份）；節點 7,458→7,455 |
 | 4 | 豐富關係缺口 | ✅ 執行規則式分類（`classify_art_history_graph.py --no-clean`，詞典與屬性比對、不呼叫 LLM、只疊加）：關係 12,109→13,380。有豐富關係的作品比例：europeana／met／specialized／harvard／google_books 100%、yale 264／281（原 0）、cleveland 303／316、art_institute 288／292；**va_museum 仍 145／302**（該來源資料缺材質／文化／時期欄位，非腳本遺漏）。已納入每日流程（訂閱器之後） |
@@ -29,7 +29,22 @@ Neo4j 訂閱器對每筆 document 事件套用：
 
 ## 仍未處理
 - 舊資料（補登前）沒有 `valid_from`；到期判斷只看 `valid_to`，不受影響。
-- 974 個 Artist 沒有 `source`（舊資料）。
 - V&A 302 件中 157 件沒有豐富關係（來源資料缺欄位）。
-- Neo4j 仍綁 `0.0.0.0`（改綁本機會讓 Windows 端的 Neo4j Browser 連不上）。
 - 訂閱器的 ADD／EXPIRE 關係目前只處理 `CREATED`；分類關係（`HELD_BY` 等）由分類腳本疊加產生，作品內容改變時不會自動到期舊的分類關係。
+
+## 更新：Artist 來源與 Neo4j 綁定（2026-09-21）
+
+### 一、Artist 沒有 `source`（973 個）
+- **根因**：不是舊資料，而是**寫入路徑的缺口**。Europeana 的藝術家 Cypher（`_EUROPEANA_ARTIST_QUERY`）從來不設 `Artist.source`，而其他館藏走舊匯入腳本的 `SET artist.source = coalesce(artist.source, row.source)`。所以只要每日流程繼續匯入 Europeana，缺口就會持續增加，單純「補一次舊資料」不夠。
+- **單值 `source` 在邏輯上不對**：一位藝術家可以同時出現在多個館藏（59 位兩個來源、14 位三個以上，如梵谷橫跨 Cleveland／Yale／Europeana），`coalesce` 只記下第一個看到的來源。實測還有一位（Vincent van Gogh）的舊 `source` 是 `met_museum`，但他已沒有任何現存的 Met 作品，舊值是過時的。
+- **確認沒有讀取端依賴**：檢索端的圖查詢完全不讀 `Artist.source`，所以改成清單不影響任何查詢。
+- **做法（與動態資料庫一致）**：新增 `Artist.sources`（清單，排序後去重），**由現存作品推導**——只算 `CREATED` 關係未到期（`valid_to IS NULL`）且作品未軟刪除的來源。Neo4j 訂閱器每批事件寫完後，只對「本批新增、更新、軟刪除的作品所連到的藝術家」重算；因此新資料進來、作者更正、關係到期、作品軟刪除，都會自動反映，不需要人工維護，也不必知道是哪個來源的寫入路徑。舊 `source` 只在為空時補上第一個來源，維持相容，不再當作判斷依據。
+- **一次性補齊舊資料**：`python -m subscribers refresh-artist-sources`（可重複執行、只寫推導欄位）。實測 2,915 位藝術家全部有 `sources`（1 個來源 2,842、2 個 59、3 個 11、4 個 2、5 個 1），0 位為空。
+- **保留期清理不受影響**：`purge` 只刪除到期超過 30 天的關係與孤立藝術家；來源在到期當下已重算過。
+- **測試**：新增「每批最後重算所有受影響作品的藝術家」「只算現存作品」「舊 `source` 只作備援」「全量重算回傳處理數」四個測試；全部 84 通過、2 略過。
+
+### 二、Neo4j 綁定 `0.0.0.0`
+- **先前判斷不完整**：先前把「只綁 127.0.0.1」失敗歸因於 WSL 不轉發本機綁定；實測發現轉發器**只認純 IPv4 的 socket**。Java 預設建立的是 IPv6 雙堆疊 socket，綁 `127.0.0.1` 時會顯示成 `[::ffff:127.0.0.1]`，因此不被轉發；綁 `0.0.0.0` 則因為是萬用位址而被轉發。
+- **做法**：`neo4j.conf` 改為 `server.bolt.listen_address=127.0.0.1:7687`、`server.http.listen_address=127.0.0.1:7474`，並加上 `server.jvm.additional=-Djava.net.preferIPv4Stack=true` 讓 Neo4j 只用純 IPv4。
+- **驗證**：`ss` 顯示 `127.0.0.1:7474`、`127.0.0.1:7687`；Windows 端 `localhost:7474` 回 200、`Test-NetConnection localhost -Port 7687` 為 True；RAG 後端健康檢查 Neo4j 為 true。Windows 的 Neo4j Browser 仍可連上，同時 Neo4j 不再監聽所有網卡。
+- **限制**：設定檔位於 Neo4j 安裝目錄（`/home/user/neo4j-community-2026.06.0/conf/neo4j.conf`），不在 repo 內；還原點為同目錄的 `neo4j.conf.bak-ipv4-*`。若重裝 Neo4j 需重新套用這三行。備份腳本（停止→dump→重啟）沿用同一份設定，不受影響。

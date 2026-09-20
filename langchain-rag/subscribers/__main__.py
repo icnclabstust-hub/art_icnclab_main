@@ -1,5 +1,6 @@
 """命令列：``python -m subscribers run --target chromadb|elasticsearch|neo4j [--once]``，
-以及 ``python -m subscribers purge-neo4j [--days 30] [--apply]``（清除超過保留期的到期資料）。"""
+``python -m subscribers purge-neo4j [--days 30] [--apply]``（清除超過保留期的到期資料），
+以及 ``python -m subscribers refresh-artist-sources``（重算全部藝術家的來源清單）。"""
 
 import argparse
 import logging
@@ -98,6 +99,24 @@ def _cmd_purge_neo4j(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_refresh_artist_sources(_args: argparse.Namespace) -> int:
+    from neo4j import GraphDatabase  # noqa: PLC0415
+
+    from subscribers.neo4j_sub import refresh_artist_sources  # noqa: PLC0415
+
+    password = os.getenv("NEO4J_PASSWORD")
+    if not password:
+        raise SystemExit("缺少 NEO4J_PASSWORD 環境變數")
+    driver = GraphDatabase.driver(
+        os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687"),
+        auth=(os.getenv("NEO4J_USER", "neo4j"), password),
+    )
+    with driver.session() as session:
+        count = refresh_artist_sources(session)
+    print(f"已重算 {count} 位藝術家的 sources")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI 進入點。
 
@@ -120,11 +139,14 @@ def main(argv: list[str] | None = None) -> int:
     purge_cmd.add_argument("--days", type=int, default=30, help="保留天數（預設 30）")
     purge_cmd.add_argument("--apply", action="store_true", help="實際刪除（預設只預覽）")
     purge_cmd.set_defaults(purge=True)
+    sub.add_parser("refresh-artist-sources", help="重算全部藝術家的來源清單（可重複執行）")
 
     args = parser.parse_args(argv)
 
     if args.command == "purge-neo4j":
         return _cmd_purge_neo4j(args)
+    if args.command == "refresh-artist-sources":
+        return _cmd_refresh_artist_sources(args)
 
     subscriber = _build_subscriber(args.target, args.allow_empty_graph)
     with connect() as conn:

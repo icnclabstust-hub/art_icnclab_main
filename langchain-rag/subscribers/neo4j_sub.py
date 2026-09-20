@@ -9,6 +9,10 @@
 5. SOFT_DELETE：作品設 ``is_deleted``／``deleted_at``／``valid_to``。
 
 到期或軟刪除的資料保留 30 天供還原，之後由 ``purge`` 真正刪除；檢索端的圖查詢一律排除它們。
+
+藝術家的 ``sources`` 是由「現存（未到期）作品」推導出的來源清單，每批事件寫完後只針對受影響的
+藝術家重算，所以新增、更正、到期、軟刪除都會自動反映；舊的單值 ``source`` 只在為空時補上，
+供舊查詢相容，不再是判斷依據。
 """
 
 from collections.abc import Callable, Sequence
@@ -97,6 +101,41 @@ MATCH (x:Artist)-[r:CREATED]->(a:Artwork {id: row.artwork_id})
 WHERE r.valid_to IS NULL AND size(row.names) > 0 AND NOT x.name IN row.names
 SET r.valid_to = datetime()
 """
+
+# 來源清單由現存作品推導（而非在寫入時猜測），同一位藝術家出現在多個館藏時才會正確。
+_DERIVE_ARTIST_SOURCES = """
+OPTIONAL MATCH (x)-[r:CREATED]->(b:Artwork)
+WHERE r.valid_to IS NULL AND coalesce(b.is_deleted, false) = false AND b.source IS NOT NULL
+WITH x, b.source AS s ORDER BY s
+WITH x, collect(DISTINCT s) AS sources
+SET x.sources = sources, x.source = coalesce(x.source, head(sources))
+"""
+
+_REFRESH_ARTIST_SOURCES_QUERY = (
+    """
+MATCH (a:Artwork) WHERE a.id IN $ids
+MATCH (x:Artist)-[:CREATED]->(a)
+WITH DISTINCT x
+"""
+    + _DERIVE_ARTIST_SOURCES
+)
+
+_REFRESH_ALL_ARTIST_SOURCES_QUERY = (
+    "MATCH (x:Artist)" + _DERIVE_ARTIST_SOURCES + "RETURN count(x) AS c"
+)
+
+
+def refresh_artist_sources(session) -> int:
+    """重算全部藝術家的 ``sources``（一次性補齊舊資料，可重複執行）。
+
+    Args:
+        session: Neo4j session。
+
+    Returns:
+        處理的藝術家數。
+    """
+    return session.run(_REFRESH_ALL_ARTIST_SOURCES_QUERY).single()["c"]
+
 
 RETENTION_DAYS = 30
 _PURGE_RULES = (
@@ -207,6 +246,9 @@ class Neo4jSubscriber:
                 session.run(_EXPIRE_RELATIONSHIP_QUERY, rows=rows).consume()
             if deletes:
                 session.run(_SOFT_DELETE_QUERY, ids=deletes).consume()
+            touched = [e.payload["external_id"] for e in upserts] + deletes
+            if touched:
+                session.run(_REFRESH_ARTIST_SOURCES_QUERY, ids=touched).consume()
 
     @staticmethod
     def _write(session, events: Sequence[Event], artwork_query: str, artist_query: str) -> None:
