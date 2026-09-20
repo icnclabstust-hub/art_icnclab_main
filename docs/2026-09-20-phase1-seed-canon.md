@@ -82,12 +82,178 @@ d33de74 fix: 補上 8 處 requests 呼叫缺少的 timeout
 
 ---
 
+## STEP 0.5：探測副本實際位置（因副本會搬動，不寫死磁碟代號）
+
+2026-09-20 已知一次搬動：ZIP 快照由 `D:\art_icnclab-main` 移至 **`F:\art_icnclab-main`**。
+其餘副本是否同時搬動未確認。**本手冊以下所有指令都不寫死磁碟代號**，
+改由下列探測步驟產生變數，之後直接引用。
+
+```bash
+# 看看有哪些 Windows 磁碟掛進 WSL
+ls -d /mnt/*/ 2>/dev/null
+
+# 掃出所有副本（會跳過 node_modules / venv / site-packages，不然會很慢）
+for d in /mnt/*/; do
+  find "$d" -maxdepth 3 -type d \
+    \( -name node_modules -o -name '*venv*' -o -name site-packages -o -name .git \) -prune -o \
+    -type d \( -iname '*art*icnclab*' -o -iname '*藝術史*' \) -print 2>/dev/null
+done
+```
+
+把輸出對應成變數（以 2026-09-20 的已知狀態為例，**請依實際輸出調整**）：
+
+```bash
+SNAP=/mnt/f/art_icnclab-main/art_icnclab-main   # ZIP 快照（已由 D: 搬到 F:）
+CLONE=/mnt/d/art_icnclab                        # 落後 26 個 commit 的 clone（是否搬動未確認）
+RUNDIR="/mnt/c/Users/user/Desktop/藝術史資料庫"  # 執行期目錄
+
+# 確認三者都存在，不存在的會印出來
+for v in "$SNAP" "$CLONE" "$RUNDIR"; do
+  [ -d "$v" ] && echo "OK   $v" || echo "查無 $v"
+done
+```
+
+> 注意 `$SNAP` 可能有兩層同名目錄（`art_icnclab-main/art_icnclab-main`），
+> 這是 GitHub「Download ZIP」解壓的典型結構。請用上面的探測輸出確認實際層數。
+
+### ⚠ 搬動磁碟的連帶影響（與發現3 可能相關）
+
+專案目錄換磁碟之後，任何寫死舊路徑的東西都會斷。這與「Neo4j／Elasticsearch 反覆重啟」
+的時間點若吻合，很可能就是成因之一。請一併檢查：
+
+```bash
+# 1. 指向舊路徑的符號連結（原報告提到 /home/user/icnclab/art_history_db）
+find "$HOME" -maxdepth 4 -type l -exec sh -c \
+  'for l; do printf "%s -> %s%s\n" "$l" "$(readlink "$l")" \
+     "$([ -e "$l" ] || printf "   ← 已斷")"; done' _ {} +
+
+# 2. systemd unit 裡寫死的舊路徑
+grep -rlE '/mnt/[a-z]/' /etc/systemd/system/ 2>/dev/null
+grep -rnE '/mnt/[a-z]/' /etc/systemd/system/*.service 2>/dev/null | head -20
+
+# 3. 服務實際的工作目錄（看它們到底指著哪）
+for s in neo4j elasticsearch ollama; do
+  printf '%s: ' "$s"
+  systemctl show "$s" -p WorkingDirectory -p ExecStart --value 2>/dev/null | head -2
+done
+```
+
+任何一條指向 `/mnt/d/...` 而該路徑已不存在的，就是搬動造成的破口。
+
+---
+
+## STEP 0.6：若要把副本集中到同一磁碟（2026-09-20 提問）
+
+### 先確認：多數副本其實不需要搬
+
+| 副本 | 需要搬嗎 | 依據 |
+|---|---|---|
+| ZIP 快照 | 已搬至 `F:\art_icnclab-main` | 已完成 |
+| 本機 clone（原 `D:\art_icnclab`） | **不需要，可直接刪** | `git status --porcelain` 回傳 **0 筆**（無未提交變更），且其 `dadaa47`、`979745c` 兩個 commit **均已驗證存在於存檔 repo 歷史中**。<br>兩者合起來即證明：**此副本無任何獨有內容，可由 `git clone` 完整重建。** |
+| 執行期目錄 `藝術史資料庫` | **現在不要搬** | 可能是服務正在使用的工作目錄。搬動會立即中斷服務，須等 Phase 3 確認服務歸屬後再處理。 |
+
+所以「一起搬過去」實際上沒有必要。若仍要集中（例如 D 槽空間不足），依下列程序。
+
+### ⚠ 跨磁碟搬移的三個地雷
+
+**1. 跨磁碟不是改名，是整包複製再刪除。**
+同磁碟內 `mv` 是瞬間完成（只改目錄項）；D: → F: 會實際搬移每一個 byte。
+`藝術史資料庫` 若含 `data/`、`db_backups/`，可能是數 GB 到數十 GB。
+
+**2. venv 搬完就壞，不能搬，只能重建。**
+`py311_venv/` 的 `pyvenv.cfg` 與 `Scripts/*.exe` 內嵌**絕對路徑**。
+路徑一變，venv 立刻失效。`node_modules/` 裡若有原生編譯模組（如 `sharp`、`better-sqlite3`）同理。
+**正確做法是排除它們，到新位置重新建立：**
+
+```powershell
+# Windows PowerShell
+python -m venv F:rt_icnclab-main\py311_venv
+F:rt_icnclab-main\py311_venv\Scripts\pip install -r F:rt_icnclab-mainequirements.txt
+```
+
+**3. 在 WSL 用 `mv` 跨 `/mnt/` 磁碟搬移會很慢，且可能弄壞屬性。**
+Windows 檔案系統的搬移請用 Windows 原生工具。
+
+### 正確程序（以本機 clone 為例，但如上所述建議改為直接刪除）
+
+**步驟一：先乾跑，確認要搬什麼、有多大**
+
+```powershell
+robocopy "D:rt_icnclab" "F:rt_icnclab" /E /L /XD node_modules py311_venv .venv __pycache__ /NFL /NDL
+# /L = 只列出不實際執行。確認檔案數與總大小後再往下。
+```
+
+**步驟二：複製（注意：先不要用 /MOVE）**
+
+```powershell
+robocopy "D:rt_icnclab" "F:rt_icnclab" /E /COPY:DAT /XJ /R:1 /W:1 `
+  /XD node_modules py311_venv .venv __pycache__ `
+  /LOG:F:\move-art_icnclab.log /TEE
+```
+
+| 參數 | 用意 |
+|---|---|
+| `/E` | 含子目錄與空目錄 |
+| `/COPY:DAT` | 只複製資料、屬性、時間戳；**不複製 ACL**，跨磁碟較不會出權限問題 |
+| `/XJ` | 排除 junction，避免符號連結造成無限遞迴 |
+| `/R:1 /W:1` | 失敗只重試 1 次、等 1 秒；預設是重試 100 萬次，會卡住 |
+| `/XD ...` | 排除 venv 與 node_modules（見地雷2） |
+
+**刻意不用 `/MOVE`**：`/MOVE` 會在複製後刪除來源。先複製、驗證無誤、再手動刪來源，
+出錯才有退路。
+
+**步驟三：驗證後才刪來源**
+
+```powershell
+# 比對檔案數
+(Get-ChildItem -Recurse -File "D:rt_icnclab" -Exclude node_modules,py311_venv).Count
+(Get-ChildItem -Recurse -File "F:rt_icnclab" -Exclude node_modules,py311_venv).Count
+
+# git repo 另外用 fsck 驗證完整性（這比數檔案數可靠）
+git -C F:rt_icnclab fsck
+git -C F:rt_icnclab log -1 --format='%h %s'   # 應為 979745c
+```
+
+確認無誤後再刪來源——**建議先改名觀察幾天，而非直接刪**：
+
+```powershell
+Rename-Item "D:rt_icnclab" "_ARCHIVED_2026-09-20_art_icnclab"
+```
+
+**步驟四：修復搬動後必然斷掉的引用**
+
+```bash
+# WSL 內：重建指向舊路徑的符號連結
+find "$HOME" -maxdepth 4 -type l ! -exec test -e {} \; -print   # 列出已斷的連結
+# 例：ln -sfn /mnt/f/art_icnclab "$HOME/icnclab/art_history_db"
+
+# systemd unit 內寫死的舊路徑
+grep -rnE '/mnt/d/' /etc/systemd/system/*.service 2>/dev/null
+# 改完要： sudo systemctl daemon-reload
+
+# .env / 設定檔內的絕對路徑
+grep -rnE '[A-Za-z]:\\|/mnt/d/' "$SNAP"/.env "$SNAP"/config/ 2>/dev/null | head -20
+```
+
+### 執行期目錄要搬的話，必須先停服務
+
+```bash
+sudo systemctl stop neo4j elasticsearch ollama
+# 搬移、修正路徑、daemon-reload 之後
+sudo systemctl start neo4j elasticsearch ollama
+systemctl is-active neo4j elasticsearch ollama
+```
+
+在服務執行中搬移其工作目錄，輕則服務崩潰，重則資料檔寫到一半被中斷而毀損。
+
+---
+
 ## STEP 1：種正本（保留 git 歷史）
 
 種子已定案為 `metaversestust-pms/art_icnclab` @ `ad7eb6c`。
 
 ```bash
-# 取一份乾淨的種子（不要用 /mnt/d/art_icnclab，它落後 26 個 commit）
+# 取一份乾淨的種子（不要用本機那份 clone，它落後 26 個 commit）
 git clone https://github.com/metaversestust-pms/art_icnclab.git ~/seed
 cd ~/seed
 git log -1 --format='%h %s'      # 應為 ad7eb6c fix(deps): requirements 檔加 UTF-8 BOM...
@@ -130,7 +296,7 @@ rsync -a --delete \
   --exclude='.git/' --exclude='node_modules/' --exclude='data/' \
   --exclude='db_backups/' --exclude='*venv*/' --exclude='.env' \
   --exclude='.webui_secret_key' --exclude='__pycache__/' \
-  /mnt/d/art_icnclab-main/art_icnclab-main/ ./
+  "$SNAP"/ ./
 
 git status --porcelain          # ← 這就是這份副本相對正本的獨有內容
 ```
@@ -145,14 +311,14 @@ rsync -an --delete --stats \
   --exclude='.git/' --exclude='node_modules/' --exclude='data/' \
   --exclude='db_backups/' --exclude='*venv*/' --exclude='py311_venv/' \
   --exclude='.env' --exclude='.webui_secret_key' --exclude='__pycache__/' \
-  /mnt/d/art_icnclab-main/art_icnclab-main/ ./ | tail -20
+  "$SNAP"/ ./ | tail -20
 
 # 再直接確認幾個不該出現的路徑有沒有被漏掉：
 rsync -an --delete \
   --exclude='.git/' --exclude='node_modules/' --exclude='data/' \
   --exclude='db_backups/' --exclude='*venv*/' --exclude='py311_venv/' \
   --exclude='.env' --exclude='.webui_secret_key' --exclude='__pycache__/' \
-  /mnt/d/art_icnclab-main/art_icnclab-main/ ./ \
+  "$SNAP"/ ./ \
   | grep -cE 'py311_venv|site-packages|node_modules|\.env$'
 # ↑ 必須輸出 0。不是 0 就不要往下做，把輸出貼回來。
 ```
@@ -173,7 +339,7 @@ git checkout main && git checkout -b rescue/stale-clone
 rsync -a --delete --exclude='.git/' --exclude='node_modules/' --exclude='data/' \
   --exclude='db_backups/' --exclude='*venv*/' --exclude='.env' \
   --exclude='.webui_secret_key' --exclude='__pycache__/' \
-  /mnt/d/art_icnclab/ ./
+  "$CLONE"/ ./
 git status --porcelain
 
 # 執行期目錄（排除清單更嚴格：資料與金鑰絕不進版控）
@@ -181,7 +347,7 @@ git checkout main && git checkout -b rescue/runtime-dir
 rsync -a --delete --exclude='.git/' --exclude='node_modules/' --exclude='data/' \
   --exclude='db_backups/' --exclude='*venv*/' --exclude='.env*' \
   --exclude='.webui_secret_key' --exclude='__pycache__/' --exclude='logs/' \
-  "/mnt/c/Users/user/Desktop/藝術史資料庫/" ./
+  "$RUNDIR"/ ./
 git status --porcelain
 ```
 
@@ -196,15 +362,16 @@ git status --porcelain
 
 | 副本路徑 | rescue 分支 | 獨有檔案數 | commit | 處置 |
 |---|---|---|---|---|
-| `D:\art_icnclab-main\art_icnclab-main` | `rescue/zip-snapshot` | ? | ? | 待決定 |
-| `D:\art_icnclab` | `rescue/stale-clone` | ? | ? | 待決定 |
-| `C:\...\藝術史資料庫` | `rescue/runtime-dir` | ? | ? | 待決定 |
+| `$SNAP`（2026-09-20 起為 `F:\art_icnclab-main\...`） | `rescue/zip-snapshot` | ? | ? | 待決定 |
+| `$CLONE` | `rescue/stale-clone` | ? | ? | 待決定 |
+| `$RUNDIR` | `rescue/runtime-dir` | ? | ? | 待決定 |
 
 封存動作（**不要刪除，先改名**，這樣出錯可以反悔）：
 
 ```bash
-mv /mnt/d/art_icnclab-main "/mnt/d/_ARCHIVED_2026-09-20_art_icnclab-main"
-mv /mnt/d/art_icnclab      "/mnt/d/_ARCHIVED_2026-09-20_art_icnclab"
+# 依 STEP 0.5 探測到的實際路徑調整；同磁碟內改名才是瞬間完成，跨磁碟會變成整包複製
+mv "$(dirname "$SNAP")"  "$(dirname "$(dirname "$SNAP")")/_ARCHIVED_2026-09-20_art_icnclab-main"
+mv "$CLONE"              "$(dirname "$CLONE")/_ARCHIVED_2026-09-20_art_icnclab"
 ```
 
 執行期目錄 `藝術史資料庫` **先不要動**——服務可能正指著它跑，
