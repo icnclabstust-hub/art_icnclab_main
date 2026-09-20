@@ -1,7 +1,7 @@
 #!/bin/bash
 # 每日爬蟲 + 新架構同步（catalog 為單一真相來源）
 # 流程：爬 10 個來源 -> 各來源攝取進 PostgreSQL catalog（雜湊比對＋內容掃描）
-#       -> 訂閱器增量同步 ChromaDB、Elasticsearch、Neo4j -> 一致性驗證 -> 清 RAG 快取
+#       -> 訂閱器增量同步 ChromaDB、Elasticsearch、Neo4j -> 一致性驗證 -> PostgreSQL 備份 -> 清 RAG 快取
 # 個別步驟失敗不會中斷整體（例如 Yale 403、Google Books 429 屬已知偶發狀況）。
 #
 # 與舊版 daily_crawl_and_sync.sh 並存，尚未取代排程；切換前請先依
@@ -101,6 +101,9 @@ for source in europeana harvard met_museum specialized_art google_books \
     log "--- 驗證 $source ---"
     python3 -m ingest verify --source "$source" --es 2>&1 | grep -vE "INFO|Warning|warn" >> "$LOG_FILE"
 done
+
+# 同步完成後備份 PostgreSQL（catalog 是單一真相來源，目前只存在這裡）；連線參數已由 .env 載入
+run_step "PostgreSQL 備份" bash "$PROJECT_DIR/scripts/ops/backup_postgres.sh"
 
 log "--- 清除 RAG 查詢快取 ---"
 curl -s -X POST "http://localhost:${RAG_MANAGER_PORT:-8001}/api/v1/cache/clear" >> "$LOG_FILE" 2>&1

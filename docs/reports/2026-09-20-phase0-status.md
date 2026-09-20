@@ -83,3 +83,12 @@ DROP SCHEMA catalog CASCADE;
 - **處理**：`scripts/Run-DailyCrawl.ps1` 改為由自身位置推算路徑、先執行 `Start-NativeServices.ps1`（確保服務已啟動），再在 WSL 執行 `daily_crawl_and_sync_catalog.sh`（爬蟲 → catalog 攝取 → ChromaDB／ES／Neo4j 訂閱 → 驗證）；`-SkipCrawl` 可只做攝取與同步。工作排程的動作已改指向新包裝（`.env` 以 `ART_ENV_FILE` 指向 `D:\art_icnclab\.env`），並開啟「錯過時補跑」與「使用電池時也執行」。
 - **驗證**：以與排程相同的呼叫方式執行 `-SkipCrawl`，服務偵測、8 個來源攝取、三個訂閱器全部成功（Yale 仍因來源端 403 失敗，屬預期）。完整含爬蟲的流程尚未實跑，第一次會是 2026-09-21 03:00，請於當天查看 `logs/daily_crawl/catalog_crawl_*.log`。
 - 舊流程 `scripts/daily_crawl_and_sync.sh` 保留但不再被排程使用。
+
+## 補充：PostgreSQL 例行備份（2026-09-21）
+
+- **問題**：`backup_databases.sh` 不含 PostgreSQL 且沒有排程；catalog（單一真相來源）只存在 PostgreSQL，之前只有兩份一次性備份。
+- **處理**：新增 `scripts/ops/backup_postgres.sh`（`pg_dump -Fc` → `pg_restore -l` 驗證可讀 → 輪替保留 14 份 → 鏡像到 F: 磁碟），並成為每日流程 `daily_crawl_and_sync_catalog.sh` 的最後一步（同步完成後執行）。備份用應用角色 `art_user` 執行，不需超級使用者；為此新增唯讀授權遷移 `context/database/06-backup-read-grants.sql`（只給 `biz`／`eval` 的 SELECT／USAGE，已套用）。
+- **位置**：主要 `~/backups/postgres/`（WSL 內）、鏡像 `/mnt/f/art_backups/postgres/`（Windows F: 磁碟；用 `MIRROR_DIR` 可改，`BACKUP_DIR`、`BACKUP_KEEP_COUNT` 可調）。鏡像磁碟未掛載時會警告並以結束碼 2 回報，不會在 WSL 磁碟上偽造鏡像。
+- **驗證**：正常備份＋鏡像成功；輪替（保留 2 份）正確刪除舊檔；錯誤密碼時結束碼 1 且不留殘檔；**實際還原測試**：把備份還原到拋棄式資料庫，8 張代表性資料表列數與線上庫逐表相同（catalog 3,281／4,267／7,590／3、`public.institutions` 4、`public.tags` 10 等）。
+- **還原指令**：`pg_restore -d <目標庫> --no-owner --no-privileges <備份檔>`（先建立空的目標庫；要還原回線上庫前請先確認並另備份現況）。
+- **仍未涵蓋**：Neo4j（7,458 節點）、ChromaDB、Elasticsearch、Open WebUI 資料目前沒有例行備份；catalog 可重建三個檢索庫的大部分內容（重跑訂閱器），但仍建議另行規劃；舊 `backup_databases.sh` 會停止服務，不適合放進每日流程。
