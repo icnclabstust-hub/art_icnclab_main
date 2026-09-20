@@ -9,6 +9,8 @@ import hashlib
 import json
 import logging
 import os
+import time
+import uuid
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -20,7 +22,7 @@ import uvicorn
 
 # ChromaDB 共用 embedding function（BGE-M3，取代預設的英文為主模型）
 from bge_m3_embedding import BGEM3EmbeddingFunction
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 # 導入多語言查詢翻譯器
@@ -141,6 +143,35 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ==================== 稽核日誌（Phase 0：唯讀觀察，不影響回應內容） ====================
+# 對應設計文件 docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md。
+# 目的：先為現行請求量觀察一個穩定的 event_id，供 Phase 2 起 catalog.sync_events／
+# Phase 3 起 eval.measurements 建立關聯時使用；本階段不寫入任何資料庫、不改變任何回應內容。
+audit_logger = logging.getLogger("rag_audit")
+
+
+@app.middleware("http")
+async def audit_log_middleware(request: Request, call_next):
+    """記錄每次請求的 event_id／路徑／耗時，僅供觀察，不影響回應（S-15：不記密碼/個資原文）。"""
+    event_id = str(uuid.uuid4())
+    started_at = time.monotonic()
+    response = await call_next(request)
+    duration_ms = round((time.monotonic() - started_at) * 1000, 1)
+    audit_logger.info(
+        json.dumps(
+            {
+                "event_id": event_id,
+                "path": request.url.path,
+                "method": request.method,
+                "status_code": response.status_code,
+                "duration_ms": duration_ms,
+            },
+            ensure_ascii=False,
+        )
+    )
+    return response
+
 
 # ==================== 配置加載 ====================
 
