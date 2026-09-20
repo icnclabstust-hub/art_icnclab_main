@@ -20,9 +20,9 @@
 | 項目 | 狀態 | 原因／下一步 |
 |---|---|---|
 | Neo4j 埠號整併（7688→7687、停用系統 `neo4j.service`） | ⏸ 待使用者執行 | 需 root 且會停用系統服務，自動化執行被權限機制擋下。請在 WSL 執行 `sudo bash scripts/ops/consolidate_neo4j_ports.sh`（含 `--rollback`） |
-| Open WebUI | ❌ 未安裝 | `Ubuntu-22.04` 上沒有 pip 套件或程序，需決定安裝方式 |
-| ChromaDB 常駐服務 | ❌ 未在執行 | pip 已安裝（1.5.9），資料在 `/home/user/native-chromadb/data`（88M），由 `Start-NativeServices.ps1` 啟動，埠 8000 |
-| 稽核 middleware 部署 | ❌ | 執行期桌面目錄 `C:\Users\user\Desktop\藝術史資料庫\art-history-database` 目前不存在，需先確定實際執行目錄（A4） |
+| Open WebUI | ✅ 已啟動（2026-09-20 更正） | 先前誤判「未安裝」：它裝在 `/home/user/openwebui-venv`（資料 `/home/user/openwebui-data`），非系統 Python。已用既有方式啟動於 8080 |
+| ChromaDB 常駐服務 | ✅ 已啟動 | 埠 8000，資料 `/home/user/native-chromadb/data`（目前約 5,799 個 chunk） |
+| 稽核 middleware 部署 | ✅ | RAG 後端已改由 F: 這份程式碼啟動（8007），稽核 log 已實際記到每次 `/api/v1/query` 請求 |
 | ml-service 與 OpenWebUI 同占 8080 | ❌ | 獨立變更，待 OpenWebUI 部署後處理 |
 | Elasticsearch／Neo4j 反覆重啟成因 | ❌ | 尚未找出觸發者 |
 | 評估表老師簽核 | ❌ | 依 CLAUDE.md，Tier B 須簽核後才算通過 GD |
