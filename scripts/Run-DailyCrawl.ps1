@@ -19,4 +19,8 @@ $wslEnvFile = ConvertTo-WslPath $envFile
 
 $skip = if ($SkipCrawl) { "SKIP_CRAWL=1" } else { "SKIP_CRAWL=" }
 wsl.exe -d Ubuntu-22.04 -- env "ENV_FILE=$wslEnvFile" $skip bash "$wslProject/scripts/daily_crawl_and_sync_catalog.sh"
-exit $LASTEXITCODE
+$flowExit = $LASTEXITCODE
+
+# 流程中的 Neo4j 備份會短暫停止並自行重啟；結束後再確認一次所有服務都在（已在運作者不會重複啟動）
+& (Join-Path $PSScriptRoot "Start-NativeServices.ps1")
+exit $flowExit
