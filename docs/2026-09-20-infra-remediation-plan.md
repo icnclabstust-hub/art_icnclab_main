@@ -26,8 +26,8 @@ README.md 首行：📦 本 repo 已轉為歷史存檔（2026-08-18）
 | 2 | `D:\art_icnclab` | `icnclabstust-hub/art_icnclab` 的過期 clone | 萃取獨有變更後封存 |
 | 3 | `C:\Users\user\Desktop\藝術史資料庫`、`D:\藝術史資料庫` | 疑為執行期工作目錄 | 待確認；資料目錄須另行保全 |
 | 4 | `icnclabstust-hub/art_icnclab`（GitHub，公開） | **2026-08-18 已自行宣告封存**；`db_backups/`（Git LFS）還原資料仍須由此取得 | 保留為唯讀存檔 |
-| 5 | `metaversestust-pms/art_icnclab`（GitHub） | 公告指定之**現行開發 repo** | **正本候選（待確認）** |
-| 6 | `icnclabstust-hub/art_icnclab_main`（GitHub，私有） | 2026-09-20 建立，目前為空 | 定位待確認 |
+| 5 | `metaversestust-pms/art_icnclab`（GitHub） | 公告指定之現行開發 repo | **種子候選**，見 `2026-09-20-phase1-seed-canon.md` STEP 0 |
+| 6 | `icnclabstust-hub/art_icnclab_main`（GitHub，私有） | 2026-09-20 建立 | **✅ 已確定為正本**（使用者決定，2026-09-20）。但目前為空，須先種 |
 
 補充（安全面，報告未涵蓋）：第 4 項是**公開 repo**。已驗證其 HEAD 檔案樹未追蹤任何 `.env`
 （`.gitignore` 第 7–14、114 行已排除 `.env*` 與 `.webui_secret_key`，僅追蹤 `.env.example`）。
@@ -53,24 +53,27 @@ README.md 首行：📦 本 repo 已轉為歷史存檔（2026-08-18）
 在正本確立之前，**停止對任何一份副本做新的修改**。每多編輯一小時，合併債就多一小時。
 特別是 `D:\art_icnclab-main\art_icnclab-main`——它沒有 `.git`，改動無法追溯。
 
-### 1.2 Phase 1：確立正本並機械化處置副本（約 30 分鐘）
+### 1.2 Phase 1：種正本並機械化處置副本（約 40 分鐘）
 
-步驟一：取得正本候選。
+> **完整指令見 `docs/2026-09-20-phase1-seed-canon.md`。** 此處只說明邏輯。
 
-```bash
-git clone https://github.com/metaversestust-pms/art_icnclab.git ~/canon
-cd ~/canon && git log -1 --format='%h %ad %s'
-```
+正本已確定為 `icnclabstust-hub/art_icnclab_main`（使用者決定，2026-09-20）。
+但**該 repo 目前是空的**，所以 Phase 1 的問題形狀改變了：不是「比對既有正本」，
+而是「先選一份種子把正本種起來，再把其餘副本的獨有內容撈回來」。
 
-步驟二：對每一份本機副本，用下列手法算出「相對正本的獨有變更」。
-此法的價值在於**不需要任何判斷**：`git status` 的輸出就是答案，且因為在分支上操作，完全可回退。
+**最大風險在種子選擇，不在後續比對。** 存檔 repo 的 README（2026-08-18）指明開發已移至
+`metaversestust-pms/art_icnclab`，距今整整一個月。若該處有人開發過，而我們誤用
+`D:\art_icnclab`（停在 2026-08-17）當種子，那一個月的工作會被**靜默丟掉**。
+所以手冊的 STEP 0（清點所有候選種子的新舊）不可跳過。
+
+種好之後，處置其餘副本的手法如下。此法的價值在於**不需要任何人為判斷**：
 
 ```bash
 cd ~/canon
 git checkout -b rescue/zip-snapshot          # 每份副本開一個 rescue 分支
 rsync -a --delete \
-  --exclude='.git' --exclude='node_modules' --exclude='data' \
-  --exclude='db_backups' --exclude='*venv*' --exclude='.env' \
+  --exclude='.git/' --exclude='node_modules/' --exclude='data/' \
+  --exclude='db_backups/' --exclude='*venv*/' --exclude='.env' \
   /mnt/d/art_icnclab-main/art_icnclab-main/ ./
 git status --porcelain                        # ← 這就是該副本的獨有內容，逐字為憑
 ```
@@ -79,15 +82,12 @@ git status --porcelain                        # ← 這就是該副本的獨有�
 
 | `git status --porcelain` 輸出 | 意義 | 處置 |
 |---|---|---|
-| 空 | 該副本內容完全被正本涵蓋 | 直接封存／刪除，零風險 |
-| 只有 `D `（刪除） | 該副本是正本的子集 | 直接封存／刪除，零風險 |
-| 有 `M `／`?? ` | 有獨有變更 | `git add -A && git commit` 成 rescue 分支，之後再 cherry-pick 需要的部分 |
+| 空 | 該副本內容完全被正本涵蓋 | 直接封存，零風險 |
+| 只有 `D `（刪除） | 該副本是正本的子集 | 直接封存，零風險 |
+| 有 `M `／`?? ` | 有獨有變更 | commit 成 rescue 分支，之後再 cherry-pick |
 
-對 `D:\art_icnclab` 重複一次（分支 `rescue/stale-clone`），對 `藝術史資料庫` 重複一次
-（分支 `rescue/runtime-dir`，且務必保留 `--exclude='data' --exclude='db_backups' --exclude='.env'`，
-執行期目錄裡的資料與金鑰不該進版控）。
-
-步驟三：產出處置表，每列都附上 rescue 分支名與 commit hash 作為憑據。
+因為全程在分支上操作，**隨時可回退，不可能覆蓋掉別人的工作**——這正是報告
+「貿然搬動有覆蓋他人工作的風險」那個顧慮的解法。
 
 ### 1.3 Phase 1 附帶產出：今天的工作何去何從
 
@@ -215,18 +215,38 @@ grep -rnE '^-Xm[sx]' /etc/elasticsearch/jvm.options /etc/elasticsearch/jvm.optio
 報告建議「由同學直接在機器上 `journalctl -f` 觀察」是對的，但可以更省力——
 請直接跑 §5 的 `scripts/doctor.sh`，它一次把上述所有檢定的輸出印出來。
 
-### 3.3 發現4／5｜OpenWebUI 與 8080 之爭
+### 3.3 發現4／5｜OpenWebUI 與 8080（已決定：OpenWebUI 用 8080）
 
-這題**不需要調查，需要決定**：OpenWebUI 還要不要？
+使用者已決定（2026-09-20）：**OpenWebUI 保留，且必須使用 8080**。
+因此 8080 歸 OpenWebUI，**ml-service 必須遷出**（`ml-service/start.sh:138` 現綁 `127.0.0.1:8080`）。
+新埠建議 **8002**，完整理由與遷移清單見 `docs/ports.md`。
 
-- 若不要 → 發現4的 ❌ 那一列直接結案，發現5的「ml-service 與 OpenWebUI 搶 8080」這個衝突**永遠不會發生**，兩項一起消滅。
-- 若要 → 現在就把它裝在 **8080 以外**的埠（OpenWebUI 預設 3000，或指定 8081）。
-  ml-service 已經明確綁 `127.0.0.1:8080`（`ml-service/start.sh:138`，本次查證屬實），
-  8080 歸 ml-service，衝突在部署前就被設計掉，不必等「部署起來再現場驗證」。
+遷移不是改一行就好——本次以 `grep -rn '8080'` 清查出 **8 處呼叫端**
+（`src/config/mlConfig.js`、`src/api/routes/mlRoutes.js`、`src/mcp/mcp_tool_registry.py` ×2、
+`langchain-rag/knowledge_graph_rag.py`、`langchain-rag/integrated_rag_optimizer.py`、
+`monitoring/prometheus.yml`、`system_full_diagnostic.py`）。**漏改任一處，ml-service 呼叫即失敗。**
 
-ChromaDB 同理：pip 套件已裝但無常駐程序，而 `unified_rag_manager_v2.py:251` 用的是
+#### 本次額外發現：與 NEO4J_URI 同類的第二個隱性故障
+
+```javascript
+// src/config/mlConfig.js:4 與 src/api/routes/mlRoutes.js:7
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://cuda-ml-service:8080';
+```
+
+`cuda-ml-service` 是 **docker-compose 的服務名**。Docker 已於本次查證確認**完全移除**（發現4），
+該主機名在原生環境下**無法解析**。所以只要 `.env` 未設 `ML_SERVICE_URL`，
+Node 後端就連不到 ml-service。
+
+這與 §2.1 的 `NEO4J_URI` 預設 7688 是**同一種 bug**：設定缺漏時安靜地用錯的預設值繼續跑。
+兩者都適用 §2.3 的結構性修法（缺漏即啟動失敗）。判準是：
+**只要一個設定值在不同環境會不同，就不該有預設值。**
+
+#### ChromaDB
+
+pip 套件已裝但無常駐程序，而 `unified_rag_manager_v2.py:251` 用的是
 `chromadb.HttpClient(host, port=8001)`——**HttpClient 需要一個常駐 server**。
-所以現況是「程式碼要求 server 模式、環境沒有 server」，需決定改用嵌入式模式或補啟 `chroma run --port 8001`。
+現況是「程式碼要求 server 模式、環境沒有 server」。需決定改用嵌入式模式（`PersistentClient`）
+或補啟 `chroma run --port 8001` 為 systemd 服務。
 
 ### 3.4 發現4 的文件問題
 
@@ -258,10 +278,22 @@ Phase 3.1／3.2 是純環境問題，**不依賴**正本，可以立刻並行開
 
 每次開工前先跑它，「現況調查」就從兩小時變成十秒鐘。
 
-## 6. 本計畫尚未處理、需要人為決定的事項
+## 6. 決策紀錄與待辦
 
-1. **正本確認**：`metaversestust-pms/art_icnclab` 是否確為正本？（本 session 無此 org 存取權，無法自行查證）
-2. **`icnclabstust-hub/art_icnclab_main` 的定位**：今天新建、目前為空，是要作為新正本，還是僅為暫存？
-3. **現場指令的執行方式**：本 session 無法觸及該 WSL 機器，Phase 1～3 的所有指令都需人工執行後回貼輸出。
-4. **OpenWebUI 去留**（見 §3.3）。
-5. **Ollama 保留哪一個實例**（見 §3.1）。
+### 已決定（2026-09-20）
+
+| 項目 | 決定 | 影響 |
+|---|---|---|
+| 正本 | `icnclabstust-hub/art_icnclab_main` | Phase 1 改為「種正本」，見 §1.2 |
+| OpenWebUI | 保留，使用 8080 | ml-service 遷至 8002，8 處呼叫端須同步改，見 §3.3 與 `ports.md` |
+| 現場指令 | 由使用者於 WSL 執行後回貼輸出 | 所有現場檢定以可複製貼上的指令形式交付 |
+
+### 待決定
+
+| 項目 | 卡在哪 | 解法 |
+|---|---|---|
+| **種子選誰** | 不知道 `metaversestust-pms/art_icnclab` 是否有 2026-08-18 之後的工作 | 跑 `phase1-seed-canon.md` STEP 0，回貼輸出 |
+| **Ollama 保留哪一個** | 不知道 11434 的實際佔用者是 Windows 主機還是另一個 WSL 發行版 | 跑 §3.1 的 `netstat -ano \| findstr :11434`，回貼輸出 |
+| **另一個 WSL 發行版 `Ubuntu` 還需不需要** | 若不需要，發現2 可能一個 `wsl --terminate` 就解決 | 使用者判斷 |
+| **ChromaDB 用 server 還是嵌入式** | 見 §3.3 | 使用者判斷 |
+| **`db_backups/`（LFS）是否搬進正本** | 物件很大 | 建議不搬，正本 README 指向存檔 repo |

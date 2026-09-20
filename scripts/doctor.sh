@@ -74,7 +74,7 @@ if ! command -v ss >/dev/null 2>&1; then
   echo "  ⚠ 找不到 ss 指令，以下埠號對照表不可信，請先安裝 iproute2"
 else
 echo "  本專案關切的埠對照："
-for p in 11434 7687 7688 8001 8007 8008 8010 8080 8081 3000 5432 6379 9200; do
+for p in 11434 7687 7688 8001 8002 8007 8008 8010 8080 3000 5432 6379 9200; do
   own=$(ss -tlnp 2>/dev/null | awk -v P=":$p\$" '$4 ~ P {print $6; exit}')
   kv "$p" "${own:-(未被佔用)}"
 done
@@ -88,10 +88,20 @@ h "4. .env 實際生效值 vs 程式碼預設值（對應發現5 / Phase 2）"
 ENVF="${ENVF:-.env}"
 if [ -f "$ENVF" ]; then
   kv ".env 路徑" "$(readlink -f "$ENVF")"
-  echo "  (僅列出變數名與埠號，不印出金鑰值)"
-  grep -E '^[A-Z_]+=' "$ENVF" \
-    | sed -E 's/^(.*(KEY|SECRET|TOKEN|PASSWORD|PASS)[A-Z_]*)=.*/\1=<已遮蔽>/' \
-    | grep -E 'URI|URL|PORT|HOST|<已遮蔽>' | sed 's/^/    /'
+  echo "  (預設遮蔽：只有連線位址類變數會印出值，其餘一律只印變數名)"
+  # 安全設計：採「白名單放行」而非「黑名單遮蔽」。
+  # 黑名單會漏掉沒有 PASSWORD 字樣的金鑰變數（例如 NEO4J_AUTH=neo4j/密碼）；
+  # 白名單則是「不在清單上的一律遮蔽」，新增未知變數時預設安全。
+  grep -E '^[A-Z][A-Z0-9_]*=' "$ENVF" | while IFS= read -r line; do
+    name=${line%%=*}; val=${line#*=}
+    case "$name" in
+      *URI|*URL|*PORT|*HOST|*ENDPOINT|*_DB|*DATABASE)
+        # URL 內嵌的 user:pass@ 仍須遮蔽
+        printf '    %s=%s\n' "$name" \
+          "$(printf '%s' "$val" | sed -E 's#://[^:/@]+:[^@]*@#://<帳密已遮蔽>@#')" ;;
+      *) printf '    %s=<已遮蔽>\n' "$name" ;;
+    esac
+  done
   echo
   echo "  關鍵檢定："
   nu=$(grep -E '^NEO4J_URI=' "$ENVF" | head -1)
@@ -99,10 +109,26 @@ if [ -f "$ENVF" ]; then
     echo "    ⚠ .env 未設 NEO4J_URI → 程式碼將採預設 bolt://127.0.0.1:7688"
     echo "      若 Neo4j 實際聽 7687（見 §3），則 RAG 後端連不上任何 Neo4j。"
   else
-    echo "    NEO4J_URI = ${nu#NEO4J_URI=}"
+    # 與上方同樣遮蔽 URL 內嵌帳密，否則此處會把密碼原樣印出
+    echo "    NEO4J_URI = $(printf '%s' "${nu#NEO4J_URI=}" \
+      | sed -E 's#://[^:/@]+:[^@]*@#://<帳密已遮蔽>@#')"
+  fi
+  ml=$(grep -E '^ML_SERVICE_URL=' "$ENVF" | head -1)
+  if [ -z "$ml" ]; then
+    echo "    ⚠ .env 未設 ML_SERVICE_URL → 程式碼將採預設 http://cuda-ml-service:8080"
+    echo "      cuda-ml-service 是 docker-compose 服務名，Docker 已移除後無法解析，"
+    echo "      Node 後端將連不到 ml-service。"
+  else
+    echo "    ML_SERVICE_URL = $(printf '%s' "${ml#ML_SERVICE_URL=}" \
+      | sed -E 's#://[^:/@]+:[^@]*@#://<帳密已遮蔽>@#')"
   fi
   grep -qE '^RAG_API_PORT=' "$ENVF" && \
     echo "    ⚠ .env 有 RAG_API_PORT，但程式碼讀的是 RAG_MANAGER_PORT → 此變數無效"
+
+  echo
+  echo "  ml-service / OpenWebUI 8080 歸屬檢定（決定：8080 歸 OpenWebUI）："
+  grep -nE 'bind.*:8080' ml-service/start.sh 2>/dev/null | sed 's/^/    ⚠ ml-service 仍綁 8080: /' \
+    || echo "    (ml-service/start.sh 不在此目錄，或已遷出 8080)"
 else
   kv ".env" "找不到（在 $(pwd) 下）"
 fi
