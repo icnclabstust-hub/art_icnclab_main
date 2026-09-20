@@ -22,6 +22,7 @@
 neo4j==5.28.4                    # 圖資料庫驅動。不可升 6.x：langchain-neo4j 0.5.0 不接受
 chromadb==1.5.9                  # 向量資料庫
 elasticsearch==9.5.0             # scripts/sync_chromadb_to_elasticsearch.py
+psycopg[binary]==3.3.6            # PostgreSQL 驅動：catalog 攝取與訂閱器（Phase 1）；2026-09-20 pip-audit 無已知漏洞
 redis==8.1.0                     # 快取與 agent 通訊匯流排
 
 # ==================== LangChain / RAG ====================
