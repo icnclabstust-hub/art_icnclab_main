@@ -4,72 +4,103 @@
 > 因此 Phase 1 不是「比對副本」，而是「**先選種子把正本種起來，再把其餘副本的獨有內容撈回來**」。
 > 所有指令請在 WSL `Ubuntu-22.04` 內執行，並把輸出回貼。
 
-## ⚠️ 開始前：一個會靜默毀掉一個月工作的風險
+## ✅ 已解除的風險：遺失一個月的工作
 
-`icnclabstust-hub/art_icnclab` 的 README（2026-08-18）明確寫著：
+原本的顧慮是：存檔 repo 的 README（2026-08-18）指明開發移至 `metaversestust-pms/art_icnclab`，
+距今整整一個月；若該處有人開發過而我們用舊 clone 當種子，那一個月的工作會被靜默丟掉。
 
-> 後續開發一律在 `metaversestust-pms/art_icnclab`（全新歷史的精整版）
-
-從 2026-08-18 到今天 2026-09-20 是**整整一個月**。若這段期間有人在
-`metaversestust-pms/art_icnclab` 上開發，而我們用 `D:\art_icnclab`（停在 2026-08-17）
-當種子，**那一個月的工作會被靜默丟掉，而且事後很難發現**。
-
-**所以 STEP 0 不可跳過。**
+**STEP 0 已查證：該 repo 在 2026-08-18 之後沒有任何提交，此風險不存在。**
+（保留本節是為了記錄「為什麼要先做 STEP 0」——換成另一種結果，這一步就是不可逆的資料損失。）
 
 ---
 
-## STEP 0：清點所有候選種子的新舊（唯讀，約 5 分鐘）
+## STEP 0：清點候選種子 —— ✅ 已完成（2026-09-20）
 
-```bash
-# --- 候選 A：公告指定的開發 repo（本 session 無存取權，需你來跑） ---
-git ls-remote https://github.com/metaversestust-pms/art_icnclab.git HEAD
-# 若上面成功，再 clone 一份來看時間：
-git clone --depth 5 https://github.com/metaversestust-pms/art_icnclab.git /tmp/cand-a 2>&1 | tail -2
-git -C /tmp/cand-a log -5 --format='%h %ad %s' --date=short
+指令已執行、輸出已判讀。**結論：種子 = `metaversestust-pms/art_icnclab` @ `ad7eb6c`。**
 
-# --- 候選 B：本機的過期 clone ---
-git -C /mnt/d/art_icnclab log -5 --format='%h %ad %s' --date=short
-git -C /mnt/d/art_icnclab status --porcelain | wc -l     # 有幾個未提交變更
-git -C /mnt/d/art_icnclab remote -v
+### 實測結果
 
-# --- 候選 C：ZIP 快照（無 .git，只能看檔案時間） ---
-ls -la --time-style=long-iso /mnt/d/art_icnclab-main/art_icnclab-main | head -20
-find /mnt/d/art_icnclab-main/art_icnclab-main -name '*.md' -newermt '2026-08-18' \
-     -not -path '*/node_modules/*' | head -30
+| 候選 | HEAD | 日期 | commit 數 | 樹狀結構 | 有 `docs/designs`？ | 有 8/29 與今天的工作？ |
+|---|---|---|---|---|---|---|
+| **精整版** `metaversestust-pms/art_icnclab` | `ad7eb6c` | 2026-08-18 **12:24:42** | 2 | **已重整**（爬蟲收進 `crawlers/`、根目錄雜檔已清） | ❌ | ❌ |
+| 存檔版 `icnclabstust-hub/art_icnclab` | `9c4aebd` | 2026-08-18 **12:23:01** | **28** | 舊版（檔案散在根目錄） | ❌ | ❌ |
+| `D:\art_icnclab` | `979745c` | 2026-08-17 | 2 | 舊版 | ❌ | ❌ |
+| `D:\art_icnclab-main\art_icnclab-main`（ZIP） | 無 `.git` | — | — | — | ✅ | ✅ |
 
-# --- 候選 D：執行期目錄 ---
-ls -la --time-style=long-iso "/mnt/c/Users/user/Desktop/藝術史資料庫" | head -20
-ls -la --time-style=long-iso "/mnt/d/藝術史資料庫" | head -20
-diff -rq "/mnt/c/Users/user/Desktop/藝術史資料庫" "/mnt/d/藝術史資料庫" 2>&1 | head -20
+### 判讀一：原先擔心的「遺失一個月工作」風險 —— 不存在
+
+`metaversestust-pms/art_icnclab` 的兩個 commit 都在 2026-08-18，最後一筆是 12:24:42
+（僅比存檔版的搬家公告 `9c4aebd` 12:23:01 晚 **1 分 41 秒**）。
+**搬家之後到今天為止，該 repo 沒有任何新開發。** 所以無論選誰當種子，都不會丟掉那一個月的工作
+——因為那一個月根本沒有 git 提交。風險解除。
+
+### 判讀二：`D:\art_icnclab` 落後 **26 個 commit**（這點推翻了調查報告的前提）
+
+本機 clone 只有 2 個 commit（`dadaa47`、`979745c`，皆為 2026-08-17），
+但存檔 repo 共有 **28 個**——2026-08-18 當天一口氣做了 26 次提交，其中包含大量實質修復：
+
+```
+8c13905 feat(lint): 建立 eslint flat config，139 個 JS 首次納入 lint；修復其揪出的 7 個真 bug
+0b232f0 fix: 解除全部 0.0.0.0 綁定並清零 B904，順修 S-14 例外原文外洩
+9110d34 fix: 清零 F841 全部 22 處，含兩個實際缺陷修復與三個設計缺口註記
+d33de74 fix: 補上 8 處 requests 呼叫缺少的 timeout
+5857cd2 fix(obsidian-tool): 憑證驗證改為可啟用，新增 CA_CERT valve
+22aba38 fix(ml-service): simple-app 不再寫死 debug=True，改由 FLASK_DEBUG 控制
+41ca6eb docs: 納入 AI 協作規範（CLAUDE.md）、上線前檢視標準與 GD 模板
+...（另有 19 筆）
 ```
 
-### 判讀規則
+已驗證 `dadaa47`、`979745c` 兩個 commit **確實存在於存檔 repo 的歷史中**，
+所以 `D:\art_icnclab` 是正牌 clone，只是**沒有 pull 過，停在 8/17**。
 
-| STEP 0 的結果 | 種子該選誰 |
-|---|---|
-| 候選 A 存在，且 HEAD 日期 > 2026-08-18 | **選 A**。它有那一個月的工作，其餘都是舊的。 |
-| 候選 A 存在，但 HEAD 就是 2026-08-18 前後 | 搬家後沒人在那開發過。選 **B**（有完整 git 歷史）。 |
-| 候選 A 不存在／沒有權限 | 選 **B**，並在正本 README 註明「metaversestust-pms 未納入，原因：無法存取」。 |
+**若當初照調查報告的研判，把 `D:\art_icnclab` 當成正本，會丟掉上面這一整天的修復**
+（含資安性質的 0.0.0.0 綁定解除與憑證驗證修復）。這是本次 STEP 0 最大的實際收穫。
 
-**請把 STEP 0 的輸出貼回來，我依上表幫你定種子，再給 STEP 1 的指令。**
-（下面的 STEP 1～3 先寫出來讓你知道全貌，但**請等種子確定後再執行**。）
+### 判讀三：選精整版當種子的理由
+
+1. **最新**：它是所有 git 候選中 HEAD 最晚的，且獨有一筆 `ad7eb6c`（requirements 加 UTF-8 BOM，
+   修復 Windows cp950 下 pip 讀不到的問題）——這筆只有它有。
+2. **內容無損**：其 init commit `1540b97` 自述「源自 `icnclabstust-hub/art_icnclab` @ `80f6cf9`」，
+   而 `80f6cf9` 正是存檔版的倒數第二筆（最後一筆只是加搬家公告）。
+   也就是說**精整版已涵蓋存檔版的全部程式內容**，只是重新整理了目錄結構。
+3. **這是團隊 8/18 已經做過的決定**，沒有理由推翻。
+
+### 代價（必須知情）
+
+精整版是「全新歷史」，只有 2 個 commit。**採用它 = 放棄存檔版那 28 個 commit 的 `git blame` 追溯能力。**
+但這個代價在 8/18 就已經付了，不是本次新增的。存檔 repo 會繼續存在，
+需要考古時仍可到 `icnclabstust-hub/art_icnclab` 查。
+
+### 另外確認
+
+- **精整版沒有 `db_backups/`**（存檔版有 4 個檔，含 `neo4j_data.tar.gz`、`chromadb_data.tar.gz`、
+  `openwebui_data.tar.gz`，走 Git LFS）。存檔 README 說的「還原資料仍需從這裡取得」屬實。
+  **建議不要搬進正本**，改在正本 README 註明來源。
+- **三個 git 候選都沒有 `docs/designs/`。** 8/29 的 Docker 遷移設計文件、今天的架構改版設計文件、
+  以及那份調查報告本身，**全部只存在於 ZIP 快照**。這正是調查報告最擔心的情況，現已精確確認。
+  這些檔案會在 STEP 2 的 `rescue/zip-snapshot` 分支被完整撈回。
 
 ---
 
 ## STEP 1：種正本（保留 git 歷史）
 
-假設 STEP 0 選出的種子在 `$SEED`（A 是 `/tmp/cand-a`，B 是 `/mnt/d/art_icnclab`）。
+種子已定案為 `metaversestust-pms/art_icnclab` @ `ad7eb6c`。
 
 ```bash
-SEED=/mnt/d/art_icnclab          # ← 依 STEP 0 結果替換
-
-cd "$SEED"
+# 取一份乾淨的種子（不要用 /mnt/d/art_icnclab，它落後 26 個 commit）
+git clone https://github.com/metaversestust-pms/art_icnclab.git ~/seed
+cd ~/seed
+git log -1 --format='%h %s'      # 應為 ad7eb6c fix(deps): requirements 檔加 UTF-8 BOM...
 git remote add canon https://github.com/icnclabstust-hub/art_icnclab_main.git
 git fetch canon
 
 # 把種子的完整歷史推成正本的 main
 git push canon HEAD:refs/heads/main
 ```
+
+> 注意：正本 `art_icnclab_main` 目前的 `claude/problem-solving-help-egvjnu` 分支上已有
+> 本批規劃文件（`docs/ports.md` 等）。種完 `main` 之後，該分支需要 rebase 或 merge 到 `main` 上，
+> 否則兩者是無共同祖先的獨立歷史。建議：先種 `main`，再把規劃文件以一個 commit 補上去。
 
 為什麼是 `git push` 而不是複製檔案：**這樣正本會繼承種子的完整 commit 歷史**。
 若改用複製檔案 + 一個 initial commit，所有 `git blame` / `git log` 的追溯能力就永久消失了。
@@ -102,6 +133,28 @@ rsync -a --delete \
   /mnt/d/art_icnclab-main/art_icnclab-main/ ./
 
 git status --porcelain          # ← 這就是這份副本相對正本的獨有內容
+```
+
+#### 執行前務必先乾跑一次（`-n`）
+
+ZIP 快照裡有 `py311_venv/`（Windows 版 venv，內含數千個 site-packages 檔案）。
+排除清單若沒生效，會把整包 venv 倒進正本。先乾跑確認：
+
+```bash
+rsync -an --delete --stats \
+  --exclude='.git/' --exclude='node_modules/' --exclude='data/' \
+  --exclude='db_backups/' --exclude='*venv*/' --exclude='py311_venv/' \
+  --exclude='.env' --exclude='.webui_secret_key' --exclude='__pycache__/' \
+  /mnt/d/art_icnclab-main/art_icnclab-main/ ./ | tail -20
+
+# 再直接確認幾個不該出現的路徑有沒有被漏掉：
+rsync -an --delete \
+  --exclude='.git/' --exclude='node_modules/' --exclude='data/' \
+  --exclude='db_backups/' --exclude='*venv*/' --exclude='py311_venv/' \
+  --exclude='.env' --exclude='.webui_secret_key' --exclude='__pycache__/' \
+  /mnt/d/art_icnclab-main/art_icnclab-main/ ./ \
+  | grep -cE 'py311_venv|site-packages|node_modules|\.env$'
+# ↑ 必須輸出 0。不是 0 就不要往下做，把輸出貼回來。
 ```
 
 ### 判讀規則（只有三種結果）

@@ -64,8 +64,23 @@ OpenWebUI 已確定使用 8080（使用者決定）。ml-service 原本也綁 80
 - `test-all-rag-methods.js:329`、`test-chinese-query-fix.js:142`
 - `config/default.js:177`（CORS 白名單，OpenWebUI 前端來源）
 
-> 註：上述行號依據 `icnclabstust-hub/art_icnclab` @ `9c4aebd`（存檔版）。
-> 正本種好之後須重新核對一次行號，因為正本可能已有後續變更。
+### 不要動（這些指的是 OpenWebUI，本來就該是 8080）（續）
+- `langchain-rag/unified_rag_manager_v2.py:137-138`
+  ——這是 **CORS 白名單**，註解寫明「僅信任本機 Open WebUI 來源」。
+  OpenWebUI 既然留在 8080，這兩行**維持原樣**：
+
+  ```python
+  allow_origins=[
+      "http://localhost:8080",
+      "http://127.0.0.1:8080",
+  ],
+  ```
+
+> **行號已核對（2026-09-20）**：上表行號原依存檔版 `icnclabstust-hub/art_icnclab` @ `9c4aebd`，
+> 現已於種子 `metaversestust-pms/art_icnclab` @ `ad7eb6c` 重新核對，
+> `ml-service/start.sh:138`、`unified_rag_manager_v2.py:154/164`、`.env.example:23`、
+> `config/production.js:9`、`src/config/mlConfig.js:4`、`src/api/routes/mlRoutes.js:7`
+> **全部一致**，可直接照用。
 
 ## 4. 結構性修法：讓設定錯誤大聲失敗
 
