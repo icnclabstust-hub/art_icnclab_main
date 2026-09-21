@@ -2,7 +2,7 @@
 # 每日爬蟲 + 新架構同步（catalog 為單一真相來源）
 # 流程：爬 10 個來源 -> 各來源攝取進 PostgreSQL catalog（雜湊比對＋內容掃描）
 #       -> 訂閱器增量同步 ChromaDB、Elasticsearch、Neo4j -> Neo4j 分類關係 -> 一致性驗證 -> PostgreSQL 備份 -> Neo4j 備份 -> 清 RAG 快取
-# 個別步驟失敗不會中斷整體（例如 Yale 403、Google Books 429 屬已知偶發狀況）。
+# 個別步驟失敗不會中斷整體（例如 Google Books 429 屬已知偶發狀況）。
 #
 # 與舊版 daily_crawl_and_sync.sh 並存，尚未取代排程；切換前請先依
 # docs/designs/2026-09-20-phase1-catalog-ingestion.md 的驗收標準確認。
@@ -72,8 +72,7 @@ if [ -z "${SKIP_CRAWL:-}" ]; then
         "Google Books:fetch_google_books.js" \
         "Art Institute of Chicago:art-institute-chicago-crawler.js" \
         "V&A:va-museum-crawler.js" \
-        "Cleveland:cleveland-museum-crawler.js" \
-        "Yale:yale-university-art-gallery-crawler.js"; do
+        "Cleveland:cleveland-museum-crawler.js"; do
         run_step "爬蟲 ${entry%%:*}" crawl "${entry#*:}"
         sleep "$STEP_PAUSE_SECONDS"
     done
@@ -81,8 +80,10 @@ fi
 
 cd "$PROJECT_DIR/langchain-rag" || exit 1
 
+# Yale：2026-09-21 起停止爬取與攝取（其 API 對爬蟲一律回 403）。既有資料仍保留在 catalog 與三庫，
+# 所以下方一致性驗證仍包含它；要恢復只需把 Yale 加回爬蟲與攝取兩處清單
 for source in europeana harvard met_museum specialized_art google_books \
-    art_institute_chicago va_museum cleveland_museum yale_university_art_gallery; do
+    art_institute_chicago va_museum cleveland_museum; do
     run_step "攝取 $source" python3 -m ingest run --source "$source"
 done
 

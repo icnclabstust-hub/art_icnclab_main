@@ -55,3 +55,6 @@ Neo4j 訂閱器對每筆 document 事件套用：
 - **線上服務**：來源重算與綁定變更不需要停機；只有讀取端程式碼要重啟 RAG 後端才會生效，實測從關閉到 `/health` 回報 healthy 約 10 秒，未觸及每日流程。每晚備份（`backup_neo4j.sh`）仍會讓 Neo4j 停約 1 分鐘，這段時間圖檢索會失敗，屬既有限制。
 - **待觀察**：第一次完整夜間流程（2026-09-21 03:00 起）會是重算在真實增量下的首次驗證，跑完後應確認新進藝術家都有 `sources`。
 - **資安提醒（已處理）**：RAG 後端原本由 `Start-NativeServices.ps1` 以命令列環境變數帶入 `NEO4J_PASSWORD`、`ES_PASSWORD`，同機任何使用者用 `ps` 都看得到明文。現在啟動指令只帶 `ENV_FILE=<.env 路徑>`，後端自己用 python-dotenv 讀取（已存在的環境變數優先，不會被 `.env` 內的舊值覆蓋）；重啟後 `ps` 看不到任何密碼，`/health` 為 healthy，`hybrid_es_rag`（需要 ES 密碼）檢索回傳 3 筆。`.env.example` 補上 `ES_PASSWORD` 佔位符。曾在 `ps` 輸出中出現過的 ES 密碼仍建議更換。
+
+### 四、停止爬取 Yale（2026-09-21）
+Yale University Art Gallery 的 API（`lux.collections.yale.edu`）對爬蟲的每次搜尋都回 HTTP 403，夜間流程每晚固定失敗一次且沒有新資料。已從 `daily_crawl_and_sync_catalog.sh` 的爬蟲與攝取清單移除；**既有 Yale 資料（Neo4j 約 281 件）保留在 catalog 與三庫，不刪除**，一致性驗證仍涵蓋它。爬蟲檔 `crawlers/yale-university-art-gallery-crawler.js` 與攝取設定保留，要恢復只需把 Yale 加回兩處清單。403 的確切原因未查明。
