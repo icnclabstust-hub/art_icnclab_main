@@ -10,7 +10,7 @@
 ### 已決定
 | 項目 | 決定 | 決定者 |
 |---|---|---|
-| 夜間流程對 Yale 的爬取與攝取 | **停止**（自 2026-09-21 起，commit `dea3969`） | 使用者 |
+| 夜間流程對 Yale 的爬取與攝取 | **停止**（commit `dea3969`）；**同日修好 403 後已恢復**，見下方「已執行」 | 使用者 |
 | 既有 Yale 資料（Neo4j 約 281 件及 catalog／ChromaDB／Elasticsearch 對應內容） | **保留，不刪除**；一致性驗證仍涵蓋 | 使用者（「刪除 Yale API」解讀為停止呼叫，未要求刪資料） |
 | 爬蟲檔 `crawlers/yale-university-art-gallery-crawler.js` 與攝取設定 | **保留**，恢復只需把 Yale 加回 `daily_crawl_and_sync_catalog.sh` 的爬蟲與攝取兩處清單 | 使用者 |
 
@@ -43,10 +43,14 @@
 | 22 件「變更」的原因 | 主要是 `artist` 字串順序（14 件，例：舊 `attributed to: Ugolino di Nerio, Artist`，新 `Artist, attributed to: Ugolino di Nerio`）；另有 description 5、culture 2、title 1。舊值是先前補登時由 Neo4j 節點重建（以逗號拆開再合併，順序被打亂），新值忠於來源，屬預期差異 |
 | catalog 有、本次爬取沒有 | 5 件；本爬蟲是按關鍵字取樣而非完整快照，不代表來源已移除，**Yale 不可使用 `--prune`** |
 
-### 尚未做（待使用者決定）
-- 是否實際套用這次攝取（新增 4、變更 22）。變更會重寫這 22 件的 chunk 並經 outbox 同步三庫；Neo4j 端藝術家名單以逗號拆開，順序改變不會產生新的藝術家，關係不會變動。
-- 是否把 Yale 加回 `daily_crawl_and_sync_catalog.sh` 的爬蟲與攝取兩處清單。
+### 已執行（2026-09-21，使用者同意「要」）
+1. **套用攝取**：新增 4／變更 22／未變 254，產生 48 個事件；ChromaDB、Elasticsearch 各處理 22 筆、Neo4j 26 筆，三個游標落後皆為 0；規則式分類（疊加）已補跑。
+2. **驗證**：`ingest verify --es`：ChromaDB 與 Elasticsearch 皆 catalog 348／檢索庫 348，結果「一致」。Neo4j：Yale 作品 281→285（0 軟刪除）、`CREATED` 關係 336（0 到期），藝術家 2,915→2,917 且全部有 `sources`（首次真實增量驗證了 `Artist.sources` 會自動更新）。
+3. **加回夜間流程**：`daily_crawl_and_sync_catalog.sh` 的爬蟲與攝取清單已恢復 Yale。**仍不可對 Yale 使用 `--prune`**。
+
+### 仍待觀察
+- 明晚 03:00 的完整流程是 Yale 加回後的第一次實跑；若 LUX 再度回 403，先檢查 `REQUEST_HEADERS` 的 UA 是否被列入封鎖。
 
 ### 影響
-- 目前夜間流程仍不含 Yale（不再每晚固定失敗一次）；已收進來的 Yale 作品仍可被檢索，只是尚無新作品進來。爬蟲本身已修好，隨時可加回。
+- Yale 已恢復每晚爬取與攝取；新增 4 件作品，22 件的藝術家字串等欄位更正為忠於來源的版本。
 - 相關紀錄：`docs/reports/2026-09-21-neo4j-status.md` 第四節。

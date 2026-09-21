@@ -58,3 +58,5 @@ Neo4j 訂閱器對每筆 document 事件套用：
 
 ### 四、停止爬取 Yale（2026-09-21）
 Yale University Art Gallery 的 API（`lux.collections.yale.edu`）對爬蟲的每次搜尋都回 HTTP 403，夜間流程每晚固定失敗一次且沒有新資料。已從 `daily_crawl_and_sync_catalog.sh` 的爬蟲與攝取清單移除；**既有 Yale 資料（Neo4j 約 281 件）保留在 catalog 與三庫，不刪除**，一致性驗證仍涵蓋它。爬蟲檔 `crawlers/yale-university-art-gallery-crawler.js` 與攝取設定保留，要恢復只需把 Yale 加回兩處清單。403 的確切原因未查明。
+
+**後續（同日）**：403 原因是 CloudFront 擋掉預設的程式庫 User-Agent（axios／curl／python-requests），改用自我識別的 UA 後爬蟲回復（280 件、0 次 403）。已套用攝取（新增 4、變更 22）並同步三庫，一致性驗證通過，Yale 已加回夜間流程。詳見 `docs/decision-log.md`。
