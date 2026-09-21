@@ -23,6 +23,14 @@ const SEARCH_QUERIES = [
     'painting', 'drawing', 'print', 'decorative arts', 'ancient art'
 ];
 
+// LUX 前面的 CloudFront 會擋掉預設的程式庫 User-Agent（axios／curl／python-requests 一律 403），
+// 用自我識別的 UA 即可通過（2026-09-21 實測；robots.txt 只禁止 /view/results/，未禁止 /api/）。
+// 這裡誠實標明專案與聯絡方式，不偽裝成瀏覽器，讓對方遇到問題時能聯絡我們。
+const REQUEST_HEADERS = {
+    'User-Agent': 'art-history-research (+mailto:icnclab.stust@gmail.com)',
+    Accept: 'application/json'
+};
+
 // Yale University Art Gallery 在 LUX 的 group id（由 /api/facets/item?name=responsibleUnits 查得，
 // 對應 current_owner._label === "Yale University Art Gallery"）
 const YUAG_GROUP_ID = 'https://lux.collections.yale.edu/data/group/41310ca5-8137-45fe-ac2c-a6a04e2235f1';
@@ -112,6 +120,7 @@ class YaleArtGalleryCrawler {
             console.log(`🔍 搜尋: "${query}"`);
             const response = await axios.get(this.searchUrl, {
                 params: { q: JSON.stringify(this.buildSearchQuery(query)), page: 1 },
+                headers: REQUEST_HEADERS,
                 timeout: 30000
             });
             const items = (response.data?.orderedItems || []).slice(0, limit);
@@ -125,7 +134,7 @@ class YaleArtGalleryCrawler {
 
     async fetchObjectDetail(objectUrl) {
         try {
-            const response = await axios.get(objectUrl, { timeout: 30000 });
+            const response = await axios.get(objectUrl, { headers: REQUEST_HEADERS, timeout: 30000 });
             return response.data;
         } catch (error) {
             console.error(`   ⚠️ 取得物件詳細資料失敗 (${objectUrl}):`, error.message);
