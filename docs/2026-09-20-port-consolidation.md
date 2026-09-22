@@ -46,7 +46,7 @@
 | `scripts/daily_crawl_and_sync.sh` | `export NEO4J_URI` → 7687 |
 | `scripts/diagnose.py` | 健康檢查目標 `("Neo4j (7688)", …, 7688)` → 7687 |
 | `scripts/error_knowledge_base.json` | 診斷說明與建議連線字串更新；錯誤比對樣式改為 `768[78]` 以同時匹配新舊 |
-| `scripts/doctor.sh` / `scripts/collect.sh` | `NEO4J_URI` 提示文字更新；埠號表保留 7688/7475 以**偵測舊實例是否沒停乾淨** |
+| `scripts/doctor.sh`（**已於 2026-09-22 停用刪除**，能力併入 `scripts/verify-nightly.sh`）/ `scripts/collect.sh` | `NEO4J_URI` 提示文字更新；埠號表保留 7688/7475 以**偵測舊實例是否沒停乾淨** |
 
 ### 順帶修掉的兩個同類 bug
 
@@ -156,7 +156,7 @@ curl -s http://127.0.0.1:11434/api/tags | head -c 500
 # WSL 驗收
 ss -tlnp | grep -E '7687|7474|8000|8007|8080|11434'
 python3 scripts/diagnose.py
-bash scripts/doctor.sh
+bash scripts/verify-nightly.sh   # 原為 doctor.sh，2026-09-22 起改用此支
 ```
 
 **驗收條件（五項全中才算完成）：**

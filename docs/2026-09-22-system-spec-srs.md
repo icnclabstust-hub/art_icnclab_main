@@ -15,7 +15,7 @@
 | `docs/2026-09-20-problem-register.md` | 已確診缺陷 A2～A6、B1～B5、C1～C6、D1～D3 |
 | `docs/2026-09-20-port-consolidation.md` | 埠號整併驗收條件與回退方式 |
 | `docs/2026-09-20-phase1-seed-canon.md` | 正本／種子／快照三者關係 |
-| `scripts/doctor.sh`、`scripts/collect.sh` | 現況自檢的既有實作 |
+| `scripts/verify-nightly.sh`、`scripts/collect.sh` | 現況自檢與夜跑取證的既有實作 |
 
 ## 狀態標記定義
 
@@ -135,7 +135,7 @@
 | 埠 | 擁有者 | 設定變數 | 狀態 |
 |---|---|---|---|
 | 7687 / 7474 | Neo4j（專案，bolt / HTTP） | `NEO4J_URI` | 由 7688 遷入標準埠，待機器端套用 |
-| ~~7688 / 7475~~ | 已廢除 | — | 應為未佔用（`doctor.sh` 仍檢查，用以偵測舊實例殘留） |
+| ~~7688 / 7475~~ | 已廢除 | — | 應為未佔用（`verify-nightly.sh` §3 仍檢查，用以偵測舊實例殘留） |
 | 8000 | ChromaDB | `CHROMADB_PORT` | 使用中 |
 | 8002 | ml-service | `ML_SERVICE_URL` | 待由 8080 遷出 |
 | 8007 | rag-manager-v2（RAG 後端） | `RAG_MANAGER_PORT` | 使用中 |
@@ -303,7 +303,7 @@
 |---|---|---|---|
 | EVL-10 | `eval.alerts` 為唯一告警出口 | 一致性稽核（DAT-05）、量測退步（EVL-08）、`gate_error` 超標（GRD-10）、服務異常（SYS-04-T）皆寫入此表 | ❌ |
 | EVL-11 | 稽核擴充 | 擴充現有 `ingest verify`，使其結果寫入 `eval.alerts`，不再只留 log | ❌ |
-| EVL-12 | 告警須被看到 | `eval.alerts` 未處理項目須每日彙總呈現給 `Operator`（呈現方式：夜間流程輸出檔 + `doctor.sh` 附加區塊） | ❌ |
+| EVL-12 | 告警須被看到 | `eval.alerts` 未處理項目須每日彙總呈現給 `Operator`（呈現方式：夜間流程輸出檔 + `verify-nightly.sh` 第 9 節） | ❌ |
 
 ### 8.4 拒答複審（決策 B6）
 
@@ -341,7 +341,7 @@
 | NFR-02 | 延遲 | 端到端 p95（含生成）先量測後定標，不預設 | 基準建立後回填本表 |
 | NFR-03 | 可用性 | 防護元件失效不得導致服務不可用（GRD-09） | 注入防護元件異常，請求仍回 200 且帶 `gate_error` |
 | NFR-04 | 可用性 | 服務異常終止後 ≤ 5 分鐘自動復原（SYS-04-T） | 手動 kill 後計時驗證 |
-| NFR-05 | 可觀測性 | 所有異常均可由 `eval.alerts` 與 `doctor.sh` 單一入口查得 | 注入四類異常，四類皆現身 |
+| NFR-05 | 可觀測性 | 所有異常均可由 `eval.alerts` 與 `verify-nightly.sh` 單一入口查得 | 注入四類異常，四類皆現身 |
 | NFR-06 | 可回溯 | 每次量測須記錄 `commit_sha` 與設定快照（EVL-07） | 查任一 run 可重建當時設定 |
 | NFR-07 | 資安 | 憑證不得出現在程序參數（`ps` 可見） | ES 密碼已視為外洩須更換（OPS-01）；改由 `.env` 載入 |
 | NFR-08 | 資安 | 服務僅綁 `127.0.0.1`，不對外監聽 | `ss -tlnp` 無 `0.0.0.0` 綁定 |

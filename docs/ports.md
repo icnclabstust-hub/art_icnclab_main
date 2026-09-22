@@ -30,7 +30,7 @@
 |---|---|---|---|---|
 | **7687** | **Neo4j（專案，bolt）** | `NEO4J_URI` | 2026-09-20 由 7688 遷入標準埠，見 `2026-09-20-port-consolidation.md` | 待機器端套用 |
 | **7474** | **Neo4j（專案，HTTP）** | — | 同上 | 待機器端套用 |
-| ~~7688 / 7475~~ | ~~Neo4j 替代埠~~ | — | **已廢除**（2026-09-20）。`doctor.sh` 仍檢查此兩埠，用以偵測舊實例是否沒停乾淨 | 應為未佔用 |
+| ~~7688 / 7475~~ | ~~Neo4j 替代埠~~ | — | **已廢除**（2026-09-20）。`verify-nightly.sh` §3 仍檢查此兩埠，用以偵測舊實例是否沒停乾淨 | 應為未佔用 |
 | ~~7687 / 7474~~（系統實例） | WSL 系統自帶的 `neo4j.service` | — | 與專案無關，已決定 `systemctl disable --now` 以釋放標準埠 | 待停用 |
 | **8000** | **ChromaDB** | `CHROMADB_PORT` | `Start-NativeServices.ps1` 啟動 `chroma run --port 8000` 並傳入 `CHROMADB_PORT=8000`；`diagnose.py:32` | 使用中 |
 | 8007 | rag-manager-v2 | `RAG_MANAGER_PORT` | `unified_rag_manager_v2.py:1626`；`diagnose.py:33` | 使用中 |

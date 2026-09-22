@@ -218,7 +218,7 @@ B-15 非同步 LLM 判官精篩，結果寫 eval.measurements（不阻擋回應�
 | D-2 | 與基準值逐指標比較 | 任一指標退步 **> 5 個百分點** → 寫 `eval.alerts` `[EVL-08]` |
 | D-3 | 計算當日 `gate_error` 比例 | > **1%** → 寫 `eval.alerts` `[GRD-10]` |
 | D-4 | 收集流程 A 的一致性稽核結果 | 不一致 → 已於 A-11 寫入 alerts `[DAT-05]` |
-| D-5 | 彙總 `eval.alerts` 未處理項目 | 輸出至夜間流程報告檔，並附加於 `doctor.sh` 輸出 `[EVL-12]` |
+| D-5 | 彙總 `eval.alerts` 未處理項目 | 輸出至夜間流程報告檔，並由 `verify-nightly.sh` 第 9 節呈現 `[EVL-12]` |
 | D-6 | 若有 alert，通知 `Operator` | 進流程 G |
 
 **四類告警都經 `eval.alerts` 單一出口** `[EVL-10、NFR-05]`：一致性不符、量測退步、`gate_error` 超標、服務異常。
@@ -249,13 +249,13 @@ B-15 非同步 LLM 判官精篩，結果寫 eval.measurements（不阻擋回應�
 | 步驟 | 動作 | 注意 |
 |---|---|---|
 | F-1 | 在正本 `icnclabstust-hub/art_icnclab_main` 的功能分支上修改 | — |
-| F-2 | 本地驗證：`bash scripts/doctor.sh`、`python3 scripts/diagnose.py` | 全唯讀，可安全重複執行 |
+| F-2 | 本地驗證：`bash scripts/verify-nightly.sh`、`python3 scripts/diagnose.py` | 全唯讀，可安全重複執行 |
 | F-3 | 提交並推送分支 | — |
 | F-4 | 開 PR 併入 `main`（OPS-03） | — |
 | F-5 | ⚠ **手動**把變更檔案複製到執行期目錄 `C:\Users\user\Desktop\藝術史資料庫\art-history-database\` 對應位置 | **漏掉這步，改動完全不會生效** `[SYS-05]` |
 | F-6 | 在 Windows 執行 `Start-NativeServices.ps1` 重啟服務 | — |
 | F-7 | 驗收：`ss -tlnp \| grep -E '7687\|7474\|8000\|8007\|8080\|11434'` | 埠號須符合 `ports.md` |
-| F-8 | 驗收：`python3 scripts/diagnose.py`、`bash scripts/doctor.sh` | — |
+| F-8 | 驗收：`python3 scripts/diagnose.py`、`bash scripts/verify-nightly.sh` | — |
 
 ### 7.2 目標（SYS-05-T 完成後）—— 單一真相源
 
@@ -293,7 +293,7 @@ B-15 非同步 LLM 判官精篩，結果寫 eval.measurements（不阻擋回應�
 
 | 步驟 | 動作 |
 |---|---|
-| G-1 | 執行 `bash scripts/doctor.sh`（全唯讀，印出「我是誰、誰在跑、誰佔埠、設定實際值為何」） |
+| G-1 | 執行 `bash scripts/verify-nightly.sh`（全唯讀）。第 1 節答「我是哪一份副本」、第 3 節答「誰在跑、誰佔埠、重啟次數」、第 0 節答「設定實際生效值」、第 12 節答「是否 OOM」 |
 | G-2 | 需要更深資料時執行 `bash scripts/collect.sh` |
 | G-3 | 依下表對照徵狀 |
 
@@ -303,7 +303,7 @@ B-15 非同步 LLM 判官精篩，結果寫 eval.measurements（不阻擋回應�
 |---|---|---|---|
 | `systemctl` 查不到服務 | 專案服務不由 systemd 啟動，而由 `Start-Process wsl.exe` 拉起 | **不是故障**。查 Windows 程序，或直接執行 `Start-NativeServices.ps1` | SYS-03 |
 | Neo4j 反覆啟動失敗、`already running (pid:…)` | 系統 `neo4j.service` 與專案實例互搶埠 | `sudo systemctl disable --now neo4j`（停用前確認 7687 無其他用途） | B1 |
-| 7688／7475 上仍有服務在聽 | 舊 Neo4j 實例未停乾淨 | 停掉舊實例；`doctor.sh` 保留這兩埠的檢查即為此用 | — |
+| 7688／7475 上仍有服務在聽 | 舊 Neo4j 實例未停乾淨 | 停掉舊實例；`verify-nightly.sh` §3 保留這兩埠的檢查即為此用 | — |
 | Elasticsearch 每 30 秒 Start→Stopped | 待確認，先檢定 OOM | 確認為 OOM 則釘死 heap `-Xms2g -Xmx2g` | B3／OPS-07 |
 | Ollama 回傳空模型清單 | 佔埠實例沒有專案所需模型 | 在該實例 `ollama pull`；先用 `collect.sh` 查出佔用者身分 | B2 |
 | ml-service 呼叫失敗 | 與 Open WebUI 搶 8080 | ml-service 遷 8002，**`ports.md` §3 列的 8 處引用點須全部同步改** | C1 |
