@@ -550,7 +550,7 @@
 |---|---|---|---|---|
 | OPS-01 | 更換 Elasticsearch 密碼 | 曾出現在 `ps` 輸出，視為已外露 | NFR-07 | ❌ |
 | OPS-02 | 確認 2026-09-22 03:00 完整夜間流程 | 移除 Yale 後的**第一次完整實跑**（路徑已單獨驗證通過） | 夜間流程可信度、EVL-08 | ❌ |
-| OPS-03 | 開 PR（`phase0-docs-and-tidy` → `main`） | 所有變更目前只在本地主機端 | SYS-05-T | ❌ |
+| OPS-03 | 將 `phase0-docs-and-tidy` 併入 `main`（**不經 PR**，本地 `merge --no-ff` 後推送） | 所有變更目前只在本地主機端 | SYS-05-T | ❌ |
 | OPS-04 | 清理 `.env` 過時項目 | `NEO4J_URI` 舊埠、相對路徑 `DATA_RAW_DIR`、`DB_HOST_*` 變體、死變數 `RAG_API_PORT` | SYS-07-T | ❌ |
 | OPS-05 | `query_logs` 執行期 log 被 git 追蹤 | 加入 `.gitignore` 並移出追蹤 | NFR-09 | ❌ |
 | OPS-06 | V&A 157／302 件缺豐富關係 | 資料缺項，影響圖檢索召回 | RET-01 `graph` 策略品質 | ❌ |

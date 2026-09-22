@@ -59,7 +59,7 @@ B12 稽核寫 alerts、B13 Google Books（不做）、SYS-06-T 存取控制
 > **P0-6 的必要性**：未完成前，所有程式碼變更都不會生效於實際運行的系統。若暫不執行甲案，流程 F 必須走「手動同步」分支，且每次變更都要重複一次。
 
 **維運待辦並行執行**（不阻擋 Phase 3，但阻擋對應驗收）：
-OPS-01 換 ES 密碼、OPS-02 確認 9/22 夜間實跑、OPS-03 開 PR、OPS-04 清 `.env`、OPS-05 `query_logs` 移出追蹤、OPS-07 ES 重啟迴圈檢定 OOM、OPS-08 埠號整併機器端套用。
+OPS-01 換 ES 密碼、OPS-02 確認 9/22 夜間實跑、OPS-03 併入 `main`、OPS-04 清 `.env`、OPS-05 `query_logs` 移出追蹤、OPS-07 ES 重啟迴圈檢定 OOM、OPS-08 埠號整併機器端套用。
 
 ### 1.2 Phase 3：對話記錄與召回率評測
 
@@ -265,6 +265,9 @@ B-15 非同步專用 NLI 模型精篩，寫 eval.measurements（不阻擋回應�
 
 ## 7. 流程 F：部署與變更
 
+> **本專案不使用 PR**（決策 2026-09-22）。分支完成後以 `git merge --no-ff` 併入 `main` 再推送。
+> **連帶影響**：少了 PR 這道審查關卡，**F-2 的本地驗證就是併入 `main` 前的唯一把關**——`verify-nightly.sh`、`diagnose.py` 與 `spec-export.py --check` 三項不可略過。跳過它們等於無人檢查就進主線。
+
 ### 7.1 現況（SYS-05 未解決前）—— 有斷點，每次變更都要走完
 
 | 步驟 | 動作 | 注意 |
@@ -273,7 +276,7 @@ B-15 非同步專用 NLI 模型精篩，寫 eval.measurements（不阻擋回應�
 | F-2 | 本地驗證：`bash scripts/verify-nightly.sh`、`python3 scripts/diagnose.py`；另跑 `python3 scripts/spec-export.py --check` 確認規格未自相矛盾 | 全唯讀，可安全重複執行。`verify-nightly.sh` 第 0 節同時檢出 `os.getenv` 預設值缺陷的實際影響 `[SYS-07、SYS-07-T]` |
 | F-3 | 若本次變更完成了某條需求或步驟，以 `python3 scripts/spec-update.py --set <ID>=done --by <你> --why <原因>` 更新狀態 | 會自動重產 `spec.json` 並追加變更日誌；驗證不過會自動還原 |
 | F-4 | 提交並推送分支 | — |
-| F-5 | 開 PR 併入 `main`（OPS-03） | — |
+| F-5 | 併入 `main`：`git switch main && git merge --no-ff <分支> && git push origin main`（OPS-03） | **不使用 PR**。`--no-ff` 保留分支歷史，維持 `git blame` 的追溯能力 |
 | F-6 | ⚠ **手動**把變更檔案複製到執行期目錄 `C:\Users\user\Desktop\藝術史資料庫\art-history-database\` 對應位置 | **漏掉這步，改動完全不會生效** `[SYS-05]` |
 | F-7 | 在 Windows 執行 `Start-NativeServices.ps1` 重啟服務 | — |
 | F-8 | 驗收：`ss -tlnp \| grep -E '7687\|7474\|8000\|8007\|8080\|11434'` | 埠號須符合 `ports.md` |
@@ -283,7 +286,7 @@ B-15 非同步專用 NLI 模型精篩，寫 eval.measurements（不阻擋回應�
 
 | 步驟 | 動作 |
 |---|---|
-| F′-1 | 在正本功能分支修改、驗證、PR 併入 `main` |
+| F′-1 | 在正本功能分支修改、驗證，再以 `merge --no-ff` 併入 `main` 並推送（不使用 PR） |
 | F′-2 | 執行期目錄 `git pull`（該目錄即正本的 checkout；`.env` 不進版控，不受影響） |
 | F′-3 | 執行 `Start-NativeServices.ps1` 重啟 |
 | F′-4 | 驗收同 F-8、F-9 |

@@ -1,16 +1,16 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-09-22T17:06:37+00:00",
+  "generated_at": "2026-09-22T17:09:47+00:00",
   "generator": "scripts/spec-export.py",
   "DO_NOT_EDIT": "本檔為自動產生的衍生物。唯一真相源是 source 所列的 Markdown；要改規格請改 Markdown 後重跑 scripts/spec-export.py。手改本檔會在下次產生時被覆蓋。",
   "source": {
     "srs": {
       "path": "docs/2026-09-22-system-spec-srs.md",
-      "sha256": "97dc11f7eb2a67cb92c0340046da3a76a366f5d972b8815fe85a0c647ac43a8c"
+      "sha256": "7290851f6cb400f5f04af04c29812cd78eaec6ebe90ac1f2171a51a3b99adbcc"
     },
     "flows": {
       "path": "docs/2026-09-22-system-flow-steps.md",
-      "sha256": "3a17b8647cc3b35de6fea4fc2ce3955d319f6a8097fe4a5bc384b50c663e5191"
+      "sha256": "c83366560ac10804b9209d0d0c40c050858f062355d50eb2570b95eedea23286"
     }
   },
   "status_legend": {
@@ -1746,7 +1746,7 @@
       "id": "OPS-03",
       "category": "OPS",
       "section": "藝術史資料庫 RAG 系統規格書（SRS）/14. 維運待辦（不屬於決策，但阻擋驗收）",
-      "title": "開 PR（`phase0-docs-and-tidy` → `main`）",
+      "title": "將 `phase0-docs-and-tidy` 併入 `main`（不經 PR，本地 `merge --no-ff` 後推送）",
       "spec": "所有變更目前只在本地主機端",
       "acceptance": "SYS-05-T",
       "current": null,
@@ -2592,11 +2592,11 @@
         },
         {
           "id": "F-5",
-          "action": "開 PR 併入 `main`（OPS-03）",
+          "action": "併入 `main`：`git switch main && git merge --no-ff <分支> && git push origin main`（OPS-03）",
           "owner": null,
           "prereq": null,
           "done_when": null,
-          "on_failure": "—",
+          "on_failure": "不使用 PR。`--no-ff` 保留分支歷史，維持 `git blame` 的追溯能力",
           "closed": false,
           "status": null,
           "refs": [
