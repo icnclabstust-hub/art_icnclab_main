@@ -45,6 +45,38 @@
 | C5 | 待實作（todo／partial）的需求是否至少被一個流程步驟涵蓋 |
 | C6 | 每條需求是否至少說得出規格或驗收標準之一 |
 | C7 | `spec.json` 是否已過期（僅 `--check`） |
+| C8 | 表格每一列的欄數是否等於表頭欄數（欄數不符會整列錯位，看原始碼不易察覺） |
+
+### 更新路徑：`scripts/spec-update.py`
+
+程式與代理需要的不只是讀，還要能更新狀態。但**更新絕不寫進 `spec.json`**——那會讓衍生物與 Markdown 分歧，正是前述設計要避免的事。更新一律寫回 Markdown：
+
+> `系統 ──spec-update.py──▶ Markdown（唯一真相源） ──spec-export.py──▶ spec.json`
+
+**刻意只支援兩種改動**，因為它們在實作過程中反覆發生，且能以確定性規則完成：
+
+| 操作 | 指令 | 作用 |
+|---|---|---|
+| 需求狀態轉換 | `--set GRD-09=done` | 置換該列的狀態符號（`done`／`partial`／`todo`／`decided`／`deferred`） |
+| 步驟結案 | `--close P0-6 --why "…"` | 編號加刪除線，末欄前置一行附日期的結案註記 |
+| 步驟復開 | `--reopen P0-6` | 還原上述兩項 |
+
+其餘改動（改寫規格文字、新增需求、調整相依關係）**不開放自動化**，一律由人或 LLM 直接編輯 Markdown。那些牽涉語意判斷，自動化只會製造無聲的語意損壞。
+
+**安全設計**
+
+| 性質 | 做法 |
+|---|---|
+| 最小改動 | 只置換目標儲存格，不重寫整行 |
+| 原子性 | 寫入後立即驗證；出現 C1～C6、C8 錯誤即**還原全部檔案**。警告（如 C5）不觸發還原 |
+| 冪等 | 重設相同值為 no-op，不寫檔、不記日誌 |
+| 拒絕未知 | 未知編號、未知狀態、無狀態欄的表格一律拒絕且不留痕跡 |
+| 可追溯 | 每次成功更新追加一筆到 `docs/spec-changelog.md`（僅追加），記錄誰、何時、為何 |
+| 可預覽 | `--dry-run` 只顯示差異；`--json` 輸出機器可解析的結果 |
+
+**批次更新**：`--from updates.json`，格式 `[{"set":"GRD-09","status":"done","why":"…"},{"close":"P0-6","why":"…"}]`。
+
+---
 
 **JSON 頂層結構**：`source`（來源路徑與雜湊）、`stats`、`roles`、`ports`、`requirements`、`decisions`、`risks`、`open_questions`、`flows`、`phases`、`validation`。每條需求含 `id`、`category`、`section`、`title`、`spec`、`acceptance`、`status`、`refs`（相依的其他需求）、`config_keys`（該條提到的設定變數）。
 
@@ -158,7 +190,7 @@
 | SYS-05-T | 執行期目錄改為正本 `icnclabstust-hub/art_icnclab_main` 的 git checkout（problem-register §二.1 **甲案**）；`.env` 留在本機不進版控 | 於執行期目錄 `git remote get-url origin` 指向正本、`git status` 乾淨；改正本即改實際系統 |
 | SYS-04-T | 服務具備存活監管 | 任一服務異常終止後 **≤ 5 分鐘**被重新拉起，並寫入 `eval.alerts` |
 | SYS-06-T | API 具備身分與頻率控制 | 未帶憑證的請求回 401；同一身分逾額回 429。**分階段**：Phase 3 先登記，實作另案 |
-| SYS-08-T | 具預設值的設定須集中登記 | `GUARD_HARD_TIMEOUT_SEC`（預設 30，GRD-06c）等有合理預設的設定，其預設值須寫入 `.env.example` 並附一行用途說明，避免重蹈 C6「安靜地用錯的值繼續跑」 | ❌ |
+| SYS-08-T | 具預設值的設定須集中登記（如 `GUARD_HARD_TIMEOUT_SEC`，預設 30，見 GRD-06c） | 每個有預設值的設定都出現在 `.env.example` 且附一行用途說明；以全庫 grep 比對 `os.getenv` 的預設值，無漏登記者。此為避免重蹈缺陷 C6「安靜地用錯的值繼續跑」 |
 | SYS-07-T | 必要設定缺漏即啟動失敗（`required_env`） | 刻意移除 `NEO4J_URI` 後啟動，程序**立即以非零碼結束**並印出缺漏名稱 |
 
 > **SYS-05 是前置卡點**：A4 未解決前，任何對正本的程式碼修改都不會生效於實際運行的系統。本書 §4 起所有需求的實作，均以 SYS-05-T 完成為前提，否則須手動複製檔案至執行期目錄（見流程步驟文件流程 E）。
@@ -514,14 +546,14 @@
 
 ## 14. 維運待辦（不屬於決策，但阻擋驗收）
 
-| OPS-ID | 項目 | 說明 | 阻擋什麼 |
-|---|---|---|---|
-| OPS-01 | 更換 Elasticsearch 密碼 | 曾出現在 `ps` 輸出，視為已外露 | NFR-07 |
-| OPS-02 | 確認 2026-09-22 03:00 完整夜間流程 | 移除 Yale 後的**第一次完整實跑**（路徑已單獨驗證通過） | 夜間流程可信度、EVL-08 |
-| OPS-03 | 開 PR（`phase0-docs-and-tidy` → `main`） | 所有變更目前只在本地主機端 | SYS-05-T |
-| OPS-04 | 清理 `.env` 過時項目 | `NEO4J_URI` 舊埠、相對路徑 `DATA_RAW_DIR`、`DB_HOST_*` 變體、死變數 `RAG_API_PORT` | SYS-07-T |
-| OPS-05 | `query_logs` 執行期 log 被 git 追蹤 | 加入 `.gitignore` 並移出追蹤 | NFR-09 |
-| OPS-06 | V&A 157／302 件缺豐富關係 | 資料缺項，影響圖檢索召回 | RET-01 `graph` 策略品質 |
-| OPS-07 | Elasticsearch 每 30 秒重啟迴圈 | 缺陷 B3，先檢定 OOM，確認則釘死 heap `-Xms2g -Xmx2g` | 整條全文檢索路徑 |
-| OPS-08 | Neo4j／Ollama 埠號整併機器端套用 | 見 `port-consolidation.md` §3 五項驗收條件 | 系統可啟動 |
+| OPS-ID | 項目 | 說明 | 阻擋什麼 | 狀態 |
+|---|---|---|---|---|
+| OPS-01 | 更換 Elasticsearch 密碼 | 曾出現在 `ps` 輸出，視為已外露 | NFR-07 | ❌ |
+| OPS-02 | 確認 2026-09-22 03:00 完整夜間流程 | 移除 Yale 後的**第一次完整實跑**（路徑已單獨驗證通過） | 夜間流程可信度、EVL-08 | ❌ |
+| OPS-03 | 開 PR（`phase0-docs-and-tidy` → `main`） | 所有變更目前只在本地主機端 | SYS-05-T | ❌ |
+| OPS-04 | 清理 `.env` 過時項目 | `NEO4J_URI` 舊埠、相對路徑 `DATA_RAW_DIR`、`DB_HOST_*` 變體、死變數 `RAG_API_PORT` | SYS-07-T | ❌ |
+| OPS-05 | `query_logs` 執行期 log 被 git 追蹤 | 加入 `.gitignore` 並移出追蹤 | NFR-09 | ❌ |
+| OPS-06 | V&A 157／302 件缺豐富關係 | 資料缺項，影響圖檢索召回 | RET-01 `graph` 策略品質 | ❌ |
+| OPS-07 | Elasticsearch 每 30 秒重啟迴圈 | 缺陷 B3，先檢定 OOM，確認則釘死 heap `-Xms2g -Xmx2g` | 整條全文檢索路徑 | ❌ |
+| OPS-08 | Neo4j／Ollama 埠號整併機器端套用 | 見 `port-consolidation.md` §3 五項驗收條件 | 系統可啟動 | ❌ |
 

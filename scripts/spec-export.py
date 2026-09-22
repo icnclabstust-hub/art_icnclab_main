@@ -93,10 +93,12 @@ def split_marker(cell_text):
     """
     t = strip_md(cell_text)
     marker = ""
-    while t and t[0] in STATUS_GLYPHS:
+    # 逐字取，不用 lstrip 整批剝除——否則「✅⚠ X」只會記到第一個符號，
+    # 而「⚠️」的變異選擇符（U+FE0F）也會被默默丟掉。
+    while t and (t[0] in STATUS_GLYPHS or (marker and t[0] == "\ufe0f")):
         marker += t[0]
-        t = t.lstrip(STATUS_GLYPHS).lstrip()
-    return (marker or None), t
+        t = t[1:]
+    return (marker.strip() or None), t.strip()
 
 
 def strip_md(text):
@@ -129,7 +131,14 @@ def parse_tables(path):
             and lines[i + 1].startswith("|")
             and set(lines[i + 1].replace("|", "").strip()) <= set("-: ")
         ):
-            cells = lambda s: [c.strip() for c in s.strip().strip("|").split("|")]
+            # 只在「未跳脫」的管線符上切欄。流程 F-7 的儲存格含 `ss -tlnp \| grep`，
+            # 直接 split("|") 會把它切成 9 欄（表頭只有 3 欄），動作欄被截斷、
+            # 注意欄讀到別的內容——spec.json 曾因此存入壞資料。
+            def cells(line):
+                body = line.strip()
+                body = body[1:] if body.startswith("|") else body
+                body = body[:-1] if body.endswith("|") and not body.endswith("\\|") else body
+                return [c.replace("\\|", "|").strip() for c in re.split(r"(?<!\\)\|", body)]
             header = cells(ln)
             rows, j = [], i + 2
             while j < len(lines) and lines[j].startswith("|"):
@@ -166,8 +175,22 @@ def cell(row, header, *names):
 
 
 # ------------------------------------------------------------------ 解析 SRS
+def check_table_shape(path, label):
+    """列的欄數必須等於表頭欄數，否則欄位整列錯位。
+
+    §4.2 的 DAT-13～17 曾在 5 欄表中只寫 4 欄，從第一版起就渲染錯位；
+    當時是靠 C2「狀態讀不到」的副作用才間接發現。這道檢查直接抓源頭。
+    """
+    for section, header, rows in parse_tables(path):
+        for r in rows:
+            if len(r) != len(header):
+                err("C8", f"{label}「{section.split('/')[-1]}」表頭 {len(header)} 欄，"
+                          f"但「{(r[0] or '(空)')[:16]}」列有 {len(r)} 欄——欄位會錯位")
+
+
 def parse_srs():
     reqs, decisions, risks, questions, ports, roles = [], [], [], [], [], []
+    check_table_shape(SRS, "規格書")
     for section, header, rows in parse_tables(SRS):
         h0 = header[0]
 
@@ -200,7 +223,7 @@ def parse_srs():
                     "status_raw": raw,
                     "has_status_col": has_status_col,
                     "closed": "~~" in r[0],
-                    "refs": sorted({x.group(0) for x in RE_REQ.finditer(body)} - {rid}),
+                    "refs": sorted(expand_refs(body) - {rid}),
                     "config_keys": sorted(set(RE_CONFIG.findall(body))),
                 })
 
@@ -275,6 +298,7 @@ def parse_diagram_refs(path):
 
 def parse_flows():
     flows, phases = [], []
+    check_table_shape(FLOWS, "流程步驟")
     for section, header, rows in parse_tables(FLOWS):
         if header[0] != "步驟":
             continue
@@ -337,7 +361,6 @@ def validate(reqs, decisions, risks, flows, phases):
     closed_risks = {r["id"] for r in risks if r["closed"]}
     blob = open(SRS, encoding="utf-8").read() + open(FLOWS, encoding="utf-8").read()
     for rid in closed_risks:
-        live = re.findall(r"(?<!~)(?<!~~)\b" + rid + r"\b(?!~)", blob)
         for m in re.finditer(r"[^\n]*\b" + rid + r"\b[^\n]*", blob):
             line = m.group(0)
             if "~~" in line or "已裁定" in line or "已解除" in line or "結案" in line:

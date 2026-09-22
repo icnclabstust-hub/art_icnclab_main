@@ -1,16 +1,16 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-09-22T17:00:00+00:00",
+  "generated_at": "2026-09-22T17:06:37+00:00",
   "generator": "scripts/spec-export.py",
   "DO_NOT_EDIT": "本檔為自動產生的衍生物。唯一真相源是 source 所列的 Markdown；要改規格請改 Markdown 後重跑 scripts/spec-export.py。手改本檔會在下次產生時被覆蓋。",
   "source": {
     "srs": {
       "path": "docs/2026-09-22-system-spec-srs.md",
-      "sha256": "ea0343157face5808e8d39c615da7976d140c7da4dc54ca43d4a439ca9fb8b84"
+      "sha256": "97dc11f7eb2a67cb92c0340046da3a76a366f5d972b8815fe85a0c647ac43a8c"
     },
     "flows": {
       "path": "docs/2026-09-22-system-flow-steps.md",
-      "sha256": "726e70337db2feb43163ba125e45b0ec2a8d62a00bdf4e55ec003ca8843ceb7f"
+      "sha256": "3a17b8647cc3b35de6fea4fc2ce3955d319f6a8097fe4a5bc384b50c663e5191"
     }
   },
   "status_legend": {
@@ -24,7 +24,7 @@
     "total": 106,
     "done": 14,
     "partial": 6,
-    "todo": 59,
+    "todo": 67,
     "decided": 1,
     "deferred": 1,
     "by_category": {
@@ -313,8 +313,8 @@
       "category": "SYS",
       "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.2 目標基準（to-be）",
       "title": null,
-      "spec": "具預設值的設定須集中登記",
-      "acceptance": "`GUARD_HARD_TIMEOUT_SEC`（預設 30，GRD-06c）等有合理預設的設定，其預設值須寫入 `.env.example` 並附一行用途說明，避免重蹈 C6「安靜地用錯的值繼續跑」",
+      "spec": "具預設值的設定須集中登記（如 `GUARD_HARD_TIMEOUT_SEC`，預設 30，見 GRD-06c）",
+      "acceptance": "每個有預設值的設定都出現在 `.env.example` 且附一行用途說明；以全庫 grep 比對 `os.getenv` 的預設值，無漏登記者。此為避免重蹈缺陷 C6「安靜地用錯的值繼續跑」",
       "current": null,
       "status": null,
       "status_raw": null,
@@ -1716,9 +1716,9 @@
       "spec": "曾出現在 `ps` 輸出，視為已外露",
       "acceptance": "NFR-07",
       "current": null,
-      "status": null,
-      "status_raw": null,
-      "has_status_col": false,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
       "closed": false,
       "refs": [
         "NFR-07"
@@ -1733,9 +1733,9 @@
       "spec": "移除 Yale 後的第一次完整實跑（路徑已單獨驗證通過）",
       "acceptance": "夜間流程可信度、EVL-08",
       "current": null,
-      "status": null,
-      "status_raw": null,
-      "has_status_col": false,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
       "closed": false,
       "refs": [
         "EVL-08"
@@ -1750,9 +1750,9 @@
       "spec": "所有變更目前只在本地主機端",
       "acceptance": "SYS-05-T",
       "current": null,
-      "status": null,
-      "status_raw": null,
-      "has_status_col": false,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
       "closed": false,
       "refs": [
         "SYS-05-T"
@@ -1767,9 +1767,9 @@
       "spec": "`NEO4J_URI` 舊埠、相對路徑 `DATA_RAW_DIR`、`DB_HOST_*` 變體、死變數 `RAG_API_PORT`",
       "acceptance": "SYS-07-T",
       "current": null,
-      "status": null,
-      "status_raw": null,
-      "has_status_col": false,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
       "closed": false,
       "refs": [
         "SYS-07-T"
@@ -1788,9 +1788,9 @@
       "spec": "加入 `.gitignore` 並移出追蹤",
       "acceptance": "NFR-09",
       "current": null,
-      "status": null,
-      "status_raw": null,
-      "has_status_col": false,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
       "closed": false,
       "refs": [
         "NFR-09"
@@ -1805,9 +1805,9 @@
       "spec": "資料缺項，影響圖檢索召回",
       "acceptance": "RET-01 `graph` 策略品質",
       "current": null,
-      "status": null,
-      "status_raw": null,
-      "has_status_col": false,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
       "closed": false,
       "refs": [
         "RET-01"
@@ -1822,9 +1822,9 @@
       "spec": "缺陷 B3，先檢定 OOM，確認則釘死 heap `-Xms2g -Xmx2g`",
       "acceptance": "整條全文檢索路徑",
       "current": null,
-      "status": null,
-      "status_raw": null,
-      "has_status_col": false,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
       "closed": false,
       "refs": [],
       "config_keys": []
@@ -1837,9 +1837,9 @@
       "spec": "見 `port-consolidation.md` §3 五項驗收條件",
       "acceptance": "系統可啟動",
       "current": null,
-      "status": null,
-      "status_raw": null,
-      "has_status_col": false,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
       "closed": false,
       "refs": [],
       "config_keys": []
@@ -2570,6 +2570,17 @@
         },
         {
           "id": "F-3",
+          "action": "若本次變更完成了某條需求或步驟，以 `python3 scripts/spec-update.py --set <ID>=done --by <你> --why <原因>` 更新狀態",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "會自動重產 `spec.json` 並追加變更日誌；驗證不過會自動還原",
+          "closed": false,
+          "status": null,
+          "refs": []
+        },
+        {
+          "id": "F-4",
           "action": "提交並推送分支",
           "owner": null,
           "prereq": null,
@@ -2580,7 +2591,7 @@
           "refs": []
         },
         {
-          "id": "F-4",
+          "id": "F-5",
           "action": "開 PR 併入 `main`（OPS-03）",
           "owner": null,
           "prereq": null,
@@ -2593,7 +2604,7 @@
           ]
         },
         {
-          "id": "F-5",
+          "id": "F-6",
           "action": "⚠ 手動把變更檔案複製到執行期目錄 `C:\\Users\\user\\Desktop\\藝術史資料庫\\art-history-database\\` 對應位置",
           "owner": null,
           "prereq": null,
@@ -2606,7 +2617,7 @@
           ]
         },
         {
-          "id": "F-6",
+          "id": "F-7",
           "action": "在 Windows 執行 `Start-NativeServices.ps1` 重啟服務",
           "owner": null,
           "prereq": null,
@@ -2617,18 +2628,18 @@
           "refs": []
         },
         {
-          "id": "F-7",
-          "action": "驗收：`ss -tlnp \\",
+          "id": "F-8",
+          "action": "驗收：`ss -tlnp | grep -E '7687|7474|8000|8007|8080|11434'`",
           "owner": null,
           "prereq": null,
           "done_when": null,
-          "on_failure": "grep -E '7687\\",
+          "on_failure": "埠號須符合 `ports.md`",
           "closed": false,
           "status": null,
           "refs": []
         },
         {
-          "id": "F-8",
+          "id": "F-9",
           "action": "驗收：`python3 scripts/diagnose.py`、`bash scripts/verify-nightly.sh`",
           "owner": null,
           "prereq": null,
@@ -2700,7 +2711,7 @@
         },
         {
           "id": "M-6",
-          "action": "`Start-NativeServices.ps1` 啟動，跑完整驗收（F-7、F-8）",
+          "action": "`Start-NativeServices.ps1` 啟動，跑完整驗收（F-8、F-9）",
           "owner": null,
           "prereq": null,
           "done_when": null,

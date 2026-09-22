@@ -271,12 +271,13 @@ B-15 非同步專用 NLI 模型精篩，寫 eval.measurements（不阻擋回應�
 |---|---|---|
 | F-1 | 在正本 `icnclabstust-hub/art_icnclab_main` 的功能分支上修改 | — |
 | F-2 | 本地驗證：`bash scripts/verify-nightly.sh`、`python3 scripts/diagnose.py`；另跑 `python3 scripts/spec-export.py --check` 確認規格未自相矛盾 | 全唯讀，可安全重複執行。`verify-nightly.sh` 第 0 節同時檢出 `os.getenv` 預設值缺陷的實際影響 `[SYS-07、SYS-07-T]` |
-| F-3 | 提交並推送分支 | — |
-| F-4 | 開 PR 併入 `main`（OPS-03） | — |
-| F-5 | ⚠ **手動**把變更檔案複製到執行期目錄 `C:\Users\user\Desktop\藝術史資料庫\art-history-database\` 對應位置 | **漏掉這步，改動完全不會生效** `[SYS-05]` |
-| F-6 | 在 Windows 執行 `Start-NativeServices.ps1` 重啟服務 | — |
-| F-7 | 驗收：`ss -tlnp \| grep -E '7687\|7474\|8000\|8007\|8080\|11434'` | 埠號須符合 `ports.md` |
-| F-8 | 驗收：`python3 scripts/diagnose.py`、`bash scripts/verify-nightly.sh` | — |
+| F-3 | 若本次變更完成了某條需求或步驟，以 `python3 scripts/spec-update.py --set <ID>=done --by <你> --why <原因>` 更新狀態 | 會自動重產 `spec.json` 並追加變更日誌；驗證不過會自動還原 |
+| F-4 | 提交並推送分支 | — |
+| F-5 | 開 PR 併入 `main`（OPS-03） | — |
+| F-6 | ⚠ **手動**把變更檔案複製到執行期目錄 `C:\Users\user\Desktop\藝術史資料庫\art-history-database\` 對應位置 | **漏掉這步，改動完全不會生效** `[SYS-05]` |
+| F-7 | 在 Windows 執行 `Start-NativeServices.ps1` 重啟服務 | — |
+| F-8 | 驗收：`ss -tlnp \| grep -E '7687\|7474\|8000\|8007\|8080\|11434'` | 埠號須符合 `ports.md` |
+| F-9 | 驗收：`python3 scripts/diagnose.py`、`bash scripts/verify-nightly.sh` | — |
 
 ### 7.2 目標（SYS-05-T 完成後）—— 單一真相源
 
@@ -285,7 +286,7 @@ B-15 非同步專用 NLI 模型精篩，寫 eval.measurements（不阻擋回應�
 | F′-1 | 在正本功能分支修改、驗證、PR 併入 `main` |
 | F′-2 | 執行期目錄 `git pull`（該目錄即正本的 checkout；`.env` 不進版控，不受影響） |
 | F′-3 | 執行 `Start-NativeServices.ps1` 重啟 |
-| F′-4 | 驗收同 F-7、F-8 |
+| F′-4 | 驗收同 F-8、F-9 |
 
 ### 7.3 遷移步驟（F 現況 → F 目標，一次性，即 P0-6）
 
@@ -296,7 +297,7 @@ B-15 非同步專用 NLI 模型精篩，寫 eval.measurements（不阻擋回應�
 | M-3 | 備份執行期目錄的 `.env` 與資料目錄到目錄外 | `.env` 絕不進版控 |
 | M-4 | 停止所有服務（需一次停機） | 在夜間流程之外的時段執行 |
 | M-5 | 將執行期目錄改為正本的 `git clone`，還原 `.env` | — |
-| M-6 | `Start-NativeServices.ps1` 啟動，跑完整驗收（F-7、F-8） | 失敗則以 M-3 的備份還原 |
+| M-6 | `Start-NativeServices.ps1` 啟動，跑完整驗收（F-8、F-9） | 失敗則以 M-3 的備份還原 |
 
 ### 7.4 回退
 
@@ -329,7 +330,7 @@ B-15 非同步專用 NLI 模型精篩，寫 eval.measurements（不阻擋回應�
 | Ollama 回傳空模型清單 | 佔埠實例沒有專案所需模型 | 在該實例 `ollama pull`；先用 `collect.sh` 查出佔用者身分 | B2 |
 | ml-service 呼叫失敗 | 與 Open WebUI 搶 8080 | ml-service 遷 8002，**`ports.md` §3 列的 8 處引用點須全部同步改** | C1 |
 | 服務無預警消失、隔天才復原 | 無 watchdog，只靠每日 03:00 排程 | 短期：手動執行 `Start-NativeServices.ps1`；長期：實作 SYS-04-T 監管 | B5 |
-| 改了程式碼但系統行為沒變 | 執行期目錄與正本脫鉤 | 走流程 F-5 手動同步，或完成 P0-6 遷移 | A4 |
+| 改了程式碼但系統行為沒變 | 執行期目錄與正本脫鉤 | 走流程 F-6 手動同步，或完成 P0-6 遷移 | A4 |
 | 設定改了卻沒生效、也沒報錯 | `os.getenv("X","預設值")` 安靜使用錯誤預設值 | 實作 `required_env`，必要設定缺漏即啟動失敗 | C6／SYS-07-T |
 | 圖檢索召回偏低（特定館藏） | V&A 157／302 件缺豐富關係 | 列為採集層補充需求 | OPS-06 |
 | 查詢卡住約 30 秒後回拒答，alerts 記 `gate_hang` | 粗篩掛住，由 GRD-06c 硬上限中止 | 不是慢，是掛住：查粗篩的迴圈或 I/O 是否無界。**勿為此調高 30 秒** | GRD-06c |
@@ -352,7 +353,7 @@ B-15 非同步專用 NLI 模型精篩，寫 eval.measurements（不阻擋回應�
 | 流程 | 涵蓋需求 |
 |---|---|
 | P0 | EVL-02、BIZ-04～06、EVL-16、SYS-05-T |
-| A | SYS-01、GEN-01、DAT-01～05、DAT-20～22、DAT-30～32、EVL-11 |
+| A | SYS-01、GEN-01、DAT-01～05、DAT-14～17、DAT-20～22、DAT-30～32、EVL-11、OPS-02 |
 | B | RET-01～13、GRD-01～10、GEN-01～04、BIZ-01～03、§11.1 API |
 | C | EVL-01～08、NFR-06 |
 | D | EVL-08、EVL-10～12、GRD-10、DAT-05 |
