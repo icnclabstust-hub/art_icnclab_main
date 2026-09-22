@@ -23,7 +23,6 @@ import json
 import os
 import re
 import sys
-from datetime import datetime, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRS = os.path.join(ROOT, "docs", "2026-09-22-system-spec-srs.md")
@@ -296,6 +295,39 @@ def parse_diagram_refs(path):
     return refs
 
 
+RE_DEP = re.compile(r"\b(?:P0-\d+[a-z]?|[A-GM]-\d+[a-z]?|\d-\d+[a-z]?)\b")
+
+
+def compute_readiness(flows, phases):
+    """替每個步驟算出 state 與 blocked_by，讓消費端不必自己讀中文散文。
+
+    僅取「前置」欄的步驟編號作為相依來源——該欄語意必須單純。
+    先前 3-2 的前置欄混寫了「無，但低優先：…3-8 已鎖定」，若連說明一起掃，
+    會把 3-2 誤判為被 3-8 擋住。欄位語意不乾淨時，相依圖必然算錯。
+    """
+    index = {s["id"]: s for g in flows + phases for s in g["steps"]}
+    for s in index.values():
+        s["depends_on"] = sorted({d for d in RE_DEP.findall(s.get("prereq") or "")
+                                  if d != s["id"]})
+    for s in index.values():
+        if s["closed"]:
+            s["state"], s["blocked_by"] = "closed", []
+            continue
+        if s.get("status") == "deferred":
+            s["state"], s["blocked_by"] = "deferred", []
+            continue
+        blocked = []
+        for d in s["depends_on"]:
+            dep = index.get(d)
+            if dep is None:            # 相依指向不存在的步驟，交由 C9 回報
+                blocked.append(d)
+            elif not dep["closed"]:
+                blocked.append(d)
+        s["blocked_by"] = blocked
+        s["state"] = "blocked" if blocked else "ready"
+    return index
+
+
 def parse_flows():
     flows, phases = [], []
     check_table_shape(FLOWS, "流程步驟")
@@ -322,7 +354,13 @@ def parse_flows():
             })
         if not steps:
             continue
-        bucket = phases if RE_PHASESTEP.fullmatch(steps[0]["id"]) or steps[0]["id"].startswith("P0") else flows
+        is_phase = RE_PHASESTEP.fullmatch(steps[0]["id"]) or steps[0]["id"].startswith("P0")
+        # 一次性實作工作（P0／Phase 3～5）才是「待辦」；
+        # 流程 A～G 是每日／每週反覆執行的程序，把它們列進待辦是分類錯誤。
+        kind = "task" if is_phase else "procedure"
+        for st in steps:
+            st["kind"] = kind
+        bucket = phases if is_phase else flows
         bucket.append({"section": section, "steps": steps})
     return flows, phases
 
@@ -385,6 +423,7 @@ def validate(reqs, decisions, risks, flows, phases):
 def main():
     quiet = "--quiet" in sys.argv
     check_only = "--check" in sys.argv
+    show_next = "--next" in sys.argv
 
     for p in (SRS, FLOWS):
         if not os.path.exists(p):
@@ -396,6 +435,11 @@ def main():
     if not reqs:
         print("❌ 未解析到任何需求——來源文件的表格格式可能已變動", file=sys.stderr)
         return 2
+    step_index = compute_readiness(flows, phases)
+    for sid, st in step_index.items():
+        for d in st["depends_on"]:
+            if d not in step_index:
+                err("C9", f"步驟 {sid} 的前置 {d} 不存在")
     validate(reqs, decisions, risks, flows, phases)
 
     stats = {"total": len(reqs)}
@@ -403,10 +447,16 @@ def main():
         stats[s] = sum(1 for r in reqs if r["status"] == s)
     stats["by_category"] = {c: sum(1 for r in reqs if r["category"] == c)
                             for c in sorted({r["category"] for r in reqs})}
+    stats["tasks"] = {k: sum(1 for s in step_index.values()
+                             if s.get("kind") == "task" and s["state"] == k)
+                      for k in ("ready", "blocked", "deferred", "closed")}
+    stats["procedures"] = sum(1 for s in step_index.values() if s.get("kind") == "procedure")
 
     doc = {
-        "schema_version": "1.0",
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "schema_version": "1.1",
+        "//": "本檔為確定性輸出：相同的 Markdown 必定產生位元相同的 JSON。"
+              "刻意不含產生時間——否則每次重產都會出現 diff，真正的變更會被雜訊蓋住。"
+              "是否為最新版請比對 source 的 sha256。",
         "generator": "scripts/spec-export.py",
         "DO_NOT_EDIT": "本檔為自動產生的衍生物。唯一真相源是 source 所列的 Markdown；"
                        "要改規格請改 Markdown 後重跑 scripts/spec-export.py。手改本檔會在下次產生時被覆蓋。",
@@ -420,6 +470,10 @@ def main():
             "deferred": "經決定延後，連帶限制見該條規格",
         },
         "stats": stats,
+        "next_actions": sorted(
+            [{"id": s["id"], "section": g["section"], "action": s["action"]}
+             for g in phases for s in g["steps"] if s["state"] == "ready"],
+            key=lambda x: x["id"]),
         "roles": roles,
         "ports": ports,
         "requirements": reqs,
@@ -431,6 +485,21 @@ def main():
         "validation": {"errors": errors, "warnings": warnings},
     }
 
+    if show_next:
+        ready = doc["next_actions"]
+        tasks = [s for s in step_index.values() if s.get("kind") == "task"]
+        blocked = [(s["id"], s["blocked_by"]) for s in tasks if s["state"] == "blocked"]
+        deferred = sorted(s["id"] for s in tasks if s["state"] == "deferred")
+        print(f"可以開工（{len(ready)} 項，僅列一次性工作；流程 A～G 為反覆執行的程序，不列入）：")
+        for x in ready:
+            print(f"  ☐ {x['id']:6} {(x['action'] or '')[:58]}")
+        print(f"\n被擋住（{len(blocked)} 項）：")
+        for sid, by in sorted(blocked):
+            print(f"  ⊘ {sid:6} 等待 {'、'.join(by)}")
+        if deferred:
+            print(f"\n已暫緩（{len(deferred)} 項）：{'、'.join(deferred)}")
+        return 1 if errors else 0
+
     if not quiet:
         print(f"需求 {stats['total']} 條："
               f"done {stats['done']} / partial {stats['partial']} / todo {stats['todo']} / "
@@ -441,6 +510,20 @@ def main():
         print(f"⚠  {w}", file=sys.stderr)
     for e in errors:
         print(f"❌ {e}", file=sys.stderr)
+
+    # C10：若本機裝有 jsonschema，就以 docs/spec.schema.json 驗證輸出。
+    # 消費端依賴的是那份 schema；改了產生邏輯卻忘了同步 schema，這裡會擋下。
+    schema_path = os.path.join(ROOT, "docs", "spec.schema.json")
+    if os.path.exists(schema_path):
+        try:
+            import jsonschema
+            jsonschema.validate(doc, json.load(open(schema_path, encoding="utf-8")))
+        except ImportError:
+            if not quiet:
+                print("（本機無 jsonschema 套件，略過 C10 契約驗證）")
+        except Exception as e:
+            err("C10", f"輸出不符 docs/spec.schema.json：{str(e).splitlines()[0][:160]}")
+            print(f"❌ [C10] {errors[-1][6:]}", file=sys.stderr)
 
     if errors:
         print(f"\n驗證未通過（{len(errors)} 項錯誤），未寫出 spec.json", file=sys.stderr)

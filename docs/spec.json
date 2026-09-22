@@ -1,16 +1,16 @@
 {
-  "schema_version": "1.0",
-  "generated_at": "2026-09-22T17:09:47+00:00",
+  "schema_version": "1.1",
+  "//": "本檔為確定性輸出：相同的 Markdown 必定產生位元相同的 JSON。刻意不含產生時間——否則每次重產都會出現 diff，真正的變更會被雜訊蓋住。是否為最新版請比對 source 的 sha256。",
   "generator": "scripts/spec-export.py",
   "DO_NOT_EDIT": "本檔為自動產生的衍生物。唯一真相源是 source 所列的 Markdown；要改規格請改 Markdown 後重跑 scripts/spec-export.py。手改本檔會在下次產生時被覆蓋。",
   "source": {
     "srs": {
       "path": "docs/2026-09-22-system-spec-srs.md",
-      "sha256": "7290851f6cb400f5f04af04c29812cd78eaec6ebe90ac1f2171a51a3b99adbcc"
+      "sha256": "53f38d8708f3b93a4bb600748b9f258a5bbaf6509417663659f5bfc6939df5d8"
     },
     "flows": {
       "path": "docs/2026-09-22-system-flow-steps.md",
-      "sha256": "c83366560ac10804b9209d0d0c40c050858f062355d50eb2570b95eedea23286"
+      "sha256": "5d02b75f0ea5c065909a6135dbaabc2d051e490ff694d15262295ea1481b5a4a"
     }
   },
   "status_legend": {
@@ -37,8 +37,42 @@
       "OPS": 8,
       "RET": 12,
       "SYS": 12
-    }
+    },
+    "tasks": {
+      "ready": 5,
+      "blocked": 14,
+      "deferred": 5,
+      "closed": 3
+    },
+    "procedures": 53
   },
+  "next_actions": [
+    {
+      "id": "3-1",
+      "section": "藝術史資料庫 RAG 系統流程步驟/1. 實作里程碑順序/1.2 Phase 3：對話記錄與召回率評測",
+      "action": "`BIZ_LOGGING` 保持 關閉"
+    },
+    {
+      "id": "3-2",
+      "section": "藝術史資料庫 RAG 系統流程步驟/1. 實作里程碑順序/1.2 Phase 3：對話記錄與召回率評測",
+      "action": "修改 pipe，將使用者身分（或匿名代號）傳至後端"
+    },
+    {
+      "id": "3-3",
+      "section": "藝術史資料庫 RAG 系統流程步驟/1. 實作里程碑順序/1.2 Phase 3：對話記錄與召回率評測",
+      "action": "建立 `eval.golden_set` 並完成標註"
+    },
+    {
+      "id": "3-4",
+      "section": "藝術史資料庫 RAG 系統流程步驟/1. 實作里程碑順序/1.2 Phase 3：對話記錄與召回率評測",
+      "action": "實作四段量測，寫入 `eval.measurements`"
+    },
+    {
+      "id": "P0-6",
+      "section": "藝術史資料庫 RAG 系統流程步驟/1. 實作里程碑順序/1.1 Phase 0：前置解卡",
+      "action": "決定執行期目錄處理方式並執行（建議甲案）"
+    }
+  ],
   "roles": [
     {
       "role": "查詢者",
@@ -2089,7 +2123,11 @@
           "on_failure": "服務起不來 → 流程中止，進流程 G",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-2",
@@ -2102,7 +2140,11 @@
           "status": null,
           "refs": [
             "GEN-01"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-3",
@@ -2113,7 +2155,11 @@
           "on_failure": "單一來源失敗不中止整體，記錄該來源狀態",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-4",
@@ -2124,7 +2170,11 @@
           "on_failure": "—",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-5",
@@ -2135,7 +2185,11 @@
           "on_failure": "命中則該文件不進 catalog，記錄並告警",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-6",
@@ -2149,7 +2203,11 @@
           "refs": [
             "DAT-10",
             "DAT-30"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-7",
@@ -2163,7 +2221,11 @@
           "refs": [
             "DAT-01",
             "DAT-02"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-8",
@@ -2176,7 +2238,11 @@
           "status": null,
           "refs": [
             "DAT-03"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-9",
@@ -2189,7 +2255,11 @@
           "status": null,
           "refs": [
             "DAT-20"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-10",
@@ -2202,7 +2272,11 @@
           "status": null,
           "refs": [
             "DAT-21"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-11",
@@ -2216,7 +2290,11 @@
           "refs": [
             "DAT-05",
             "EVL-11"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-12",
@@ -2229,7 +2307,11 @@
           "status": null,
           "refs": [
             "DAT-31"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-13",
@@ -2245,7 +2327,11 @@
             "DAT-15",
             "DAT-15a",
             "DAT-16"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-13b",
@@ -2258,7 +2344,11 @@
           "status": null,
           "refs": [
             "DAT-17"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "A-14",
@@ -2269,7 +2359,11 @@
           "on_failure": "Phase 3 完成後才有此步",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         }
       ]
     },
@@ -2287,7 +2381,11 @@
           "status": null,
           "refs": [
             "EVL-01"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "C-2",
@@ -2298,7 +2396,11 @@
           "on_failure": null,
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "C-3",
@@ -2309,7 +2411,11 @@
           "on_failure": null,
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "C-4",
@@ -2322,7 +2428,11 @@
           "status": null,
           "refs": [
             "EVL-05"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "C-5",
@@ -2333,7 +2443,11 @@
           "on_failure": null,
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "C-6",
@@ -2347,7 +2461,11 @@
           "refs": [
             "EVL-03",
             "EVL-04"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "C-7",
@@ -2361,7 +2479,11 @@
           "refs": [
             "EVL-06",
             "EVL-07"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "C-8",
@@ -2374,7 +2496,11 @@
           "status": null,
           "refs": [
             "EVL-08"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         }
       ]
     },
@@ -2392,7 +2518,11 @@
           "status": null,
           "refs": [
             "EVL-06"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "D-2",
@@ -2405,7 +2535,11 @@
           "status": null,
           "refs": [
             "EVL-08"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "D-3",
@@ -2418,7 +2552,11 @@
           "status": null,
           "refs": [
             "GRD-10"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "D-4",
@@ -2431,7 +2569,11 @@
           "status": null,
           "refs": [
             "DAT-05"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "D-5",
@@ -2444,7 +2586,11 @@
           "status": null,
           "refs": [
             "EVL-12"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "D-6",
@@ -2455,7 +2601,11 @@
           "on_failure": "進流程 G",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         }
       ]
     },
@@ -2473,7 +2623,11 @@
           "status": null,
           "refs": [
             "EVL-15"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "E-2",
@@ -2486,7 +2640,11 @@
           "status": null,
           "refs": [
             "EVL-17"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "E-3",
@@ -2499,7 +2657,11 @@
           "status": null,
           "refs": [
             "GRD-05"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "E-4",
@@ -2512,7 +2674,11 @@
           "status": null,
           "refs": [
             "OPS-06"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "E-5",
@@ -2523,7 +2689,11 @@
           "on_failure": null,
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "E-6",
@@ -2536,7 +2706,11 @@
           "status": null,
           "refs": [
             "EVL-16"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         }
       ]
     },
@@ -2552,7 +2726,11 @@
           "on_failure": "—",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "F-2",
@@ -2566,7 +2744,11 @@
           "refs": [
             "SYS-07",
             "SYS-07-T"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "F-3",
@@ -2577,7 +2759,11 @@
           "on_failure": "會自動重產 `spec.json` 並追加變更日誌；驗證不過會自動還原",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "F-4",
@@ -2588,7 +2774,11 @@
           "on_failure": "—",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "F-5",
@@ -2601,7 +2791,11 @@
           "status": null,
           "refs": [
             "OPS-03"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "F-6",
@@ -2614,7 +2808,11 @@
           "status": null,
           "refs": [
             "SYS-05"
-          ]
+          ],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "F-7",
@@ -2625,7 +2823,11 @@
           "on_failure": "—",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "F-8",
@@ -2636,7 +2838,11 @@
           "on_failure": "埠號須符合 `ports.md`",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "F-9",
@@ -2647,7 +2853,11 @@
           "on_failure": "—",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         }
       ]
     },
@@ -2663,7 +2873,11 @@
           "on_failure": "先比對再動，避免覆蓋執行期獨有內容",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "M-2",
@@ -2674,7 +2888,11 @@
           "on_failure": "逐檔確認，不整包覆蓋",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "M-3",
@@ -2685,7 +2903,11 @@
           "on_failure": "`.env` 絕不進版控",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "M-4",
@@ -2696,7 +2918,11 @@
           "on_failure": "在夜間流程之外的時段執行",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "M-5",
@@ -2707,7 +2933,11 @@
           "on_failure": "—",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "M-6",
@@ -2718,7 +2948,11 @@
           "on_failure": "失敗則以 M-3 的備份還原",
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         }
       ]
     },
@@ -2734,7 +2968,11 @@
           "on_failure": null,
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "G-2",
@@ -2745,7 +2983,11 @@
           "on_failure": null,
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "G-3",
@@ -2756,7 +2998,11 @@
           "on_failure": null,
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "procedure",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         }
       ]
     }
@@ -2769,20 +3015,24 @@
           "id": "P0-1",
           "action": "指派黃金測試集標註人選",
           "owner": "—",
-          "prereq": null,
+          "prereq": "無",
           "done_when": "✅ 已結案（2026-09-22）：`Annotator` = 使用者本人。工時仍估 2–3 小時 `[EVL-02]`",
           "on_failure": null,
           "closed": true,
           "status": null,
           "refs": [
             "EVL-02"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [],
+          "state": "closed",
+          "blocked_by": []
         },
         {
           "id": "P0-2",
           "action": "確認適用法規、告知文字，以及是否需研究倫理審查",
           "owner": "Approver",
-          "prereq": null,
+          "prereq": "無",
           "done_when": "2026-09-22 決定暫緩。連帶限制（不可忽略）： ① `BIZ_LOGGING` 鎖定 `false`，對話記錄功能不啟用 ② `eval.refusal_queue` 不得寫入 `user_id`（EVL-15a） ③ 恢復時送件前提須為「歸檔永久保留」，不得寫成「18 週後刪除」 `[BIZ-05、EVL-15a、§12 R2b]`",
           "on_failure": null,
           "closed": false,
@@ -2790,59 +3040,81 @@
           "refs": [
             "BIZ-05",
             "EVL-15a"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [],
+          "state": "deferred",
+          "blocked_by": []
         },
         {
           "id": "P0-3",
           "action": "依 P0-2 結論確認 `biz.messages` 保存期限",
           "owner": "Approver",
-          "prereq": null,
+          "prereq": "P0-2",
           "done_when": "隨 P0-2 暫緩。因 `BIZ_LOGGING` 關閉，尚無資料適用此期限，暫緩無實害 `[BIZ-04]`",
           "on_failure": null,
           "closed": false,
           "status": "deferred",
           "refs": [
             "BIZ-04"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "P0-2"
+          ],
+          "state": "deferred",
+          "blocked_by": []
         },
         {
           "id": "P0-4",
           "action": "Approver 核可 Tier B 實作，補簽 GD 評估表 §九",
           "owner": "—",
-          "prereq": null,
+          "prereq": "無",
           "done_when": "✅ 已結案（2026-09-22）：已取得同意，簽名程序免除。日後若補填評估表，仍由使用者／老師為之，AI 不代填 `[BIZ-06]`",
           "on_failure": null,
           "closed": true,
           "status": null,
           "refs": [
             "BIZ-06"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [],
+          "state": "closed",
+          "blocked_by": []
         },
         {
           "id": "P0-5",
           "action": "指派拒答佇列每週複審人選",
           "owner": "—",
-          "prereq": null,
+          "prereq": "無",
           "done_when": "✅ 已結案：`Reviewer` = 使用者本人（論文作者），決策 B6 `[EVL-16]`",
           "on_failure": null,
           "closed": true,
           "status": null,
           "refs": [
             "EVL-16"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [],
+          "state": "closed",
+          "blocked_by": []
         },
         {
           "id": "P0-6",
           "action": "決定執行期目錄處理方式並執行（建議甲案）",
           "owner": "Operator",
-          "prereq": null,
+          "prereq": "無",
           "done_when": "執行期目錄 `git remote` 指向正本 `[SYS-05-T]`",
           "on_failure": null,
           "closed": false,
           "status": null,
           "refs": [
             "SYS-05-T"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         }
       ]
     },
@@ -2860,27 +3132,35 @@
           "status": null,
           "refs": [
             "BIZ-03"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "3-2",
           "action": "修改 pipe，將使用者身分（或匿名代號）傳至後端",
           "owner": null,
-          "prereq": "無，但低優先：唯一近期消費者 3-8 已鎖定，可延後至 P0-2 恢復時再做",
-          "done_when": "後端能取到 `user_id` `[BIZ-02]`",
+          "prereq": "無",
+          "done_when": "後端能取到 `user_id`。低優先：唯一近期消費者已鎖定，可延後至 P0-2 恢復時再做 `[BIZ-02]`",
           "on_failure": null,
           "closed": false,
           "status": null,
           "refs": [
             "BIZ-02"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "3-3",
           "action": "建立 `eval.golden_set` 並完成標註",
           "owner": null,
-          "prereq": "✅ P0-1 已結案（`Annotator`＝使用者本人）",
-          "done_when": "15 題全部標註完成 `[EVL-01～04]`",
+          "prereq": "P0-1",
+          "done_when": "15 題全部標註完成（P0-1 已結案，`Annotator`＝使用者本人） `[EVL-01～04]`",
           "on_failure": null,
           "closed": false,
           "status": null,
@@ -2889,7 +3169,13 @@
             "EVL-02",
             "EVL-03",
             "EVL-04"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "P0-1"
+          ],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "3-4",
@@ -2903,7 +3189,11 @@
           "refs": [
             "EVL-06",
             "EVL-07"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [],
+          "blocked_by": [],
+          "state": "ready"
         },
         {
           "id": "3-5",
@@ -2916,27 +3206,43 @@
           "status": null,
           "refs": [
             "NFR-06"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "3-3",
+            "3-4"
+          ],
+          "blocked_by": [
+            "3-3",
+            "3-4"
+          ],
+          "state": "blocked"
         },
         {
           "id": "3-6",
           "action": "實作 `biz.messages` 保存期限與歸檔",
           "owner": null,
-          "prereq": "機制無前置，但無資料可適用（`BIZ_LOGGING` 鎖定關閉），先做無效益",
-          "done_when": "逾期自資料庫移除、移除前歸檔 `[BIZ-04、DAT-15a]`",
+          "prereq": "P0-2",
+          "done_when": "逾期自資料庫移除、移除前歸檔。機制本身無前置，但 `BIZ_LOGGING` 鎖定關閉時無資料可適用，先做無效益 `[BIZ-04、DAT-15a]`",
           "on_failure": null,
           "closed": false,
           "status": "deferred",
           "refs": [
             "BIZ-04",
             "DAT-15a"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "P0-2"
+          ],
+          "state": "deferred",
+          "blocked_by": []
         },
         {
           "id": "3-7",
           "action": "上線告知文字",
           "owner": null,
-          "prereq": "P0-2 暫緩 → 本步停擺",
+          "prereq": "P0-2",
           "done_when": "首次使用顯示告知；文字採「18 週後自線上資料庫移除，歸檔留存」，不得寫成「刪除」 `[BIZ-05、BIZ-04b、§12 R2b]`",
           "on_failure": null,
           "closed": false,
@@ -2944,21 +3250,33 @@
           "refs": [
             "BIZ-04b",
             "BIZ-05"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "P0-2"
+          ],
+          "state": "deferred",
+          "blocked_by": []
         },
         {
           "id": "3-8",
           "action": "開啟 `BIZ_LOGGING`",
           "owner": null,
-          "prereq": "P0-2 暫緩 → 鎖定 `false`，不得開啟。P0-4 已結案但不足以單獨解鎖：缺的是告知，不是核可",
-          "done_when": "對話記錄開始累積（不再是 0 筆） `[BIZ-01、BIZ-03]`",
+          "prereq": "P0-2",
+          "done_when": "對話記錄開始累積（不再是 0 筆）。P0-2 暫緩期間鎖定 `false`，不得開啟；P0-4 已結案不足以單獨解鎖——缺的是告知，不是核可 `[BIZ-01、BIZ-03]`",
           "on_failure": null,
           "closed": false,
           "status": "deferred",
           "refs": [
             "BIZ-01",
             "BIZ-03"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "P0-2"
+          ],
+          "state": "deferred",
+          "blocked_by": []
         },
         {
           "id": "3-9",
@@ -2971,7 +3289,15 @@
           "status": null,
           "refs": [
             "EVL-08"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "3-4"
+          ],
+          "blocked_by": [
+            "3-4"
+          ],
+          "state": "blocked"
         }
       ]
     },
@@ -2982,44 +3308,70 @@
           "id": "4-1",
           "action": "實作證據判定、模糊檢索補救、K 分數計算，全部設為影子模式",
           "owner": null,
-          "prereq": null,
+          "prereq": "3-5、3-9",
           "done_when": "只記錄不阻擋，回應行為不變 `[GRD-08]`",
           "on_failure": null,
           "closed": false,
           "status": null,
           "refs": [
             "GRD-08"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "3-5",
+            "3-9"
+          ],
+          "blocked_by": [
+            "3-5",
+            "3-9"
+          ],
+          "state": "blocked"
         },
         {
           "id": "4-2",
           "action": "累積影子資料（建議 ≥ 2 週或 ≥ 500 次查詢，取先到者）",
           "owner": null,
-          "prereq": null,
+          "prereq": "4-1",
           "done_when": "`eval.measurements` 有 K 分數分布",
           "on_failure": null,
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "task",
+          "depends_on": [
+            "4-1"
+          ],
+          "blocked_by": [
+            "4-1"
+          ],
+          "state": "blocked"
         },
         {
           "id": "4-3",
           "action": "以黃金集校準門檻，驗證 `K > 0.7` 是否為適當切點",
           "owner": null,
-          "prereq": null,
+          "prereq": "4-2",
           "done_when": "有校準報告；必要時調整門檻 `[GRD-05]`",
           "on_failure": null,
           "closed": false,
           "status": null,
           "refs": [
             "GRD-05"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "4-2"
+          ],
+          "blocked_by": [
+            "4-2"
+          ],
+          "state": "blocked"
         },
         {
           "id": "4-4",
           "action": "實作 `gate_error` 拒答路徑與 1% critical 告警；`gate_hang` 與 `gate_crash` 分開記錄",
           "owner": null,
-          "prereq": null,
+          "prereq": "4-3",
           "done_when": "注入異常回 `refused: true`，超標發 critical 告警；注入掛住驗證 30 秒中止 `[GRD-06c～06d、09～10、NFR-03]`",
           "on_failure": null,
           "closed": false,
@@ -3027,13 +3379,21 @@
           "refs": [
             "GRD-06c",
             "NFR-03"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "4-3"
+          ],
+          "blocked_by": [
+            "4-3"
+          ],
+          "state": "blocked"
         },
         {
           "id": "4-5",
           "action": "實作拒答佇列",
           "owner": null,
-          "prereq": null,
+          "prereq": "4-4",
           "done_when": "拒答寫入 `eval.refusal_queue` `[GRD-04、EVL-15]`",
           "on_failure": null,
           "closed": false,
@@ -3041,13 +3401,21 @@
           "refs": [
             "EVL-15",
             "GRD-04"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "4-4"
+          ],
+          "blocked_by": [
+            "4-4"
+          ],
+          "state": "blocked"
         },
         {
           "id": "4-6",
           "action": "實作同步粗篩（無品質逾時，僅 30 秒掛住保護）與非同步專用 NLI 模型精篩。粗篩只做本地字面比對，不得呼叫模型",
           "owner": null,
-          "prereq": null,
+          "prereq": "4-4",
           "done_when": "精篩結果入庫；粗篩耗時記入 `timings.guard` 供觀測。驗證逾 30 秒會中止並記 `gate_hang`；程式碼審查確認粗篩內無模型呼叫 `[GRD-06、GRD-06a、GRD-06b、GRD-06c、GRD-06d、GRD-07]`",
           "on_failure": null,
           "closed": false,
@@ -3059,20 +3427,36 @@
             "GRD-06c",
             "GRD-06d",
             "GRD-07"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "4-4"
+          ],
+          "blocked_by": [
+            "4-4"
+          ],
+          "state": "blocked"
         },
         {
           "id": "4-7",
           "action": "分路由逐步啟用阻擋：先 `vector`，再 `fulltext`，最後 `graph`",
           "owner": null,
-          "prereq": null,
+          "prereq": "4-6",
           "done_when": "每啟用一路，量測一次，退步即回退 `[RET-03]`",
           "on_failure": null,
           "closed": false,
           "status": null,
           "refs": [
             "RET-03"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "4-6"
+          ],
+          "blocked_by": [
+            "4-6"
+          ],
+          "state": "blocked"
         }
       ]
     },
@@ -3083,7 +3467,7 @@
           "id": "5-1",
           "action": "實作 Router（依請求指定策略，預設 `hybrid`）",
           "owner": null,
-          "prereq": null,
+          "prereq": "4-7",
           "done_when": "四種策略皆可指定 `[RET-01～02]`",
           "on_failure": null,
           "closed": false,
@@ -3091,57 +3475,97 @@
           "refs": [
             "RET-01",
             "RET-02"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "4-7"
+          ],
+          "blocked_by": [
+            "4-7"
+          ],
+          "state": "blocked"
         },
         {
           "id": "5-2",
           "action": "實作系統級 RRF（`k` 預設 60）",
           "owner": null,
-          "prereq": null,
+          "prereq": "5-1",
           "done_when": "融合後 recall@n 優於單路最佳 `[RET-04]`",
           "on_failure": null,
           "closed": false,
           "status": null,
           "refs": [
             "RET-04"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "5-1"
+          ],
+          "blocked_by": [
+            "5-1"
+          ],
+          "state": "blocked"
         },
         {
           "id": "5-3",
           "action": "量測 RRF 效果",
           "owner": null,
-          "prereq": null,
+          "prereq": "5-2",
           "done_when": "有對照數據：單路 vs 融合 `[RET-05]`",
           "on_failure": null,
           "closed": false,
           "status": null,
           "refs": [
             "RET-05"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "5-2"
+          ],
+          "blocked_by": [
+            "5-2"
+          ],
+          "state": "blocked"
         },
         {
           "id": "5-4",
           "action": "依 5-3 結果決定是否加入輕量重排（非 cross-encoder）",
           "owner": null,
-          "prereq": null,
+          "prereq": "5-3",
           "done_when": "加入後有量測證明改善，否則不加 `[RET-06]`",
           "on_failure": null,
           "closed": false,
           "status": null,
           "refs": [
             "RET-06"
-          ]
+          ],
+          "kind": "task",
+          "depends_on": [
+            "5-3"
+          ],
+          "blocked_by": [
+            "5-3"
+          ],
+          "state": "blocked"
         },
         {
           "id": "5-5",
           "action": "依 5-3 結果決定是否調整 Router 各路權重",
           "owner": null,
-          "prereq": null,
+          "prereq": "5-3",
           "done_when": "同上",
           "on_failure": null,
           "closed": false,
           "status": null,
-          "refs": []
+          "refs": [],
+          "kind": "task",
+          "depends_on": [
+            "5-3"
+          ],
+          "blocked_by": [
+            "5-3"
+          ],
+          "state": "blocked"
         }
       ]
     }

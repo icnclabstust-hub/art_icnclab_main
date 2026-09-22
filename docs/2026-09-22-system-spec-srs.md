@@ -46,6 +46,8 @@
 | C6 | 每條需求是否至少說得出規格或驗收標準之一 |
 | C7 | `spec.json` 是否已過期（僅 `--check`） |
 | C8 | 表格每一列的欄數是否等於表頭欄數（欄數不符會整列錯位，看原始碼不易察覺） |
+| C9 | 步驟「前置」欄所指的步驟編號是否存在 |
+| C10 | 輸出是否符合 `docs/spec.schema.json`（本機有 `jsonschema` 套件時才執行） |
 
 ### 更新路徑：`scripts/spec-update.py`
 
@@ -78,7 +80,30 @@
 
 ---
 
-**JSON 頂層結構**：`source`（來源路徑與雜湊）、`stats`、`roles`、`ports`、`requirements`、`decisions`、`risks`、`open_questions`、`flows`、`phases`、`validation`。每條需求含 `id`、`category`、`section`、`title`、`spec`、`acceptance`、`status`、`refs`（相依的其他需求）、`config_keys`（該條提到的設定變數）。
+### 契約：`docs/spec.schema.json`
+
+消費端依 JSON Schema（draft 2020-12）驗證後再使用，不必自行推測結構。產生器在本機有 `jsonschema` 套件時會以該檔驗證自身輸出（C10）——改了產生邏輯卻忘了同步 schema，會在此被擋下。
+
+**輸出具確定性**：相同的 Markdown 必定產生**位元相同**的 JSON。刻意不含產生時間——否則每次重產都出現 diff，真正的變更會被雜訊蓋住。是否為最新版請比對 `source` 的 `sha256`。
+
+### 相依計算與「現在能做什麼」
+
+`python3 scripts/spec-export.py --next` 直接印出可立即開工的項目、被擋住的項目及其等待對象、以及已暫緩的項目。JSON 內對應欄位：
+
+| 欄位 | 意義 |
+|---|---|
+| `step.kind` | `task` 一次性工作（P0、Phase 3～5）／`procedure` 反覆執行的程序（流程 A～G） |
+| `step.depends_on` | 自「前置」欄解析出的相依步驟 |
+| `step.blocked_by` | `depends_on` 中尚未結案者 |
+| `step.state` | `ready`／`blocked`／`deferred`／`closed` |
+| `next_actions` | 所有 `kind=task` 且 `state=ready` 的項目 |
+
+**兩項設計前提，破壞任一項就會算錯**：
+
+1. **「前置」欄只放相依，不放說明。** 曾把 3-2 的前置寫成「無，但低優先：唯一近期消費者 3-8 已鎖定」，結果 3-2 被誤判為遭 3-8 阻擋。說明一律移到完成條件欄。
+2. **程序不列入待辦。** 流程 A～G 是每日／每週反覆執行的步驟，不是工作項目。曾因未區分而算出「70 項可開工」，其中包含明顯尚未解鎖的 Phase 4、5。
+
+**JSON 頂層結構**：`source`（來源路徑與雜湊）、`stats`、`next_actions`、`roles`、`ports`、`requirements`、`decisions`、`risks`、`open_questions`、`flows`、`phases`、`validation`。每條需求含 `id`、`category`、`section`、`title`、`spec`、`acceptance`、`status`、`refs`（相依的其他需求）、`config_keys`（該條提到的設定變數）。
 
 ---
 

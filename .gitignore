@@ -1,0 +1,10 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# 執行期產物（不進版控；OPS-05 同類問題）
+query_logs/
+*.log
+
+# 本機設定
+.env

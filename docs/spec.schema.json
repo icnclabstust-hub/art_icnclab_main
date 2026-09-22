@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/icnclabstust-hub/art_icnclab_main/docs/spec.schema.json",
+  "title": "藝術史資料庫 RAG 系統規格（機器可讀）",
+  "description": "docs/spec.json 的契約。由 scripts/spec-export.py 自 Markdown 產生；消費端應以本 schema 驗證後再使用。",
+  "type": "object",
+  "required": ["schema_version", "source", "stats", "requirements", "flows", "phases", "validation"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.1" },
+    "//": { "type": "string", "description": "產生原則說明" },
+    "DO_NOT_EDIT": { "type": "string" },
+    "generator": { "type": "string" },
+    "source": {
+      "type": "object",
+      "description": "來源 Markdown 及其 sha256。消費端可據此判斷手上的 spec.json 是否對應目前的規格。",
+      "required": ["srs", "flows"],
+      "properties": {
+        "srs": { "$ref": "#/$defs/sourceFile" },
+        "flows": { "$ref": "#/$defs/sourceFile" }
+      }
+    },
+    "status_legend": { "type": "object", "additionalProperties": { "type": "string" } },
+    "stats": {
+      "type": "object",
+      "required": ["total"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "done": { "type": "integer" }, "partial": { "type": "integer" },
+        "todo": { "type": "integer" }, "decided": { "type": "integer" },
+        "deferred": { "type": "integer" },
+        "by_category": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "tasks": {
+          "type": "object",
+          "description": "一次性工作的狀態統計（不含流程 A～G 這類反覆執行的程序）",
+          "properties": {
+            "ready": { "type": "integer" }, "blocked": { "type": "integer" },
+            "deferred": { "type": "integer" }, "closed": { "type": "integer" }
+          }
+        },
+        "procedures": { "type": "integer" }
+      }
+    },
+    "next_actions": {
+      "type": "array",
+      "description": "目前可立即開工的一次性工作。由前置相依計算而得，不含程序步驟。",
+      "items": {
+        "type": "object",
+        "required": ["id", "section", "action"],
+        "properties": {
+          "id": { "$ref": "#/$defs/stepId" },
+          "section": { "type": "string" },
+          "action": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "roles": { "type": "array", "items": { "type": "object" } },
+    "ports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "port": { "type": "string" }, "owner": { "type": ["string", "null"] },
+          "env": { "type": ["string", "null"] }, "status": { "type": ["string", "null"] },
+          "retired": { "type": "boolean" }
+        }
+      }
+    },
+    "requirements": { "type": "array", "items": { "$ref": "#/$defs/requirement" } },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "decision": { "type": ["string", "null"], "description": "決策編號，如 B3；補充列可為 null" },
+          "value": { "type": ["string", "null"] },
+          "requirements": { "type": "array", "items": { "$ref": "#/$defs/reqId" } },
+          "acceptance": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "closed"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^R\\d+[a-z]?$" },
+          "closed": { "type": "boolean", "description": "true 表示該風險已裁定或解除，不應再當作未決事項" },
+          "risk": { "type": ["string", "null"] }, "cause": { "type": ["string", "null"] },
+          "treatment": { "type": ["string", "null"] },
+          "refs": { "type": "array", "items": { "$ref": "#/$defs/reqId" } }
+        }
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^Q\\d+$" },
+          "closed": { "type": "boolean" },
+          "question": { "type": ["string", "null"] },
+          "impact": { "type": ["string", "null"] },
+          "handling": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "flows": {
+      "type": "array",
+      "description": "反覆執行的程序（每日資料更新、線上查詢、部署、故障處理等）。不是待辦清單。",
+      "items": { "$ref": "#/$defs/stepGroup" }
+    },
+    "phases": {
+      "type": "array",
+      "description": "一次性的實作工作（P0 前置解卡、Phase 3～5）。next_actions 即由此計算。",
+      "items": { "$ref": "#/$defs/stepGroup" }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["errors", "warnings"],
+      "description": "errors 非空時檔案不會被寫出，故消費端讀到的 spec.json 其 errors 必為空陣列。",
+      "properties": {
+        "errors": { "type": "array", "items": { "type": "string" }, "maxItems": 0 },
+        "warnings": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "$defs": {
+    "sourceFile": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "reqId": {
+      "type": "string",
+      "pattern": "^(SYS|DAT|RET|GRD|GEN|EVL|BIZ|NFR|OPS)-\\d+[a-z]?(-T)?$"
+    },
+    "stepId": {
+      "type": "string",
+      "pattern": "^(P0-\\d+[a-z]?|[A-GM]-\\d+[a-z]?|\\d-\\d+[a-z]?)$"
+    },
+    "status": {
+      "type": ["string", "null"],
+      "enum": ["done", "partial", "todo", "decided", "deferred", null],
+      "description": "done 已實作並實跑驗證／partial 部分實作／todo 僅有設計／decided 已定案（非實作狀態）／deferred 經決定延後"
+    },
+    "requirement": {
+      "type": "object",
+      "required": ["id", "category", "section", "status", "closed", "refs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/reqId" },
+        "category": { "type": "string", "enum": ["SYS", "DAT", "RET", "GRD", "GEN", "EVL", "BIZ", "NFR", "OPS"] },
+        "section": { "type": "string", "description": "以 / 分隔的標題路徑" },
+        "title": { "type": ["string", "null"] },
+        "spec": { "type": ["string", "null"] },
+        "acceptance": { "type": ["string", "null"] },
+        "current": { "type": ["string", "null"], "description": "現況描述，僅 SYS 現況表有此欄" },
+        "status": { "$ref": "#/$defs/status" },
+        "status_raw": { "type": ["string", "null"] },
+        "has_status_col": { "type": "boolean" },
+        "closed": { "type": "boolean" },
+        "refs": {
+          "type": "array",
+          "description": "本條文字提及的其他需求編號，已展開 RET-01～13 這類範圍寫法",
+          "items": { "$ref": "#/$defs/reqId" }
+        },
+        "config_keys": {
+          "type": "array",
+          "description": "本條提及的設定變數名稱",
+          "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }
+        }
+      }
+    },
+    "stepGroup": {
+      "type": "object",
+      "required": ["section", "steps"],
+      "properties": {
+        "section": { "type": "string" },
+        "steps": { "type": "array", "items": { "$ref": "#/$defs/step" } }
+      }
+    },
+    "step": {
+      "type": "object",
+      "required": ["id", "closed", "refs", "kind", "state", "blocked_by", "depends_on"],
+      "properties": {
+        "id": { "$ref": "#/$defs/stepId" },
+        "kind": {
+          "type": "string",
+          "enum": ["task", "procedure"],
+          "description": "task 為一次性工作，可列入待辦；procedure 為反覆執行的程序，不列入"
+        },
+        "state": {
+          "type": "string",
+          "enum": ["ready", "blocked", "deferred", "closed"],
+          "description": "ready 可立即開工／blocked 有未完成前置／deferred 經決定延後／closed 已結案"
+        },
+        "depends_on": { "type": "array", "items": { "$ref": "#/$defs/stepId" } },
+        "blocked_by": {
+          "type": "array",
+          "description": "depends_on 中尚未結案者。state 為 blocked 時非空。",
+          "items": { "$ref": "#/$defs/stepId" }
+        },
+        "action": { "type": ["string", "null"] },
+        "owner": { "type": ["string", "null"] },
+        "prereq": { "type": ["string", "null"], "description": "前置欄原文；語意單純，只放相依" },
+        "done_when": { "type": ["string", "null"] },
+        "on_failure": { "type": ["string", "null"] },
+        "status": { "$ref": "#/$defs/status" },
+        "closed": { "type": "boolean" },
+        "refs": { "type": "array", "items": { "$ref": "#/$defs/reqId" } }
+      }
+    }
+  }
+}
