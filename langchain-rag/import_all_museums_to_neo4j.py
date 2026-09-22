@@ -66,7 +66,6 @@ SOURCE_PATTERNS = {
     "art_institute_chicago": [r"^art_institute_chicago_crawled_.*\.json$"],
     "va_museum": [r"^va_museum_crawled_.*\.json$"],
     "cleveland_museum": [r"^cleveland_museum_crawled_.*\.json$"],
-    "yale_university_art_gallery": [r"^yale_university_art_gallery_crawled_.*\.json$"],
 }
 
 
@@ -249,21 +248,6 @@ def normalize_cleveland_museum(item: dict) -> dict:
     }
 
 
-def normalize_yale_university_art_gallery(item: dict) -> dict:
-    return {
-        "id": f"yale_{item.get('id')}",
-        "title": safe_str(item.get("title"), 500) or "Untitled",
-        "artist": safe_str(item.get("artist"), 200),
-        "date": safe_str(item.get("date"), 100),
-        "medium": safe_str(item.get("medium"), 300),
-        "culture": safe_str(item.get("culture"), 200),
-        "period": "",
-        "department": safe_str(item.get("department"), 200),
-        "description": safe_str(item.get("description"), 1000),
-        "url": safe_str(item.get("objectURL")),
-    }
-
-
 NORMALIZERS = {
     "google_books": normalize_google_books,
     "harvard": normalize_harvard,
@@ -273,7 +257,6 @@ NORMALIZERS = {
     "art_institute_chicago": normalize_art_institute_chicago,
     "va_museum": normalize_va_museum,
     "cleveland_museum": normalize_cleveland_museum,
-    "yale_university_art_gallery": normalize_yale_university_art_gallery,
 }
 
 

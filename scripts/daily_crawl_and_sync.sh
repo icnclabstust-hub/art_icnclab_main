@@ -68,13 +68,12 @@ run_step "Google Books"       node crawlers/fetch_google_books.js
 run_step "Art Institute of Chicago" node crawlers/art-institute-chicago-crawler.js
 run_step "V&A Museum"         node crawlers/va-museum-crawler.js
 run_step "Cleveland Museum"   node crawlers/cleveland-museum-crawler.js
-run_step "Yale University Art Gallery" node crawlers/yale-university-art-gallery-crawler.js
 
 log "--- 開始: 檢查重複資料 ---"
 python3 scripts/check_duplicates.py >> "$LOG_FILE" 2>&1
 log "✅ 重複資料檢查完成（結果見 log）"
 
-log "--- 開始: 匯入 Neo4j + ChromaDB (Harvard/MET/文藝復興巴洛克/專門藝術/Google Books/AIC/V&A/Cleveland/Yale) ---"
+log "--- 開始: 匯入 Neo4j + ChromaDB (Harvard/MET/文藝復興巴洛克/專門藝術/Google Books/AIC/V&A/Cleveland) ---"
 IMPORT_STATUS="成功"
 if python3 langchain-rag/import_all_museums_to_neo4j.py >> "$LOG_FILE" 2>&1; then
     log "✅ Neo4j 匯入完成"

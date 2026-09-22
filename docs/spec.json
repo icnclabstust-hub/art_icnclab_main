@@ -580,7 +580,7 @@
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "❌",
       "status_raw": "❌",
-      "title": "確認 Yale 修復後的第一次完整夜間流程"
+      "title": "確認移除 Yale 後的第一次完整夜間流程"
     },
     {
       "file": "2026-09-23-system-spec-srs.md",
@@ -811,11 +811,11 @@
   "source": {
     "flow": {
       "path": "docs/2026-09-23-system-flow-steps.md",
-      "sha256": "eafb6e1eaabf98c8c67be885db3c681fe47e9b1d5fb503a7b6aaaa281e3af7e8"
+      "sha256": "8f7a1956c2b563fbe86a4743b65132fb53cb5b25a869f4b46981bb714ca975a2"
     },
     "srs": {
       "path": "docs/2026-09-23-system-spec-srs.md",
-      "sha256": "77c80323dfe6722a8ae1804ea292c11ae69a762eafc1f3d6b4349ab71570eb85"
+      "sha256": "1ef1f3d149e912831ce615bff2c9438e938e9ed13ab92e525d623b1bd8ad998b"
     }
   },
   "stats": {

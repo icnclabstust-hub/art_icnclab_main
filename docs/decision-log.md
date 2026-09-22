@@ -5,6 +5,37 @@
 
 ---
 
+## 2026-09-23　Yale 完全移除（爬蟲、程式碼、既有資料全部撤出）
+
+### 已決定
+| 項目 | 決定 | 決定者 |
+|---|---|---|
+| Yale 相關的一切 | **全部移除**，包含已入庫的資料；透過既有 soft_delete／30 天保留機制執行，30 天內可還原，30 天後由既有的每日 `purge-neo4j --days 30 --apply` 自動永久刪除 | 使用者，2026-09-21 曾決定保留既有資料、修復並重新啟用（見同日條目），2026-09-23 改為全部移除 |
+
+### 執行步驟與實測結果
+1. **catalog 撤出**：以空清單對來源 `yale_university_art_gallery` 執行 `ingest run --prune`，把 catalog 中 289 筆未刪除的 Yale 文件標記刪除，寫入 646 個 soft_delete 事件（chunk＋文件）。
+2. **三庫同步**：ChromaDB／Elasticsearch／Neo4j 訂閱器各處理 357、357、289 筆，落後皆為 0。
+3. **驗證**：`ingest verify --es`：ChromaDB 與 Elasticsearch 皆 catalog 0／檢索庫 0，結果「一致」。Neo4j：289 件 Yale 作品全部 `is_deleted=true`，圖檢索端（`coalesce(is_deleted,false)=false` 的過濾條件）可見數為 0。
+4. **副作用（預期內）**：153 位藝術家的 `sources` 因此變成空清單——這些是只在 Yale 有現存作品的藝術家，`Artist.sources` 由現存作品動態推導，Yale 作品消失後自然歸零；他們的節點暫時保留，30 天保留期滿後，既有的 `purge-neo4j` 孤兒藝術家規則會自動一併清除（前提是他們沒有其他任何關係）。
+5. **`purge-neo4j --days 30`（僅預覽）**：目前三類皆為 0，確認 30 天保留期完整、沒有東西被提前清除。
+6. **程式碼移除**：
+   - 刪除 `crawlers/yale-university-art-gallery-crawler.js`。
+   - `langchain-rag/import_all_museums_to_neo4j.py` 移除 `yale_university_art_gallery` 的檔名比對規則、`normalize_yale_university_art_gallery` 正規化函式、`NORMALIZERS` 註冊——之後 `yale_university_art_gallery` 不再是系統認得的來源名稱，`ingest run --source yale_university_art_gallery` 會直接報「未知來源」。
+   - `scripts/daily_crawl_and_sync_catalog.sh`（現行流程）與 `scripts/daily_crawl_and_sync.sh`（舊流程，未排程但保留一致性）皆移除 Yale 的爬蟲、攝取、驗證清單。
+   - `docs/2026-09-23-system-spec-srs.md`、`docs/2026-09-23-system-flow-steps.md` 同步更正來源數（10→9）與 OPS-02 描述。
+
+### 未刪除的東西（刻意保留，供追溯）
+- 過去的執行紀錄：`docs/decision-log.md` 2026-09-21 的 Yale 403 診斷、修復、重新啟用全過程原樣保留，不覆寫、不刪除——那是真實發生過的除錯過程，之後若要參考「Yale 的 403 其實是 User-Agent 問題」的診斷方法仍看得到。
+- `docs/reports/2026-09-21-neo4j-status.md` 的 Yale 相關段落，附加一行指向本條目，未刪除原文。
+- Neo4j 裡 289 個已軟刪除的 Artwork 節點與 153 位歸零 `sources` 的 Artist 節點，30 天內仍可用既有的 `_REACTIVATE_QUERY`（重新攝取同一 id）機制還原；30 天後由既有排程自動永久清除，不需要另外手動處理。
+
+### 待訂項目
+| # | 項目 | 說明 |
+|---|---|---|
+| 15 | 30 天後確認 Yale 的軟刪除資料與孤兒藝術家確實被自動清除 | 屬既有 `purge-neo4j` 機制的例行驗證，非新增待辦 |
+
+---
+
 ## 2026-09-23　外部文件核對：與現況不符之處（教師核可待確認，埠號已更正）
 
 使用者貼上兩份文件（`2026-09-22-system-flow-steps.md`、`2026-09-22-system-spec-srs.md`），宣稱依

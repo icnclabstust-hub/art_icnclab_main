@@ -140,7 +140,7 @@ OPS-01 換 ES 密碼、OPS-02 確認 9/22 夜間實跑、OPS-03 併入 `main`（
 |---|---|---|
 | A-1 | `Run-DailyCrawl.ps1` 呼叫 `Start-NativeServices.ps1`，確保各服務在跑 | 服務起不來 → 流程中止，進流程 G |
 | A-2 | 驗證 Ollama 實例持有專案所需模型（`/api/tags` 非空且含目標模型） | 清單為空 → 在該實例 `ollama pull`；連不上 → 查佔埠者 `[GEN-01]` |
-| A-3 | 10 個來源爬蟲抓取，原始檔落地 `DATA_RAW_DIR` | 單一來源失敗不中止整體，記錄該來源狀態 |
+| A-3 | 9 個來源爬蟲抓取，原始檔落地 `DATA_RAW_DIR` | 單一來源失敗不中止整體，記錄該來源狀態 |
 | A-4 | 前處理、切塊 | — |
 | A-5 | **惡意內容掃描** | 命中則該文件不進 catalog，記錄並告警 |
 | A-6 | 產生嵌入，**記錄 `embedding_model` 與 `embedding_version`** 於 Chroma metadata | 未記錄即視為缺陷。metadata 另須含 `doc_id`、`chunk_id`、`source` `[DAT-10、DAT-30]` |
@@ -154,7 +154,7 @@ OPS-01 換 ES 密碼、OPS-02 確認 9/22 夜間實跑、OPS-03 併入 `main`（
 | A-13b | 記錄備份磁碟剩餘空間 | 備份**永久保留、不清除**，容量必然成長。低於 20% → `eval.alerts`（warning）；低於 10% → critical。**沒有這步，容量耗盡時備份會靜默失敗** `[DAT-17、§12 R4]` |
 | A-14 | 附掛流程 D（夜間回歸量測） | Phase 3 完成後才有此步 |
 
-**驗收（OPS-02）**：Yale 修復後（見 `docs/decision-log.md` 2026-09-21 條目）的第一次完整實跑須逐步確認，不可只看最終無錯誤訊息。
+**驗收（OPS-02）**：移除 Yale 後（見 `docs/decision-log.md` 2026-09-23 條目，來源數由 10 降為 9）的第一次完整實跑須逐步確認，不可只看最終無錯誤訊息。
 
 ---
 
