@@ -28,12 +28,12 @@
 
 | 埠 | 擁有者 | 設定變數 | 依據 | 狀態 |
 |---|---|---|---|---|
-| **7687** | **Neo4j（專案，bolt）** | `NEO4J_URI` | 2026-09-20 由 7688 遷入標準埠，見 `2026-09-20-port-consolidation.md` | 待機器端套用 |
-| **7474** | **Neo4j（專案，HTTP）** | — | 同上 | 待機器端套用 |
+| **7687** | **Neo4j（專案，bolt）** | `NEO4J_URI` | 2026-09-20 由 7688 遷入標準埠；2026-09-21 改綁 `127.0.0.1`（`-Djava.net.preferIPv4Stack=true`），Windows Neo4j Browser 仍可連，見 `docs/reports/2026-09-21-neo4j-status.md` | ✅ 已套用並驗證 |
+| **7474** | **Neo4j（專案，HTTP）** | — | 同上 | ✅ 已套用並驗證 |
 | ~~7688 / 7475~~ | ~~Neo4j 替代埠~~ | — | **已廢除**（2026-09-20）。`doctor.sh` 仍檢查此兩埠，用以偵測舊實例是否沒停乾淨 | 應為未佔用 |
 | ~~7687 / 7474~~（系統實例） | WSL 系統自帶的 `neo4j.service` | — | 與專案無關，已決定 `systemctl disable --now` 以釋放標準埠 | 待停用 |
 | **8000** | **ChromaDB** | `CHROMADB_PORT` | `Start-NativeServices.ps1` 啟動 `chroma run --port 8000` 並傳入 `CHROMADB_PORT=8000`；`diagnose.py:32` | 使用中 |
-| 8007 | rag-manager-v2 | `RAG_MANAGER_PORT` | `unified_rag_manager_v2.py:1626`；`diagnose.py:33` | 使用中 |
+| **8001** | **rag-manager-v2** | `RAG_MANAGER_PORT` | **2026-09-23 更正**：本表原記 8007（本行最後更新 2026-09-20，早於埠號整併）。`.env.example`、`unified_rag_manager_v2.py` 的預設值、且實際監聽中的埠皆為 **8001**（多次以 `curl http://127.0.0.1:8001/health` 驗證），未見任何服務綁在 8007。以此行為準，8007 視為已更正的舊記載 | ✅ 使用中，已驗證 |
 | **8080** | **Open WebUI** | — | `Start-NativeServices.ps1` 啟動 `open-webui serve --port 8080`；`diagnose.py:34`；使用者決定確認保留 | 使用中 |
 | **8002** | **ml-service** (gunicorn/CUDA) | `ML_SERVICE_URL` | **由 8080 遷出**，見 §3 | 待遷移 |
 | 8010 | create_graphrag_models.py | （硬編碼，應外部化） | 調查報告發現5 | 待修正 |
