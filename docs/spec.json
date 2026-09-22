@@ -1,0 +1,3040 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-22T16:53:27+00:00",
+  "generator": "scripts/spec-export.py",
+  "DO_NOT_EDIT": "本檔為自動產生的衍生物。唯一真相源是 source 所列的 Markdown；要改規格請改 Markdown 後重跑 scripts/spec-export.py。手改本檔會在下次產生時被覆蓋。",
+  "source": {
+    "srs": {
+      "path": "docs/2026-09-22-system-spec-srs.md",
+      "sha256": "2db90674c76c166e12b1ffb95ea2e051fc245e3be7f14704ec5f0f16b9878097"
+    },
+    "flows": {
+      "path": "docs/2026-09-22-system-flow-steps.md",
+      "sha256": "6392dd64541fbb7dff4fc3ce14adf9e988fe953581767fd742bc570c2221c11d"
+    }
+  },
+  "status_legend": {
+    "done": "已實作且已實跑驗證",
+    "partial": "部分實作",
+    "todo": "僅有設計，待實作",
+    "decided": "已定案（決策類，非實作狀態）"
+  },
+  "stats": {
+    "total": 105,
+    "done": 13,
+    "partial": 6,
+    "todo": 60,
+    "decided": 1,
+    "by_category": {
+      "BIZ": 9,
+      "DAT": 20,
+      "EVL": 14,
+      "GEN": 4,
+      "GRD": 14,
+      "NFR": 12,
+      "OPS": 8,
+      "RET": 12,
+      "SYS": 12
+    }
+  },
+  "roles": [
+    {
+      "role": "查詢者",
+      "code": "`Querent`",
+      "duty": "透過 Open WebUI 或 API 提問",
+      "requirements": []
+    },
+    {
+      "role": "標註者",
+      "code": "`Annotator`",
+      "duty": "建立與維護黃金測試集（15 題 × 約 20 候選）",
+      "requirements": [
+        "EVL-01"
+      ]
+    },
+    {
+      "role": "複審者",
+      "code": "`Reviewer`",
+      "duty": "每週複審拒答佇列。已指派：使用者本人（論文作者）",
+      "requirements": [
+        "EVL-15"
+      ]
+    },
+    {
+      "role": "維運者",
+      "code": "`Operator`",
+      "duty": "執行夜間流程、處理告警、備份還原",
+      "requirements": []
+    },
+    {
+      "role": "核可者",
+      "code": "`Approver`",
+      "duty": "核可 Tier B 實作、確認法規與告知文字",
+      "requirements": [
+        "BIZ-05",
+        "BIZ-06"
+      ]
+    }
+  ],
+  "ports": [
+    {
+      "port": "7687 / 7474",
+      "owner": "Neo4j（專案，bolt / HTTP）",
+      "env": "`NEO4J_URI`",
+      "status": "由 7688 遷入標準埠，待機器端套用",
+      "retired": false
+    },
+    {
+      "port": "7688 / 7475",
+      "owner": "已廢除",
+      "env": "—",
+      "status": "應為未佔用（`verify-nightly.sh` §3 仍檢查，用以偵測舊實例殘留）",
+      "retired": true
+    },
+    {
+      "port": "8000",
+      "owner": "ChromaDB",
+      "env": "`CHROMADB_PORT`",
+      "status": "使用中",
+      "retired": false
+    },
+    {
+      "port": "8002",
+      "owner": "ml-service",
+      "env": "`ML_SERVICE_URL`",
+      "status": "待由 8080 遷出",
+      "retired": false
+    },
+    {
+      "port": "8007",
+      "owner": "rag-manager-v2（RAG 後端）",
+      "env": "`RAG_MANAGER_PORT`",
+      "status": "使用中",
+      "retired": false
+    },
+    {
+      "port": "8010",
+      "owner": "create_graphrag_models",
+      "env": "硬編碼",
+      "status": "待外部化",
+      "retired": false
+    },
+    {
+      "port": "8080",
+      "owner": "Open WebUI",
+      "env": "—",
+      "status": "使用中，確認保留",
+      "retired": false
+    },
+    {
+      "port": "9200",
+      "owner": "Elasticsearch",
+      "env": "`ES_PASSWORD`",
+      "status": "重啟迴圈中（缺陷 B3，先檢定 OOM）",
+      "retired": false
+    },
+    {
+      "port": "11434",
+      "owner": "Ollama（單一實例）",
+      "env": "`OLLAMA_BASE_URL`",
+      "status": "待機器端套用",
+      "retired": false
+    },
+    {
+      "port": "5432",
+      "owner": "PostgreSQL 18",
+      "env": "—",
+      "status": "使用中",
+      "retired": false
+    },
+    {
+      "port": "6379",
+      "owner": "Redis",
+      "env": "—",
+      "status": "使用中（RAG 尚未實際使用）",
+      "retired": false
+    }
+  ],
+  "requirements": [
+    {
+      "id": "SYS-01",
+      "category": "SYS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.1 現況基準（as-is，2026-09-22）",
+      "title": null,
+      "spec": "服務啟動機制",
+      "acceptance": null,
+      "current": "Windows 工作排程器每日 03:00 → `Run-DailyCrawl.ps1` → `Start-NativeServices.ps1`，以 `Start-Process wsl.exe` 將各服務拉成獨立 Windows 背景程序",
+      "status": "done",
+      "status_raw": "✅",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "SYS-02",
+      "category": "SYS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.1 現況基準（as-is，2026-09-22）",
+      "title": null,
+      "spec": "不使用 Docker",
+      "acceptance": null,
+      "current": "2026-07-28 已完全移除",
+      "status": "done",
+      "status_raw": "✅",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "SYS-03",
+      "category": "SYS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.1 現況基準（as-is，2026-09-22）",
+      "title": null,
+      "spec": "不使用 systemd 管理專案服務",
+      "acceptance": null,
+      "current": "專案 Neo4j 以 `neo4j console` 啟動；`systemctl` 查不到不等於未安裝",
+      "status": "done",
+      "status_raw": "✅",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "SYS-04",
+      "category": "SYS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.1 現況基準（as-is，2026-09-22）",
+      "title": null,
+      "spec": "服務監管",
+      "acceptance": null,
+      "current": "無 watchdog。程序死亡後無任何機制重啟，須等隔日 03:00",
+      "status": "todo",
+      "status_raw": "❌ 缺陷 B5",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "SYS-05",
+      "category": "SYS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.1 現況基準（as-is，2026-09-22）",
+      "title": null,
+      "spec": "執行期目錄",
+      "acceptance": null,
+      "current": "`C:\\Users\\user\\Desktop\\藝術史資料庫\\art-history-database`，不在任何 git repo 內",
+      "status": "todo",
+      "status_raw": "❌ 缺陷 A4",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "SYS-06",
+      "category": "SYS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.1 現況基準（as-is，2026-09-22）",
+      "title": null,
+      "spec": "API 存取控制",
+      "acceptance": null,
+      "current": "後端無身分驗證、無頻率限制",
+      "status": "todo",
+      "status_raw": "❌ 缺陷 A6",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "SYS-07",
+      "category": "SYS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.1 現況基準（as-is，2026-09-22）",
+      "title": null,
+      "spec": "設定載入",
+      "acceptance": null,
+      "current": "大量 `os.getenv(\"X\",\"預設值\")`，設定缺漏時安靜地用錯值繼續跑",
+      "status": "todo",
+      "status_raw": "❌ 缺陷 C6",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "SYS-05-T",
+      "category": "SYS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.2 目標基準（to-be）",
+      "title": null,
+      "spec": "執行期目錄改為正本 `icnclabstust-hub/art_icnclab_main` 的 git checkout（problem-register §二.1 甲案）；`.env` 留在本機不進版控",
+      "acceptance": "於執行期目錄 `git remote get-url origin` 指向正本、`git status` 乾淨；改正本即改實際系統",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "SYS-04-T",
+      "category": "SYS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.2 目標基準（to-be）",
+      "title": null,
+      "spec": "服務具備存活監管",
+      "acceptance": "任一服務異常終止後 ≤ 5 分鐘被重新拉起，並寫入 `eval.alerts`",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "SYS-06-T",
+      "category": "SYS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.2 目標基準（to-be）",
+      "title": null,
+      "spec": "API 具備身分與頻率控制",
+      "acceptance": "未帶憑證的請求回 401；同一身分逾額回 429。分階段：Phase 3 先登記，實作另案",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "SYS-08-T",
+      "category": "SYS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.2 目標基準（to-be）",
+      "title": null,
+      "spec": "具預設值的設定須集中登記",
+      "acceptance": "`GUARD_HARD_TIMEOUT_SEC`（預設 30，GRD-06c）等有合理預設的設定，其預設值須寫入 `.env.example` 並附一行用途說明，避免重蹈 C6「安靜地用錯的值繼續跑」",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "GRD-06c"
+      ],
+      "config_keys": [
+        "GUARD_HARD_TIMEOUT_SEC"
+      ]
+    },
+    {
+      "id": "SYS-07-T",
+      "category": "SYS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/3. 系統環境規格/3.2 目標基準（to-be）",
+      "title": null,
+      "spec": "必要設定缺漏即啟動失敗（`required_env`）",
+      "acceptance": "刻意移除 `NEO4J_URI` 後啟動，程序立即以非零碼結束並印出缺漏名稱",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [],
+      "config_keys": [
+        "NEO4J_URI"
+      ]
+    },
+    {
+      "id": "DAT-01",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.1 一致性模型",
+      "title": "唯一真相源",
+      "spec": "PostgreSQL `catalog` 為文件與 chunk 的唯一真相源；Chroma／ES／Neo4j 皆為衍生副本，可由 catalog 完整重建",
+      "acceptance": null,
+      "current": null,
+      "status": "done",
+      "status_raw": "✅",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-02",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.1 一致性模型",
+      "title": "變更傳播",
+      "spec": "所有對三庫的寫入一律經 `outbox` 表；不允許直接寫下游庫",
+      "acceptance": null,
+      "current": null,
+      "status": "done",
+      "status_raw": "✅",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-03",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.1 一致性模型",
+      "title": "投遞語意",
+      "spec": "訂閱器保證至少一次投遞，且所有下游寫入為冪等（同一 outbox 事件重放不改變最終狀態）",
+      "acceptance": null,
+      "current": null,
+      "status": "done",
+      "status_raw": "✅",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-04",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.1 一致性模型",
+      "title": "一致性驗證",
+      "spec": "11 個來源的三庫一致性驗證通過（文件數、chunk 數、向量數三方比對）",
+      "acceptance": null,
+      "current": null,
+      "status": "done",
+      "status_raw": "✅ 已實跑",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-05",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.1 一致性模型",
+      "title": "週期性稽核",
+      "spec": "夜間 `ingest verify` 比對三庫；偵測到不一致須寫入 `eval.alerts` 並告警",
+      "acceptance": null,
+      "current": null,
+      "status": "partial",
+      "status_raw": "⚠️ 現只記錄、無告警（缺陷 B12）",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-10",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.2 各庫職責與規格",
+      "title": "ChromaDB",
+      "spec": "每個 chunk 一個向量；metadata 須含 `doc_id`、`chunk_id`、`source`、`embedding_model`、`embedding_version`",
+      "acceptance": null,
+      "current": null,
+      "status": "partial",
+      "status_raw": "⚠️ 後兩欄未記錄",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-11",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.2 各庫職責與規格",
+      "title": "Elasticsearch",
+      "spec": "支援中文分詞；提供 `fuzziness` 查詢供 GRD-03 使用",
+      "acceptance": null,
+      "current": null,
+      "status": "done",
+      "status_raw": "✅",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "GRD-03"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-12",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.2 各庫職責與規格",
+      "title": "Neo4j",
+      "spec": "節點唯一性約束；五種原子操作；軟到期（`valid_to`）；30 天保留後硬刪除；`Artist.sources` 由關係動態推導，不儲存冗餘欄",
+      "acceptance": null,
+      "current": null,
+      "status": "done",
+      "status_raw": "✅",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-13",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.2 各庫職責與規格",
+      "title": "Neo4j",
+      "spec": "僅綁 `127.0.0.1`，不對外監聽",
+      "acceptance": null,
+      "current": null,
+      "status": "done",
+      "status_raw": "✅",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-14",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.2 各庫職責與規格",
+      "title": "Neo4j",
+      "spec": "定期備份並驗證可還原。以每 10,000 筆為單位切分，每一份放入獨立資料夾",
+      "acceptance": null,
+      "current": null,
+      "status": "partial",
+      "status_raw": "✅ 已驗證還原／⚠️ 分片規格待實作",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-15",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.2 各庫職責與規格",
+      "title": "全庫",
+      "spec": "全部備份統一存放於 F 槽 `art_db` 下各自獨立的資料夾：Neo4j 每萬筆分片、PostgreSQL、以及 `biz.messages` 的 18 週歸檔（BIZ-04）。保留期：永久，不自動清除（決策 2026-09-22）",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "BIZ-04"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-15a",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.2 各庫職責與規格",
+      "title": "全庫",
+      "spec": "每一份備份必須標明產生時間，且時間出現在兩處：①資料夾名稱含 `YYYY-MM-DD_HHMM`（可排序、不依賴檔案系統 mtime）；②資料夾內 `manifest.json` 記錄 `created_at`（ISO-8601 含時區）。搬移或複製後時間仍可判讀",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-16",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.2 各庫職責與規格",
+      "title": "全庫",
+      "spec": "每個分片資料夾須自帶還原所需的中繼資料，單一分片可獨立還原，不依賴其他分片。`manifest.json` 至少含：`created_at`、`source`（neo4j／postgres／biz）、`range`（筆數區間）、`row_count`、`schema_version`、`checksum`",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-17",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.2 各庫職責與規格",
+      "title": "全庫",
+      "spec": "備份永不清除，F 槽容量必然單調成長。夜間流程須在每次備份後記錄 F 槽剩餘空間；低於 20% 時寫入 `eval.alerts`（等級 warning），低於 10% 時為 critical。此為 DAT-15 永久保留的必要配套——沒有它，容量耗盡會直接讓備份靜默失敗",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "DAT-15"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-20",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.3 軟到期與保留",
+      "title": "軟到期",
+      "spec": "來源移除或改版時，舊節點／chunk 標記 `valid_to = now()`，不立即刪除；檢索預設只取 `valid_to IS NULL`",
+      "acceptance": null,
+      "current": null,
+      "status": "done",
+      "status_raw": "✅",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-21",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.3 軟到期與保留",
+      "title": "保留期",
+      "spec": "軟到期滿 30 天後硬刪除",
+      "acceptance": null,
+      "current": null,
+      "status": "done",
+      "status_raw": "✅",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-22",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.3 軟到期與保留",
+      "title": "過時 chunk 清除",
+      "spec": "已清除 56 個過時 chunk；舊資料補登 670 份",
+      "acceptance": null,
+      "current": null,
+      "status": "done",
+      "status_raw": "✅ 已實跑",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-30",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.4 嵌入模型版本標註（決策 B11：做）",
+      "title": null,
+      "spec": "ingest 時記錄向量由哪個模型產生",
+      "acceptance": "每個向量的 metadata 必含 `embedding_model`（名稱）與 `embedding_version`（版本或 digest）",
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌ 待實作",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-31",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.4 嵌入模型版本標註（決策 B11：做）",
+      "title": null,
+      "spec": "納入 `ingest verify`",
+      "acceptance": "稽核時若發現同一 collection 內存在多個 `embedding_model/version` 組合，寫入 `eval.alerts`（等級 warning）",
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌ 待實作",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "DAT-32",
+      "category": "DAT",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/4. 資料層規格（L2–L3）/4.4 嵌入模型版本標註（決策 B11：做）",
+      "title": null,
+      "spec": "換模型的處理",
+      "acceptance": "換嵌入模型須全量重建向量；未重建完成前不得混用（DAT-31 即為此防線）",
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌ 待實作",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "DAT-31"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "RET-01",
+      "category": "RET",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/5. 檢索主幹規格（L4，決策 B1–B5、B10）/5.1 Router",
+      "title": "策略選擇",
+      "spec": "Router 依請求指定的策略路由（不自動判斷），策略集合：`vector`、`fulltext`、`graph`、`hybrid`（預設）",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "RET-02",
+      "category": "RET",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/5. 檢索主幹規格（L4，決策 B1–B5、B10）/5.1 Router",
+      "title": "預設策略",
+      "spec": "未指定時採 `hybrid`（向量 + 全文 + 圖三路並行）",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "RET-03",
+      "category": "RET",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/5. 檢索主幹規格（L4，決策 B1–B5、B10）/5.1 Router",
+      "title": "逐步啟用",
+      "spec": "各策略可獨立開關，以便按路由分批上線並量測",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "RET-04",
+      "category": "RET",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/5. 檢索主幹規格（L4，決策 B1–B5、B10）/5.2 融合與重排",
+      "title": "RRF 融合",
+      "spec": "採 Reciprocal Rank Fusion：`score(d) = Σ 1/(k + rank_i(d))`，`k` 預設 60，可設定",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "RET-05",
+      "category": "RET",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/5. 檢索主幹規格（L4，決策 B1–B5、B10）/5.2 融合與重排",
+      "title": "實作順序",
+      "spec": "先做系統級 RRF，取得量測基準後，再依量測結果決定是否加入重排與 Router 權重",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "RET-06",
+      "category": "RET",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/5. 檢索主幹規格（L4，決策 B1–B5、B10）/5.2 融合與重排",
+      "title": "Reranker",
+      "spec": "本階段不使用 cross-encoder；以輕量重排（RRF 分數 + 來源權重 + 時效）實作",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "RET-07",
+      "category": "RET",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/5. 檢索主幹規格（L4，決策 B1–B5、B10）/5.2 融合與重排",
+      "title": "候選數",
+      "spec": "各路取 top-k（預設 20），融合後取 top-n（預設 5）進入生成",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "RET-08",
+      "category": "RET",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/5. 檢索主幹規格（L4，決策 B1–B5、B10）/5.3 外部補充（決策 B13）",
+      "title": "Google Books 後置補充",
+      "spec": "本輪不實作。若未來啟用，採方案 B：僅以書目關鍵字補充，不引入全文",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌ 不實作",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "RET-10",
+      "category": "RET",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/5. 檢索主幹規格（L4，決策 B1–B5、B10）/5.4 快取（決策 B10）",
+      "title": "現況",
+      "spec": "記憶體內精確字串比對快取；Redis 6379 雖在跑但 RAG 未使用",
+      "acceptance": null,
+      "current": null,
+      "status": "partial",
+      "status_raw": "⚠️",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "RET-11",
+      "category": "RET",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/5. 檢索主幹規格（L4，決策 B1–B5、B10）/5.4 快取（決策 B10）",
+      "title": "目標",
+      "spec": "快取遷至 Redis，鍵為查詢正規化後的雜湊；命中回傳含 `cache_hit: true`",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "RET-12",
+      "category": "RET",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/5. 檢索主幹規格（L4，決策 B1–B5、B10）/5.4 快取（決策 B10）",
+      "title": "失效",
+      "spec": "任一來源文件的 catalog 版本變動時，失效與其相關的快取項（以 `doc_id` 反向索引）",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "RET-13",
+      "category": "RET",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/5. 檢索主幹規格（L4，決策 B1–B5、B10）/5.4 快取（決策 B10）",
+      "title": "不快取拒答",
+      "spec": "拒答結果不進快取，避免門檻調整後仍持續拒答",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "GRD-01",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.1 證據判定與拒答",
+      "title": "無檢索支撐時的政策",
+      "spec": "預設拒答；提供設定開關 `REFUSE_ON_NO_EVIDENCE`（預設 `true`）可改為「標示風險後回答」",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": [
+        "REFUSE_ON_NO_EVIDENCE"
+      ]
+    },
+    {
+      "id": "GRD-02",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.1 證據判定與拒答",
+      "title": "可信度 K 的定義",
+      "spec": "`K = 最佳模糊命中的正規化分數`，值域 [0,1]。門檻 `K > 0.7` 視為有支撐。K 僅在證據不足時才計算與觸發，正常路徑不進入此判定",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "GRD-03",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.1 證據判定與拒答",
+      "title": "模糊檢索補救",
+      "spec": "主檢索無足夠證據時，以 Elasticsearch 模糊檢索（`fuzziness`）再試一次，其最佳命中分數即 GRD-02 的 K",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "GRD-02"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "GRD-04",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.1 證據判定與拒答",
+      "title": "拒答回應格式",
+      "spec": "回 HTTP 200，body 含 `refused: true`、`reason`、`k_score`、`attempted_strategies`，並寫入拒答佇列",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "GRD-05",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.1 證據判定與拒答",
+      "title": "門檻校準方式",
+      "spec": "門檻值不得憑感覺設定：先以影子模式（GRD-08）累積資料，再用黃金測試集校準，最後才啟用",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "GRD-08"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "GRD-06",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.2 忠實度守門（決策 B4）",
+      "title": "同步粗篩",
+      "spec": "生成後、回傳前，逐句檢查答案是否有 `citations[]` 中的來源支撐，執行至完成。不設品質逾時（決策 2026-09-22），故粗篩慢不會造成拒答；唯一的時間界線是 GRD-06c 的掛住保護",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "GRD-06c"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "GRD-06a",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.2 忠實度守門（決策 B4）",
+      "title": "300 ms 的地位",
+      "spec": "300 ms 為觀測目標，非強制門檻：每次請求記錄粗篩耗時進 `timings.guard`，供 Phase 4 判斷是否值得設限。未經量測前不得改為強制",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "GRD-06b",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.2 忠實度守門（決策 B4）",
+      "title": "粗篩的實作邊界",
+      "spec": "粗篩只做本地字面比對：句子與來源 chunk 的詞彙重疊、數字／年代／人名是否出現於來源。不得呼叫模型——語意層級判斷一律歸 GRD-07 非同步精篩。此限制與耗時無關，是職責劃分",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "GRD-07"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "GRD-06c",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.2 忠實度守門（決策 B4）",
+      "title": "掛住保護硬上限",
+      "spec": "粗篩逾 30 秒未回（設定值 `GUARD_HARD_TIMEOUT_SEC`，預設 30）即中止，視為 GRD-09 的元件出錯 → 拒答。此上限純為防止請求永不結束，與品質無關：其值較 GRD-06a 的 300 ms 觀測目標高兩個數量級，正常粗篩（本地字面比對）不可能觸及，故不會造成誤拒",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "GRD-06a",
+        "GRD-09"
+      ],
+      "config_keys": [
+        "GUARD_HARD_TIMEOUT_SEC"
+      ]
+    },
+    {
+      "id": "GRD-06d",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.2 忠實度守門（決策 B4）",
+      "title": "掛住與崩潰須可分辨",
+      "spec": "因 GRD-06c 中止而拒答者，`eval.alerts` 須標記 `gate_hang`；因例外或下游不可用而拒答者標記 `gate_crash`。兩者成因與修法不同，混為一談會讓 GRD-10 的告警無法定位",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "GRD-06c",
+        "GRD-10"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "GRD-07",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.2 忠實度守門（決策 B4）",
+      "title": "非同步精篩",
+      "spec": "採 專用 NLI 模型（決策 B4）；離線執行，結果寫入 `eval.measurements`，不阻擋回應。模型選型與其推論資源須併入 ml-service（8002）規劃",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "GRD-08",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.2 忠實度守門（決策 B4）",
+      "title": "影子模式",
+      "spec": "所有防護元件可設為「只記錄、不阻擋」，用於上線前累積分數分布",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "GRD-09",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.3 失效行為（決策 B3）",
+      "title": "防護元件出錯時",
+      "spec": "拒答（`reason = gate_error`）。不得輸出未經把關的答案；同時寫入 `eval.alerts`。「出錯」限於例外、崩潰、下游不可用等確定性失敗。一般的慢不算出錯（GRD-06 無品質逾時）；唯逾 GRD-06c 的 30 秒硬上限視為掛住，屬確定性失敗",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "GRD-06",
+        "GRD-06c"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "GRD-10",
+      "category": "GRD",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/6. 防護層規格（L5，決策 B1–B4）/6.3 失效行為（決策 B3）",
+      "title": "`gate_error` 的可觀測性",
+      "spec": "`gate_error` 比例超過 1%（日計）即告警，等級 critical。在 GRD-09 採拒答的前提下，防護故障會直接轉為使用者被拒，屬可用性事故而非背景雜訊",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "GRD-09"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "GEN-01",
+      "category": "GEN",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/7. 生成層規格（L6）",
+      "title": "生成引擎",
+      "spec": "Ollama 單一實例（11434）。啟動前須驗證該實例確實持有專案所需模型（`/api/tags` 回傳非空且含目標模型）",
+      "acceptance": null,
+      "current": null,
+      "status": "partial",
+      "status_raw": "✅／⚠️",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "GEN-02",
+      "category": "GEN",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/7. 生成層規格（L6）",
+      "title": "回應必含引用",
+      "spec": "每個回應必附 `citations[]`，每筆含 `doc_id`、`chunk_id`、`source`、`score`",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "GEN-03",
+      "category": "GEN",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/7. 生成層規格（L6）",
+      "title": "風險標記",
+      "spec": "當 GRD-01 設為「標示風險後回答」時，回應須帶 `risk_flags[]`。防護元件出錯不再走本條，改由 GRD-09 拒答",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "GRD-01",
+        "GRD-09"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "GEN-04",
+      "category": "GEN",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/7. 生成層規格（L6）",
+      "title": "無來源不生成",
+      "spec": "`citations[]` 為空時不得輸出答案內容，一律走 GRD-04 拒答路徑",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "GRD-04"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-01",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.1 黃金測試集（決策 A1）",
+      "title": "規模與基準",
+      "spec": "15 題 × 約 20 候選；以巴洛克時期為基準主題（該時期資料完整度最高）。標註工時估 2–3 小時",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-02",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.1 黃金測試集（決策 A1）",
+      "title": "標註者",
+      "spec": "由角色 `Annotator` 執行（人員由專案指派，不寫入規格）",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-03",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.1 黃金測試集（決策 A1）",
+      "title": "標註格式",
+      "spec": "每題記錄：`question`、`relevant_doc_ids[]`、`gold_answer_points[]`、`annotator`、`annotated_at`",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-04",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.1 黃金測試集（決策 A1）",
+      "title": "儲存",
+      "spec": "存於 `eval.golden_set`（現為 0 筆）",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-05",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.2 量測（決策 A2）",
+      "title": "召回率粒度",
+      "spec": "文件層級（非 chunk 層級）。理由：標註量少一個量級，且對本系統的答題品質已足夠判別",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-06",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.2 量測（決策 A2）",
+      "title": "四段量測",
+      "spec": "於管線四個位置各量一次，以定位退步發生在哪一段： ① 檢索後（各路 recall@k） ② 融合後（RRF recall@n） ③ 防護後（拒答率、K 分布、gate_error 率） ④ 生成後（忠實度、引用正確率）",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-07",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.2 量測（決策 A2）",
+      "title": "儲存",
+      "spec": "存於 `eval.measurements`，每次執行一筆 run，含 `run_id`、`commit_sha`、`config_snapshot`",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-08",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.2 量測（決策 A2）",
+      "title": "基準與回歸",
+      "spec": "建立基準後納入夜間流程；任一指標相對基準退步 > 5 個百分點即寫入 `eval.alerts`",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-10",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.3 告警（決策 B12）",
+      "title": "`eval.alerts` 為唯一告警出口",
+      "spec": "一致性稽核（DAT-05）、量測退步（EVL-08）、`gate_error` 超標（GRD-10）、服務異常（SYS-04-T）皆寫入此表",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "DAT-05",
+        "EVL-08",
+        "GRD-10",
+        "SYS-04-T"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-11",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.3 告警（決策 B12）",
+      "title": "稽核擴充",
+      "spec": "擴充現有 `ingest verify`，使其結果寫入 `eval.alerts`，不再只留 log",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-12",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.3 告警（決策 B12）",
+      "title": "告警須被看到",
+      "spec": "`eval.alerts` 未處理項目須每日彙總呈現給 `Operator`（呈現方式：夜間流程輸出檔 + `verify-nightly.sh` 第 9 節）",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-15",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.4 拒答複審（決策 B6）",
+      "title": "拒答佇列",
+      "spec": "所有 GRD-04 拒答寫入 `eval.refusal_queue`，含問題、K 分數、已試策略",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "GRD-04"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-16",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.4 拒答複審（決策 B6）",
+      "title": "複審頻率",
+      "spec": "每週由角色 `Reviewer` 人工複審。`Reviewer` = 使用者本人（論文作者），已指派（決策 B6）",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "EVL-17",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.4 拒答複審（決策 B6）",
+      "title": "複審輸出",
+      "spec": "每筆標記為「應拒答（正確）」／「應可答（門檻過嚴）」／「資料缺漏」；第二類累積用於門檻調整，第三類回饋至採集層",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "BIZ-01",
+      "category": "BIZ",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/9. 對話記錄與隱私規格（決策 A3–A6）",
+      "title": "biz schema",
+      "spec": "表已建（`biz.messages` 等），目前 0 筆",
+      "acceptance": null,
+      "current": null,
+      "status": "partial",
+      "status_raw": "⚠️",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "BIZ-02",
+      "category": "BIZ",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/9. 對話記錄與隱私規格（決策 A3–A6）",
+      "title": "使用者身分傳遞",
+      "spec": "現況 pipe 未傳使用者身分，導致無法記錄。實作須讓前端 pipe 將身分識別（或匿名代號）傳至後端",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌ 前置需求",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "BIZ-03",
+      "category": "BIZ",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/9. 對話記錄與隱私規格（決策 A3–A6）",
+      "title": "開關",
+      "spec": "以 `BIZ_LOGGING` 控制（Phase 3 初期預設關閉，待 BIZ-05／BIZ-06 完成後開啟）",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "BIZ-05",
+        "BIZ-06"
+      ],
+      "config_keys": [
+        "BIZ_LOGGING"
+      ]
+    },
+    {
+      "id": "BIZ-04",
+      "category": "BIZ",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/9. 對話記錄與隱私規格（決策 A3–A6）",
+      "title": "資料庫保存期限",
+      "spec": "18 週。逾期自 `biz.messages` 刪除；刪除前歸檔至 F 槽 `art_db` 下的獨立對話紀錄資料夾，資料夾名稱含產生時間（DAT-15、DAT-15a）",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "DAT-15",
+        "DAT-15a"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "BIZ-04a",
+      "category": "BIZ",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/9. 對話記錄與隱私規格（決策 A3–A6）",
+      "title": "歸檔保存期限",
+      "spec": "永久保留，不自動清除（決策 2026-09-22）",
+      "acceptance": null,
+      "current": null,
+      "status": "decided",
+      "status_raw": "✔ 已定案",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "BIZ-04b",
+      "category": "BIZ",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/9. 對話記錄與隱私規格（決策 A3–A6）",
+      "title": "用語一致性",
+      "spec": "因 BIZ-04a 為永久保留，本系統對外不得宣稱對話記錄「18 週後刪除」。正確表述為：「18 週後自線上資料庫移除，歸檔留存」。此表述須與 BIZ-05 告知文字一致",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "BIZ-04a",
+        "BIZ-05"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "BIZ-05",
+      "category": "BIZ",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/9. 對話記錄與隱私規格（決策 A3–A6）",
+      "title": "法規告知",
+      "spec": "系統須於使用者首次使用時顯示告知文字；文字內容與適用法規由 `Approver`（指導老師／學校資訊或法務）確認",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "BIZ-06",
+      "category": "BIZ",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/9. 對話記錄與隱私規格（決策 A3–A6）",
+      "title": "核可紀錄",
+      "spec": "Tier B 實作須經 `Approver` 核可；GD 評估表由使用者／老師填寫，系統與 AI 不代填",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "BIZ-07",
+      "category": "BIZ",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/9. 對話記錄與隱私規格（決策 A3–A6）",
+      "title": "存取控制",
+      "spec": "多人使用之帳號策略與頻率限制另案處理，Phase 3 僅登記不實作（見 SYS-06-T）",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌ 另案",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [
+        "SYS-06-T"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "NFR-01",
+      "category": "NFR",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/10. 非功能需求（NFR）",
+      "title": null,
+      "spec": "同步防護粗篩目標 ≤ 300 ms，為觀測指標而非驗收門檻（GRD-06a）。粗篩執行至完成，不因超時拒答",
+      "acceptance": "以黃金集 15 題量測 p95 並記錄；超標不構成驗收失敗，僅供 Phase 4 判斷是否設限",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "GRD-06a"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "NFR-02",
+      "category": "NFR",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/10. 非功能需求（NFR）",
+      "title": null,
+      "spec": "端到端 p95（含生成）先量測後定標，不預設",
+      "acceptance": "基準建立後回填本表",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "NFR-03",
+      "category": "NFR",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/10. 非功能需求（NFR）",
+      "title": null,
+      "spec": "防護元件失效時一律拒答，不得輸出未經把關的答案（GRD-09）；失效須即時告警",
+      "acceptance": "注入防護元件異常，請求回 `refused: true` 且 `reason = gate_error`，同時 `eval.alerts` 出現 critical 紀錄",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "GRD-09"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "NFR-04",
+      "category": "NFR",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/10. 非功能需求（NFR）",
+      "title": null,
+      "spec": "服務異常終止後 ≤ 5 分鐘自動復原（SYS-04-T）",
+      "acceptance": "手動 kill 後計時驗證",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "SYS-04-T"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "NFR-05",
+      "category": "NFR",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/10. 非功能需求（NFR）",
+      "title": null,
+      "spec": "所有異常均可由 `eval.alerts` 與 `verify-nightly.sh` 單一入口查得",
+      "acceptance": "注入四類異常，四類皆現身",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "NFR-06",
+      "category": "NFR",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/10. 非功能需求（NFR）",
+      "title": null,
+      "spec": "每次量測須記錄 `commit_sha` 與設定快照（EVL-07）",
+      "acceptance": "查任一 run 可重建當時設定",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "EVL-07"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "NFR-07",
+      "category": "NFR",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/10. 非功能需求（NFR）",
+      "title": null,
+      "spec": "憑證不得出現在程序參數（`ps` 可見）",
+      "acceptance": "ES 密碼已視為外洩須更換（OPS-01）；改由 `.env` 載入",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "OPS-01"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "NFR-08",
+      "category": "NFR",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/10. 非功能需求（NFR）",
+      "title": null,
+      "spec": "服務僅綁 `127.0.0.1`，不對外監聽",
+      "acceptance": "`ss -tlnp` 無 `0.0.0.0` 綁定",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "NFR-09",
+      "category": "NFR",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/10. 非功能需求（NFR）",
+      "title": null,
+      "spec": "執行期 log 不得進版控",
+      "acceptance": "`query_logs` 加入 `.gitignore` 並移出追蹤（OPS-05）",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "OPS-05"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "NFR-10",
+      "category": "NFR",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/10. 非功能需求（NFR）",
+      "title": null,
+      "spec": "必要設定缺漏即啟動失敗（SYS-07-T）",
+      "acceptance": "移除必填變數後啟動失敗並具名",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "SYS-07-T"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "NFR-11",
+      "category": "NFR",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/10. 非功能需求（NFR）",
+      "title": null,
+      "spec": "PostgreSQL 與 Neo4j 備份須經還原驗證",
+      "acceptance": "✅ 已驗證",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "NFR-12",
+      "category": "NFR",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/10. 非功能需求（NFR）",
+      "title": null,
+      "spec": "三庫一致性 100%（以 catalog 為基準）",
+      "acceptance": "✅ 11 來源已通過",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "OPS-01",
+      "category": "OPS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "title": "更換 Elasticsearch 密碼",
+      "spec": "曾出現在 `ps` 輸出，視為已外露",
+      "acceptance": "NFR-07",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "NFR-07"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "OPS-02",
+      "category": "OPS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "title": "確認 2026-09-22 03:00 完整夜間流程",
+      "spec": "移除 Yale 後的第一次完整實跑（路徑已單獨驗證通過）",
+      "acceptance": "夜間流程可信度、EVL-08",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "EVL-08"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "OPS-03",
+      "category": "OPS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "title": "開 PR（`phase0-docs-and-tidy` → `main`）",
+      "spec": "所有變更目前只在本地主機端",
+      "acceptance": "SYS-05-T",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "SYS-05-T"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "OPS-04",
+      "category": "OPS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "title": "清理 `.env` 過時項目",
+      "spec": "`NEO4J_URI` 舊埠、相對路徑 `DATA_RAW_DIR`、`DB_HOST_*` 變體、死變數 `RAG_API_PORT`",
+      "acceptance": "SYS-07-T",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "SYS-07-T"
+      ],
+      "config_keys": [
+        "DATA_RAW_DIR",
+        "NEO4J_URI",
+        "RAG_API_PORT"
+      ]
+    },
+    {
+      "id": "OPS-05",
+      "category": "OPS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "title": "`query_logs` 執行期 log 被 git 追蹤",
+      "spec": "加入 `.gitignore` 並移出追蹤",
+      "acceptance": "NFR-09",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "NFR-09"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "OPS-06",
+      "category": "OPS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "title": "V&A 157／302 件缺豐富關係",
+      "spec": "資料缺項，影響圖檢索召回",
+      "acceptance": "RET-01 `graph` 策略品質",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [
+        "RET-01"
+      ],
+      "config_keys": []
+    },
+    {
+      "id": "OPS-07",
+      "category": "OPS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "title": "Elasticsearch 每 30 秒重啟迴圈",
+      "spec": "缺陷 B3，先檢定 OOM，確認則釘死 heap `-Xms2g -Xmx2g`",
+      "acceptance": "整條全文檢索路徑",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    },
+    {
+      "id": "OPS-08",
+      "category": "OPS",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "title": "Neo4j／Ollama 埠號整併機器端套用",
+      "spec": "見 `port-consolidation.md` §3 五項驗收條件",
+      "acceptance": "系統可啟動",
+      "current": null,
+      "status": null,
+      "status_raw": null,
+      "has_status_col": false,
+      "closed": false,
+      "refs": [],
+      "config_keys": []
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "A1",
+      "value": "黃金集 15 題×20 候選，巴洛克基準",
+      "requirements": [
+        "EVL-01"
+      ],
+      "acceptance": "`eval.golden_set` 筆數 = 15"
+    },
+    {
+      "decision": "A2",
+      "value": "召回率文件層級",
+      "requirements": [
+        "EVL-05"
+      ],
+      "acceptance": "量測輸出欄位為 doc 層級"
+    },
+    {
+      "decision": "A3",
+      "value": "`biz.messages` 18 週後自資料庫移除；歸檔至 F 槽 `art_db` 並永久保留，資料夾名稱含時間",
+      "requirements": [
+        "BIZ-04",
+        "DAT-15"
+      ],
+      "acceptance": "逾期資料自資料庫消失、歸檔存在且可依時間排序；對外用語為「移除非刪除」"
+    },
+    {
+      "decision": "A4",
+      "value": "法規與告知文字由 `Approver` 確認",
+      "requirements": [
+        "BIZ-05"
+      ],
+      "acceptance": "告知文字上線且有核可紀錄"
+    },
+    {
+      "decision": "A5",
+      "value": "Tier B 經 `Approver` 核可；評估表由人填",
+      "requirements": [
+        "BIZ-06"
+      ],
+      "acceptance": "核可紀錄存在"
+    },
+    {
+      "decision": "A6",
+      "value": "存取控制另案，Phase 3 僅登記",
+      "requirements": [
+        "BIZ-07",
+        "SYS-06-T"
+      ],
+      "acceptance": "登記於本書即滿足 Phase 3"
+    },
+    {
+      "decision": "B1",
+      "value": "預設拒答，可設定開關",
+      "requirements": [
+        "GRD-01"
+      ],
+      "acceptance": "無證據查詢回 `refused: true`"
+    },
+    {
+      "decision": "B2",
+      "value": "`K = 最佳模糊命中正規化分數`，>0.7，僅證據不足時觸發",
+      "requirements": [
+        "GRD-02"
+      ],
+      "acceptance": "K 計算次數 = 證據不足次數"
+    },
+    {
+      "decision": "B3",
+      "value": "防護出錯拒答（覆蓋原建議的放行）",
+      "requirements": [
+        "GRD-09",
+        "NFR-03"
+      ],
+      "acceptance": "注入異常回 `refused: true`；超 1% 發 critical 告警"
+    },
+    {
+      "decision": "B4",
+      "value": "忠實度精篩採專用 NLI 模型（覆蓋原建議的 LLM 判官）",
+      "requirements": [
+        "GRD-07"
+      ],
+      "acceptance": "精篩結果寫入 `eval.measurements`"
+    },
+    {
+      "decision": "B5",
+      "value": "同步粗篩 300 ms → 降為觀測目標；另設 30 秒掛住保護硬上限",
+      "requirements": [
+        "GRD-06",
+        "NFR-01"
+      ],
+      "acceptance": "每次請求記錄 `timings.guard`；超 300 ms 不算失敗，逾 30 秒則拒答並記 `gate_hang`"
+    },
+    {
+      "decision": "B6",
+      "value": "拒答佇列每週複審；`Reviewer` = 使用者本人，已指派",
+      "requirements": [
+        "EVL-15"
+      ],
+      "acceptance": "每週有複審紀錄"
+    },
+    {
+      "decision": "B10",
+      "value": "Redis 一般鍵值快取（非語意近似）",
+      "requirements": [
+        "RET-10"
+      ],
+      "acceptance": "快取由 Redis 承接，拒答不進快取"
+    },
+    {
+      "decision": "B11",
+      "value": "嵌入模型名稱＋版本標註，納入 verify",
+      "requirements": [
+        "DAT-30"
+      ],
+      "acceptance": "metadata 必含兩欄；混用即告警"
+    },
+    {
+      "decision": "B12",
+      "value": "每週稽核寫入 `eval.alerts`",
+      "requirements": [
+        "DAT-05",
+        "EVL-10"
+      ],
+      "acceptance": "稽核結果現身於 alerts 表"
+    },
+    {
+      "decision": "B13",
+      "value": "Google Books 先不做",
+      "requirements": [
+        "RET-08"
+      ],
+      "acceptance": "檢索端無對外呼叫"
+    },
+    {
+      "decision": null,
+      "value": "Neo4j 備份每萬筆切分、獨立資料夾、存 F 槽 `art_db`",
+      "requirements": [
+        "DAT-14"
+      ],
+      "acceptance": "單一分片可獨立還原"
+    },
+    {
+      "decision": "Phase 5",
+      "value": "先系統級 RRF，再依量測決定重排與權重",
+      "requirements": [
+        "RET-04"
+      ],
+      "acceptance": "RRF 上線並有量測基準"
+    }
+  ],
+  "risks": [
+    {
+      "id": "R1",
+      "closed": false,
+      "risk": "備份與被備份對象同處一台機器",
+      "cause": "全部備份存於 F 槽 `art_db`（DAT-15），而 F 槽同時持有唯一一份設計文件快照（problem-register A2）。F 槽故障會同時失去備份與快照",
+      "treatment": "至少一份備份離開本機（外接碟、雲端或校內空間）。不改變 DAT-15，只增加一個異地副本",
+      "refs": [
+        "DAT-15"
+      ]
+    },
+    {
+      "id": "R2",
+      "closed": true,
+      "risk": "18 週保存期限與永久歸檔矛盾",
+      "cause": "已裁定：歸檔永久保留（2026-09-22）",
+      "treatment": "✅ 風險已承擔。殘留義務見下方 R2a、R2b，兩者為必辦事項",
+      "refs": []
+    },
+    {
+      "id": "R2a",
+      "closed": false,
+      "risk": "對外用語與事實不符",
+      "cause": "歸檔永久保留後，「18 週後刪除」為不實陳述",
+      "treatment": "一律改稱「18 週後自線上資料庫移除，歸檔留存」（BIZ-04b）。文件、介面、口頭說明皆適用",
+      "refs": [
+        "BIZ-04b"
+      ]
+    },
+    {
+      "id": "R2b",
+      "closed": false,
+      "risk": "A4 法規諮詢的前提須更正",
+      "cause": "若以「18 週後刪除」為前提向 `Approver` 或法務提問，取得的結論不涵蓋永久保存",
+      "treatment": "A4 送件前必須改以「永久保留」為前提。永久保存個資的告知與同意基礎通常較嚴，兩者結論可能完全不同；以錯誤前提取得的核可不成立",
+      "refs": []
+    },
+    {
+      "id": "R4",
+      "closed": false,
+      "risk": "F 槽容量單調成長",
+      "cause": "備份永不清除（DAT-15），容量耗盡會讓備份靜默失敗——不會報錯，只是沒備份成功",
+      "treatment": "DAT-17：每次備份後記錄剩餘空間，低於 20% 告警、低於 10% 為 critical",
+      "refs": [
+        "DAT-15",
+        "DAT-17"
+      ]
+    },
+    {
+      "id": "R3",
+      "closed": true,
+      "risk": "300 ms 預算直接決定誤拒率",
+      "cause": "已解除（2026-09-22）：GRD-06 取消逾時，粗篩執行至完成，慢不再導致拒答",
+      "treatment": "✅ 風險消失。300 ms 降為觀測目標（GRD-06a）",
+      "refs": [
+        "GRD-06",
+        "GRD-06a"
+      ]
+    },
+    {
+      "id": "R3a",
+      "closed": true,
+      "risk": "無應用層逾時，實際上限由 HTTP 伺服器預設值決定",
+      "cause": "已裁定（2026-09-22）：硬上限 30 秒（GRD-06c），觸發視為元件出錯 → 拒答，並以 `gate_hang` 與崩潰區分（GRD-06d）",
+      "treatment": "✅ 上限改由本系統明訂，不再落在 gunicorn／uvicorn 的預設值",
+      "refs": [
+        "GRD-06c",
+        "GRD-06d"
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "closed": false,
+      "question": "簡報引用的 `docs/designs/2026-09-21-phase3～5-*.md` 三份設計文件不在本 repo（依 `2026-09-20-phase1-seed-canon.md`，僅存在於 F 槽快照）",
+      "impact": "細節規格可能與設計文件有落差",
+      "handling": "本書依簡報與已在庫文件撰寫；設計文件到位後交叉核對"
+    }
+  ],
+  "flows": [
+    {
+      "section": "藝術史資料庫 RAG 系統流程步驟/2. 流程 A：每日資料更新（每日 03:00，自動）",
+      "steps": [
+        {
+          "id": "A-1",
+          "action": "`Run-DailyCrawl.ps1` 第 2 行呼叫 `Start-NativeServices.ps1`，確保各服務在跑",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "服務起不來 → 流程中止，進流程 G",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "A-2",
+          "action": "驗證 Ollama 實例持有專案所需模型（`/api/tags` 非空且含目標模型）",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "清單為空 → 在該實例 `ollama pull`；連不上 → 跑 `collect.sh` 查佔埠者 `[GEN-01]`",
+          "closed": false,
+          "refs": [
+            "GEN-01"
+          ]
+        },
+        {
+          "id": "A-3",
+          "action": "11 個來源爬蟲抓取，原始檔落地 `DATA_RAW_DIR`",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "單一來源失敗不中止整體，記錄該來源狀態",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "A-4",
+          "action": "前處理、切塊",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "—",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "A-5",
+          "action": "惡意內容掃描",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "命中則該文件不進 catalog，記錄並告警",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "A-6",
+          "action": "產生嵌入，記錄 `embedding_model` 與 `embedding_version` 於 Chroma metadata",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "未記錄即視為缺陷。metadata 另須含 `doc_id`、`chunk_id`、`source` `[DAT-10、DAT-30]`",
+          "closed": false,
+          "refs": [
+            "DAT-10",
+            "DAT-30"
+          ]
+        },
+        {
+          "id": "A-7",
+          "action": "寫入 PostgreSQL `catalog` 與 `outbox`（單一交易）",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "交易失敗即全回滾，catalog 不留半套資料 `[DAT-01～02]`",
+          "closed": false,
+          "refs": [
+            "DAT-01",
+            "DAT-02"
+          ]
+        },
+        {
+          "id": "A-8",
+          "action": "訂閱器消費 `outbox`，寫入 Chroma／ES／Neo4j（至少一次 + 冪等）",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "可安全重放；重複投遞不改變最終狀態 `[DAT-03]`",
+          "closed": false,
+          "refs": [
+            "DAT-03"
+          ]
+        },
+        {
+          "id": "A-9",
+          "action": "來源移除或改版者標記 `valid_to = now()`（軟到期），不立即刪除",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "`[DAT-20]`",
+          "closed": false,
+          "refs": [
+            "DAT-20"
+          ]
+        },
+        {
+          "id": "A-10",
+          "action": "清理軟到期滿 30 天者（硬刪除）",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "`[DAT-21]`",
+          "closed": false,
+          "refs": [
+            "DAT-21"
+          ]
+        },
+        {
+          "id": "A-11",
+          "action": "`ingest verify`：三庫一致性稽核（文件數／chunk 數／向量數三方比對）",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "不一致 → 寫入 `eval.alerts`（目前只寫 log，須擴充） `[DAT-05、EVL-11]`",
+          "closed": false,
+          "refs": [
+            "DAT-05",
+            "EVL-11"
+          ]
+        },
+        {
+          "id": "A-12",
+          "action": "檢查嵌入模型混用：同一 collection 內出現多組 `model/version` 即告警",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "`[DAT-31]`",
+          "closed": false,
+          "refs": [
+            "DAT-31"
+          ]
+        },
+        {
+          "id": "A-13",
+          "action": "備份 PostgreSQL 與 Neo4j 至 F 槽 `art_db`；Neo4j 以每 10,000 筆切分、各自獨立資料夾。每個資料夾名稱含 `YYYY-MM-DD_HHMM`，內附 `manifest.json` 記錄 `created_at`，單片可獨立還原",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "備份後須重新執行 `Start-NativeServices.ps1`。⚠ 備份與本機同碟，見規格書 §12 R1 `[DAT-14～16、DAT-15a]`",
+          "closed": false,
+          "refs": [
+            "DAT-14",
+            "DAT-15",
+            "DAT-15a",
+            "DAT-16"
+          ]
+        },
+        {
+          "id": "A-13b",
+          "action": "記錄 F 槽剩餘空間",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "備份永久保留、不清除，容量必然成長。低於 20% → `eval.alerts`（warning）；低於 10% → critical。沒有這步，容量耗盡時備份會靜默失敗 `[DAT-17、§12 R4]`",
+          "closed": false,
+          "refs": [
+            "DAT-17"
+          ]
+        },
+        {
+          "id": "A-14",
+          "action": "附掛流程 D（夜間回歸量測）",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "Phase 3 完成後才有此步",
+          "closed": false,
+          "refs": []
+        }
+      ]
+    },
+    {
+      "section": "藝術史資料庫 RAG 系統流程步驟/4. 流程 C：黃金測試集建立與基準量測（一次性）",
+      "steps": [
+        {
+          "id": "C-1",
+          "action": "選定主題範圍：巴洛克時期（資料完整度最高，作為基準）",
+          "owner": null,
+          "prereq": null,
+          "done_when": "題目範圍界定 `[EVL-01]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-01"
+          ]
+        },
+        {
+          "id": "C-2",
+          "action": "出 15 題，涵蓋事實查詢、關係查詢（藝術家↔作品↔流派）、以及應拒答的題目",
+          "owner": null,
+          "prereq": null,
+          "done_when": "15 題清單",
+          "on_failure": null,
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "C-3",
+          "action": "每題以現況系統檢索出約 20 個候選文件",
+          "owner": null,
+          "prereq": null,
+          "done_when": "15 × 20 候選",
+          "on_failure": null,
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "C-4",
+          "action": "標註者逐題標記 `relevant_doc_ids[]`（文件層級，非 chunk 層級）",
+          "owner": null,
+          "prereq": null,
+          "done_when": "相關性標註 `[EVL-05]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-05"
+          ]
+        },
+        {
+          "id": "C-5",
+          "action": "每題寫出 `gold_answer_points[]`（答案應涵蓋的要點）",
+          "owner": null,
+          "prereq": null,
+          "done_when": "忠實度評分依據",
+          "on_failure": null,
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "C-6",
+          "action": "寫入 `eval.golden_set`，含 `annotator`、`annotated_at`",
+          "owner": null,
+          "prereq": null,
+          "done_when": "15 筆 `[EVL-03～04]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-03",
+            "EVL-04"
+          ]
+        },
+        {
+          "id": "C-7",
+          "action": "對現況系統跑一次四段量測，記錄 `commit_sha` 與設定快照",
+          "owner": null,
+          "prereq": null,
+          "done_when": "基準 run `[EVL-06～07]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-06",
+            "EVL-07"
+          ]
+        },
+        {
+          "id": "C-8",
+          "action": "將基準值登記為回歸比較基準",
+          "owner": null,
+          "prereq": null,
+          "done_when": "流程 D 的比較對象 `[EVL-08]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-08"
+          ]
+        }
+      ]
+    },
+    {
+      "section": "藝術史資料庫 RAG 系統流程步驟/5. 流程 D：夜間回歸與告警（每日，附掛流程 A）",
+      "steps": [
+        {
+          "id": "D-1",
+          "action": "流程 A 完成後，對黃金集跑四段量測",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "產出當日 run `[EVL-06]`",
+          "closed": false,
+          "refs": [
+            "EVL-06"
+          ]
+        },
+        {
+          "id": "D-2",
+          "action": "與基準值逐指標比較",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "任一指標退步 > 5 個百分點 → 寫 `eval.alerts` `[EVL-08]`",
+          "closed": false,
+          "refs": [
+            "EVL-08"
+          ]
+        },
+        {
+          "id": "D-3",
+          "action": "計算當日 `gate_error` 比例",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "> 1% → 寫 `eval.alerts`（等級 critical） `[GRD-10]`",
+          "closed": false,
+          "refs": [
+            "GRD-10"
+          ]
+        },
+        {
+          "id": "D-4",
+          "action": "收集流程 A 的一致性稽核結果",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "不一致 → 已於 A-11 寫入 alerts `[DAT-05]`",
+          "closed": false,
+          "refs": [
+            "DAT-05"
+          ]
+        },
+        {
+          "id": "D-5",
+          "action": "彙總 `eval.alerts` 未處理項目",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "輸出至夜間流程報告檔，並由 `verify-nightly.sh` 第 9 節呈現 `[EVL-12]`",
+          "closed": false,
+          "refs": [
+            "EVL-12"
+          ]
+        },
+        {
+          "id": "D-6",
+          "action": "若有 alert，通知 `Operator`",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "進流程 G",
+          "closed": false,
+          "refs": []
+        }
+      ]
+    },
+    {
+      "section": "藝術史資料庫 RAG 系統流程步驟/6. 流程 E：拒答複審（每週）",
+      "steps": [
+        {
+          "id": "E-1",
+          "action": "取出本週 `eval.refusal_queue` 全部項目（含問題、K 分數、已試策略）",
+          "owner": null,
+          "prereq": null,
+          "done_when": "待審清單 `[EVL-15]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-15"
+          ]
+        },
+        {
+          "id": "E-2",
+          "action": "逐筆判定為三類之一： ① 應拒答（判斷正確） ② 應可答（門檻過嚴） ③ 資料缺漏（知識庫沒有這份資料）",
+          "owner": null,
+          "prereq": null,
+          "done_when": "分類結果 `[EVL-17]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-17"
+          ]
+        },
+        {
+          "id": "E-3",
+          "action": "第 ② 類累積",
+          "owner": null,
+          "prereq": null,
+          "done_when": "達一定量即回頭調整 K 門檻，並重跑流程 C-7 驗證 `[GRD-05]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "GRD-05"
+          ]
+        },
+        {
+          "id": "E-4",
+          "action": "第 ③ 類回饋至採集層",
+          "owner": null,
+          "prereq": null,
+          "done_when": "列為來源補充需求（如 OPS-06 的 V&A 缺關係）",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "OPS-06"
+          ]
+        },
+        {
+          "id": "E-5",
+          "action": "第 ① 類抽樣加入黃金集的應拒答題",
+          "owner": null,
+          "prereq": null,
+          "done_when": "強化 C-2 的覆蓋",
+          "on_failure": null,
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "E-6",
+          "action": "記錄複審紀錄（誰、何時、各類筆數）",
+          "owner": null,
+          "prereq": null,
+          "done_when": "每週一筆 `[EVL-16]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-16"
+          ]
+        }
+      ]
+    },
+    {
+      "section": "藝術史資料庫 RAG 系統流程步驟/7. 流程 F：部署與變更/7.1 現況（SYS-05 未解決前）—— 有斷點，每次變更都要走完",
+      "steps": [
+        {
+          "id": "F-1",
+          "action": "在正本 `icnclabstust-hub/art_icnclab_main` 的功能分支上修改",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "—",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "F-2",
+          "action": "本地驗證：`bash scripts/verify-nightly.sh`、`python3 scripts/diagnose.py`；另跑 `python3 scripts/spec-export.py --check` 確認規格未自相矛盾",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "全唯讀，可安全重複執行。`verify-nightly.sh` 第 0 節同時檢出 `os.getenv` 預設值缺陷的實際影響 `[SYS-07、SYS-07-T]`",
+          "closed": false,
+          "refs": [
+            "SYS-07",
+            "SYS-07-T"
+          ]
+        },
+        {
+          "id": "F-3",
+          "action": "提交並推送分支",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "—",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "F-4",
+          "action": "開 PR 併入 `main`（OPS-03）",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "—",
+          "closed": false,
+          "refs": [
+            "OPS-03"
+          ]
+        },
+        {
+          "id": "F-5",
+          "action": "⚠ 手動把變更檔案複製到執行期目錄 `C:\\Users\\user\\Desktop\\藝術史資料庫\\art-history-database\\` 對應位置",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "漏掉這步，改動完全不會生效 `[SYS-05]`",
+          "closed": false,
+          "refs": [
+            "SYS-05"
+          ]
+        },
+        {
+          "id": "F-6",
+          "action": "在 Windows 執行 `Start-NativeServices.ps1` 重啟服務",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "—",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "F-7",
+          "action": "驗收：`ss -tlnp \\",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "grep -E '7687\\",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "F-8",
+          "action": "驗收：`python3 scripts/diagnose.py`、`bash scripts/verify-nightly.sh`",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "—",
+          "closed": false,
+          "refs": []
+        }
+      ]
+    },
+    {
+      "section": "藝術史資料庫 RAG 系統流程步驟/7. 流程 F：部署與變更/7.3 遷移步驟（F 現況 → F 目標，一次性，即 P0-6）",
+      "steps": [
+        {
+          "id": "M-1",
+          "action": "比對執行期目錄與正本的差異，建立 `rescue/runtime-dir` 分支",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "先比對再動，避免覆蓋執行期獨有內容",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "M-2",
+          "action": "把執行期目錄獨有的內容收回正本",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "逐檔確認，不整包覆蓋",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "M-3",
+          "action": "備份執行期目錄的 `.env` 與資料目錄到目錄外",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "`.env` 絕不進版控",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "M-4",
+          "action": "停止所有服務（需一次停機）",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "在夜間流程之外的時段執行",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "M-5",
+          "action": "將執行期目錄改為正本的 `git clone`，還原 `.env`",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "—",
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "M-6",
+          "action": "`Start-NativeServices.ps1` 啟動，跑完整驗收（F-7、F-8）",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": "失敗則以 M-3 的備份還原",
+          "closed": false,
+          "refs": []
+        }
+      ]
+    },
+    {
+      "section": "藝術史資料庫 RAG 系統流程步驟/8. 流程 G：故障處理/8.1 通用入口",
+      "steps": [
+        {
+          "id": "G-1",
+          "action": "執行 `bash scripts/verify-nightly.sh`（全唯讀）。第 1 節答「我是哪一份副本」、第 3 節答「誰在跑、誰佔埠、重啟次數」、第 0 節答「設定實際生效值」、第 12 節答「是否 OOM」",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": null,
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "G-2",
+          "action": "需要更深資料時執行 `bash scripts/collect.sh`",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": null,
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "G-3",
+          "action": "依下表對照徵狀",
+          "owner": null,
+          "prereq": null,
+          "done_when": null,
+          "on_failure": null,
+          "closed": false,
+          "refs": []
+        }
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "section": "藝術史資料庫 RAG 系統流程步驟/1. 實作里程碑順序/1.1 Phase 0：前置解卡",
+      "steps": [
+        {
+          "id": "P0-1",
+          "action": "指派黃金測試集標註人選",
+          "owner": "專案",
+          "prereq": null,
+          "done_when": "`Annotator` 角色有具名人員，且確認可投入 2–3 小時 `[EVL-02]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-02"
+          ]
+        },
+        {
+          "id": "P0-2",
+          "action": "確認適用法規、告知文字，以及是否需研究倫理審查。送件前提須為「對話記錄歸檔永久保留」，不得寫成「18 週後刪除」",
+          "owner": "Approver（指導老師／學校資訊或法務）",
+          "prereq": null,
+          "done_when": "告知文字定稿且已載明永久保留；倫理審查需求有書面結論 `[BIZ-05、§12 R2b]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "BIZ-05"
+          ]
+        },
+        {
+          "id": "P0-3",
+          "action": "依 P0-2 結論確認 `biz.messages` 保存期限",
+          "owner": "Approver",
+          "prereq": null,
+          "done_when": "確認 18 週符合結論，或給出替代期限 `[BIZ-04]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "BIZ-04"
+          ]
+        },
+        {
+          "id": "P0-4",
+          "action": "Approver 核可 Tier B 實作，補簽 GD 評估表 §九",
+          "owner": "Approver",
+          "prereq": null,
+          "done_when": "核可有紀錄。AI 不代填任何簽核欄 `[BIZ-06]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "BIZ-06"
+          ]
+        },
+        {
+          "id": "P0-5",
+          "action": "指派拒答佇列每週複審人選",
+          "owner": "—",
+          "prereq": null,
+          "done_when": "✅ 已結案：`Reviewer` = 使用者本人（論文作者），決策 B6 `[EVL-16]`",
+          "on_failure": null,
+          "closed": true,
+          "refs": [
+            "EVL-16"
+          ]
+        },
+        {
+          "id": "P0-6",
+          "action": "決定執行期目錄處理方式並執行（建議甲案）",
+          "owner": "Operator",
+          "prereq": null,
+          "done_when": "執行期目錄 `git remote` 指向正本 `[SYS-05-T]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "SYS-05-T"
+          ]
+        }
+      ]
+    },
+    {
+      "section": "藝術史資料庫 RAG 系統流程步驟/1. 實作里程碑順序/1.2 Phase 3：對話記錄與召回率評測",
+      "steps": [
+        {
+          "id": "3-1",
+          "action": "`BIZ_LOGGING` 保持 關閉",
+          "owner": null,
+          "prereq": "無",
+          "done_when": "設定確認為 `false` `[BIZ-03]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "BIZ-03"
+          ]
+        },
+        {
+          "id": "3-2",
+          "action": "修改 pipe，將使用者身分（或匿名代號）傳至後端",
+          "owner": null,
+          "prereq": "無——`BIZ_LOGGING=false` 時不寫入任何資料，不觸及個資",
+          "done_when": "後端能取到 `user_id` `[BIZ-02]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "BIZ-02"
+          ]
+        },
+        {
+          "id": "3-3",
+          "action": "建立 `eval.golden_set` 並完成標註",
+          "owner": null,
+          "prereq": "P0-1（`Annotator`）",
+          "done_when": "15 題全部標註完成 `[EVL-01～04]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-01",
+            "EVL-02",
+            "EVL-03",
+            "EVL-04"
+          ]
+        },
+        {
+          "id": "3-4",
+          "action": "實作四段量測，寫入 `eval.measurements`",
+          "owner": null,
+          "prereq": "無",
+          "done_when": "單次 run 產出四段指標 `[EVL-06～07]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-06",
+            "EVL-07"
+          ]
+        },
+        {
+          "id": "3-5",
+          "action": "以現況系統跑一次，取得基準值",
+          "owner": null,
+          "prereq": "3-3、3-4",
+          "done_when": "基準 run 存在且含 `commit_sha` `[NFR-06]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "NFR-06"
+          ]
+        },
+        {
+          "id": "3-6",
+          "action": "實作 `biz.messages` 保存期限與歸檔",
+          "owner": null,
+          "prereq": "機制無前置（以設定值實作，預設 18 週）；期限值待 P0-3",
+          "done_when": "逾期自資料庫移除、移除前歸檔 `[BIZ-04、DAT-15a]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "BIZ-04",
+            "DAT-15a"
+          ]
+        },
+        {
+          "id": "3-7",
+          "action": "上線告知文字",
+          "owner": null,
+          "prereq": "P0-2（告知文字定稿，須含永久保留）",
+          "done_when": "首次使用顯示告知；文字採「18 週後自線上資料庫移除，歸檔留存」，不得寫成「刪除」 `[BIZ-05、BIZ-04b、§12 R2b]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "BIZ-04b",
+            "BIZ-05"
+          ]
+        },
+        {
+          "id": "3-8",
+          "action": "開啟 `BIZ_LOGGING`",
+          "owner": null,
+          "prereq": "P0-2 + P0-4（硬性：此步起開始記錄真實對話）",
+          "done_when": "對話記錄開始累積（不再是 0 筆） `[BIZ-01]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "BIZ-01"
+          ]
+        },
+        {
+          "id": "3-9",
+          "action": "將量測納入夜間流程（流程 D）",
+          "owner": null,
+          "prereq": "3-4",
+          "done_when": "每日自動產出 run `[EVL-08]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-08"
+          ]
+        }
+      ]
+    },
+    {
+      "section": "藝術史資料庫 RAG 系統流程步驟/1. 實作里程碑順序/1.3 Phase 4：證據、拒答與忠實度",
+      "steps": [
+        {
+          "id": "4-1",
+          "action": "實作證據判定、模糊檢索補救、K 分數計算，全部設為影子模式",
+          "owner": null,
+          "prereq": null,
+          "done_when": "只記錄不阻擋，回應行為不變 `[GRD-08]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "GRD-08"
+          ]
+        },
+        {
+          "id": "4-2",
+          "action": "累積影子資料（建議 ≥ 2 週或 ≥ 500 次查詢，取先到者）",
+          "owner": null,
+          "prereq": null,
+          "done_when": "`eval.measurements` 有 K 分數分布",
+          "on_failure": null,
+          "closed": false,
+          "refs": []
+        },
+        {
+          "id": "4-3",
+          "action": "以黃金集校準門檻，驗證 `K > 0.7` 是否為適當切點",
+          "owner": null,
+          "prereq": null,
+          "done_when": "有校準報告；必要時調整門檻 `[GRD-05]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "GRD-05"
+          ]
+        },
+        {
+          "id": "4-4",
+          "action": "實作 `gate_error` 拒答路徑與 1% critical 告警；`gate_hang` 與 `gate_crash` 分開記錄",
+          "owner": null,
+          "prereq": null,
+          "done_when": "注入異常回 `refused: true`，超標發 critical 告警；注入掛住驗證 30 秒中止 `[GRD-06c～06d、09～10、NFR-03]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "GRD-06c",
+            "NFR-03"
+          ]
+        },
+        {
+          "id": "4-5",
+          "action": "實作拒答佇列",
+          "owner": null,
+          "prereq": null,
+          "done_when": "拒答寫入 `eval.refusal_queue` `[GRD-04、EVL-15]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "EVL-15",
+            "GRD-04"
+          ]
+        },
+        {
+          "id": "4-6",
+          "action": "實作同步粗篩（無品質逾時，僅 30 秒掛住保護）與非同步專用 NLI 模型精篩。粗篩只做本地字面比對，不得呼叫模型",
+          "owner": null,
+          "prereq": null,
+          "done_when": "精篩結果入庫；粗篩耗時記入 `timings.guard` 供觀測。驗證逾 30 秒會中止並記 `gate_hang`；程式碼審查確認粗篩內無模型呼叫 `[GRD-06、GRD-06a、GRD-06b、GRD-06c、GRD-06d、GRD-07]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "GRD-06",
+            "GRD-06a",
+            "GRD-06b",
+            "GRD-06c",
+            "GRD-06d",
+            "GRD-07"
+          ]
+        },
+        {
+          "id": "4-7",
+          "action": "分路由逐步啟用阻擋：先 `vector`，再 `fulltext`，最後 `graph`",
+          "owner": null,
+          "prereq": null,
+          "done_when": "每啟用一路，量測一次，退步即回退 `[RET-03]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "RET-03"
+          ]
+        }
+      ]
+    },
+    {
+      "section": "藝術史資料庫 RAG 系統流程步驟/1. 實作里程碑順序/1.4 Phase 5：Router、融合與重排",
+      "steps": [
+        {
+          "id": "5-1",
+          "action": "實作 Router（依請求指定策略，預設 `hybrid`）",
+          "owner": null,
+          "prereq": null,
+          "done_when": "四種策略皆可指定 `[RET-01～02]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "RET-01",
+            "RET-02"
+          ]
+        },
+        {
+          "id": "5-2",
+          "action": "實作系統級 RRF（`k` 預設 60）",
+          "owner": null,
+          "prereq": null,
+          "done_when": "融合後 recall@n 優於單路最佳 `[RET-04]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "RET-04"
+          ]
+        },
+        {
+          "id": "5-3",
+          "action": "量測 RRF 效果",
+          "owner": null,
+          "prereq": null,
+          "done_when": "有對照數據：單路 vs 融合 `[RET-05]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "RET-05"
+          ]
+        },
+        {
+          "id": "5-4",
+          "action": "依 5-3 結果決定是否加入輕量重排（非 cross-encoder）",
+          "owner": null,
+          "prereq": null,
+          "done_when": "加入後有量測證明改善，否則不加 `[RET-06]`",
+          "on_failure": null,
+          "closed": false,
+          "refs": [
+            "RET-06"
+          ]
+        },
+        {
+          "id": "5-5",
+          "action": "依 5-3 結果決定是否調整 Router 各路權重",
+          "owner": null,
+          "prereq": null,
+          "done_when": "同上",
+          "on_failure": null,
+          "closed": false,
+          "refs": []
+        }
+      ]
+    }
+  ],
+  "validation": {
+    "errors": [],
+    "warnings": []
+  }
+}

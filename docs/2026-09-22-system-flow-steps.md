@@ -27,7 +27,8 @@
 P0 前置解卡（三項可並行）
   │  A1 指派 Annotator ──┐
   │  A4 確認法規告知文字 ─┼─→ A3 保存期限確認（18 週是否符合法規
-  │  A5 Approver 核可 ───┘      ＋ F 槽歸檔是否同樣適用，見 §12 R2）
+  │  A5 Approver 核可 ───┘      註：F 槽歸檔已裁定為永久保留，
+  │                              A4 須以此為前提送件，見 §12 R2b）
   │  （B6 複審人選已定＝使用者本人，原 P0-5 結案）
   ▼
 Phase 3  對話記錄 + 召回率評測
@@ -71,7 +72,7 @@ OPS-01 換 ES 密碼、OPS-02 確認 9/22 夜間實跑、OPS-03 開 PR、OPS-04 
 | 3-4 | 實作四段量測，寫入 `eval.measurements` | 無 | 單次 run 產出四段指標 `[EVL-06～07]` |
 | 3-5 | 以現況系統跑一次，取得**基準值** | 3-3、3-4 | 基準 run 存在且含 `commit_sha` `[NFR-06]` |
 | 3-6 | 實作 `biz.messages` 保存期限與歸檔 | **機制無前置**（以設定值實作，預設 18 週）；期限**值**待 P0-3 | 逾期自資料庫移除、移除前歸檔 `[BIZ-04、DAT-15a]` |
-| 3-7 | 上線告知文字 | **P0-2**（告知文字定稿，須含永久保留） | 首次使用顯示告知 `[BIZ-05、§12 R2b]` |
+| 3-7 | 上線告知文字 | **P0-2**（告知文字定稿，須含永久保留） | 首次使用顯示告知；文字採「18 週後自線上資料庫移除，歸檔留存」，不得寫成「刪除」 `[BIZ-05、BIZ-04b、§12 R2b]` |
 | 3-8 | 開啟 `BIZ_LOGGING` | **P0-2 + P0-4**（硬性：此步起開始記錄真實對話） | 對話記錄開始累積（不再是 0 筆） `[BIZ-01]` |
 | 3-9 | 將量測納入夜間流程（流程 D） | 3-4 | 每日自動產出 run `[EVL-08]` |
 
@@ -92,7 +93,7 @@ OPS-01 換 ES 密碼、OPS-02 確認 9/22 夜間實跑、OPS-03 開 PR、OPS-04 
 | 4-3 | 以黃金集校準門檻，驗證 `K > 0.7` 是否為適當切點 | 有校準報告；必要時調整門檻 `[GRD-05]` |
 | 4-4 | 實作 `gate_error` **拒答**路徑與 1% critical 告警；`gate_hang` 與 `gate_crash` 分開記錄 | 注入異常回 `refused: true`，超標發 critical 告警；注入掛住驗證 30 秒中止 `[GRD-06c～06d、09～10、NFR-03]` |
 | 4-5 | 實作拒答佇列 | 拒答寫入 `eval.refusal_queue` `[GRD-04、EVL-15]` |
-| 4-6 | 實作同步粗篩（**無品質逾時**，僅 30 秒掛住保護）與非同步**專用 NLI 模型**精篩 | 精篩結果入庫；粗篩耗時記入 `timings.guard` 供觀測。驗證逾 30 秒會中止並記 `gate_hang` `[GRD-06、06a～06d、07]` |
+| 4-6 | 實作同步粗篩（**無品質逾時**，僅 30 秒掛住保護）與非同步**專用 NLI 模型**精篩。**粗篩只做本地字面比對，不得呼叫模型** | 精篩結果入庫；粗篩耗時記入 `timings.guard` 供觀測。驗證逾 30 秒會中止並記 `gate_hang`；程式碼審查確認粗篩內無模型呼叫 `[GRD-06、GRD-06a、GRD-06b、GRD-06c、GRD-06d、GRD-07]` |
 | 4-7 | **分路由逐步啟用**阻擋：先 `vector`，再 `fulltext`，最後 `graph` | 每啟用一路，量測一次，退步即回退 `[RET-03]` |
 
 **完成條件**：拒答實際生效、拒答率落在可接受範圍、忠實度指標優於基準。
@@ -126,7 +127,7 @@ OPS-01 換 ES 密碼、OPS-02 確認 9/22 夜間實跑、OPS-03 開 PR、OPS-04 
 | A-3 | 11 個來源爬蟲抓取，原始檔落地 `DATA_RAW_DIR` | 單一來源失敗不中止整體，記錄該來源狀態 |
 | A-4 | 前處理、切塊 | — |
 | A-5 | **惡意內容掃描** | 命中則該文件不進 catalog，記錄並告警 |
-| A-6 | 產生嵌入，**記錄 `embedding_model` 與 `embedding_version`** | 未記錄即視為缺陷 `[DAT-30]` |
+| A-6 | 產生嵌入，**記錄 `embedding_model` 與 `embedding_version`** 於 Chroma metadata | 未記錄即視為缺陷。metadata 另須含 `doc_id`、`chunk_id`、`source` `[DAT-10、DAT-30]` |
 | A-7 | 寫入 PostgreSQL `catalog` 與 `outbox`（單一交易） | 交易失敗即全回滾，catalog 不留半套資料 `[DAT-01～02]` |
 | A-8 | 訂閱器消費 `outbox`，寫入 Chroma／ES／Neo4j（至少一次 + 冪等） | 可安全重放；重複投遞不改變最終狀態 `[DAT-03]` |
 | A-9 | 來源移除或改版者標記 `valid_to = now()`（軟到期），不立即刪除 | `[DAT-20]` |
@@ -259,7 +260,7 @@ B-15 非同步專用 NLI 模型精篩，寫 eval.measurements（不阻擋回應�
 | 步驟 | 動作 | 注意 |
 |---|---|---|
 | F-1 | 在正本 `icnclabstust-hub/art_icnclab_main` 的功能分支上修改 | — |
-| F-2 | 本地驗證：`bash scripts/verify-nightly.sh`、`python3 scripts/diagnose.py` | 全唯讀，可安全重複執行 |
+| F-2 | 本地驗證：`bash scripts/verify-nightly.sh`、`python3 scripts/diagnose.py`；另跑 `python3 scripts/spec-export.py --check` 確認規格未自相矛盾 | 全唯讀，可安全重複執行。`verify-nightly.sh` 第 0 節同時檢出 `os.getenv` 預設值缺陷的實際影響 `[SYS-07、SYS-07-T]` |
 | F-3 | 提交並推送分支 | — |
 | F-4 | 開 PR 併入 `main`（OPS-03） | — |
 | F-5 | ⚠ **手動**把變更檔案複製到執行期目錄 `C:\Users\user\Desktop\藝術史資料庫\art-history-database\` 對應位置 | **漏掉這步，改動完全不會生效** `[SYS-05]` |
@@ -353,7 +354,7 @@ B-15 非同步專用 NLI 模型精篩，寫 eval.measurements（不阻擋回應�
 
 | 事項 | 原因 |
 |---|---|
-| 存取控制（帳號策略、頻率限制） | 另案，Phase 3 僅登記 `[BIZ-07、SYS-06-T]` |
+| 存取控制（帳號策略、頻率限制） | 另案，Phase 3 僅登記。現況後端無驗證亦無頻率限制 `[SYS-06、BIZ-07、SYS-06-T]` |
 | Google Books 後置補充 | 決定不做 `[RET-08]` |
 | cross-encoder 重排 | 本階段明確不使用 `[RET-06]` |
 | Neo4j 子圖切分 | **已排除**：「分割成新大腦」指備份每萬筆分片，非圖切分。Neo4j 仍為單一圖庫 |

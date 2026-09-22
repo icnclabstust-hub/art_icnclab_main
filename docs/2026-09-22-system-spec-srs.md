@@ -17,6 +17,39 @@
 | `docs/2026-09-20-phase1-seed-canon.md` | 正本／種子／快照三者關係 |
 | `scripts/verify-nightly.sh`、`scripts/collect.sh` | 現況自檢與夜跑取證的既有實作 |
 
+## 機器可讀版本：`docs/spec.json`
+
+本書另有機器可讀版本供程式與代理讀取，**由 `scripts/spec-export.py` 自本書與流程步驟文件自動產生**。
+
+> **單向衍生，不得反向編輯。**
+> `Markdown（唯一真相源） ──scripts/spec-export.py──▶ docs/spec.json（衍生物）`
+>
+> 要修改規格一律改 Markdown，再重跑匯出。手改 `spec.json` 會在下次產生時被覆蓋。
+> 此設計是刻意的：本專案已為「兩份真相源必然分歧」付過代價——`ports.md` 因此宣告唯一真相源，problem-register A4 的執行期目錄與正本脫鉤更是同一個問題的深一層。
+
+| 用途 | 指令 |
+|---|---|
+| 產生／更新 | `python3 scripts/spec-export.py` |
+| 只驗證不寫檔（提交前、流程 F-2） | `python3 scripts/spec-export.py --check` |
+
+`--check` 會在下列情形以非零碼結束：規格自相矛盾，或 `spec.json` 與 Markdown 的 SHA-256 不符（代表有人改了規格卻沒重跑）。
+
+**內建一致性檢查**
+
+| 代號 | 檢查內容 |
+|---|---|
+| C1 | 需求編號是否重複 |
+| C2 | 有狀態欄者，標記是否可判讀 |
+| C3 | 需求、流程步驟、風險、追溯矩陣的引用是否都指向存在的編號 |
+| C4 | 已結案的風險是否仍被當作未決事項引用 |
+| C5 | 待實作（todo／partial）的需求是否至少被一個流程步驟涵蓋 |
+| C6 | 每條需求是否至少說得出規格或驗收標準之一 |
+| C7 | `spec.json` 是否已過期（僅 `--check`） |
+
+**JSON 頂層結構**：`source`（來源路徑與雜湊）、`stats`、`roles`、`ports`、`requirements`、`decisions`、`risks`、`open_questions`、`flows`、`phases`、`validation`。每條需求含 `id`、`category`、`section`、`title`、`spec`、`acceptance`、`status`、`refs`（相依的其他需求）、`config_keys`（該條提到的設定變數）。
+
+---
+
 ## 狀態標記定義
 
 | 標記 | 含義 | 對實作的意義 |
@@ -170,12 +203,12 @@
 | DAT-10 | ChromaDB | 稠密向量檢索 | 每個 chunk 一個向量；metadata 須含 `doc_id`、`chunk_id`、`source`、`embedding_model`、`embedding_version` | ⚠️ 後兩欄未記錄 |
 | DAT-11 | Elasticsearch | 全文／關鍵字檢索與模糊檢索 | 支援中文分詞；提供 `fuzziness` 查詢供 GRD-03 使用 | ✅ |
 | DAT-12 | Neo4j | 實體關係圖（藝術家、作品、時期、流派、館藏） | 節點唯一性約束；**五種原子操作**；軟到期（`valid_to`）；30 天保留後硬刪除；`Artist.sources` 由關係動態推導，不儲存冗餘欄 | ✅ |
-| DAT-13 | Neo4j 網路綁定 | 僅綁 `127.0.0.1`，不對外監聽 | ✅ |
-| DAT-14 | Neo4j 備份 | 定期備份並驗證可還原。**以每 10,000 筆為單位切分，每一份放入獨立資料夾** | ✅ 已驗證還原／⚠️ 分片規格待實作 |
-| DAT-15 | 備份存放位置與保留期 | 全部備份統一存放於 **F 槽 `art_db`** 下各自獨立的資料夾：Neo4j 每萬筆分片、PostgreSQL、以及 `biz.messages` 的 18 週歸檔（BIZ-04）。**保留期：永久，不自動清除**（決策 2026-09-22） | ❌ |
-| DAT-15a | 備份時間標示 | 每一份備份**必須標明產生時間**，且時間出現在兩處：①資料夾名稱含 `YYYY-MM-DD_HHMM`（可排序、不依賴檔案系統 mtime）；②資料夾內 `manifest.json` 記錄 `created_at`（ISO-8601 含時區）。搬移或複製後時間仍可判讀 | ❌ |
-| DAT-16 | 分片命名與可還原性 | 每個分片資料夾須自帶還原所需的中繼資料，**單一分片可獨立還原**，不依賴其他分片。`manifest.json` 至少含：`created_at`、`source`（neo4j／postgres／biz）、`range`（筆數區間）、`row_count`、`schema_version`、`checksum` | ❌ |
-| DAT-17 | 永久保留的容量管理 | 備份永不清除，F 槽容量**必然單調成長**。夜間流程須在每次備份後記錄 F 槽剩餘空間；低於 **20%** 時寫入 `eval.alerts`（等級 warning），低於 **10%** 時為 critical。此為 DAT-15 永久保留的必要配套——沒有它，容量耗盡會直接讓備份**靜默失敗** | ❌ |
+| DAT-13 | Neo4j | Neo4j 網路綁定 | 僅綁 `127.0.0.1`，不對外監聽 | ✅ |
+| DAT-14 | Neo4j | Neo4j 備份 | 定期備份並驗證可還原。**以每 10,000 筆為單位切分，每一份放入獨立資料夾** | ✅ 已驗證還原／⚠️ 分片規格待實作 |
+| DAT-15 | 全庫 | 備份存放位置與保留期 | 全部備份統一存放於 **F 槽 `art_db`** 下各自獨立的資料夾：Neo4j 每萬筆分片、PostgreSQL、以及 `biz.messages` 的 18 週歸檔（BIZ-04）。**保留期：永久，不自動清除**（決策 2026-09-22） | ❌ |
+| DAT-15a | 全庫 | 備份時間標示 | 每一份備份**必須標明產生時間**，且時間出現在兩處：①資料夾名稱含 `YYYY-MM-DD_HHMM`（可排序、不依賴檔案系統 mtime）；②資料夾內 `manifest.json` 記錄 `created_at`（ISO-8601 含時區）。搬移或複製後時間仍可判讀 | ❌ |
+| DAT-16 | 全庫 | 分片命名與可還原性 | 每個分片資料夾須自帶還原所需的中繼資料，**單一分片可獨立還原**，不依賴其他分片。`manifest.json` 至少含：`created_at`、`source`（neo4j／postgres／biz）、`range`（筆數區間）、`row_count`、`schema_version`、`checksum` | ❌ |
+| DAT-17 | 全庫 | 永久保留的容量管理 | 備份永不清除，F 槽容量**必然單調成長**。夜間流程須在每次備份後記錄 F 槽剩餘空間；低於 **20%** 時寫入 `eval.alerts`（等級 warning），低於 **10%** 時為 critical。此為 DAT-15 永久保留的必要配套——沒有它，容量耗盡會直接讓備份**靜默失敗** | ❌ |
 
 > **決策已確認（原 Q6）**：「10000 備份（分割成新大腦）」指**備份以每 10,000 筆切分、各自獨立資料夾**，不是把圖切成獨立子圖。故 Neo4j 仍為單一圖資料庫，DAT-12 的五種原子操作與軟到期不受影響；受影響的只有備份策略（DAT-14～16）。
 >
