@@ -16,15 +16,13 @@
 | RAG 後端埠號為 8007（文件稱「已結案」） | `docs/ports.md` 原記 8007，但該行最後更新 2026-09-20、早於埠號整併；實際在跑、`.env.example`、程式碼預設值皆為 **8001**（本次對話多次 `curl 127.0.0.1:8001/health` 驗證）。**已更正 `ports.md`**（見下）|
 | 執行期目錄與正本脫鉤，需要遷移（文件的 P0-6／SYS-05／M-1～M-6） | Windows 工作排程器實際登記的動作直接執行 `F:\art_icnclab-main\art_icnclab-main\scripts\Run-DailyCrawl.ps1`，即本對話全程在改的 repo；文件提到的桌面路徑 `Test-Path` 為 False，不存在。**此缺陷判定不成立，不採用** |
 | `scripts/verify-nightly.sh`、`scripts/spec-export.py`、`scripts/spec-update.py`、`docs/spec.json`、`docs/spec.schema.json`、`docs/spec-changelog.md` | 皆**不存在**於本 repo（`scripts/diagnose.py`、`scripts/collect.sh` 存在） |
-| P0-4／BIZ-06：老師已核可、簽名程序免除 | 與 repo 內實際的評估表矛盾：`docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness-assessment.md` §九簽核欄仍空白，且文中明文「架構藍圖共識不等於正式核可，AI 不得代為認定」。**待使用者直接確認，不接受由文件推定**（CLAUDE.md R3／R5） |
+| P0-4／BIZ-06：老師已核可、簽名程序免除 | 與 repo 內實際的評估表原本矛盾（§九簽核欄空白）；**2026-09-23 已由使用者直接確認並記載豁免**，見下方「已結案」 |
 
 ### 已更正
 - `docs/ports.md`：rag-manager-v2 由 8007 改為 8001，並附更正說明；Neo4j 7687／7474 標記由「待機器端套用」改為「已套用並驗證」（2026-09-21 已完成，該行先前未同步更新）。
 
-### 待訂項目（新增）
-| # | 項目 | 卡在哪 |
-|---|---|---|
-| 14 | 教師核可 Phase 3–5 實作是否真的已發生，若是需記載豁免事由 | 需使用者明確答覆（CLAUDE.md R3：「學生明確回答已同意才可續行」），AI 不代為認定 |
+### 已結案（2026-09-23）
+- 第 14 項：AI 明確詢問「P0-4／BIZ-06 老師已核可一事，是真的發生還是文件推論？」，使用者答覆「是，老師已同意豁免簽核」。依 CLAUDE.md R3，豁免自此生效，已記載於 `docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness-assessment.md` §八；適用於 Phase 3、4、5 三份設計文件進入實作。§九簽核欄本身仍未代填（R5），維持空白。
 
 ---
 
