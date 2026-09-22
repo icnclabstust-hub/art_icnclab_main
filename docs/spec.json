@@ -1,34 +1,36 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-09-22T16:53:27+00:00",
+  "generated_at": "2026-09-22T17:00:00+00:00",
   "generator": "scripts/spec-export.py",
   "DO_NOT_EDIT": "本檔為自動產生的衍生物。唯一真相源是 source 所列的 Markdown；要改規格請改 Markdown 後重跑 scripts/spec-export.py。手改本檔會在下次產生時被覆蓋。",
   "source": {
     "srs": {
       "path": "docs/2026-09-22-system-spec-srs.md",
-      "sha256": "2db90674c76c166e12b1ffb95ea2e051fc245e3be7f14704ec5f0f16b9878097"
+      "sha256": "ea0343157face5808e8d39c615da7976d140c7da4dc54ca43d4a439ca9fb8b84"
     },
     "flows": {
       "path": "docs/2026-09-22-system-flow-steps.md",
-      "sha256": "6392dd64541fbb7dff4fc3ce14adf9e988fe953581767fd742bc570c2221c11d"
+      "sha256": "726e70337db2feb43163ba125e45b0ec2a8d62a00bdf4e55ec003ca8843ceb7f"
     }
   },
   "status_legend": {
     "done": "已實作且已實跑驗證",
     "partial": "部分實作",
     "todo": "僅有設計，待實作",
-    "decided": "已定案（決策類，非實作狀態）"
+    "decided": "已定案（決策類，非實作狀態）",
+    "deferred": "經決定延後，連帶限制見該條規格"
   },
   "stats": {
-    "total": 105,
-    "done": 13,
+    "total": 106,
+    "done": 14,
     "partial": 6,
-    "todo": 60,
+    "todo": 59,
     "decided": 1,
+    "deferred": 1,
     "by_category": {
       "BIZ": 9,
       "DAT": 20,
-      "EVL": 14,
+      "EVL": 15,
       "GEN": 4,
       "GRD": 14,
       "NFR": 12,
@@ -1316,6 +1318,23 @@
       "config_keys": []
     },
     {
+      "id": "EVL-15a",
+      "category": "EVL",
+      "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.4 拒答複審（決策 B6）",
+      "title": "拒答佇列不得繞過 `BIZ_LOGGING`",
+      "spec": "`eval.refusal_queue` 存的是使用者提問原文，此路徑不經 `BIZ_LOGGING` 管控。故：`BIZ_LOGGING=false` 期間，本表不得寫入 `user_id` 或任何可連結到個人的欄位，僅留問題文字與分數。開啟 `BIZ_LOGGING` 後方可加入身分關聯",
+      "acceptance": null,
+      "current": null,
+      "status": "todo",
+      "status_raw": "❌",
+      "has_status_col": true,
+      "closed": false,
+      "refs": [],
+      "config_keys": [
+        "BIZ_LOGGING"
+      ]
+    },
+    {
       "id": "EVL-16",
       "category": "EVL",
       "section": "藝術史資料庫 RAG 系統規格書（SRS）/8. 評測與回饋規格（L7，決策 A1–A2、B12）/8.4 拒答複審（決策 B6）",
@@ -1380,16 +1399,15 @@
       "category": "BIZ",
       "section": "藝術史資料庫 RAG 系統規格書（SRS）/9. 對話記錄與隱私規格（決策 A3–A6）",
       "title": "開關",
-      "spec": "以 `BIZ_LOGGING` 控制（Phase 3 初期預設關閉，待 BIZ-05／BIZ-06 完成後開啟）",
+      "spec": "以 `BIZ_LOGGING` 控制。2026-09-22 決定：P0-2（法規與告知文字）暫緩，故本開關維持 `false`，不得開啟。BIZ-05 完成前開啟即為在無告知的情況下永久留存對話記錄",
       "acceptance": null,
       "current": null,
       "status": "todo",
-      "status_raw": "❌",
+      "status_raw": "❌ 鎖定關閉",
       "has_status_col": true,
       "closed": false,
       "refs": [
-        "BIZ-05",
-        "BIZ-06"
+        "BIZ-05"
       ],
       "config_keys": [
         "BIZ_LOGGING"
@@ -1451,14 +1469,17 @@
       "category": "BIZ",
       "section": "藝術史資料庫 RAG 系統規格書（SRS）/9. 對話記錄與隱私規格（決策 A3–A6）",
       "title": "法規告知",
-      "spec": "系統須於使用者首次使用時顯示告知文字；文字內容與適用法規由 `Approver`（指導老師／學校資訊或法務）確認",
+      "spec": "系統須於使用者首次使用時顯示告知文字；文字內容與適用法規由 `Approver`（指導老師／學校資訊或法務）確認。2026-09-22 決定暫緩——連帶使 BIZ-03 鎖定關閉、BIZ-04／04a／04b 尚無適用對象",
       "acceptance": null,
       "current": null,
-      "status": "todo",
-      "status_raw": "❌",
+      "status": "deferred",
+      "status_raw": "⏸ 暫緩",
       "has_status_col": true,
       "closed": false,
-      "refs": [],
+      "refs": [
+        "BIZ-03",
+        "BIZ-04"
+      ],
       "config_keys": []
     },
     {
@@ -1466,11 +1487,11 @@
       "category": "BIZ",
       "section": "藝術史資料庫 RAG 系統規格書（SRS）/9. 對話記錄與隱私規格（決策 A3–A6）",
       "title": "核可紀錄",
-      "spec": "Tier B 實作須經 `Approver` 核可；GD 評估表由使用者／老師填寫，系統與 AI 不代填",
+      "spec": "Tier B 實作須經 `Approver` 核可。已於 2026-09-22 取得同意，簽名程序免除。GD 評估表若日後補填，仍由使用者／老師為之，系統與 AI 不代填",
       "acceptance": null,
       "current": null,
-      "status": "todo",
-      "status_raw": "❌",
+      "status": "done",
+      "status_raw": "✅ 已取得",
       "has_status_col": true,
       "closed": false,
       "refs": [],
@@ -2067,6 +2088,7 @@
           "done_when": null,
           "on_failure": "服務起不來 → 流程中止，進流程 G",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2077,6 +2099,7 @@
           "done_when": null,
           "on_failure": "清單為空 → 在該實例 `ollama pull`；連不上 → 跑 `collect.sh` 查佔埠者 `[GEN-01]`",
           "closed": false,
+          "status": null,
           "refs": [
             "GEN-01"
           ]
@@ -2089,6 +2112,7 @@
           "done_when": null,
           "on_failure": "單一來源失敗不中止整體，記錄該來源狀態",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2099,6 +2123,7 @@
           "done_when": null,
           "on_failure": "—",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2109,6 +2134,7 @@
           "done_when": null,
           "on_failure": "命中則該文件不進 catalog，記錄並告警",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2119,6 +2145,7 @@
           "done_when": null,
           "on_failure": "未記錄即視為缺陷。metadata 另須含 `doc_id`、`chunk_id`、`source` `[DAT-10、DAT-30]`",
           "closed": false,
+          "status": null,
           "refs": [
             "DAT-10",
             "DAT-30"
@@ -2132,6 +2159,7 @@
           "done_when": null,
           "on_failure": "交易失敗即全回滾，catalog 不留半套資料 `[DAT-01～02]`",
           "closed": false,
+          "status": null,
           "refs": [
             "DAT-01",
             "DAT-02"
@@ -2145,6 +2173,7 @@
           "done_when": null,
           "on_failure": "可安全重放；重複投遞不改變最終狀態 `[DAT-03]`",
           "closed": false,
+          "status": null,
           "refs": [
             "DAT-03"
           ]
@@ -2157,6 +2186,7 @@
           "done_when": null,
           "on_failure": "`[DAT-20]`",
           "closed": false,
+          "status": null,
           "refs": [
             "DAT-20"
           ]
@@ -2169,6 +2199,7 @@
           "done_when": null,
           "on_failure": "`[DAT-21]`",
           "closed": false,
+          "status": null,
           "refs": [
             "DAT-21"
           ]
@@ -2181,6 +2212,7 @@
           "done_when": null,
           "on_failure": "不一致 → 寫入 `eval.alerts`（目前只寫 log，須擴充） `[DAT-05、EVL-11]`",
           "closed": false,
+          "status": null,
           "refs": [
             "DAT-05",
             "EVL-11"
@@ -2194,6 +2226,7 @@
           "done_when": null,
           "on_failure": "`[DAT-31]`",
           "closed": false,
+          "status": null,
           "refs": [
             "DAT-31"
           ]
@@ -2206,6 +2239,7 @@
           "done_when": null,
           "on_failure": "備份後須重新執行 `Start-NativeServices.ps1`。⚠ 備份與本機同碟，見規格書 §12 R1 `[DAT-14～16、DAT-15a]`",
           "closed": false,
+          "status": null,
           "refs": [
             "DAT-14",
             "DAT-15",
@@ -2221,6 +2255,7 @@
           "done_when": null,
           "on_failure": "備份永久保留、不清除，容量必然成長。低於 20% → `eval.alerts`（warning）；低於 10% → critical。沒有這步，容量耗盡時備份會靜默失敗 `[DAT-17、§12 R4]`",
           "closed": false,
+          "status": null,
           "refs": [
             "DAT-17"
           ]
@@ -2233,6 +2268,7 @@
           "done_when": null,
           "on_failure": "Phase 3 完成後才有此步",
           "closed": false,
+          "status": null,
           "refs": []
         }
       ]
@@ -2248,6 +2284,7 @@
           "done_when": "題目範圍界定 `[EVL-01]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-01"
           ]
@@ -2260,6 +2297,7 @@
           "done_when": "15 題清單",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2270,6 +2308,7 @@
           "done_when": "15 × 20 候選",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2280,6 +2319,7 @@
           "done_when": "相關性標註 `[EVL-05]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-05"
           ]
@@ -2292,6 +2332,7 @@
           "done_when": "忠實度評分依據",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2302,6 +2343,7 @@
           "done_when": "15 筆 `[EVL-03～04]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-03",
             "EVL-04"
@@ -2315,6 +2357,7 @@
           "done_when": "基準 run `[EVL-06～07]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-06",
             "EVL-07"
@@ -2328,6 +2371,7 @@
           "done_when": "流程 D 的比較對象 `[EVL-08]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-08"
           ]
@@ -2345,6 +2389,7 @@
           "done_when": null,
           "on_failure": "產出當日 run `[EVL-06]`",
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-06"
           ]
@@ -2357,6 +2402,7 @@
           "done_when": null,
           "on_failure": "任一指標退步 > 5 個百分點 → 寫 `eval.alerts` `[EVL-08]`",
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-08"
           ]
@@ -2369,6 +2415,7 @@
           "done_when": null,
           "on_failure": "> 1% → 寫 `eval.alerts`（等級 critical） `[GRD-10]`",
           "closed": false,
+          "status": null,
           "refs": [
             "GRD-10"
           ]
@@ -2381,6 +2428,7 @@
           "done_when": null,
           "on_failure": "不一致 → 已於 A-11 寫入 alerts `[DAT-05]`",
           "closed": false,
+          "status": null,
           "refs": [
             "DAT-05"
           ]
@@ -2393,6 +2441,7 @@
           "done_when": null,
           "on_failure": "輸出至夜間流程報告檔，並由 `verify-nightly.sh` 第 9 節呈現 `[EVL-12]`",
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-12"
           ]
@@ -2405,6 +2454,7 @@
           "done_when": null,
           "on_failure": "進流程 G",
           "closed": false,
+          "status": null,
           "refs": []
         }
       ]
@@ -2420,6 +2470,7 @@
           "done_when": "待審清單 `[EVL-15]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-15"
           ]
@@ -2432,6 +2483,7 @@
           "done_when": "分類結果 `[EVL-17]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-17"
           ]
@@ -2444,6 +2496,7 @@
           "done_when": "達一定量即回頭調整 K 門檻，並重跑流程 C-7 驗證 `[GRD-05]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "GRD-05"
           ]
@@ -2456,6 +2509,7 @@
           "done_when": "列為來源補充需求（如 OPS-06 的 V&A 缺關係）",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "OPS-06"
           ]
@@ -2468,6 +2522,7 @@
           "done_when": "強化 C-2 的覆蓋",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2478,6 +2533,7 @@
           "done_when": "每週一筆 `[EVL-16]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-16"
           ]
@@ -2495,6 +2551,7 @@
           "done_when": null,
           "on_failure": "—",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2505,6 +2562,7 @@
           "done_when": null,
           "on_failure": "全唯讀，可安全重複執行。`verify-nightly.sh` 第 0 節同時檢出 `os.getenv` 預設值缺陷的實際影響 `[SYS-07、SYS-07-T]`",
           "closed": false,
+          "status": null,
           "refs": [
             "SYS-07",
             "SYS-07-T"
@@ -2518,6 +2576,7 @@
           "done_when": null,
           "on_failure": "—",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2528,6 +2587,7 @@
           "done_when": null,
           "on_failure": "—",
           "closed": false,
+          "status": null,
           "refs": [
             "OPS-03"
           ]
@@ -2540,6 +2600,7 @@
           "done_when": null,
           "on_failure": "漏掉這步，改動完全不會生效 `[SYS-05]`",
           "closed": false,
+          "status": null,
           "refs": [
             "SYS-05"
           ]
@@ -2552,6 +2613,7 @@
           "done_when": null,
           "on_failure": "—",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2562,6 +2624,7 @@
           "done_when": null,
           "on_failure": "grep -E '7687\\",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2572,6 +2635,7 @@
           "done_when": null,
           "on_failure": "—",
           "closed": false,
+          "status": null,
           "refs": []
         }
       ]
@@ -2587,6 +2651,7 @@
           "done_when": null,
           "on_failure": "先比對再動，避免覆蓋執行期獨有內容",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2597,6 +2662,7 @@
           "done_when": null,
           "on_failure": "逐檔確認，不整包覆蓋",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2607,6 +2673,7 @@
           "done_when": null,
           "on_failure": "`.env` 絕不進版控",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2617,6 +2684,7 @@
           "done_when": null,
           "on_failure": "在夜間流程之外的時段執行",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2627,6 +2695,7 @@
           "done_when": null,
           "on_failure": "—",
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2637,6 +2706,7 @@
           "done_when": null,
           "on_failure": "失敗則以 M-3 的備份還原",
           "closed": false,
+          "status": null,
           "refs": []
         }
       ]
@@ -2652,6 +2722,7 @@
           "done_when": null,
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2662,6 +2733,7 @@
           "done_when": null,
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2672,6 +2744,7 @@
           "done_when": null,
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": []
         }
       ]
@@ -2684,25 +2757,28 @@
         {
           "id": "P0-1",
           "action": "指派黃金測試集標註人選",
-          "owner": "專案",
+          "owner": "—",
           "prereq": null,
-          "done_when": "`Annotator` 角色有具名人員，且確認可投入 2–3 小時 `[EVL-02]`",
+          "done_when": "✅ 已結案（2026-09-22）：`Annotator` = 使用者本人。工時仍估 2–3 小時 `[EVL-02]`",
           "on_failure": null,
-          "closed": false,
+          "closed": true,
+          "status": null,
           "refs": [
             "EVL-02"
           ]
         },
         {
           "id": "P0-2",
-          "action": "確認適用法規、告知文字，以及是否需研究倫理審查。送件前提須為「對話記錄歸檔永久保留」，不得寫成「18 週後刪除」",
-          "owner": "Approver（指導老師／學校資訊或法務）",
+          "action": "確認適用法規、告知文字，以及是否需研究倫理審查",
+          "owner": "Approver",
           "prereq": null,
-          "done_when": "告知文字定稿且已載明永久保留；倫理審查需求有書面結論 `[BIZ-05、§12 R2b]`",
+          "done_when": "2026-09-22 決定暫緩。連帶限制（不可忽略）： ① `BIZ_LOGGING` 鎖定 `false`，對話記錄功能不啟用 ② `eval.refusal_queue` 不得寫入 `user_id`（EVL-15a） ③ 恢復時送件前提須為「歸檔永久保留」，不得寫成「18 週後刪除」 `[BIZ-05、EVL-15a、§12 R2b]`",
           "on_failure": null,
           "closed": false,
+          "status": "deferred",
           "refs": [
-            "BIZ-05"
+            "BIZ-05",
+            "EVL-15a"
           ]
         },
         {
@@ -2710,9 +2786,10 @@
           "action": "依 P0-2 結論確認 `biz.messages` 保存期限",
           "owner": "Approver",
           "prereq": null,
-          "done_when": "確認 18 週符合結論，或給出替代期限 `[BIZ-04]`",
+          "done_when": "隨 P0-2 暫緩。因 `BIZ_LOGGING` 關閉，尚無資料適用此期限，暫緩無實害 `[BIZ-04]`",
           "on_failure": null,
           "closed": false,
+          "status": "deferred",
           "refs": [
             "BIZ-04"
           ]
@@ -2720,11 +2797,12 @@
         {
           "id": "P0-4",
           "action": "Approver 核可 Tier B 實作，補簽 GD 評估表 §九",
-          "owner": "Approver",
+          "owner": "—",
           "prereq": null,
-          "done_when": "核可有紀錄。AI 不代填任何簽核欄 `[BIZ-06]`",
+          "done_when": "✅ 已結案（2026-09-22）：已取得同意，簽名程序免除。日後若補填評估表，仍由使用者／老師為之，AI 不代填 `[BIZ-06]`",
           "on_failure": null,
-          "closed": false,
+          "closed": true,
+          "status": null,
           "refs": [
             "BIZ-06"
           ]
@@ -2737,6 +2815,7 @@
           "done_when": "✅ 已結案：`Reviewer` = 使用者本人（論文作者），決策 B6 `[EVL-16]`",
           "on_failure": null,
           "closed": true,
+          "status": null,
           "refs": [
             "EVL-16"
           ]
@@ -2749,6 +2828,7 @@
           "done_when": "執行期目錄 `git remote` 指向正本 `[SYS-05-T]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "SYS-05-T"
           ]
@@ -2766,6 +2846,7 @@
           "done_when": "設定確認為 `false` `[BIZ-03]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "BIZ-03"
           ]
@@ -2774,10 +2855,11 @@
           "id": "3-2",
           "action": "修改 pipe，將使用者身分（或匿名代號）傳至後端",
           "owner": null,
-          "prereq": "無——`BIZ_LOGGING=false` 時不寫入任何資料，不觸及個資",
+          "prereq": "無，但低優先：唯一近期消費者 3-8 已鎖定，可延後至 P0-2 恢復時再做",
           "done_when": "後端能取到 `user_id` `[BIZ-02]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "BIZ-02"
           ]
@@ -2786,10 +2868,11 @@
           "id": "3-3",
           "action": "建立 `eval.golden_set` 並完成標註",
           "owner": null,
-          "prereq": "P0-1（`Annotator`）",
+          "prereq": "✅ P0-1 已結案（`Annotator`＝使用者本人）",
           "done_when": "15 題全部標註完成 `[EVL-01～04]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-01",
             "EVL-02",
@@ -2805,6 +2888,7 @@
           "done_when": "單次 run 產出四段指標 `[EVL-06～07]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-06",
             "EVL-07"
@@ -2818,6 +2902,7 @@
           "done_when": "基準 run 存在且含 `commit_sha` `[NFR-06]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "NFR-06"
           ]
@@ -2826,10 +2911,11 @@
           "id": "3-6",
           "action": "實作 `biz.messages` 保存期限與歸檔",
           "owner": null,
-          "prereq": "機制無前置（以設定值實作，預設 18 週）；期限值待 P0-3",
+          "prereq": "機制無前置，但無資料可適用（`BIZ_LOGGING` 鎖定關閉），先做無效益",
           "done_when": "逾期自資料庫移除、移除前歸檔 `[BIZ-04、DAT-15a]`",
           "on_failure": null,
           "closed": false,
+          "status": "deferred",
           "refs": [
             "BIZ-04",
             "DAT-15a"
@@ -2839,10 +2925,11 @@
           "id": "3-7",
           "action": "上線告知文字",
           "owner": null,
-          "prereq": "P0-2（告知文字定稿，須含永久保留）",
+          "prereq": "P0-2 暫緩 → 本步停擺",
           "done_when": "首次使用顯示告知；文字採「18 週後自線上資料庫移除，歸檔留存」，不得寫成「刪除」 `[BIZ-05、BIZ-04b、§12 R2b]`",
           "on_failure": null,
           "closed": false,
+          "status": "deferred",
           "refs": [
             "BIZ-04b",
             "BIZ-05"
@@ -2852,12 +2939,14 @@
           "id": "3-8",
           "action": "開啟 `BIZ_LOGGING`",
           "owner": null,
-          "prereq": "P0-2 + P0-4（硬性：此步起開始記錄真實對話）",
-          "done_when": "對話記錄開始累積（不再是 0 筆） `[BIZ-01]`",
+          "prereq": "P0-2 暫緩 → 鎖定 `false`，不得開啟。P0-4 已結案但不足以單獨解鎖：缺的是告知，不是核可",
+          "done_when": "對話記錄開始累積（不再是 0 筆） `[BIZ-01、BIZ-03]`",
           "on_failure": null,
           "closed": false,
+          "status": "deferred",
           "refs": [
-            "BIZ-01"
+            "BIZ-01",
+            "BIZ-03"
           ]
         },
         {
@@ -2868,6 +2957,7 @@
           "done_when": "每日自動產出 run `[EVL-08]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-08"
           ]
@@ -2885,6 +2975,7 @@
           "done_when": "只記錄不阻擋，回應行為不變 `[GRD-08]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "GRD-08"
           ]
@@ -2897,6 +2988,7 @@
           "done_when": "`eval.measurements` 有 K 分數分布",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": []
         },
         {
@@ -2907,6 +2999,7 @@
           "done_when": "有校準報告；必要時調整門檻 `[GRD-05]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "GRD-05"
           ]
@@ -2919,6 +3012,7 @@
           "done_when": "注入異常回 `refused: true`，超標發 critical 告警；注入掛住驗證 30 秒中止 `[GRD-06c～06d、09～10、NFR-03]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "GRD-06c",
             "NFR-03"
@@ -2932,6 +3026,7 @@
           "done_when": "拒答寫入 `eval.refusal_queue` `[GRD-04、EVL-15]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "EVL-15",
             "GRD-04"
@@ -2945,6 +3040,7 @@
           "done_when": "精篩結果入庫；粗篩耗時記入 `timings.guard` 供觀測。驗證逾 30 秒會中止並記 `gate_hang`；程式碼審查確認粗篩內無模型呼叫 `[GRD-06、GRD-06a、GRD-06b、GRD-06c、GRD-06d、GRD-07]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "GRD-06",
             "GRD-06a",
@@ -2962,6 +3058,7 @@
           "done_when": "每啟用一路，量測一次，退步即回退 `[RET-03]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "RET-03"
           ]
@@ -2979,6 +3076,7 @@
           "done_when": "四種策略皆可指定 `[RET-01～02]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "RET-01",
             "RET-02"
@@ -2992,6 +3090,7 @@
           "done_when": "融合後 recall@n 優於單路最佳 `[RET-04]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "RET-04"
           ]
@@ -3004,6 +3103,7 @@
           "done_when": "有對照數據：單路 vs 融合 `[RET-05]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "RET-05"
           ]
@@ -3016,6 +3116,7 @@
           "done_when": "加入後有量測證明改善，否則不加 `[RET-06]`",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": [
             "RET-06"
           ]
@@ -3028,6 +3129,7 @@
           "done_when": "同上",
           "on_failure": null,
           "closed": false,
+          "status": null,
           "refs": []
         }
       ]

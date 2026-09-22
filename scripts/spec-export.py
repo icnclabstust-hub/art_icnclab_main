@@ -63,6 +63,7 @@ STATUS_MAP = {
     "⚠️": "partial",       # 部分實作
     "⚠": "partial",
     "❌": "todo",          # 僅有設計，待實作
+    "⏸": "deferred",      # 經決定延後，連帶限制須明列
 }
 
 errors, warnings = [], []
@@ -79,6 +80,23 @@ def warn(code, msg):
 def sha256(path):
     with open(path, "rb") as fh:
         return hashlib.sha256(fh.read()).hexdigest()
+
+
+STATUS_GLYPHS = "✅✔⚠️⚠❌⏸☐"
+
+
+def split_marker(cell_text):
+    """把「⏸ 3-7」拆成（狀態符號, 純編號）。
+
+    表格裡在編號前加狀態符號是很自然的寫法，但會讓編號比對失效——
+    曾因此把 BIZ-04b 誤報為「未被任何流程步驟涵蓋」。故在此統一正規化。
+    """
+    t = strip_md(cell_text)
+    marker = ""
+    while t and t[0] in STATUS_GLYPHS:
+        marker += t[0]
+        t = t.lstrip(STATUS_GLYPHS).lstrip()
+    return (marker or None), t
 
 
 def strip_md(text):
@@ -132,7 +150,7 @@ def norm_status(raw):
     found = [v for k, v in STATUS_MAP.items() if k in raw]
     if not found:
         return None, raw
-    for level in ("todo", "partial", "decided", "done"):
+    for level in ("deferred", "todo", "partial", "decided", "done"):
         if level in found:
             return level, raw
     return found[0], raw
@@ -156,7 +174,7 @@ def parse_srs():
         # 需求表：表頭第一欄形如 「GRD-ID」
         if re.match(r"^(SYS|DAT|RET|GRD|GEN|EVL|BIZ|NFR|OPS)-ID$", h0):
             for r in rows:
-                rid = strip_md(r[0])
+                _, rid = split_marker(r[0])
                 if not RE_REQ.fullmatch(rid):
                     continue
                 has_status_col = "狀態" in header
@@ -262,9 +280,10 @@ def parse_flows():
             continue
         steps = []
         for r in rows:
-            sid = strip_md(r[0])
+            marker, sid = split_marker(r[0])
             if not (RE_FLOWSTEP.fullmatch(sid) or RE_PHASESTEP.fullmatch(sid)):
                 continue
+            step_status, _ = norm_status(marker) if marker else (None, None)
             body = " ".join(r)
             steps.append({
                 "id": sid,
@@ -274,6 +293,7 @@ def parse_flows():
                 "done_when": cell(r, header, "完成條件", "產出"),
                 "on_failure": cell(r, header, "失敗處理", "判斷與處理", "注意", "風險控制"),
                 "closed": "~~" in r[0],
+                "status": step_status,
                 "refs": sorted(expand_refs(body)),
             })
         if not steps:
@@ -356,7 +376,7 @@ def main():
     validate(reqs, decisions, risks, flows, phases)
 
     stats = {"total": len(reqs)}
-    for s in ("done", "partial", "todo", "decided"):
+    for s in ("done", "partial", "todo", "decided", "deferred"):
         stats[s] = sum(1 for r in reqs if r["status"] == s)
     stats["by_category"] = {c: sum(1 for r in reqs if r["category"] == c)
                             for c in sorted({r["category"] for r in reqs})}
@@ -374,6 +394,7 @@ def main():
         "status_legend": {
             "done": "已實作且已實跑驗證", "partial": "部分實作",
             "todo": "僅有設計，待實作", "decided": "已定案（決策類，非實作狀態）",
+            "deferred": "經決定延後，連帶限制見該條規格",
         },
         "stats": stats,
         "roles": roles,
@@ -389,7 +410,8 @@ def main():
 
     if not quiet:
         print(f"需求 {stats['total']} 條："
-              f"done {stats['done']} / partial {stats['partial']} / todo {stats['todo']} / decided {stats['decided']}")
+              f"done {stats['done']} / partial {stats['partial']} / todo {stats['todo']} / "
+              f"decided {stats['decided']} / deferred {stats['deferred']}")
         print(f"決策 {len(decisions)}、風險 {len(risks)}、待澄清 {len(questions)}、"
               f"流程 {len(flows)} 組、階段 {len(phases)} 組")
     for w in warnings:
