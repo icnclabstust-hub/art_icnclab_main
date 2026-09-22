@@ -6,7 +6,7 @@
   "source": {
     "srs": {
       "path": "docs/2026-09-22-system-spec-srs.md",
-      "sha256": "53f38d8708f3b93a4bb600748b9f258a5bbaf6509417663659f5bfc6939df5d8"
+      "sha256": "398d53b27eb5abb0ced774111e1b9734b905b4c6589ece34573235004f3285a1"
     },
     "flows": {
       "path": "docs/2026-09-22-system-flow-steps.md",

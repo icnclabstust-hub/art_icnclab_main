@@ -174,6 +174,38 @@ def cell(row, header, *names):
 
 
 # ------------------------------------------------------------------ 解析 SRS
+def check_toc(path):
+    """目錄必須與實際標題逐條對應。
+
+    手寫的目錄一旦與標題脫節就比沒有還糟——讀者會照著找不到的章節找。
+    本檢查讓它不可能悄悄過期：改了標題卻沒改目錄，這裡會擋下。
+    """
+    text = open(path, encoding="utf-8").read()
+    lines = text.split("\n")
+    try:
+        start = next(i for i, l in enumerate(lines) if l.strip() == "## 目錄")
+    except StopIteration:
+        return                                   # 沒有目錄就不檢查
+    end = next((i for i in range(start + 1, len(lines))
+                if lines[i].startswith("## ")), len(lines))
+    listed = [re.sub(r"[`*]", "", l.strip().lstrip("- ").strip())
+              for l in lines[start + 1:end] if l.strip().startswith("-")]
+    actual = [re.sub(r"[`*]", "", m.group(2).strip())
+              for m in re.finditer(r"^(#{2,3}) (.+)$", text, re.M)
+              if m.group(2).strip() != "目錄"]
+    if listed != actual:
+        only_toc = [x for x in listed if x not in actual]
+        only_doc = [x for x in actual if x not in listed]
+        detail = []
+        if only_toc:
+            detail.append("目錄有但文中無：" + "、".join(only_toc[:3]))
+        if only_doc:
+            detail.append("文中有但目錄無：" + "、".join(only_doc[:3]))
+        if not detail:
+            detail.append("順序不一致")
+        err("C11", f"目錄與標題不符（{'；'.join(detail)}）。改了標題請同步更新目錄")
+
+
 def check_table_shape(path, label):
     """列的欄數必須等於表頭欄數，否則欄位整列錯位。
 
@@ -190,6 +222,7 @@ def check_table_shape(path, label):
 def parse_srs():
     reqs, decisions, risks, questions, ports, roles = [], [], [], [], [], []
     check_table_shape(SRS, "規格書")
+    check_toc(SRS)
     for section, header, rows in parse_tables(SRS):
         h0 = header[0]
 
@@ -513,8 +546,10 @@ def main():
 
     # C10：若本機裝有 jsonschema，就以 docs/spec.schema.json 驗證輸出。
     # 消費端依賴的是那份 schema；改了產生邏輯卻忘了同步 schema，這裡會擋下。
+    # 只在沒有其他錯誤時才驗 schema。schema 要求 validation.errors 必須為空，
+    # 否則任何一項 C1～C9、C11 失敗都會連帶觸發 C10，把真正的錯誤淹在雜訊裡。
     schema_path = os.path.join(ROOT, "docs", "spec.schema.json")
-    if os.path.exists(schema_path):
+    if not errors and os.path.exists(schema_path):
         try:
             import jsonschema
             jsonschema.validate(doc, json.load(open(schema_path, encoding="utf-8")))
