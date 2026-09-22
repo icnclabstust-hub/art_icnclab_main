@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -40,6 +40,15 @@ def _split_cells(line: str) -> list[str]:
 
 def _join_cells(cells: list[str]) -> str:
     return "| " + " | ".join(cells) + " |"
+
+
+def _step_token(cell: str) -> str:
+    """步驟表第一欄的編號可能帶刪除線或前綴符號（如「⏸ P0-2」「~~P0-6~~」），
+    取出乾淨編號；步驟編號也可能是純數字格式（如「3-6」），與需求編號的
+    `_extract_id`（要求字母開頭）分開處理，這裡直接取第一個空白分隔的詞。"""
+    cleaned = cell.replace("~~", "").strip()
+    cleaned = cleaned.lstrip("⏸✅⚠️❌✔").strip()
+    return cleaned.split()[0] if cleaned.split() else ""
 
 
 def do_set(req_id: str, status_key: str, *, dry_run: bool) -> str:
@@ -81,13 +90,14 @@ def do_close(step_id: str, why: str, *, dry_run: bool) -> str:
             cells = _split_cells(line)
             if not cells:
                 continue
-            first_clean = cells[0].replace("~~", "").strip()
-            token = (first_clean.split() or [""])[0]
+            token = _step_token(cells[0])
             if token != step_id:
                 continue
             if "~~" in cells[0]:
                 raise UpdateError(f"{step_id} 已經是結案狀態，不重複結案")
-            cells[0] = f"~~{first_clean}~~"
+            # 把整個原始儲存格（含任何前綴符號，如「⏸ 3-6」）包進刪除線，不是只留乾淨編號——
+            # 這樣 do_reopen 才能完整還原，不會把「曾經暫緩」的資訊在結案／復開一輪後弄丟。
+            cells[0] = f"~~{cells[0].strip()}~~"
             note = f" ✅ **已結案**（{_today()}）：{why}"
             cells[-1] = cells[-1].rstrip() + note
             new_line = _join_cells(cells)
@@ -106,10 +116,13 @@ def do_reopen(step_id: str, *, dry_run: bool) -> str:
         text = path.read_text(encoding="utf-8")
         lines = text.split("\n")
         for idx, line in enumerate(lines):
-            if not line.strip().startswith("|") or f"~~{step_id}~~" not in line:
+            if not line.strip().startswith("|") or "~~" not in line:
                 continue
             cells = _split_cells(line)
-            cells[0] = cells[0].replace(f"~~{step_id}~~", step_id)
+            if not cells or _step_token(cells[0]) != step_id:
+                continue
+            # 還原成結案前的原始內容（含任何前綴符號），不是硬寫回乾淨編號。
+            cells[0] = cells[0].replace("~~", "").strip()
             cells[-1] = re.sub(r"\s*✅ \*\*已結案\*\*（[^）]*）：[^|]*$", "", cells[-1]).rstrip()
             new_line = _join_cells(cells)
             if dry_run:
@@ -121,7 +134,8 @@ def do_reopen(step_id: str, *, dry_run: bool) -> str:
 
 
 def _today() -> str:
-    return datetime.now(tz=UTC).astimezone().strftime("%Y-%m-%d")
+    # 目標執行環境為 Python 3.10（無 datetime.UTC 別名），故用 timezone.utc。
+    return datetime.now(tz=timezone.utc).astimezone().strftime("%Y-%m-%d")  # noqa: UP017
 
 
 def _backup() -> dict[Path, str]:
