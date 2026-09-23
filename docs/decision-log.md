@@ -5,6 +5,22 @@
 
 ---
 
+## 2026-09-23　清除舊版每日流程腳本（`scripts/daily_crawl_and_sync.sh`）
+
+### 背景
+審視「系統是否全面採用新架構（catalog／outbox）」時發現：`scripts/daily_crawl_and_sync.sh`（新架構上線前的舊版每日流程）仍留在 repo 裡，雖然已查證沒有任何排程（Windows 工作排程器、cron）指向它，但它會直接呼叫 `import_all_museums_to_neo4j.py`、`sync_europeana_to_databases.py`，**繞過 PostgreSQL catalog／outbox** 直接寫 Neo4j／ChromaDB。若被誤執行，會在唯一真相源之外多寫入一份不受 outbox 追蹤的資料，且不會被 `ingest verify` 的一致性稽核發現（因為 verify 只比對 catalog 與三庫，不知道這些寫入曾經發生過）。
+
+### 已決定
+| 項目 | 決定 | 決定者 |
+|---|---|---|
+| 舊版腳本處理方式 | 內容清空，改為執行即報錯並印出提示訊息的停用標頭；不用 `git rm` 刪除檔案（本次執行環境的權限規則禁止不可逆的本地刪除動作） | 使用者，2026-09-23 |
+
+### 影響
+- 原始內容可由 git 歷史還原（本次變更前的版本）；若真的需要恢復舊流程，需先讀本條目並重新評估。
+- **殘留、本次未處理的較小風險**：`import_all_museums_to_neo4j.py`（`--clean` 模式）與 `sync_europeana_to_databases.py` 這兩支 Python 腳本本身仍可被直接執行（`python3 import_all_museums_to_neo4j.py`），一樣會繞過 outbox 直寫 Neo4j／ChromaDB。這次只處理了「一鍵跑全套舊流程」的殼腳本，沒有動這兩支底層腳本本身——它們的正規化函式（`NORMALIZERS`、`build_document_text`）仍被新架構的 `ingest/legacy.py` 匯入沿用，不能刪除；如果要完全封死「直接執行」這條路，需要另外評估怎麼在不影響匯入用途的前提下擋住其 `if __name__ == "__main__"` 的直接執行入口，本次未做，列為之後可考慮的項目，非立即待辦。
+
+---
+
 ## 2026-09-23　MET Museum 403 診斷與修復：部門搜尋無節流＋沒有識別 UA
 
 ### 背景
