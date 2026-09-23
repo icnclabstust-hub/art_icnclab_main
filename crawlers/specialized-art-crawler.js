@@ -12,6 +12,9 @@ const path = require('path');
 const OUTPUT_DIR = './data/raw/specialized_art';
 const BASE_DELAY = 1000; // 1秒延遲
 
+// 自我識別 UA：不偽裝成瀏覽器，供對方辨識來源與聯絡窗口（沿用 Yale／MET 爬蟲的做法，見 decision-log 2026-09-23）
+const REQUEST_HEADERS = { 'User-Agent': 'art-history-research (+mailto:icnclab.stust@gmail.com)' };
+
 // 專門藝術主題列表
 const SPECIALIZED_TOPICS = [
     // 亞洲藝術
@@ -71,7 +74,8 @@ class SpecializedArtCrawler {
 
             const response = await axios.get(apiUrl, {
                 params,
-                timeout: 10000
+                timeout: 10000,
+                headers: REQUEST_HEADERS
             });
 
             if (response.data && response.data.items) {
@@ -99,7 +103,8 @@ class SpecializedArtCrawler {
 
             const searchResponse = await axios.get(searchUrl, {
                 params: searchParams,
-                timeout: 8000
+                timeout: 8000,
+                headers: REQUEST_HEADERS
             });
 
             if (!searchResponse.data.objectIDs || searchResponse.data.objectIDs.length === 0) {
@@ -116,7 +121,7 @@ class SpecializedArtCrawler {
             for (const objectID of objectIDs) {
                 try {
                     const objectUrl = `https://collectionapi.metmuseum.org/public/collection/v1/objects/${objectID}`;
-                    const objectResponse = await axios.get(objectUrl, { timeout: 5000 });
+                    const objectResponse = await axios.get(objectUrl, { timeout: 5000, headers: REQUEST_HEADERS });
 
                     if (objectResponse.data) {
                         items.push({
