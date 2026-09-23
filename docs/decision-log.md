@@ -19,6 +19,22 @@
 - 原始內容可由 git 歷史還原（本次變更前的版本）；若真的需要恢復舊流程，需先讀本條目並重新評估。
 - **殘留、本次未處理的較小風險**：`import_all_museums_to_neo4j.py`（`--clean` 模式）與 `sync_europeana_to_databases.py` 這兩支 Python 腳本本身仍可被直接執行（`python3 import_all_museums_to_neo4j.py`），一樣會繞過 outbox 直寫 Neo4j／ChromaDB。這次只處理了「一鍵跑全套舊流程」的殼腳本，沒有動這兩支底層腳本本身——它們的正規化函式（`NORMALIZERS`、`build_document_text`）仍被新架構的 `ingest/legacy.py` 匯入沿用，不能刪除；如果要完全封死「直接執行」這條路，需要另外評估怎麼在不影響匯入用途的前提下擋住其 `if __name__ == "__main__"` 的直接執行入口，本次未做，列為之後可考慮的項目，非立即待辦。
 
+### 後續（同日）：封住 import_all_museums_to_neo4j.py／sync_europeana_to_databases.py 的直接執行
+
+上一段列的殘留風險，使用者確認要處理，且指示**先確認方式再動手**（特別是 `sync_europeana_to_databases.py`——它完全沒被新架構 import，是否要整支清空像殼腳本一樣處理，還是保留內容只加防呆，讓使用者選）。
+
+**已決定**：兩支都採「加防呆檢查，保留檔案內容」，理由：`import_all_museums_to_neo4j.py` 的正規化函式仍被 `ingest/legacy.py` import 使用，不能清空；`sync_europeana_to_databases.py` 雖然沒被 import，但為了跟另一支處理方式一致、且保留其獨有的 Cypher 邏輯供之後參考，同樣採防呆而非清空。
+
+**做法**：兩支腳本的 `main()` 開頭都加上 `_require_direct_execution_opt_in()`——沒有設定環境變數 `ALLOW_LEGACY_DIRECT_WRITE=yes-i-know-this-bypasses-outbox` 就直接報錯（exit code 1）並印出改用 `python3 -m ingest run --source <來源>` 的提示；**只在 `main()` 被呼叫時檢查，import 模組本身不受影響**（`ingest/legacy.py` 的用法只讀 `NORMALIZERS` 等成員，不會呼叫 `main()`）。留一個明確的環境變數當作「緊急逃生門」而非完全封死，避免真的需要手動除錯時求助無門。
+
+**驗證**：
+| 測試 | 結果 |
+|---|---|
+| `ingest/legacy.py` 的 import 路徑（`NORMALIZERS` 讀取） | ✅ 正常，8 個來源 key 齊全，exit 0 |
+| `import_all_museums_to_neo4j.py` 沒設 opt-in 直接執行 | ✅ 擋下，exit 1，印出提示 |
+| `sync_europeana_to_databases.py` 沒設 opt-in 直接執行 | ✅ 擋下，exit 1，印出提示 |
+| `pytest tests/python/` 全量 | ✅ 54 通過、33 略過，無失敗 |
+
 ---
 
 ## 2026-09-23　MET Museum 403 診斷與修復：部門搜尋無節流＋沒有識別 UA

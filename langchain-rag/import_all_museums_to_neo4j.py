@@ -41,8 +41,28 @@ if not NEO4J_PASSWORD:
     raise RuntimeError(
         "缺少 NEO4J_PASSWORD 環境變數。請在啟動前設定，例如："
         "NEO4J_PASSWORD=... python3 import_all_museums_to_neo4j.py"
-        "（daily_crawl_and_sync.sh 已內建設定，不需手動處理）"
+        "（正常情況不需要手動執行本腳本，見下方 main() 的停用說明）"
     )
+
+# 2026-09-23：本腳本的 main()（直接執行）會繞過 PostgreSQL catalog/outbox 直寫
+# Neo4j/ChromaDB，破壞「catalog 為唯一真相源」的前提，且不會被 `ingest verify`
+# 的一致性稽核發現。正常情況一律使用新架構管線：`python3 -m ingest run --source <來源>`。
+# 只有被 import 使用 NORMALIZERS/build_document_text 等成員（ingest/legacy.py 的攝取層
+# 用法）不受影響——這個檢查只在 main() 實際被呼叫時執行，import 本模組不會觸發。
+# 詳見 docs/decision-log.md 2026-09-23「清除舊版每日流程腳本」條目。
+_LEGACY_BYPASS_ENV = "ALLOW_LEGACY_DIRECT_WRITE"
+_LEGACY_BYPASS_VALUE = "yes-i-know-this-bypasses-outbox"
+
+
+def _require_direct_execution_opt_in():
+    if os.environ.get(_LEGACY_BYPASS_ENV) != _LEGACY_BYPASS_VALUE:
+        raise SystemExit(
+            "❌ 已停用直接執行：本腳本會繞過 PostgreSQL catalog/outbox 直寫 "
+            "Neo4j/ChromaDB。正常情況請改用：python3 -m ingest run --source <來源>\n"
+            "   詳見 docs/decision-log.md 2026-09-23「清除舊版每日流程腳本」條目。\n"
+            f"   若清楚後果、確實需要直接執行，設定環境變數 "
+            f"{_LEGACY_BYPASS_ENV}={_LEGACY_BYPASS_VALUE} 後再試一次。"
+        )
 DATA_DIR = Path(os.getenv("DATA_RAW_DIR", str(Path(__file__).parent.parent / "data" / "raw")))
 CHROMADB_HOST = os.getenv("CHROMADB_HOST", "localhost")
 CHROMADB_PORT = int(os.getenv("CHROMADB_PORT", "8000"))
@@ -443,6 +463,8 @@ def ensure_fulltext_indexes(session):
 
 
 def main():
+    _require_direct_execution_opt_in()
+
     import argparse
 
     parser = argparse.ArgumentParser()
