@@ -63,6 +63,8 @@ DROP SCHEMA catalog CASCADE;
 - **刻意未動**（不在架構圖上、屬舊版／已停用服務）：`create_graphrag_models.py` 的 8010（Multi-DB RAG Server）與相關 ops 腳本、`test_suite.py` 與 `tests/manual/*` 的 8008、`src/agents/rl/rl_server.py` 的 8011、`ml-service` 的 8080、MCP 工具登記表的 8001／8010／8011（純靜態宣告）。若要清理這些舊服務的引用，需先確認哪些已廢棄。
 - 歷史文件（`docs/designs/`、本目錄舊報告）中的 8007 敘述保留原樣，屬當時紀錄。
 
+**後續（2026-09-24）**：上面「`src/agents/rl/rl_server.py` 屬舊版／已停用服務」這句話已接續處理——確認整個 `src/`（含 `rl/`）連同頂層 `agents/`、對應 jest 測試已無任何啟動路徑、無 import、一個多月無實質異動，經使用者確認後以 `git mv` 封存至 `archive/legacy-node-system/`。`create_graphrag_models.py` 的 8010 仍在 `langchain-rag/` 內、屬另一批孤兒腳本，尚未處理。詳見 `docs/decision-log.md` 2026-09-24 條目。
+
 ## 補充：舊容器化環境遺留清除（2026-09-20）
 
 系統已改為全部原生執行於 WSL（`Ubuntu-22.04` 內沒有容器執行環境，repo 內也從來沒有對應的映像與編排檔）。依使用者指示清除程式碼與設定中的舊遺留，已刪除的檔案可從 git 歷史還原。

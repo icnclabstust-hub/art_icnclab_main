@@ -4,13 +4,13 @@
   "description": "專注於RAG集成的藝術史資料庫爬蟲系統，透過精簡的4個AI Agent協同工作，建立高品質的藝術史資料收集、處理與API服務系統。",
   "main": "index.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "start": "node archive/legacy-node-system/src/app.js",
+    "dev": "nodemon archive/legacy-node-system/src/app.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write src/ agents/",
+    "format": "prettier --write archive/legacy-node-system/src/ archive/legacy-node-system/agents/",
     "install:playwright": "playwright install"
   },
   "keywords": [],

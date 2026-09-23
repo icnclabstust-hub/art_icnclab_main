@@ -5,6 +5,43 @@
 
 ---
 
+## 2026-09-24　封存舊版 Node.js 第一代架構（`src/`、頂層 `agents/`、對應 jest 測試）
+
+### 背景
+審視「系統是否全面採用新架構」的過程中，發現除了先前處理的幾支孤兒 Python 腳本外，還有一整套規模大得多、完全獨立的**第一代架構**：`src/app.js`＋`src/database/`（Node.js Express API）、`src/agents/`（含強化學習訓練 `rl/`）、`src/crawler/`、`src/importer/`、`src/mcp/`、`src/experiments/`，以及頂層 `agents/`（4 個獨立的 Node.js AI Agent：分類、metadata 抽取、摘要翻譯、網頁爬蟲），加上對應測試這整套系統的 7 支 jest 測試檔。
+
+### 診斷（四項獨立證據，判定為已淘汰、非現行系統）
+1. **無任何啟動路徑**：`scripts/Start-NativeServices.ps1`（現行服務啟動、每日排程實際入口）完全沒有提到 `npm start`、`node src/app.js` 或這整批檔案。
+2. **git 歷史停滯超過一個月**：這批檔案最後一次有實質內容變動是 2026-08-18（repo 精整匯入當天），此後只被全域批次改動（埠號、清 Docker）碰過，無任何功能開發；同期 `langchain-rag/` 每天都有實質改動。
+3. **完全未被現行系統 import**：現行 RAG 後端 `unified_rag_manager_v2.py` 沒有一行 import 這批模組任何一個。
+4. **4 天前已被標記、但沒人跟進**：`docs/reports/2026-09-20-phase0-status.md` 已記載 `src/agents/rl/rl_server.py`（8011 埠）、`create_graphrag_models.py`（8010 埠）等「屬舊版／已停用服務，不在架構圖上」，並寫「若要清理這些舊服務的引用，需先確認哪些已廢棄」——這句話放了 4 天沒被處理，本次即接續處理。
+
+### 已決定
+| 項目 | 決定 | 決定者 |
+|---|---|---|
+| 是否確定不再需要 | **確定不需要了**，同意上述四項證據的判斷 | 使用者，2026-09-24 |
+| 處理方式 | `git rm` 會被權限系統擋下（不可逆本地刪除），改用 `git mv` 整批搬到 `archive/legacy-node-system/`；內容與相對路徑完整保留，非真的刪除 | 使用者，2026-09-24（於兩者間選擇 `git mv`，而非逐檔清空內容換警告標頭，或由使用者自行刪除） |
+
+### 執行
+- `git mv src archive/legacy-node-system/src`、`git mv agents archive/legacy-node-system/agents`
+- `git mv tests/{agents,api,database,setup} archive/legacy-node-system/tests/`、4 支頂層 `.test.js`（`errorHandling`、`performance-optimization`、`schedulingSystem`、`validation`）同樣搬入
+- 共 102 個檔案以 rename 方式搬移（`git status` 全數顯示 `R`，非新增／刪除）
+- 新增 `archive/legacy-node-system/README.md` 說明封存原因、判斷依據、復原方式
+- 更新根目錄 `README.md` 的「專案結構」區塊，移除已不存在原位置的 `src/`／`agents/` 條目，改列 `archive/legacy-node-system/`
+- 更新 `package.json` 的 `start`／`dev`／`format` 腳本路徑指到新位置，避免搬移後路徑失效；`test`／`test:watch`（jest）不需要改，jest 預設掃描整個 repo，仍會找到搬移後的測試檔
+
+### 驗證
+- `python3 -m pytest tests/python/` 全量：54 通過、33 略過，跟搬移前一致，無新增失敗
+- `git status` 確認全數為 rename（`R`），無檔案內容遺失
+
+### 影響
+- 現行系統（`langchain-rag/`＋`crawlers/`＋`scripts/`）完全不受影響，這批檔案原本就沒被引用。
+- **未處理、刻意保留原狀的部分**：`package.json` 的 `dependencies`／`devDependencies` 裡，`express`／`helmet`／`joi`／`jsonwebtoken`／`morgan`／`node-cron`／`openai`／`playwright`／`puppeteer`／`redis`／`winston`／`bcrypt` 等疑似只被已封存的 Node API／Agent 系統使用，`crawlers/` 只需要 `axios`／`cheerio` 等少數套件；本次**未確認**哪些可以移除，避免誤刪 `crawlers/` 實際依賴的套件，列為之後可考慮的清理項目，非立即待辦。
+- `CLAUDE.md` §3 第 4 點提到「一次性分析腳本…不進 `src/`」，該處的 `src/` 是抽象指「production 程式碼目錄」的慣例用法，現在 `src/` 已封存、現行 production 程式碼實際落在 `langchain-rag/`／`crawlers/`／`scripts/`，此規則文字已與現況有落差——`CLAUDE.md` 屬治理文件，本次未逕自修改，列為向使用者／老師回報的項目。
+- 昨天（2026-09-23）處理的 7 支孤兒 langchain-rag 腳本（`create_graphrag_models.py` 等，見前續討論）**本次未一併封存**，範圍只限使用者本次明確核准的 Node.js 第一代架構；那 7 支風險更低（不在任何排程或殼腳本路徑上），仍待使用者另外決定是否處理。
+
+---
+
 ## 2026-09-23　清除舊版每日流程腳本（`scripts/daily_crawl_and_sync.sh`）
 
 ### 背景
