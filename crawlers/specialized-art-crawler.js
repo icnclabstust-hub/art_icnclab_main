@@ -15,6 +15,29 @@ const BASE_DELAY = 1000; // 1秒延遲
 // 自我識別 UA：不偽裝成瀏覽器，供對方辨識來源與聯絡窗口（沿用 Yale／MET 爬蟲的做法，見 decision-log 2026-09-23）
 const REQUEST_HEADERS = { 'User-Agent': 'art-history-research (+mailto:icnclab.stust@gmail.com)' };
 
+// 對 MET 的請求間隔。2026-09-24 診斷：本檔原本詳情請求間隔僅 200ms（約 5 次/秒），是三支會打 MET 的
+// 爬蟲中最密的（MET 爬蟲 1000ms、文藝復興/巴洛克 800ms，兩者的 403 已歸零），修復後只剩本檔每晚 11～13 次
+// 「搜尋 403」。對齊為 1000ms，並在遇到 403／429 時退避重試（見 getWithRetry）。
+const MET_REQUEST_DELAY = 1000;
+const MET_RETRY_BACKOFF_MS = [5000, 15000];
+
+async function getWithRetry(url, config) {
+    for (let attempt = 0; ; attempt++) {
+        try {
+            return await axios.get(url, config);
+        } catch (error) {
+            const status = error.response && error.response.status;
+            if ((status === 403 || status === 429) && attempt < MET_RETRY_BACKOFF_MS.length) {
+                const waitMs = MET_RETRY_BACKOFF_MS[attempt];
+                console.log(`[${new Date().toISOString()}]    ↻ MET 回 ${status}，${waitMs / 1000} 秒後重試（第 ${attempt + 1} 次）`);
+                await new Promise(resolve => setTimeout(resolve, waitMs));
+                continue;
+            }
+            throw error;
+        }
+    }
+}
+
 // 專門藝術主題列表
 const SPECIALIZED_TOPICS = [
     // 亞洲藝術
@@ -101,7 +124,7 @@ class SpecializedArtCrawler {
                 hasImages: true
             };
 
-            const searchResponse = await axios.get(searchUrl, {
+            const searchResponse = await getWithRetry(searchUrl, {
                 params: searchParams,
                 timeout: 8000,
                 headers: REQUEST_HEADERS
@@ -118,10 +141,11 @@ class SpecializedArtCrawler {
 
             this.log(`   🏛️ Met Museum: 找到 ${searchResponse.data.total} 項，獲取 ${objectIDs.length} 項詳細資料`);
 
+            const detailFailures = [];
             for (const objectID of objectIDs) {
                 try {
                     const objectUrl = `https://collectionapi.metmuseum.org/public/collection/v1/objects/${objectID}`;
-                    const objectResponse = await axios.get(objectUrl, { timeout: 5000, headers: REQUEST_HEADERS });
+                    const objectResponse = await getWithRetry(objectUrl, { timeout: 5000, headers: REQUEST_HEADERS });
 
                     if (objectResponse.data) {
                         items.push({
@@ -129,13 +153,18 @@ class SpecializedArtCrawler {
                             ...objectResponse.data
                         });
                     }
-
-                    // 避免過度請求
-                    await new Promise(resolve => setTimeout(resolve, 200));
-
                 } catch (error) {
-                    continue; // 跳過失敗的物件
+                    // 跳過失敗的物件，但不再靜默：彙總後記錄狀態碼，讓 log 的失敗數反映真實情況
+                    // （404＝物件已不存在，屬正常；403／429 才代表被限流）
+                    detailFailures.push((error.response && error.response.status) || error.code || 'unknown');
                 }
+
+                // 避免過度請求（成功或失敗都要等，失敗時更不能立刻連發）
+                await new Promise(resolve => setTimeout(resolve, MET_REQUEST_DELAY));
+            }
+
+            if (detailFailures.length > 0) {
+                this.log(`   ⚠️ Met Museum 作品詳情失敗 ${detailFailures.length}/${objectIDs.length} 項，狀態碼：${detailFailures.join(',')}`);
             }
 
             return items;
