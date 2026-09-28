@@ -138,7 +138,7 @@ win 'Get-ScheduledTask | Where-Object { $_.TaskName -match "neo4j|elastic|ollama
 
 # ------------------------------------------------------------------ 5
 h "5. 設定實際生效值（金鑰一律遮蔽）"
-for cand in "$SNAP/.env" /mnt/d/art_icnclab/.env /mnt/f/art_icnclab/.env; do
+for cand in "$SNAP/.env" /mnt/f/art_icnclab-main/art_icnclab-main/.env /mnt/d/art_icnclab/.env /mnt/f/art_icnclab/.env; do
   [ -f "$cand" ] || continue
   echo "  [$cand]"
   # 白名單放行：只有連線位址類變數印值，其餘只印變數名

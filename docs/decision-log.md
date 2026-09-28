@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-09-28　`.env`（金鑰與密碼）從舊 repo 搬到現行專案根目錄
+
+### 背景
+所有 API 金鑰與資料庫密碼只存在 `D:\art_icnclab\.env`，也就是已轉為歷史存檔的舊 repo 資料夾；現行程式在 F 槽，靠兩個工作排程設定 `ART_ENV_FILE` 跨槽指過去。若之後有人把 `D:\art_icnclab` 當舊資料清掉，服務與每日排程會直接啟動失敗。
+
+### 已決定
+| 項目 | 決定 | 決定者 |
+|---|---|---|
+| `.env` 位置 | 搬到專案根目錄 `F:\art_icnclab-main\art_icnclab-main\.env`（WSL：`/mnt/f/art_icnclab-main/art_icnclab-main/.env`） | 使用者，2026-09-28 |
+
+### 執行
+- 複製後比對 SHA-256 一致，再刪除 `D:\art_icnclab\.env`；內容未修改
+- 工作排程 `ArtHistoryDB-StartServices`、`ArtHistoryDB-DailyCrawl` 的 `ART_ENV_FILE` 改指新位置；觸發條件未動（登入時／每日 03:00）
+- `Register-StartupTask.ps1` 用法範例、`Start-NativeServices.ps1` 註解、`collect.sh` 的 `.env` 候選清單同步更新
+
+### 影響
+- `.env` 已被 `.gitignore:8` 排除，不會進版控。
+- `Start-NativeServices.ps1`／`Run-DailyCrawl.ps1` 未設 `ART_ENV_FILE` 時預設就讀專案根目錄，排程裡的明確指定只是保險。
+- `D:\art_icnclab\.env.crawler`（2026-08-13 舊爬蟲設定，可能含金鑰）同日一併搬到 `F:\art_icnclab-main\art_icnclab-main\.env.crawler`，同樣比對 SHA-256 後刪除原檔；已被 `.gitignore:11` 排除。現行排程與程式都沒有引用它，搬移只為讓金鑰集中一處。`D:\art_icnclab` 內已無任何 `.env` 實檔（僅剩範本 `.env.example`）。
+- `D:\art_icnclab\.webui_secret_key`（2026-08-17）同日搬到 `F:\art_icnclab-main\art_icnclab-main\.webui_secret_key`，已被 `.gitignore:111` 排除。現行 Open WebUI 由 `Start-NativeServices.ps1` 以 `cd /home/user`、`DATA_DIR=/home/user/openwebui-data` 啟動，用的是 WSL 內的金鑰，不讀這份，搬移不影響登入狀態。至此 `D:\art_icnclab` 已無任何機敏檔。
+- 2026-09-29 對照 `D:\art_icnclab` 與本 repo：D 獨有的 127 項中，82 項已搬到新位置（`crawlers/`、`tests/manual/`、`scripts/ops/`、`archive/`），14 項已在 `36e9942`（清 Docker）／`6a063f9`（移除 Yale）刻意刪除，31 項為精整時未帶入的資料與產出物。其中無法重新產生的兩項**複製**（原檔仍留 D 槽）到 `backups/from_D_art_icnclab_2026-09-29/`，逐檔比對 SHA-256 一致，由既有 `.gitignore:110`（`backups/`）排除、不進版控：
+  - `db_backups/`：2026-08-17 的 Neo4j／ChromaDB／OpenWebUI 資料目錄封存（216 MB），還原方式見 `scripts/backup_databases.sh` 註解
+  - `query_logs/`：2026-07-27～08-17 的使用者查詢抽取紀錄 12 檔（含使用者提問原文，屬使用者資料）
+  其餘 29 項（舊爬蟲 JSON、測試／報告輸出、v1 `unified_rag_manager.py` 等 3 支未被引用的程式）未帶入。
+- 早期報告（如 `docs/reports/2026-09-20-phase1-status.md`）寫的「`.env` 只在 `D:\art_icnclab\.env`」為當時狀態，不回頭改寫。
+
+---
+
 ## 2026-09-24　封存舊版 Node.js 第一代架構（`src/`、頂層 `agents/`、對應 jest 測試）
 
 ### 背景

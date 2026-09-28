@@ -5,7 +5,7 @@ $ErrorActionPreference = "Continue"
 # 專案根目錄由腳本位置推算；WSL 內對應路徑為 /mnt/<磁碟機小寫>/...
 $ProjectDir = Split-Path -Parent $PSScriptRoot
 $WslProjectDir = "/mnt/" + $ProjectDir.Substring(0, 1).ToLower() + ($ProjectDir.Substring(2) -replace "\\", "/")
-# .env 預設在專案根目錄；若放在別處（例如舊 repo），以環境變數 ART_ENV_FILE 指定
+# .env 預設在專案根目錄（現行位置 F:\art_icnclab-main\art_icnclab-main\.env）；若放在別處，以環境變數 ART_ENV_FILE 指定
 $EnvFile = if ($env:ART_ENV_FILE) { $env:ART_ENV_FILE } else { Join-Path $ProjectDir ".env" }
 $LogDir = Join-Path $ProjectDir "logs\startup"
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null

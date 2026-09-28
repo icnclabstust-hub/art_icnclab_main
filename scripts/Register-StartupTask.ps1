@@ -1,5 +1,6 @@
 ﻿# 註冊「登入時啟動服務」的 Windows 工作排程（目前使用者、一般權限，不需系統管理員）。
-# 用法：.\scripts\Register-StartupTask.ps1 [-EnvFile D:\art_icnclab\.env]
+# 用法：.\scripts\Register-StartupTask.ps1 [-EnvFile F:\art_icnclab-main\art_icnclab-main\.env]
+# .env 現放專案根目錄（2026-09-28 起，見 docs/decision-log.md），不帶 -EnvFile 也會讀到
 # 移除：Unregister-ScheduledTask -TaskName ArtHistoryDB-StartServices -Confirm:$false
 param([string]$EnvFile = "")
 
