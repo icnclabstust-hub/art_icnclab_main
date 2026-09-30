@@ -26,3 +26,5 @@
 - 2026-10-01　set：DAT-30=done
 - 2026-10-01　set：DAT-31=done
 - 2026-10-01　set：DAT-32=done
+- 2026-10-01　set：OPS-02=done
+- 2026-10-01　set：OPS-07=partial

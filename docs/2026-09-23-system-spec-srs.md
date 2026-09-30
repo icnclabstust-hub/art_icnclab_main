@@ -518,12 +518,12 @@
 | OPS-ID | 項目 | 說明 | 阻擋什麼 | 狀態 |
 |---|---|---|---|---|
 | OPS-01 | 更換 Elasticsearch 密碼 | 曾出現在 `ps` 輸出，視為已外露 | NFR-07 | ❌ |
-| OPS-02 | 確認移除 Yale 後的第一次完整夜間流程 | Yale 已於 2026-09-23 完全移除（見 `docs/decision-log.md`），來源數由 10 降為 9 | 夜間流程可信度、EVL-08 | ❌ |
+| OPS-02 | 確認移除 Yale 後的第一次完整夜間流程 | Yale 已於 2026-09-23 完全移除（見 `docs/decision-log.md`），來源數由 10 降為 9 | 夜間流程可信度、EVL-08 | ✅ |
 | OPS-03 | 將 `phase0-docs-and-tidy` 併入 `main`（**不經 PR**，本地 `merge --no-ff` 後推送） | 2026-09-23 已定案 | — | ❌ |
 | OPS-04 | 清理 `.env` 過時項目 | `NEO4J_URI` 舊埠、相對路徑 `DATA_RAW_DIR`、`DB_HOST_*` 變體 | SYS-07-T | ❌ |
 | OPS-05 | `query_logs` 執行期 log 被 git 追蹤 | 加入 `.gitignore` 並移出追蹤 | NFR-09 | ✅ |
 | OPS-06 | V&A 157／302 件缺豐富關係 | 資料缺項，影響圖檢索召回 | RET-01 `graph` 策略品質 | ❌ |
-| OPS-07 | Elasticsearch 重啟迴圈 | 先檢定 OOM，確認則釘死 heap `-Xms2g -Xmx2g` | 整條全文檢索路徑 | ❌ |
+| OPS-07 | Elasticsearch 重啟迴圈 | 先檢定 OOM，確認則釘死 heap `-Xms2g -Xmx2g` | 整條全文檢索路徑 | ⚠️ |
 | OPS-08 | ml-service、`create_graphrag_models.py` 埠號整併機器端套用 | 見 `docs/ports.md` §3 | 系統可啟動 | ❌ |
 
 ---

@@ -578,8 +578,8 @@
       "id": "OPS-02",
       "line": 521,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "確認移除 Yale 後的第一次完整夜間流程"
     },
     {
@@ -623,8 +623,8 @@
       "id": "OPS-07",
       "line": 526,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
       "title": "Elasticsearch 重啟迴圈"
     },
     {
@@ -815,13 +815,13 @@
     },
     "srs": {
       "path": "docs/2026-09-23-system-spec-srs.md",
-      "sha256": "6804b5ecd2da37a5e6dbeeba447e4aaa7f0b188cf10c38ced29dc164fe2b5f05"
+      "sha256": "f803ff4639af940d55c843c6e44aca1492a74033d88d71a19de8706cb191e292"
     }
   },
   "stats": {
     "requirements": 89,
-    "requirements_done": 36,
-    "requirements_todo": 44,
+    "requirements_done": 37,
+    "requirements_todo": 42,
     "steps": 27
   },
   "steps": [
