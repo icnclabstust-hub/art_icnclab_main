@@ -1,0 +1,22 @@
+{
+  "_說明": "黃金測試集題目草稿（流程 C-1／C-2，規格 EVL-01）。主題：巴洛克時期。題目依資料庫實際館藏擬定，標註者（Annotator＝使用者本人）可自由修改；改完重跑 scripts/build_golden_candidates.py 重產候選表。type：fact＝事實查詢、relation＝關係查詢（藝術家↔作品↔流派）、refuse＝資料庫沒有相關資料、系統應拒答。catalog_artist（選填）：另以 catalog 的 artist 欄位補充候選，避免系統沒檢索到的相關文件漏出黃金集（例：2026-10-01 以中文名查維梅爾、委拉斯奎茲，六個策略都沒找到館藏作品）。",
+  "theme": "巴洛克時期",
+  "drafted_at": "2026-10-01",
+  "questions": [
+    {"no": 1, "type": "fact", "question": "林布蘭的《夜巡》（The Night Watch）是哪一年完成的？使用什麼媒材？"},
+    {"no": 2, "type": "fact", "question": "維梅爾的《戴珍珠耳環的少女》大約創作於什麼時候？"},
+    {"no": 3, "type": "fact", "question": "委拉斯奎茲的《宮娥》（Las Meninas）創作於哪一年？"},
+    {"no": 4, "type": "fact", "question": "卡拉瓦喬的《聖馬太蒙召》（The Calling of St Matthew）創作年代為何？"},
+    {"no": 5, "type": "fact", "question": "魯本斯的《下十字架》（The Descent from the Cross）是何時、用什麼媒材完成的？"},
+    {"no": 6, "type": "fact", "question": "貝尼尼的《酒神祭：被孩童戲弄的牧神》是用什麼材質製作的？"},
+    {"no": 7, "type": "relation", "question": "大都會藝術博物館收藏了哪些維梅爾的畫作？", "catalog_artist": "Vermeer"},
+    {"no": 8, "type": "relation", "question": "資料庫中有哪些林布蘭的肖像畫？", "catalog_artist": "Rembrandt"},
+    {"no": 9, "type": "relation", "question": "委拉斯奎茲為西班牙王室成員畫了哪些肖像？", "catalog_artist": "Velázquez"},
+    {"no": 10, "type": "relation", "question": "普桑有哪些以古典神話為題材的作品？", "catalog_artist": "Poussin"},
+    {"no": 11, "type": "relation", "question": "克勞德·洛蘭（Claude Lorrain）有哪些風景畫作品？", "catalog_artist": "Claude Lorrain"},
+    {"no": 12, "type": "relation", "question": "卡拉契家族（Annibale、Ludovico Carracci）有哪些宗教題材的作品？", "catalog_artist": "Carracci"},
+    {"no": 13, "type": "refuse", "question": "阿特米西亞·真蒂萊斯基的《朱蒂斯斬殺荷羅孚尼》有哪些版本？分別收藏在哪裡？"},
+    {"no": 14, "type": "refuse", "question": "博羅米尼設計的四噴泉聖卡羅教堂，平面設計有什麼特色？"},
+    {"no": 15, "type": "refuse", "question": "貝尼尼的《聖德蕾莎的狂喜》位於哪座教堂的哪個禮拜堂？"}
+  ]
+}
