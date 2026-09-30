@@ -60,14 +60,14 @@ class MultilingualQueryTranslator:
         """建立術語索引：多語言詞彙 -> 英文關鍵詞"""
         index = {}
 
-        for category, terms in self.dictionary.items():
+        for _category, terms in self.dictionary.items():
             for english_key, translations in terms.items():
                 # 英文本身也加入索引
                 index[english_key.lower()] = english_key
 
                 # 遍歷所有語言的翻譯
                 if isinstance(translations, dict):
-                    for lang, term_list in translations.items():
+                    for _lang, term_list in translations.items():
                         if isinstance(term_list, list):
                             for term in term_list:
                                 index[term.lower()] = english_key
@@ -160,11 +160,16 @@ class MultilingualQueryTranslator:
         found_terms = []
 
         for repl in replacements:
-            translated_query = (
-                translated_query[: repl["pos"]]
-                + repl["replacement"]
-                + translated_query[repl["pos"] + repl["length"] :]
-            )
+            before = translated_query[: repl["pos"]]
+            after = translated_query[repl["pos"] + repl["length"] :]
+            # 英文替換詞緊貼另一個英數字時補空白，否則「風景畫作品」會變成
+            # landscapeartwork，全文檢索當成一個不存在的字
+            replacement = repl["replacement"]
+            if before and before[-1].isascii() and before[-1].isalnum():
+                replacement = " " + replacement
+            if after and after[0].isascii() and after[0].isalnum():
+                replacement = replacement + " "
+            translated_query = before + replacement + after
             found_terms.append(f"{repl['original']} -> {repl['replacement']}")
 
         # 反轉 found_terms 以保持原始順序

@@ -5,6 +5,30 @@
 
 ---
 
+## 2026-10-01　術語詞典補巴洛克人名與作品；修正翻譯後英文詞黏在一起
+
+### 背景
+黃金集候選表發現以中文名查維梅爾、委拉斯奎茲，六個策略都找不到館藏作品。查證：詞典 `famous_artists` 只有 14 位藝術家，收了「維米爾」「維拉斯奎茲」但沒有更常見的「維梅爾」「委拉斯奎茲」，貝尼尼完全沒有。另發現既有缺陷：替換後的英文詞直接相連（「風景畫作品」→ `landscapeartwork`、「創作年代」→ `artworkperiod`），全文檢索會當成一個不存在的字。
+
+### 執行
+- 詞典（後端讀根目錄 `art_history_terms_dictionary.json`；另兩份 `_complete.json`、`langchain-rag/` 內容本來就相同，同步複製）：
+  - 補譯名：維梅爾、費梅爾（Vermeer）；委拉斯奎茲、委拉斯蓋茲等（Velázquez）
+  - 新增 12 位藝術家：Bernini、Claude Lorrain、Carracci、Guido Reni、van Dyck、Frans Hals、Zurbarán、Murillo、Ribera、Guercino、Artemisia Gentileschi、Borromini
+  - 新增 7 件作品：戴珍珠耳環的少女、宮娥、聖馬太蒙召、下十字架、朱蒂斯斬殺荷羅孚尼、聖德蕾莎的狂喜、四噴泉聖卡羅教堂
+  - **刻意不收**日常詞（如「侍女」不對應 Las Meninas），避免一般提問被誤轉
+- `multilingual_query_translator.py`：英文替換詞緊貼其他英數字時補空白（`landscape artwork`）
+- 新舊策略共用同一個翻譯器，改動對兩邊一致，不影響之後的新舊比較
+
+### 驗證
+- `tests/python/test_multilingual_query_translator.py` 8 項；全量 124 通過、3 略過
+- 重產候選表（使用者尚未開始標註）：第 9 題委拉斯奎茲王室肖像由「系統 0 件」→ 系統直接找到（第 7、9、17 名，不再需要 catalog 補充）；第 6 題正解升到第 1；第 7 題系統多找到 4 件維梅爾，但大都會的 4 件仍靠補充
+
+### 待辦
+- 詞典沒有機構名：「大都會藝術博物館」只有「博物館」被轉成 museum，Metropolitan 資訊遺失（第 7 題仍需補充的原因）。
+- 三份相同詞典檔並存，屬重複維護的技術債。
+
+---
+
 ## 2026-10-01　黃金測試集：題目草稿與標註候選表（流程 C-1～C-3）
 
 ### 背景
