@@ -128,8 +128,8 @@
       "id": "DAT-05",
       "line": 213,
       "section": "4.1 一致性模型",
-      "status_glyph": "⚠️",
-      "status_raw": "⚠️ 現只記錄、無告警（缺陷 B12）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "週期性稽核"
     },
     {
@@ -344,8 +344,8 @@
       "id": "EVL-10",
       "line": 361,
       "section": "8.3 告警（決策 B12）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
       "title": "`eval.alerts` 為唯一告警出口"
     },
     {
@@ -353,8 +353,8 @@
       "id": "EVL-11",
       "line": 362,
       "section": "8.3 告警（決策 B12）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "稽核擴充"
     },
     {
@@ -815,13 +815,13 @@
     },
     "srs": {
       "path": "docs/2026-09-23-system-spec-srs.md",
-      "sha256": "1ef1f3d149e912831ce615bff2c9438e938e9ed13ab92e525d623b1bd8ad998b"
+      "sha256": "223135b4568f4a6aa1f7fc3005be74498d1a062a328e4cfba1b2173fbc0a76b8"
     }
   },
   "stats": {
     "requirements": 89,
-    "requirements_done": 17,
-    "requirements_todo": 66,
+    "requirements_done": 19,
+    "requirements_todo": 64,
     "steps": 27
   },
   "steps": [

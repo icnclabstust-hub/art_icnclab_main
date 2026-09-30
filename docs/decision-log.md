@@ -5,6 +5,33 @@
 
 ---
 
+## 2026-10-01　一致性稽核寫入 `eval.alerts`（DAT-05、EVL-11）
+
+### 背景
+架構盤點（2026-09-30）確認：夜間 `ingest verify` 發現不一致時只寫進 log，沒有人會看到（缺陷 B12）。使用者指示依建議順序執行，此為第一步。GD：屬 Phase 3 範圍，適用 2026-09-23 已記載的教師豁免（評估表 §八）。
+
+### 已決定
+| 項目 | 決定 | 決定者 |
+|---|---|---|
+| `eval.alerts` 欄位 | 以 migration 07 **新增** `severity`（info／warning／critical）與 `detail`（JSONB），不改既有欄位；規格 EVL-10、DAT-17、GRD-10 的告警等級之後共用 | AI 依規格判斷（Phase 3 設計「以新增欄位補足」），使用者可提出異議 |
+| 告警粒度 | 每個「檢索庫 × 來源」同時只留一筆未處理告警（部分唯一索引）；再次偵測到只更新明細，恢復一致自動填 `resolved_at` | 同上。理由：夜間每天跑，逐日新增會淹沒未處理清單 |
+| 欄位對應 | `metric_name = consistency_<chromadb｜elasticsearch>`、`route_id = 來源`、`delta_pct = 差異 id 數 ÷ catalog 應有數 × 100`、`severity = warning` | 同上 |
+| 手動執行行為 | `ingest verify` 預設仍唯讀；加 `--record-alerts` 才寫表，夜間流程加上此旗標 | 同上 |
+
+### 執行
+- `context/database/07-eval-alerts-severity-and-grants.sql`：新增欄位、檢查約束、部分唯一索引；授予 `art_user` 對 `eval` 的 SELECT／INSERT／UPDATE（原本只有 `catalog`）。2026-10-01 01:2x 以 `postgres` 套用於 `art_history_db`（套用前最近備份：`art_history_db_20260930_033056.dump`）
+- `langchain-rag/ingest/alerts.py`（新）、`ingest/__main__.py` 加 `--record-alerts`、`scripts/daily_crawl_and_sync_catalog.sh` 驗證步驟加上旗標
+- 規格狀態：DAT-05、EVL-11 → ✅；EVL-10 → ⚠️（目前只有一致性稽核會寫入，量測退步／gate_error／服務異常尚未串接）
+
+### 驗證
+- `tests/python/test_alerts_db.py` 6 項（開立、重複更新不重複新增、恢復結案、依庫與來源分開、空 catalog 百分比）；全量 90 通過、3 略過
+- 實機以 `art_user` 對 harvard、cleveland_museum 執行 `verify --es --record-alerts`：兩庫皆一致，輸出「告警：chromadb ok／elasticsearch ok」，`eval.alerts` 0 筆（正確，無不一致）
+
+### 未處理
+- **EVL-12（告警須被看到）尚未做**：目前要自己查表 `SELECT * FROM eval.alerts WHERE resolved_at IS NULL`；每日彙總呈現給 Operator 另行處理。
+
+---
+
 ## 2026-09-28　`.env`（金鑰與密碼）從舊 repo 搬到現行專案根目錄
 
 ### 背景
@@ -238,7 +265,7 @@
 - `docs/ports.md`：rag-manager-v2 由 8007 改為 8001，並附更正說明；Neo4j 7687／7474 標記由「待機器端套用」改為「已套用並驗證」（2026-09-21 已完成，該行先前未同步更新）。
 
 ### 已結案（2026-09-23）
-- 第 14 項：AI 明確詢問「P0-4／BIZ-06 老師已核可一事，是真的發生還是文件推論？」，使用者答覆「是，老師已同意豁免簽核」。依 CLAUDE.md R3，豁免自此生效，已記載於 `docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness-assessment.md` §八；適用於 Phase 3、4、5 三份設計文件進入實作。§九簽核欄本身仍未代填（R5），維持空白。
+- 第 14 項：AI 明確詢問「P0-4／BIZ-06 老師已核可一事，是真的發生還是文件推論？」，使用者答覆「是，老師已同意豁免簽核」。依 CLAUDE.md R3，豁免自此生效，已記載於 `docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness-assessment.md` §八；適用於 Phase 3、4、5 三份設計文件進入實作。§九簽核欄本身仍未代填（R5），維持空白。
 
 ### 提供出處說明（重要，供之後追溯）
 貼上的兩份文件內含約 20 項具體數值／政策決定（標註「使用者裁定 2026-09-22」），例如：忠實度粗篩 30 秒硬上限、`gate_error` 1% 告警門檻、量測退步 5 個百分點門檻、服務復原 5 分鐘、F 槽容量 20%／10% 告警、GRD-09 防護出錯時**拒答**（覆蓋 Phase 4 設計文件原建議的「放行」）、忠實度精篩採**專用 NLI 模型**（覆蓋原建議的 LLM 判官）、黃金測試集以**巴洛克時期**為基準主題等。**這些在本對話（本 session）中沒有出現過使用者拍板的紀錄**，2026-09-22 這天本 session 只處理了 Yale 爬蟲修復與待訂項目總表。使用者於 2026-09-23 以「直接執行」回覆，指示依文件內容繼續，故本 session **依使用者指示採信並落地**，但無法如同其餘決策一樣附上「本 session 內的拍板依據」；若這些數值並非使用者本人（或與老師）確認過的決定，請盡快更正，以免以訛傳訛寫進正式規格。

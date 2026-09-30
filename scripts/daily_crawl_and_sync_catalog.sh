@@ -103,9 +103,9 @@ for source in europeana harvard met_museum specialized_art google_books \
     art_institute_chicago va_museum cleveland_museum \
     masterpieces_curated wikipedia_pilot; do
     # 舊資料補登（2026-09-21）後 catalog 與三庫已完全一致；此處回報「不一致」代表出現新的漂移，需要調查。
-    # 只記錄結果、不套用 run_step 的成敗判定
+    # 不套用 run_step 的成敗判定；不一致寫入 eval.alerts、恢復一致自動結案（規格 DAT-05／EVL-11）
     log "--- 驗證 $source ---"
-    python3 -m ingest verify --source "$source" --es 2>&1 | grep -vE "INFO|Warning|warn" >> "$LOG_FILE"
+    python3 -m ingest verify --source "$source" --es --record-alerts 2>&1 | grep -vE "INFO|Warning|warn" >> "$LOG_FILE"
 done
 
 # 同步完成後備份 PostgreSQL（catalog 是單一真相來源，目前只存在這裡）；連線參數已由 .env 載入

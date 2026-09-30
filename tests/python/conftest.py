@@ -17,6 +17,7 @@ sys.path.insert(0, str(REPO_ROOT / "langchain-rag"))
 MIGRATIONS = [
     REPO_ROOT / "context" / "database" / "04-catalog-biz-eval-schema.sql",
     REPO_ROOT / "context" / "database" / "05-catalog-external-id-and-grants.sql",
+    REPO_ROOT / "context" / "database" / "07-eval-alerts-severity-and-grants.sql",
 ]
 
 PREREQUISITES = """

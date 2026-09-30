@@ -89,6 +89,18 @@ def _cmd_verify(args: argparse.Namespace) -> int:
         consistent = consistent and es_result.consistent
 
     print("結果：一致" if consistent else "結果：不一致")
+    if args.record_alerts:
+        from ingest.alerts import record_consistency  # noqa: PLC0415 -- 僅寫告警時需要
+
+        results = {"chromadb": chroma}
+        if args.es:
+            results["elasticsearch"] = es_result
+        with connect() as conn:
+            outcomes = {
+                store: record_consistency(conn, args.source, store, comparison)
+                for store, comparison in results.items()
+            }
+        print("告警：" + "／".join(f"{store} {outcome}" for store, outcome in outcomes.items()))
     return 0 if consistent else 1
 
 
@@ -192,6 +204,9 @@ def main(argv: list[str] | None = None) -> int:
     verify = sub.add_parser("verify", help="比對 catalog 與檢索庫的 id 集合")
     verify.add_argument("--source", required=True)
     verify.add_argument("--es", action="store_true", help="同時比對 Elasticsearch")
+    verify.add_argument(
+        "--record-alerts", action="store_true", help="結果寫入 eval.alerts（不一致開立、恢復結案）"
+    )
     verify.set_defaults(handler=_cmd_verify)
 
     bf = sub.add_parser("backfill", help="把檢索庫已有、catalog 不認得的舊資料補登進 catalog")
