@@ -1,6 +1,11 @@
-"""Elasticsearch 訂閱器：沿用既有 index 結構，向量直接取自 ChromaDB，不重新計算 embedding。"""
+"""Elasticsearch 訂閱器：沿用既有 index 結構，向量直接取自 ChromaDB，不重新計算 embedding。
+
+向量的模型標註（DAT-30）一併取自 ChromaDB 的 metadata，確保兩庫標註與向量同源。
+"""
 
 from collections.abc import Sequence
+
+from embedding_labels import EMBEDDING_LABEL_KEYS
 
 from subscribers.base import Event
 from subscribers.chroma_sub import _final_state
@@ -32,9 +37,14 @@ class ElasticsearchSubscriber:
         self.bulk = bulk
         self.index = index
 
-    def _embeddings(self, ids: list[str]) -> dict[str, list[float]]:
-        got = self.chroma.get(ids=ids, include=["embeddings"])
-        found = {i: list(v) for i, v in zip(got["ids"], got["embeddings"], strict=True)}
+    def _embeddings(self, ids: list[str]) -> dict[str, tuple[list[float], dict]]:
+        """取 ChromaDB 的向量與其模型標註；回傳 id → (向量, 標註)。"""
+        got = self.chroma.get(ids=ids, include=["embeddings", "metadatas"])
+        metadatas = got.get("metadatas") or [None] * len(got["ids"])
+        found = {
+            i: (list(v), {k: (m or {})[k] for k in EMBEDDING_LABEL_KEYS if k in (m or {})})
+            for i, v, m in zip(got["ids"], got["embeddings"], metadatas, strict=True)
+        }
         missing = [i for i in ids if i not in found]
         if missing:
             raise EmbeddingNotReadyError(
@@ -53,19 +63,21 @@ class ElasticsearchSubscriber:
         for event in upserts:
             payload = event.payload
             meta = payload["metadata"]
+            vector, labels = vectors[payload["external_id"]]
             actions.append(
                 {
                     "_index": self.index,
                     "_id": payload["external_id"],
                     "_source": {
                         "content": payload["text"],
-                        "embedding": vectors[payload["external_id"]],
+                        "embedding": vector,
                         "source": meta.get("source", ""),
                         "parent_id": meta.get("parent_id", ""),
                         "title": meta.get("title", ""),
                         "artist": meta.get("artist", ""),
                         "date": str(meta.get("date", "")),
                         "chunk_index": meta.get("chunk_index", 0),
+                        **labels,
                     },
                 }
             )

@@ -4,9 +4,10 @@ import os
 
 import requests
 from chromadb import Documents, EmbeddingFunction, Embeddings
+from embedding_labels import EMBEDDING_MODEL
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-BGE_M3_MODEL = "bge-m3:latest"
+BGE_M3_MODEL = EMBEDDING_MODEL  # 模型名稱與版本標註集中在 embedding_labels.py（DAT-30）
 
 
 class BGEM3EmbeddingFunction(EmbeddingFunction):

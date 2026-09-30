@@ -153,6 +153,36 @@ def test_gate_error_rate_at_or_below_one_percent_resolves(alerts_conn):
     assert record_gate_errors(alerts_conn)[0] == "ok"
 
 
+def test_embedding_label_alert_opens_on_mix_or_unlabeled_and_resolves(alerts_conn):
+    from collections import Counter  # noqa: PLC0415
+
+    from embedding_labels import UNLABELED  # noqa: PLC0415
+    from ingest.alerts import record_embedding_labels  # noqa: PLC0415
+
+    current = ("bge-m3:latest", "790764642607")
+    assert record_embedding_labels(alerts_conn, "chromadb", Counter({current: 10})) == "ok"
+    assert record_embedding_labels(alerts_conn, "chromadb", Counter({UNLABELED: 10})) == "opened"
+    assert (
+        record_embedding_labels(
+            alerts_conn, "chromadb", Counter({current: 90, ("bge-m3:latest", "aaaa"): 10})
+        )
+        == "updated"
+    )
+
+    [alert] = open_alerts(alerts_conn)
+    assert (alert["metric_name"], alert["route_id"], float(alert["delta_pct"])) == (
+        "embedding_versions",
+        "chromadb",
+        10.0,
+    )
+    assert alert["detail"]["combinations"][0] == {
+        "model": "bge-m3:latest",
+        "version": "790764642607",
+        "count": 90,
+    }
+    assert record_embedding_labels(alerts_conn, "chromadb", Counter({current: 100})) == "resolved"
+
+
 def test_summary_lists_critical_first(alerts_conn):
     record_consistency(alerts_conn, "harvard", "chromadb", compare_ids({"a", "b"}, {"a"}))
     record_disk(alerts_conn, disk(5))

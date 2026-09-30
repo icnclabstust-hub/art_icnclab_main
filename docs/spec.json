@@ -137,8 +137,8 @@
       "id": "DAT-10",
       "line": 223,
       "section": "4.2 各庫職責與規格",
-      "status_glyph": "⚠️",
-      "status_raw": "⚠️ 後兩欄未記錄",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "ChromaDB"
     },
     {
@@ -245,8 +245,8 @@
       "id": "DAT-30",
       "line": 247,
       "section": "4.4 嵌入模型版本標註（決策 B11：**做**）",
-      "status_glyph": "❌",
-      "status_raw": "❌ 待實作",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "ingest 時記錄向量由哪個模型產生"
     },
     {
@@ -254,8 +254,8 @@
       "id": "DAT-31",
       "line": 248,
       "section": "4.4 嵌入模型版本標註（決策 B11：**做**）",
-      "status_glyph": "❌",
-      "status_raw": "❌ 待實作",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "納入 `ingest verify`"
     },
     {
@@ -263,8 +263,8 @@
       "id": "DAT-32",
       "line": 249,
       "section": "4.4 嵌入模型版本標註（決策 B11：**做**）",
-      "status_glyph": "❌",
-      "status_raw": "❌ 待實作",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "換模型的處理"
     },
     {
@@ -815,13 +815,13 @@
     },
     "srs": {
       "path": "docs/2026-09-23-system-spec-srs.md",
-      "sha256": "f1eb395e74c7948fdccdf85b0001293d5883e6cedee997a9fef4d54c1d22f6fb"
+      "sha256": "6804b5ecd2da37a5e6dbeeba447e4aaa7f0b188cf10c38ced29dc164fe2b5f05"
     }
   },
   "stats": {
     "requirements": 89,
-    "requirements_done": 32,
-    "requirements_todo": 47,
+    "requirements_done": 36,
+    "requirements_todo": 44,
     "steps": 27
   },
   "steps": [

@@ -1,6 +1,7 @@
 """命令列：``python -m subscribers run --target chromadb|elasticsearch|neo4j [--once]``，
 ``python -m subscribers purge-neo4j [--days 30] [--apply]``（清除超過保留期的到期資料），
-以及 ``python -m subscribers refresh-artist-sources``（重算全部藝術家的來源清單）。"""
+``python -m subscribers refresh-artist-sources``（重算全部藝術家的來源清單），
+以及 ``python -m subscribers label-embeddings [--apply]``（既有向量補嵌入模型標註，DAT-30）。"""
 
 import argparse
 import logging
@@ -61,23 +62,64 @@ def _build_subscriber(target: str, allow_empty_graph: bool = False):
     if target == "neo4j":
         return _neo4j_subscriber(allow_empty_graph)
     if target == "chromadb":
+        from embedding_labels import current_embedding_labels  # noqa: PLC0415
+
         from subscribers.chroma_sub import ChromaSubscriber  # noqa: PLC0415
 
-        return ChromaSubscriber(_chroma_collection(with_embedding_function=True))
-    from elasticsearch import Elasticsearch  # noqa: PLC0415
+        return ChromaSubscriber(
+            _chroma_collection(with_embedding_function=True),
+            embedding_labels=current_embedding_labels(),
+        )
     from elasticsearch.helpers import bulk  # noqa: PLC0415
 
     from subscribers.es_sub import ElasticsearchSubscriber  # noqa: PLC0415
 
+    return ElasticsearchSubscriber(
+        es_client(), _chroma_collection(with_embedding_function=False), bulk
+    )
+
+
+def es_client():
+    """以環境變數建立 Elasticsearch 用戶端（本機自簽憑證）。"""
+    from elasticsearch import Elasticsearch  # noqa: PLC0415
+
     password = os.getenv("ES_PASSWORD")
     if not password:
         raise SystemExit("缺少 ES_PASSWORD 環境變數")
-    es = Elasticsearch(
+    return Elasticsearch(
         os.getenv("ES_URL", "https://localhost:9200"),
         basic_auth=(os.getenv("ES_USERNAME", "elastic"), password),
         verify_certs=False,
     )
-    return ElasticsearchSubscriber(es, _chroma_collection(with_embedding_function=False), bulk)
+
+
+def chroma_collection():
+    """不掛 embedding function 的 collection（只讀 metadata／向量時使用）。"""
+    return _chroma_collection(with_embedding_function=False)
+
+
+def _cmd_label_embeddings(args: argparse.Namespace) -> int:
+    from bge_m3_embedding import BGEM3EmbeddingFunction  # noqa: PLC0415
+    from embedding_labels import current_embedding_labels  # noqa: PLC0415
+
+    from subscribers import labels as labels_module  # noqa: PLC0415
+    from subscribers.es_sub import ES_INDEX  # noqa: PLC0415
+
+    labels = current_embedding_labels()
+    collection = chroma_collection()
+    worst = labels_module.verify_sample(collection, BGEM3EmbeddingFunction(), args.sample)
+    print(f"抽樣 {args.sample} 個 chunk 以目前模型重算：最小 cosine {worst:.6f}")
+    if worst < labels_module.MIN_COSINE:
+        print(
+            f"❌ 低於 {labels_module.MIN_COSINE}：庫存向量與目前模型版本不同，"
+            "不可只補標籤，應全量重建（DAT-32）"
+        )
+        return 1
+    chroma_n = labels_module.label_chroma(collection, labels, apply=args.apply)
+    es_n = labels_module.label_es(es_client(), ES_INDEX, labels, apply=args.apply)
+    mode = "已補標" if args.apply else "預覽（未寫入，加 --apply 才會寫入）"
+    print(f"[{mode}] 標註 {labels}：ChromaDB {chroma_n} 筆、Elasticsearch {es_n} 筆")
+    return 0
 
 
 def _cmd_purge_neo4j(args: argparse.Namespace) -> int:
@@ -140,6 +182,11 @@ def main(argv: list[str] | None = None) -> int:
     purge_cmd.add_argument("--apply", action="store_true", help="實際刪除（預設只預覽）")
     purge_cmd.set_defaults(purge=True)
     sub.add_parser("refresh-artist-sources", help="重算全部藝術家的來源清單（可重複執行）")
+    label_cmd = sub.add_parser(
+        "label-embeddings", help="替既有向量補上嵌入模型標註（先抽樣重算確認同版本）"
+    )
+    label_cmd.add_argument("--sample", type=int, default=30, help="抽樣重算的 chunk 數")
+    label_cmd.add_argument("--apply", action="store_true", help="實際寫入（預設只預覽）")
 
     args = parser.parse_args(argv)
 
@@ -147,6 +194,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_purge_neo4j(args)
     if args.command == "refresh-artist-sources":
         return _cmd_refresh_artist_sources(args)
+    if args.command == "label-embeddings":
+        return _cmd_label_embeddings(args)
 
     subscriber = _build_subscriber(args.target, args.allow_empty_graph)
     with connect() as conn:

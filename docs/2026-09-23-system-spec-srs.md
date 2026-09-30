@@ -220,7 +220,7 @@
 
 | DAT-ID | 庫 | 職責 | 關鍵規格 | 狀態 |
 |---|---|---|---|---|
-| DAT-10 | ChromaDB | 稠密向量檢索 | 每個 chunk 一個向量；metadata 須含 `doc_id`、`chunk_id`、`source`、`embedding_model`、`embedding_version` | ⚠️ 後兩欄未記錄 |
+| DAT-10 | ChromaDB | 稠密向量檢索 | 每個 chunk 一個向量；metadata 須含 `doc_id`、`chunk_id`、`source`、`embedding_model`、`embedding_version` | ✅ |
 | DAT-11 | Elasticsearch | 全文／關鍵字檢索與模糊檢索 | 支援中文分詞；提供 `fuzziness` 查詢供 GRD-03 使用 | ✅ |
 | DAT-12 | Neo4j | 實體關係圖（藝術家、作品、時期、流派、館藏） | 節點唯一性約束；**五種原子操作**；軟到期（`valid_to`）；30 天保留後硬刪除；`Artist.sources` 由關係動態推導，不儲存冗餘欄 | ✅ |
 | DAT-13 | Neo4j | 網路綁定 | 僅綁 `127.0.0.1`，不對外監聽 | ✅ |
@@ -244,9 +244,9 @@
 
 | DAT-ID | 需求 | 驗收標準 | 狀態 |
 |---|---|---|---|
-| DAT-30 | ingest 時記錄向量由哪個模型產生 | 每個向量的 metadata 必含 `embedding_model`（名稱）與 `embedding_version`（版本或 digest） | ❌ 待實作 |
-| DAT-31 | 納入 `ingest verify` | 稽核時若發現同一 collection 內存在**多個** `embedding_model/version` 組合，寫入 `eval.alerts`（等級 warning） | ❌ 待實作 |
-| DAT-32 | 換模型的處理 | 換嵌入模型須全量重建向量；未重建完成前不得混用（DAT-31 即為此防線） | ❌ 待實作 |
+| DAT-30 | ingest 時記錄向量由哪個模型產生 | 每個向量的 metadata 必含 `embedding_model`（名稱）與 `embedding_version`（版本或 digest） | ✅ |
+| DAT-31 | 納入 `ingest verify` | 稽核時若發現同一 collection 內存在**多個** `embedding_model/version` 組合，寫入 `eval.alerts`（等級 warning） | ✅ |
+| DAT-32 | 換模型的處理 | 換嵌入模型須全量重建向量；未重建完成前不得混用（DAT-31 即為此防線） | ✅ |
 
 **理由（可行性）**：不記模型版本，換模型後新舊向量落在不同語意空間，相似度分數不可比，GRD-02 的 K 門檻會失去意義。故 DAT-30 是 Phase 4 門檻校準的**前置需求**。
 

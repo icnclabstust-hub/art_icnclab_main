@@ -119,6 +119,8 @@ run_step "Neo4j 備份（短暫停機）" bash "$PROJECT_DIR/scripts/ops/backup_
 log "--- 備份磁碟剩餘空間 ---"
 python3 -m ingest check-disk --path "wsl=$HOME/backups" --path "f=/mnt/f/art_backups" \
     2>&1 | grep -vE "INFO|Warning|warn" >> "$LOG_FILE"
+log "--- 嵌入模型標註（混用或未標註即告警，DAT-31）---"
+python3 -m ingest check-embeddings 2>&1 | grep -vE "INFO|Warning|warn|_transport" >> "$LOG_FILE"
 log "--- 防護元件出錯比例（近 24 小時）---"
 python3 -m ingest check-guard 2>&1 | grep -vE "INFO|Warning|warn" >> "$LOG_FILE"
 log "--- 未處理告警彙總（另存 logs/alerts/open_alerts.txt）---"

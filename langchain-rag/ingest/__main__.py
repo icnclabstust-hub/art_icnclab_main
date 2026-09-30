@@ -132,6 +132,25 @@ def _cmd_check_guard(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_check_embeddings(_args: argparse.Namespace) -> int:
+    from subscribers import labels  # noqa: PLC0415 -- 只有此指令需要連 ChromaDB／ES
+    from subscribers.__main__ import chroma_collection, es_client  # noqa: PLC0415
+    from subscribers.es_sub import ES_INDEX  # noqa: PLC0415
+
+    from ingest import alerts  # noqa: PLC0415
+
+    counts = {
+        "chromadb": labels.chroma_label_counts(chroma_collection()),
+        "elasticsearch": labels.es_label_counts(es_client(), ES_INDEX),
+    }
+    with connect() as conn:
+        for store, combos in counts.items():
+            outcome = alerts.record_embedding_labels(conn, store, combos)
+            listed = "、".join(f"{m}@{v}：{n}" for (m, v), n in combos.most_common())
+            print(f"[{store}] {listed or '（空）'} → 告警 {outcome}")
+    return 0
+
+
 def _cmd_alerts_summary(args: argparse.Namespace) -> int:
     from ingest import alerts  # noqa: PLC0415
 
@@ -260,6 +279,11 @@ def main(argv: list[str] | None = None) -> int:
     guard = sub.add_parser("check-guard", help="防護元件 hang／crash 比例；>1%% 開 critical")
     guard.add_argument("--hours", type=int, default=24)
     guard.set_defaults(handler=_cmd_check_guard)
+
+    embed = sub.add_parser(
+        "check-embeddings", help="各檢索庫的嵌入模型標註；混用或未標註時開 warning（DAT-31）"
+    )
+    embed.set_defaults(handler=_cmd_check_embeddings)
 
     summary = sub.add_parser("alerts-summary", help="列出未處理告警（給 Operator 的每日彙總）")
     summary.add_argument("--out", help="另寫入此檔案（覆寫）")

@@ -9,11 +9,12 @@ from subscribers.es_sub import ElasticsearchSubscriber, EmbeddingNotReadyError
 
 
 class FakeCollection:
-    def __init__(self, vectors=None):
+    def __init__(self, vectors=None, metadatas=None):
         self.store = {}
         self.upsert_calls = 0
         self.delete_calls = 0
         self.vectors = vectors or {}
+        self.metadatas = metadatas or {}
 
     def upsert(self, ids, documents, metadatas):
         self.upsert_calls += 1
@@ -27,7 +28,11 @@ class FakeCollection:
 
     def get(self, ids, include):
         found = [i for i in ids if i in self.vectors]
-        return {"ids": found, "embeddings": [self.vectors[i] for i in found]}
+        return {
+            "ids": found,
+            "embeddings": [self.vectors[i] for i in found],
+            "metadatas": [self.metadatas.get(i) for i in found],
+        }
 
 
 def ingest(conn, *artworks, **kwargs):
@@ -48,6 +53,39 @@ def test_chroma_subscriber_applies_upserts_and_advances_cursor(conn):
     assert meta["source"] == "harvard"
     assert lag(conn, "chromadb") == 0
     assert run_once(conn, subscriber) == 0
+
+
+EMBED_LABELS = {"embedding_model": "bge-m3:latest", "embedding_version": "790764642607"}
+
+
+def test_chroma_subscriber_adds_embedding_labels_to_metadata(conn):
+    ingest(conn, make_artwork("harvard_1"))
+    collection = FakeCollection()
+
+    run_once(conn, ChromaSubscriber(collection, embedding_labels=EMBED_LABELS))
+
+    _, meta = collection.store["harvard_1"]
+    assert meta["embedding_model"] == "bge-m3:latest"
+    assert meta["embedding_version"] == "790764642607"
+    assert meta["source"] == "harvard"
+
+
+def test_es_subscriber_copies_embedding_labels_from_chroma(conn):
+    ingest(conn, make_artwork("harvard_1"))
+    calls = []
+
+    def bulk(es, actions, **kwargs):
+        calls.append(list(actions))
+        return len(calls[-1]), []
+
+    chroma = FakeCollection(
+        {"harvard_1": [0.1, 0.2]}, {"harvard_1": {"source": "harvard", **EMBED_LABELS}}
+    )
+    run_once(conn, ElasticsearchSubscriber(es=object(), chroma_collection=chroma, bulk=bulk))
+
+    source = calls[0][0]["_source"]
+    assert source["embedding_model"] == "bge-m3:latest"
+    assert source["embedding_version"] == "790764642607"
 
 
 def test_document_events_are_skipped_but_the_cursor_still_moves(conn):

@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-10-01　嵌入模型「名稱＋版本」標註與混用稽核（DAT-10、DAT-30～32）
+
+### 已決定
+| 項目 | 決定 | 決定者 |
+|---|---|---|
+| 版本以什麼表示 | Ollama 模型 digest 前 12 碼（`bge-m3:latest` → `790764642607`）。理由：tag `latest` 重新 pull 成不同權重時名稱不變、digest 會變 | AI 判斷 |
+| 在哪裡標 | 向量只在 ChromaDB 計算（ES 直接複製 ChromaDB 的向量），所以 ChromaDB 訂閱器寫入時標註、ES 訂閱器連同向量一併複製標註，兩庫標註必與向量同源；集中在不依賴 chromadb 的 `embedding_labels.py` | AI 判斷 |
+| 既有 5,434 個向量怎麼標 | **先抽樣重算再補標**：隨機抽 chunk 用目前模型重算，cosine 全部 ≥ 0.9999 才補上目前版本；否則中止（代表需全量重建，DAT-32），不能只改標籤。實測 60＋30＋10 個樣本 cosine 皆 1.000000 | AI 判斷（避免在沒有證據下假設舊向量的版本） |
+| 混用稽核 | `ingest check-embeddings` 納入夜間流程：同一庫出現多個組合或有未標註向量即開 `embedding_versions` warning | 依 DAT-31 |
+
+### 執行與驗證
+- `subscribers label-embeddings --apply`：ChromaDB 5,434、ES 5,434 全數補標（ES 兩欄先設為 keyword mapping）；只加兩個 metadata 欄位，向量未動
+- 過程：ES `update_by_query` 需連向量重寫，超過用戶端預設 10 秒逾時而報錯，但伺服器端照常做完；已改為 900 秒逾時。補標為冪等（只處理缺標註者），重跑無副作用
+- 補標前稽核兩庫皆「未標註 5,434」→ 開 2 筆告警；補標後皆「bge-m3:latest@790764642607：5,434」→ 自動結案
+- 補標後 `fulltext`／`hybrid_es_rag`／`hybrid` 檢索正常（The Night Watch 皆第 1）
+- 測試新增 9 項（標註組合、抽樣比對、補標只動缺標註者、訂閱器寫入標註、ES 複製標註、混用告警）；全量 137 通過、3 略過
+- 規格：DAT-10、DAT-30、DAT-31、DAT-32 → ✅
+
+---
+
 ## 2026-10-01　告警補齊：備份磁碟空間、防護出錯比例、每日彙總（DAT-17、GRD-10、EVL-12）
 
 ### 背景

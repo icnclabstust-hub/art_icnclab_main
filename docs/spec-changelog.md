@@ -22,3 +22,7 @@
 - 2026-10-01　set：DAT-17=done
 - 2026-10-01　set：GRD-10=done
 - 2026-10-01　set：EVL-12=done
+- 2026-10-01　set：DAT-10=done
+- 2026-10-01　set：DAT-30=done
+- 2026-10-01　set：DAT-31=done
+- 2026-10-01　set：DAT-32=done

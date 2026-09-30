@@ -6,11 +6,13 @@
 - 一致性稽核（DAT-05）：``consistency_<檢索庫>``，route＝來源
 - 備份磁碟剩餘空間（DAT-17）：``disk_free``，route＝磁碟標籤
 - 防護元件出錯比例（GRD-10）：``gate_error_rate``，route＝``all``
+- 嵌入模型混用或未標註（DAT-31）：``embedding_versions``，route＝檢索庫
 
 需要 migration ``07-eval-alerts-severity-and-grants.sql``。
 """
 
 import shutil
+from collections import Counter
 from dataclasses import dataclass
 from typing import Any
 
@@ -28,6 +30,8 @@ DISK_CRITICAL_PCT = 10.0
 
 GATE_METRIC = "gate_error_rate"
 GATE_CRITICAL_PCT = 1.0  # GRD-10（日計）
+
+EMBEDDING_METRIC = "embedding_versions"
 
 
 def open_or_update(
@@ -186,6 +190,30 @@ def record_gate_errors(conn: psycopg.Connection, hours: int = 24) -> tuple[str, 
     if rate <= GATE_CRITICAL_PCT:
         return resolve(conn, GATE_METRIC, "all"), stats
     return open_or_update(conn, GATE_METRIC, "all", rate, "critical", stats), stats
+
+
+# ---------------------------------------------------------------- 嵌入模型混用（DAT-31）
+
+
+def record_embedding_labels(conn: psycopg.Connection, store: str, counts: Counter) -> str:
+    """同一檢索庫出現多個 (模型, 版本) 組合或有未標註向量時開 warning，否則結案。
+
+    ``delta_pct`` 為「不屬於最多數組合」的向量比例。
+    """
+    from embedding_labels import UNLABELED  # noqa: PLC0415 -- 避免 ingest 載入時依賴此模組
+
+    total = sum(counts.values())
+    if total == 0 or (len(counts) == 1 and UNLABELED not in counts):
+        return resolve(conn, EMBEDDING_METRIC, store)
+    majority = max(counts.values())
+    detail = {
+        "total": total,
+        "combinations": [
+            {"model": m, "version": v, "count": n} for (m, v), n in counts.most_common()
+        ],
+    }
+    delta = round((total - majority) * 100 / total, 2) if len(counts) > 1 else 100.0
+    return open_or_update(conn, EMBEDDING_METRIC, store, delta, "warning", detail)
 
 
 # ---------------------------------------------------------------- 每日彙總（EVL-12）
