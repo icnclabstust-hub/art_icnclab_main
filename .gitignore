@@ -17,6 +17,8 @@ yarn-error.log*
 logs/
 *.log
 logs/*
+# 關鍵詞抽取日誌含使用者提問原文，不進版控（規格 OPS-05、BIZ-03）
+langchain-rag/query_logs/
 
 # Runtime data
 pids

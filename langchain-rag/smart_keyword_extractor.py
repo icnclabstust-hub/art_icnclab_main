@@ -20,13 +20,14 @@ logger = logging.getLogger(__name__)
 class SmartKeywordExtractor:
     """智能關鍵詞提取器"""
 
-    def __init__(self, translator=None, log_queries: bool = True):
+    def __init__(self, translator=None, log_queries: bool = False):
         """
         初始化關鍵詞提取器
 
         Args:
             translator: 多語言翻譯器實例（用於獲取術語字典）
-            log_queries: 是否記錄查詢日誌
+            log_queries: 是否記錄查詢日誌。日誌含使用者提問原文，預設關閉；
+                後端依 BIZ_LOGGING 決定（規格 BIZ-03）
         """
         self.translator = translator
         self.log_queries = log_queries
