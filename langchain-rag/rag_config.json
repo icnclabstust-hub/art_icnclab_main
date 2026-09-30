@@ -159,7 +159,7 @@
       "name": "Graph",
       "display_name": "🕸️ 圖（系統路由）",
       "emoji": "🕸️",
-      "description": "系統路由：Neo4j 知識圖譜檢索（RET-01）"
+      "description": "系統路由：Neo4j 圖譜檢索，作品標題＋藝術家展開作品，只回傳作品（RET-01）"
     },
     "hybrid": {
       "name": "Hybrid",

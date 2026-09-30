@@ -5,6 +5,31 @@
 
 ---
 
+## 2026-10-01　查詢日誌改受 `BIZ_LOGGING` 管制；系統圖譜路改寫
+
+### 背景
+三路 RRF 上線後的延伸討論（使用者同意依序處理）發現兩個問題：
+1. `smart_keyword_extractor.py` 預設把**每個查詢原文＋時間**寫入 `langchain-rag/query_logs/`，不受 `BIZ_LOGGING` 管制，等於繞過 BIZ-03「法規告知完成前不記錄」；且 2 個檔案（09-20、09-21，內容為開發測試問題、無使用者 id）已進版控並推上 GitHub。
+2. 圖路（沿用 `graph_only`）對「Rembrandt The Night Watch」回傳 5 個無關藝術家。直接查 Neo4j 查證根因：每個關鍵詞先查藝術家、湊滿額度就提前結束，作品標題搜尋根本沒執行（標題索引其實以 9.02 分命中 The Night Watch）；`"The Night Watch~"` 的模糊比對作用在 `Watch`（編輯距離 2 → Walsh／Lasch／Basch）；Artist 節點沒有文件 id，RRF 對不齊。另查到 Rembrandt 在圖中分散為 6 個 Artist 節點（含截斷的 `Rembrandt van Rijn (Dutch`）。
+
+### 已決定（使用者，2026-10-01 同意建議順序）
+| 項目 | 決定 |
+|---|---|
+| 查詢日誌 | 後端依 `BIZ_LOGGING`（預設 false）決定是否記錄；`SmartKeywordExtractor` 類別預設改為不記錄；`langchain-rag/query_logs/` 加入 `.gitignore`，已追蹤的 2 檔 `git rm --cached`（本機檔案保留）。**GitHub 歷史中的 2 檔不改寫**（測試問題、風險低） |
+| 圖路 | **方案 A：另寫 `SystemGraphRAG` 給新的 `graph` 路**，舊 `graph_only`／`naive_graph_rag` 不動（保留作對照組）。先查作品標題、再由藝術家展開其作品，只回傳 Artwork；不做模糊比對、多字詞以片語查詢；相對分數門檻 `GRAPH_MIN_RELATIVE_SCORE`（預設 0.3） |
+| 藝術家節點合併（別名正規化） | **另案**（需改 Neo4j 訂閱器與別名對照表、遷移既有資料） |
+
+### 驗證
+- `tests/python/test_graph_query.py` 5 項；全量 103 通過、3 略過
+- 重啟後端後連續 12 次查詢，`extractions_20261001.jsonl` 維持 3 列，啟動日誌為「查詢日誌: 關閉」
+- 實機比較 4 題（`graph_only` → `graph`）：Night Watch 由 5 個無關藝術家 → 第 1 名 The Night Watch＋4 件 Rembrandt 作品，`hybrid` 三路皆排第 1；Monet、達文西（中文）、Bernini 三題的圖路也全數改為作品
+
+### 待調整（交給黃金集校準，不憑感覺調）
+- **「先標題後藝術家」的順序偏差**：問「某藝術家的作品」時，標題恰含人名的條目（例：Europeana 標題為「Claude Monet」的照片、玫瑰品種）排在該藝術家的真正作品之前。可能解法：兩類命中交錯排序、或標題命中詞恰為藝術家名時降權。
+- Bernini 一題圖路沒有找到 Bernini 作品（`hybrid` 靠向量＋全文仍取得 Bernini 作品）。
+
+---
+
 ## 2026-10-01　系統級三路 RRF：新增 4 個策略，與舊 11 個並存（RET-01～07）
 
 ### 背景

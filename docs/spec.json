@@ -605,8 +605,8 @@
       "id": "OPS-05",
       "line": 520,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "`querylogs` 執行期 log 被 git 追蹤"
     },
     {
@@ -815,13 +815,13 @@
     },
     "srs": {
       "path": "docs/2026-09-23-system-spec-srs.md",
-      "sha256": "222874cea6cde5dc8e6712eb7b16c2729b2fc6ac0805ddee8bab4ccc95f0f030"
+      "sha256": "067dc62848c5dd8f0f7cb403dea971d2d9d9c034fe21695c8682848af4a48c6d"
     }
   },
   "stats": {
     "requirements": 89,
-    "requirements_done": 24,
-    "requirements_todo": 58,
+    "requirements_done": 25,
+    "requirements_todo": 57,
     "steps": 27
   },
   "steps": [

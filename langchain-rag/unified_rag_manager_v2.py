@@ -26,6 +26,7 @@ from bge_m3_embedding import BGEM3EmbeddingFunction
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from graph_query import DEFAULT_MIN_RELATIVE_SCORE, apply_relative_cutoff, build_lucene_query
 
 # 導入多語言查詢翻譯器
 from multilingual_query_translator import MultilingualQueryTranslator
@@ -234,6 +235,13 @@ HYBRID_TOP_K = int(os.getenv("HYBRID_TOP_K", "20"))
 HYBRID_ROUTES = [
     r.strip() for r in os.getenv("HYBRID_ROUTES", "vector,fulltext,graph").split(",") if r.strip()
 ]
+# 系統圖譜路：低於該次最高分此比例的全文命中視為弱命中而捨棄
+GRAPH_MIN_RELATIVE_SCORE = float(
+    os.getenv("GRAPH_MIN_RELATIVE_SCORE", str(DEFAULT_MIN_RELATIVE_SCORE))
+)
+
+# 是否記錄使用者提問（規格 BIZ-03：法規告知 P0-2 未完成前維持關閉）
+BIZ_LOGGING = os.getenv("BIZ_LOGGING", "false").lower() == "true"
 
 # ==================== 請求/響應模型 ====================
 
@@ -962,6 +970,135 @@ class GraphOnlyRAG(RAGStrategy):
         return content
 
 
+_ARTWORK_BY_TITLE = """
+CALL db.index.fulltext.queryNodes('artwork_title_fulltext', $q) YIELD node, score
+WHERE coalesce(node.is_deleted, false) = false
+RETURN node AS artwork, score ORDER BY score DESC LIMIT $limit
+"""
+
+_ARTIST_BY_NAME = """
+CALL db.index.fulltext.queryNodes('artist_name_fulltext', $q) YIELD node, score
+RETURN elementId(node) AS artist_id, score ORDER BY score DESC LIMIT $limit
+"""
+
+_ARTWORKS_OF_ARTISTS = """
+UNWIND $artists AS a
+MATCH (x:Artist)-[c:CREATED]->(artwork:Artwork)
+WHERE elementId(x) = a.artist_id AND c.valid_to IS NULL
+  AND coalesce(artwork.is_deleted, false) = false
+WITH artwork, max(a.score) AS score
+RETURN artwork, score ORDER BY score DESC LIMIT $limit
+"""
+
+_ARTWORK_RELATIONSHIPS = """
+MATCH (artwork:Artwork) WHERE elementId(artwork) = $artwork_id
+OPTIONAL MATCH (artwork)-[r]-(related)
+WHERE r.valid_to IS NULL AND coalesce(related.is_deleted, false) = false
+RETURN collect({rel: type(r), node: related}) AS relationships
+"""
+
+
+def _node_metadata(node) -> dict[str, Any]:
+    """Neo4j 節點屬性轉成可序列化的 metadata。"""
+    metadata: dict[str, Any] = {}
+    for key, value in node.items():
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            metadata[key] = value
+        elif hasattr(value, "isoformat"):
+            metadata[key] = value.isoformat()
+        else:
+            metadata[key] = str(value)
+    return metadata
+
+
+class SystemGraphRAG(GraphOnlyRAG):
+    """系統圖譜路（RET-01 ``graph``）：只回傳 Artwork，讓 RRF 能以文件 id 與另外兩路對齊
+
+    與舊 ``graph_only`` 的差異（2026-10-01，舊策略保留作對照組）：
+    1. 先查作品標題，再由藝術家展開其作品；不回傳 Artist 節點本身（沒有文件 id）
+    2. 不做模糊比對，多字詞以片語查詢，所有關鍵詞一次查詢
+    3. 以相對分數門檻 ``GRAPH_MIN_RELATIVE_SCORE`` 濾掉弱命中
+    """
+
+    def __init__(self):
+        RAGStrategy.__init__(self, "System Graph RAG", "作品標題＋藝術家展開作品的圖譜檢索")
+
+    def _search_terms(self, query: str) -> list[str]:
+        normalized = query
+        if query_translator:
+            try:
+                normalized, _ = query_translator.translate_terms(query)
+            except Exception as e:
+                logger.warning(f"實體正規化失敗: {e}")
+        if keyword_extractor:
+            terms, _ = keyword_extractor.extract_keywords(
+                normalized, max_keywords=5, min_word_length=3
+            )
+            if terms:
+                return terms
+        import re  # noqa: PLC0415 -- 僅關鍵詞抽取器不可用時的後備
+
+        return re.findall(r"[a-zA-Z]{3,}", normalized) or [normalized]
+
+    async def retrieve(self, query: str, max_results: int = 5) -> list[dict[str, Any]]:
+        if not conn_manager.neo4j_driver:
+            logger.warning("Neo4j 未連接，返回空結果")
+            return []
+        lucene = build_lucene_query(self._search_terms(query))
+        if not lucene:
+            return []
+
+        try:
+            with conn_manager.neo4j_driver.session() as session:
+                # 作品保留原始 Record（.data() 會把節點轉成 dict，失去 element_id）
+                titled = apply_relative_cutoff(
+                    list(session.run(_ARTWORK_BY_TITLE, q=lucene, limit=max_results)),
+                    GRAPH_MIN_RELATIVE_SCORE,
+                )
+                artists = apply_relative_cutoff(
+                    session.run(_ARTIST_BY_NAME, q=lucene, limit=max_results).data(),
+                    GRAPH_MIN_RELATIVE_SCORE,
+                )
+                by_artist = (
+                    list(session.run(_ARTWORKS_OF_ARTISTS, artists=artists, limit=max_results))
+                    if artists
+                    else []
+                )
+
+                documents: list[dict[str, Any]] = []
+                seen: set[str] = set()
+                for row, via in [(r, "title") for r in titled] + [(r, "artist") for r in by_artist]:
+                    artwork = row["artwork"]
+                    key = artwork.get("id") or artwork.get("title")
+                    if not key or key in seen:
+                        continue
+                    seen.add(key)
+                    relationships = session.run(
+                        _ARTWORK_RELATIONSHIPS, artwork_id=artwork.element_id
+                    ).single()["relationships"]
+                    metadata = _node_metadata(artwork)
+                    metadata["graph_match"] = via
+                    documents.append(
+                        {
+                            "content": self._format_graph_node(artwork, relationships),
+                            "metadata": metadata,
+                            "score": float(row["score"]),
+                            "source": "Neo4j Knowledge Graph (Artwork)",
+                        }
+                    )
+                    if len(documents) >= max_results:
+                        break
+        except Exception as e:
+            logger.error(f"系統圖譜檢索失敗: {e}")
+            return []
+
+        logger.info(
+            f"系統圖譜檢索返回 {len(documents)} 個結果"
+            f"（標題命中 {len(titled)}、藝術家 {len(artists)} 位展開 {len(by_artist)} 件）"
+        )
+        return documents
+
+
 class AdvancedGraphRAG(RAGStrategy):
     """Advanced Graph RAG - 查詢改寫(術語正規化) + 多跳圖檢索(2-hop) + 子圖重排序"""
 
@@ -1417,7 +1554,7 @@ _vector_strategy = VectorOnlyRAG()
 _SYSTEM_ROUTES: dict[str, RAGStrategy] = {
     "vector": _vector_strategy,
     "fulltext": FulltextESRAG(),
-    "graph": _graph_only_strategy,
+    "graph": SystemGraphRAG(),
 }
 
 RAG_STRATEGIES = {
@@ -1459,7 +1596,10 @@ async def startup_event():
 
     # 初始化智能關鍵詞提取器
     try:
-        keyword_extractor = SmartKeywordExtractor(translator=query_translator, log_queries=True)
+        # 查詢日誌含使用者提問原文，與 biz 紀錄同受 BIZ_LOGGING 管制（規格 BIZ-03，預設關閉）
+        keyword_extractor = SmartKeywordExtractor(
+            translator=query_translator, log_queries=BIZ_LOGGING
+        )
         logger.info("✅ 智能關鍵詞提取器已初始化")
     except Exception as e:
         logger.warning(f"⚠️ 關鍵詞提取器初始化失敗: {e}，將使用基礎提取")
