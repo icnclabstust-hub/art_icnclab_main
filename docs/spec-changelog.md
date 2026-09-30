@@ -19,3 +19,6 @@
 - 2026-10-01　set：GRD-06c=partial
 - 2026-10-01　set：GRD-06d=partial
 - 2026-10-01　set：GRD-08=partial
+- 2026-10-01　set：DAT-17=done
+- 2026-10-01　set：GRD-10=done
+- 2026-10-01　set：EVL-12=done

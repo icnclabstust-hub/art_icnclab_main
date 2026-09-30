@@ -1701,6 +1701,28 @@ async def clear_cache():
         return {"success": False, "message": "Cache not enabled"}
 
 
+def _read_open_alerts() -> list[dict[str, Any]]:
+    from ingest.alerts import open_alerts  # noqa: PLC0415 -- 延遲載入，DB 問題不影響服務啟動
+    from ingest.db import connect  # noqa: PLC0415
+
+    with connect() as conn:
+        alerts = open_alerts(conn)
+    for alert in alerts:
+        alert["delta_pct"] = float(alert["delta_pct"])
+    return alerts
+
+
+@app.get("/api/v1/eval/alerts")
+async def list_open_alerts():
+    """未處理告警（規格 EVL-12、API §11 ``/eval/alerts``），critical 在前"""
+    try:
+        alerts = await asyncio.to_thread(_read_open_alerts)
+    except Exception as e:
+        logger.error(f"讀取告警失敗: {e}")
+        raise HTTPException(status_code=503, detail="無法讀取 eval.alerts") from e
+    return {"alerts": alerts, "total": len(alerts)}
+
+
 @app.post("/api/v1/retrieve")
 async def process_retrieve_only(request: QueryRequest):
     """僅檢索、不生成答案 —— 用於事後回填評測用的原文片段（Faithfulness 計算）"""

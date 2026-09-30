@@ -115,6 +115,16 @@ run_step "PostgreSQL 備份" bash "$PROJECT_DIR/scripts/ops/backup_postgres.sh"
 # 所有寫入 Neo4j 的步驟（攝取、訂閱器、驗證）之後，且在清 RAG 快取之前
 run_step "Neo4j 備份（短暫停機）" bash "$PROJECT_DIR/scripts/ops/backup_neo4j.sh"
 
+# 告警檢查與彙總（規格 DAT-17、GRD-10、EVL-12）：結果寫入 eval.alerts，失敗不中斷流程
+log "--- 備份磁碟剩餘空間 ---"
+python3 -m ingest check-disk --path "wsl=$HOME/backups" --path "f=/mnt/f/art_backups" \
+    2>&1 | grep -vE "INFO|Warning|warn" >> "$LOG_FILE"
+log "--- 防護元件出錯比例（近 24 小時）---"
+python3 -m ingest check-guard 2>&1 | grep -vE "INFO|Warning|warn" >> "$LOG_FILE"
+log "--- 未處理告警彙總（另存 logs/alerts/open_alerts.txt）---"
+python3 -m ingest alerts-summary --out "$PROJECT_DIR/logs/alerts/open_alerts.txt" \
+    2>&1 | grep -vE "INFO|Warning|warn" >> "$LOG_FILE"
+
 log "--- 清除 RAG 查詢快取 ---"
 curl -s -X POST "http://localhost:${RAG_MANAGER_PORT:-8001}/api/v1/cache/clear" >> "$LOG_FILE" 2>&1
 

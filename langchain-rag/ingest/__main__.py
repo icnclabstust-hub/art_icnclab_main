@@ -104,6 +104,48 @@ def _cmd_verify(args: argparse.Namespace) -> int:
     return 0 if consistent else 1
 
 
+def _cmd_check_disk(args: argparse.Namespace) -> int:
+    from ingest import alerts  # noqa: PLC0415
+
+    with connect() as conn:
+        for spec in args.path:
+            label, _, path = spec.partition("=")
+            if not os.path.isdir(path):
+                print(f"[{label}] 略過：{path} 不存在或未掛載")
+                continue
+            status = alerts.disk_status(label, path)
+            outcome = alerts.record_disk(conn, status)
+            print(
+                f"[{label}] 剩餘 {status.free_pct}%"
+                f"（{status.free_bytes / 1024**3:.1f}／{status.total_bytes / 1024**3:.1f} GB）"
+                f"→ 告警 {outcome}"
+            )
+    return 0
+
+
+def _cmd_check_guard(args: argparse.Namespace) -> int:
+    from ingest import alerts  # noqa: PLC0415
+
+    with connect() as conn:
+        outcome, stats = alerts.record_gate_errors(conn, hours=args.hours)
+    print(f"防護出錯比例（近 {args.hours} 小時）：{stats} → 告警 {outcome}")
+    return 0
+
+
+def _cmd_alerts_summary(args: argparse.Namespace) -> int:
+    from ingest import alerts  # noqa: PLC0415
+
+    with connect() as conn:
+        text = alerts.format_summary(alerts.open_alerts(conn))
+    print(text)
+    if args.out:
+        out = os.path.abspath(args.out)
+        os.makedirs(os.path.dirname(out), exist_ok=True)
+        with open(out, "w", encoding="utf-8") as f:
+            f.write(text + "\n")
+    return 0
+
+
 def _cmd_backfill(args: argparse.Namespace) -> int:
     import chromadb  # noqa: PLC0415 -- 只有 backfill 需要連 ChromaDB 與 Neo4j
     from neo4j import GraphDatabase  # noqa: PLC0415
@@ -208,6 +250,20 @@ def main(argv: list[str] | None = None) -> int:
         "--record-alerts", action="store_true", help="結果寫入 eval.alerts（不一致開立、恢復結案）"
     )
     verify.set_defaults(handler=_cmd_verify)
+
+    disk = sub.add_parser("check-disk", help="備份磁碟剩餘空間；<20%% warning、<10%% critical")
+    disk.add_argument(
+        "--path", action="append", required=True, help="標籤=路徑，可重複（例 wsl=/home/user）"
+    )
+    disk.set_defaults(handler=_cmd_check_disk)
+
+    guard = sub.add_parser("check-guard", help="防護元件 hang／crash 比例；>1%% 開 critical")
+    guard.add_argument("--hours", type=int, default=24)
+    guard.set_defaults(handler=_cmd_check_guard)
+
+    summary = sub.add_parser("alerts-summary", help="列出未處理告警（給 Operator 的每日彙總）")
+    summary.add_argument("--out", help="另寫入此檔案（覆寫）")
+    summary.set_defaults(handler=_cmd_alerts_summary)
 
     bf = sub.add_parser("backfill", help="把檢索庫已有、catalog 不認得的舊資料補登進 catalog")
     bf.add_argument("--source", action="append", default=[], help="只補登指定來源（可重複）")

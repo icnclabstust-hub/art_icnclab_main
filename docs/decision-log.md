@@ -5,6 +5,29 @@
 
 ---
 
+## 2026-10-01　告警補齊：備份磁碟空間、防護出錯比例、每日彙總（DAT-17、GRD-10、EVL-12）
+
+### 背景
+使用者指示「先做不需要依靠黃金集的事」。`eval.alerts` 原本只有一致性稽核會寫入，且沒有人會看到。
+
+### 已決定
+| 項目 | 決定 | 決定者 |
+|---|---|---|
+| 程式位置 | `ingest/alerts.py` 泛化為共用的「開立／更新／結案」（同指標同路由只留一筆未處理，更新時等級也一起更新，可由 warning 升 critical）；新增 `ingest check-disk`、`check-guard`、`alerts-summary` 三個指令 | AI 判斷（沿用夜間流程已在用的 `python -m ingest`） |
+| 磁碟檢查範圍 | `wsl=$HOME/backups`（主備份）、`f=/mnt/f/art_backups`（鏡像）；<20% warning、<10% critical；路徑不存在時略過 | 依 DAT-17 |
+| 防護出錯比例 | 統計近 24 小時 `eval.guard_shadow` 的 hang＋crash 比例，>1% 開 critical（`gate_error_rate`／`all`）；無紀錄時不判斷 | 依 GRD-10；目前為影子模式資料 |
+| 「呈現給 Operator」 | 夜間流程最後把未處理告警彙總寫進當晚日誌，並覆寫 `logs/alerts/open_alerts.txt`；另提供 `GET /api/v1/eval/alerts`（API §11） | AI 判斷；推播通知另議 |
+
+### 驗證
+- `tests/python/test_alerts_db.py` 新增 5 項（磁碟門檻、warning→critical→結案、出錯比例 2% 開 critical、≤1% 不開、彙總排序）；全量 129 通過、3 略過
+- 實機：WSL 剩 82.6%、F 槽 98.5% → 無告警；防護近 24 小時 2 筆、0 錯誤；彙總「未處理告警：0 筆」；`/api/v1/eval/alerts` 回 `{"alerts":[],"total":0}`
+- 規格：DAT-17、GRD-10、EVL-12 → ✅（EVL-10 仍 ⚠️：量測退步 EVL-08 需黃金集、服務異常 SYS-04 待做）
+
+### 發現（留給備份項目處理）
+- **DAT-15 規定備份「永久保留、不自動清除」，但現行 `backup_postgres.sh`／`backup_neo4j.sh` 只留 14 份、會刪舊檔**，與規格衝突。
+
+---
+
 ## 2026-10-01　術語詞典補巴洛克人名與作品；修正翻譯後英文詞黏在一起
 
 ### 背景
