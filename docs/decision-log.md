@@ -28,6 +28,11 @@
 - **「先標題後藝術家」的順序偏差**：問「某藝術家的作品」時，標題恰含人名的條目（例：Europeana 標題為「Claude Monet」的照片、玫瑰品種）排在該藝術家的真正作品之前。可能解法：兩類命中交錯排序、或標題命中詞恰為藝術家名時降權。
 - Bernini 一題圖路沒有找到 Bernini 作品（`hybrid` 靠向量＋全文仍取得 Bernini 作品）。
 
+### 後續（同日）：Open WebUI 實驗 pipe
+- 新增 `openwebui-pipes/openwebui_system_hybrid_rag_multi_pipe.py`（後端策略 `hybrid`，選單名稱標「實驗」，4 個 8B／12B 模型）；參考來源改顯示各路名次（例「向量#1／全文#1／圖#1」），不顯示不直觀的 RRF 分數。
+- 以 Open WebUI 的 Python 環境端到端實跑（qwen3:8b，「林布蘭的《夜巡》有什麼特色？」）：39 秒，來源第 1 名三路皆為 The Night Watch。**回答含一處幻覺**：稱 Kloveniers 為「市民自願消防隊」（實為火繩槍手民兵連），檢索來源並無此說——即 Phase 4 忠實度守門要處理的問題。
+- **尚未在 Open WebUI 上架**：需由管理員於管理介面 → Functions 貼上檔案內容並啟用（本環境無管理員 API 金鑰，不直接改 webui.db）。
+
 ---
 
 ## 2026-10-01　系統級三路 RRF：新增 4 個策略，與舊 11 個並存（RET-01～07）
