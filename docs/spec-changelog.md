@@ -12,3 +12,4 @@
 - 2026-10-01　set：RET-07=done
 - 2026-10-01　set：RET-05=partial
 - 2026-10-01　set：OPS-05=done
+- 2026-10-01　set：GEN-02=done

@@ -13,18 +13,11 @@ DEFAULT_RRF_K = 60
 CHUNK_SUFFIX = re.compile(r"_chunk\d+$")
 
 
-def document_key(doc: Mapping[str, Any]) -> str:
-    """回傳檢索結果所屬文件的 id，供跨路對齊。
+def document_external_id(doc: Mapping[str, Any]) -> str | None:
+    """檢索結果所屬文件的既有字串 id（catalog ``external_id``）；沒有可靠 id 時回傳 None。
 
     依序採用：``metadata.parent_id``、``metadata.chunk_id`` 去掉 ``_chunkN`` 後綴、
-    圖譜 Artwork 的 ``metadata.id``、圖譜 Artist 的 ``artist:<name>``；都沒有時以
-    來源＋標題＋內容開頭組合（只為了不同文件不被誤併）。
-
-    Args:
-        doc: 單筆檢索結果（``content``／``metadata``／``score``／``source``）。
-
-    Returns:
-        文件 id 字串。
+    圖譜 Artwork 的 ``metadata.id``。
     """
     meta = doc.get("metadata") or {}
     if meta.get("parent_id"):
@@ -33,6 +26,25 @@ def document_key(doc: Mapping[str, Any]) -> str:
         return CHUNK_SUFFIX.sub("", str(meta["chunk_id"]))
     if meta.get("id"):
         return str(meta["id"])
+    return None
+
+
+def document_key(doc: Mapping[str, Any]) -> str:
+    """回傳檢索結果所屬文件的 id，供跨路對齊。
+
+    優先用 ``document_external_id``；圖譜 Artist 節點用 ``artist:<name>``；都沒有時以
+    來源＋標題＋內容開頭組合（只為了不同文件不被誤併）。
+
+    Args:
+        doc: 單筆檢索結果（``content``／``metadata``／``score``／``source``）。
+
+    Returns:
+        文件 id 字串。
+    """
+    external_id = document_external_id(doc)
+    if external_id:
+        return external_id
+    meta = doc.get("metadata") or {}
     if meta.get("name") and not meta.get("title"):
         return f"artist:{meta['name']}"
     content = str(doc.get("content", ""))[:80]

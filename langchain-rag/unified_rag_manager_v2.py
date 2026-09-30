@@ -23,6 +23,7 @@ import uvicorn
 
 # ChromaDB 共用 embedding function（BGE-M3，取代預設的英文為主模型）
 from bge_m3_embedding import BGEM3EmbeddingFunction
+from citations import build_citations
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -268,6 +269,8 @@ class QueryResponse(BaseModel):
     retrieval_time_ms: float
     generation_time_ms: float
     metadata: dict[str, Any]
+    # 規格 GEN-02：每個回應必附引用；index 對應提示詞中的「[文檔 N]」
+    citations: list[dict[str, Any]] = []
 
 
 class HealthResponse(BaseModel):
@@ -603,6 +606,7 @@ class HybridESRAG(RAGStrategy):
                         "artist": src.get("artist", ""),
                         "date": src.get("date", ""),
                         "source": src.get("source", ""),
+                        "chunk_id": doc_id,  # ES _id 即 chunk id，供引用對應 catalog
                     },
                     "score": rrf_scores[doc_id],
                     "source": src.get("source", "Elasticsearch Hybrid"),
@@ -1720,7 +1724,7 @@ async def process_retrieve_only(request: QueryRequest):
     else:
         sources = await strategy.retrieve(query_text, request.max_results)
 
-    return {"sources": sources}
+    return {"sources": sources, "citations": build_citations(sources)}
 
 
 @app.post("/api/v1/query", response_model=QueryResponse)
@@ -1887,6 +1891,7 @@ async def process_query(request: QueryRequest):
         retrieval_time_ms=retrieval_time,
         generation_time_ms=generation_time,
         metadata=metadata,
+        citations=build_citations(sources),
     )
 
     logger.info(

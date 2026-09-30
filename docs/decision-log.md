@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-10-01　回應附引用 `citations[]`（GEN-02）
+
+### 背景
+使用者同意「各層完成度」盤點後的推進順序（附引用 → 防護影子模式＋粗篩 → 量測…），此為第一步；引用是 Phase 4 逐句比對來源的前提。
+
+### 已決定
+| 項目 | 決定 | 決定者 |
+|---|---|---|
+| id 形式 | `doc_id`／`chunk_id` 用攝取層同一套 UUIDv5（`ingest.ids`），可直接對應 catalog 與黃金集 `relevant_doc_ids UUID[]`；另附原字串 `external_id`／`chunk_external_id` | AI 依規格 GEN-02、EVL 判斷 |
+| 找不到可靠 id | 兩個 id 皆為 `null`，不以標題等資訊猜測（例：舊 `graph_only` 回傳的 Artist 節點） | 同上 |
+| `index` | 對應生成提示詞中的「[文檔 N]」，供之後逐句對照 | 同上 |
+| 範圍 | `/api/v1/query` 回應新增 `citations`（不論 `include_sources`）；`/api/v1/retrieve` 同步新增。既有欄位不變；舊 `hybrid_es_rag` metadata 補 `chunk_id`（只增欄位） | 同上 |
+
+### 驗證
+- `tests/python/test_citations.py` 4 項；全量 107 通過、3 略過
+- 實機：`hybrid`／`vector`／`fulltext`／`graph`／`hybrid_es_rag` 共 25 筆引用 `doc_id` **25/25 存在於 `catalog.documents`**，18 筆 `chunk_id` 全數存在於 `catalog.chunks`；`graph_only` 的 Artist 節點引用 id 為 null（符合設計）；`/api/v1/query` 回應含 `citations`
+- 規格 §1.3 架構圖同步更新為 2026-10-01 狀態（原圖仍標 L4「僅設計」）
+
+---
+
 ## 2026-10-01　查詢日誌改受 `BIZ_LOGGING` 管制；系統圖譜路改寫
 
 ### 背景
