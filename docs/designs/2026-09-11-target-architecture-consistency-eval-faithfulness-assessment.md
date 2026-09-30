@@ -5,7 +5,7 @@
 - 任務名稱：RAG 系統目標架構改版（PostgreSQL 一致性層／召回率量測回饋迴路／忠實度安全防護＋模糊檢索＋實驗層）
 - 提案學生：（請填寫）
 - 日期：2026-09-20
-- 對應設計文件：`docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md`
+- 對應設計文件：`docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md`
 
 ## 二、問題定義（三問）
 

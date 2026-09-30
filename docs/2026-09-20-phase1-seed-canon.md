@@ -206,8 +206,8 @@ git status --porcelain           # ← 這就是快照相對正本的獨有內�
 預期會落在第三種，且至少包含：
 
 ```
-docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md
-docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness-assessment.md
+docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md
+docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness-assessment.md
 docs/reports/2026-09-20-infra-findings-report.md
 CLAUDE.md / CODE_REVIEW_STANDARD.md / CODING_STYLE.md
 ```

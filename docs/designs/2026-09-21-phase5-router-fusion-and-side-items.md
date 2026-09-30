@@ -1,7 +1,7 @@
 # 設計文件：Phase 5「路由與融合收斂」＋另案（Redis 語意快取、嵌入模型標註、每週一致性稽核）
 
 > 狀態：**草案，待使用者確認**（GD 步驟 3）。確認前不寫實作。
-> 上位設計：`docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md`（§5.1 Phase 5）
+> 上位設計：`docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md`（§5.1 Phase 5）
 > 前置：Phase 3（量測與路由比較報表）、Phase 4（證據判定與分數校準）
 > 評估表簽核：`...-assessment.md` §九 仍為空白，依 `CLAUDE.md` R5 由使用者／老師填寫。
 > 風險 Tier：**B**（改變所有查詢的檢索路徑）。另案各項依其範圍另列（見 §6）。

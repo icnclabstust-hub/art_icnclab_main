@@ -1,7 +1,7 @@
 # 設計文件：Phase 3「評測迴路」——對話記錄（biz）與召回率量測（eval）
 
 > 狀態：**草案，待使用者確認**（GD 步驟 3）。確認前不寫實作。
-> 上位設計：`docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md`（§5.1 Phase 3、§4.3、§7、§9）
+> 上位設計：`docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md`（§5.1 Phase 3、§4.3、§7、§9）
 > 評估表簽核：`...-assessment.md` §九 目前仍為空白，依 `CLAUDE.md` R5 由使用者／老師填寫。
 > 風險 Tier：**B**（會修改線上後端的請求路徑與 Open WebUI 的 pipe，並新增排程）；開放多人使用後**新增個資處理**，評估表須補「隱私影響評估」。實作前需老師核可。
 > 使用者回覆（2026-09-21）已併入：見 §6（隱私）與 §9（已決定／待訂項目）。

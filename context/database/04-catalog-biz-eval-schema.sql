@@ -1,5 +1,5 @@
 -- Phase 0（GD 通過項目）：新增 catalog / biz / eval 三個 schema
--- 對應設計文件：docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md 第 5.1、5.2 節
+-- 對應設計文件：docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md 第 5.1、5.2 節
 --
 -- 範圍聲明（Phase 0）：僅建立 schema 與資料表結構，不搬移既有 public schema 的任何資料，
 -- 不變更現行爬蟲/RAG 服務的寫入路徑。三個檢索庫（ChromaDB/Elasticsearch/Neo4j）尚未訂閱

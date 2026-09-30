@@ -1,6 +1,6 @@
 # Neo4j 補強執行紀錄（2026-09-21）
 
-> 依 2026-09-21 對專案 Neo4j（7,458 節點）的檢查所列項目逐一處理；設計依據：`docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md` Phase 2。
+> 依 2026-09-21 對專案 Neo4j（7,458 節點）的檢查所列項目逐一處理；設計依據：`docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md` Phase 2。
 
 | # | 項目 | 結果 |
 |---|---|---|

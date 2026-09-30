@@ -1,7 +1,7 @@
 # 現況問題報告：專案資料夾分歧與 WSL 服務現況（2026-09-20）
 
 > 性質：純調查／診斷報告，不含實作變更，符合 `CLAUDE.md` R2 允許輸出的「調查結果」。
-> 起因：因應 RAG 架構改版設計案（`docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md`）的埠號規劃調查，實際打開 WSL 環境查證時，發現數個範圍更廣、且不限於本次改版的現況問題，獨立整理成本報告。
+> 起因：因應 RAG 架構改版設計案（`docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md`）的埠號規劃調查，實際打開 WSL 環境查證時，發現數個範圍更廣、且不限於本次改版的現況問題，獨立整理成本報告。
 > 本檔存放於 `D:\art_icnclab-main`（目前工作資料夾，見下方發現1的說明與限制）。
 
 ## 摘要（風險由高到低）
@@ -65,7 +65,7 @@ Scheduled restart job, restart counter is at N...
 
 ## 發現4：埠號規劃混亂（摘要，完整清單見設計文件附錄B）
 
-已完整記錄於 `docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md` 第5.5.1節與附錄B，此處僅列摘要並標註與本報告發現的交互關係：
+已完整記錄於 `docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md` 第5.5.1節與附錄B，此處僅列摘要並標註與本報告發現的交互關係：
 
 - **ml-service（CUDA/Torch）與 OpenWebUI 靜態分析確認搶同一個埠 `8080`**（`ml-service/start.sh` gunicorn 綁定 `127.0.0.1:8080`）。此衝突後續已因 Open WebUI 埠的調整而避開（見 `2026-09-20-phase0-status.md`）。
 - Backend API 三重身份混淆：`unified_rag_manager_v2.py`(8007) / `create_graphrag_models.py`(硬編碼8010) / `.env.example` 的 `RAG_API_PORT=8008`（查無程式碼讀取）。本次現場查證這兩支 Python 服務目前都沒有在 `Ubuntu-22.04` 上執行，同樣無法即時重現，仍屬靜態分析結論。

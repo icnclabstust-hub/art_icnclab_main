@@ -148,7 +148,7 @@ app.add_middleware(
 )
 
 # ==================== 稽核日誌（Phase 0：唯讀觀察，不影響回應內容） ====================
-# 對應設計文件 docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md。
+# 對應設計文件 docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md。
 # 目的：先為現行請求量觀察一個穩定的 event_id，供 Phase 2 起 catalog.sync_events／
 # Phase 3 起 eval.measurements 建立關聯時使用；本階段不寫入任何資料庫、不改變任何回應內容。
 audit_logger = logging.getLogger("rag_audit")

@@ -1,7 +1,7 @@
 # 設計文件：Phase 1「新架構跑法」——爬蟲資料經 PostgreSQL catalog 攝取並同步三檢索庫
 
 > 狀態：**草案，待使用者確認**（GD 步驟 3）。確認前不寫實作。
-> 上位設計：`docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md`（§5.1 Phase 1／2）
+> 上位設計：`docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md`（§5.1 Phase 1／2）
 > 評估表簽核：`...-assessment.md` §九 目前仍為空白，依 `CLAUDE.md` R5 由使用者／老師填寫。
 
 ## 1. 背景與問題

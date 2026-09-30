@@ -1,7 +1,7 @@
 # 設計文件：Phase 4「可信回答」——證據判定與拒答（4a）、忠實度守門員（4b）、模糊檢索 fallback（4c）
 
 > 狀態：**草案，待使用者確認**（GD 步驟 3）。確認前不寫實作。
-> 上位設計：`docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md`（§4.3、§5.1 Phase 4、§5.3、§5.4）
+> 上位設計：`docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md`（§4.3、§5.1 Phase 4、§5.3、§5.4）
 > 前置：`docs/designs/2026-09-21-phase3-biz-logging-and-recall-eval.md`（黃金測試集與量測是本 Phase 校準門檻的依據）
 > 評估表簽核：`...-assessment.md` §九 仍為空白，依 `CLAUDE.md` R5 由使用者／老師填寫。
 > 風險 Tier：**B**（改變線上回答行為：會拒答、會標示風險）。實作前需老師核可。

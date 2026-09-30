@@ -1,6 +1,6 @@
 # 設計文件：RAG 系統目標架構改版（PostgreSQL 一致性層／召回率量測回饋迴路／忠實度安全防護＋模糊檢索＋實驗層）
 
-> GD 設計閘門步驟 3 產出。對應評估表：`docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness-assessment.md`
+> GD 設計閘門步驟 3 產出。對應評估表：`docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness-assessment.md`
 > 依 `docs/templates/DESIGN_DOC.md` 指引，因涉及 Tier 判定討論（見第 6 節與評估表），本文篇幅不設上限。
 > 本文為**設計層級文件**，僅含資料流、對外介面、schema 草案（型別／DDL 草稿）等示意內容，不含可執行實作程式碼，符合 `CLAUDE.md` R2。
 

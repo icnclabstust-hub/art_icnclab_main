@@ -1,7 +1,7 @@
 # Phase 0 執行狀態（2026-09-20）
 
-> 對應設計文件：`docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md` §5.1 Phase 0
-> 評估表簽核：**尚未取得**（`docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness-assessment.md` §九 仍為空）
+> 對應設計文件：`docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md` §5.1 Phase 0
+> 評估表簽核：**尚未取得**（`docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness-assessment.md` §九 仍為空）
 
 ## 已完成
 
