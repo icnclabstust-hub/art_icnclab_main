@@ -5,6 +5,7 @@
 整合 Ollama 模型和 Neo4j/ChromaDB
 """
 
+import asyncio
 import hashlib
 import json
 import logging
@@ -30,6 +31,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from multilingual_query_translator import MultilingualQueryTranslator
 from neo4j import GraphDatabase
 from pydantic import BaseModel
+from retrieval_fusion import DEFAULT_RRF_K, rrf_fuse
 
 # 導入智能關鍵詞提取器
 from smart_keyword_extractor import SmartKeywordExtractor
@@ -223,6 +225,15 @@ ES_URL = os.getenv("ES_URL", "https://localhost:9200")
 ES_USERNAME = os.getenv("ES_USERNAME", "elastic")
 ES_PASSWORD = os.getenv("ES_PASSWORD")
 ES_INDEX = "art_history_hybrid"
+
+# 系統級三路 RRF（規格 RET-01～07）：model_combination_id 未帶 @策略 時採用 DEFAULT_STRATEGY；
+# 各路各取 HYBRID_TOP_K 筆，融合後取請求的 max_results；HYBRID_ROUTES 可逐路關閉（RET-03）
+DEFAULT_STRATEGY = "hybrid"
+RRF_K = int(os.getenv("RRF_K", str(DEFAULT_RRF_K)))
+HYBRID_TOP_K = int(os.getenv("HYBRID_TOP_K", "20"))
+HYBRID_ROUTES = [
+    r.strip() for r in os.getenv("HYBRID_ROUTES", "vector,fulltext,graph").split(",") if r.strip()
+]
 
 # ==================== 請求/響應模型 ====================
 
@@ -468,7 +479,9 @@ class VectorOnlyRAG(RAGStrategy):
             documents = []
             if results and results["documents"]:
                 for i, doc in enumerate(results["documents"][0]):
-                    metadata = results["metadatas"][0][i] if results["metadatas"] else {}
+                    metadata = dict(results["metadatas"][0][i]) if results["metadatas"] else {}
+                    # chunk id 供系統級 RRF 對齊文件（舊資料可能缺 parent_id）
+                    metadata.setdefault("chunk_id", results["ids"][0][i])
                     distance = results["distances"][0][i] if results["distances"] else 0
 
                     documents.append(
@@ -590,6 +603,79 @@ class HybridESRAG(RAGStrategy):
 
         logger.info(f"Hybrid ES RAG 檢索返回 {len(documents)} 個結果（BM25+kNN RRF 融合）")
         return documents
+
+
+class FulltextESRAG(HybridESRAG):
+    """純全文檢索：Elasticsearch BM25（系統級 RRF 的全文路，RET-01 ``fulltext``）"""
+
+    def __init__(self):
+        RAGStrategy.__init__(self, "Fulltext ES RAG", "Elasticsearch BM25 全文檢索")
+
+    async def retrieve(self, query: str, max_results: int = 5) -> list[dict[str, Any]]:
+        if not ES_PASSWORD:
+            logger.warning("ES_PASSWORD 未設定，全文檢索無法使用，返回空結果")
+            return []
+        body = {
+            "query": {"match": {"content": query}},
+            "size": max_results,
+            "_source": ["content", "source", "title", "artist", "date", "parent_id"],
+        }
+        try:
+            hits = await self._es_search(body)
+        except Exception as e:
+            logger.error(f"全文檢索失敗: {e}")
+            return []
+
+        documents = []
+        for hit in hits:
+            src = hit["_source"]
+            documents.append(
+                {
+                    "content": src.get("content", ""),
+                    "metadata": {
+                        "title": src.get("title", ""),
+                        "artist": src.get("artist", ""),
+                        "date": src.get("date", ""),
+                        "source": src.get("source", ""),
+                        "parent_id": src.get("parent_id", ""),
+                        "chunk_id": hit["_id"],
+                    },
+                    "score": hit.get("_score") or 0.0,
+                    "source": src.get("source", "Elasticsearch"),
+                }
+            )
+        logger.info(f"全文檢索返回 {len(documents)} 個結果（BM25）")
+        return documents
+
+
+class SystemHybridRAG(RAGStrategy):
+    """系統級三路 RRF：向量＋全文＋圖並行檢索後以 RRF 融合（RET-01 ``hybrid``、RET-04～07）
+
+    不做重排（RET-05／06：先取得量測基準）。某一路失敗或未啟用時以其餘路融合，
+    ``metadata.fusion.ranks`` 可看出每份文件來自哪幾路。
+    """
+
+    def __init__(self, routes: dict[str, RAGStrategy]):
+        super().__init__("System Hybrid RAG", "向量＋全文＋圖三路檢索，系統級 RRF 融合")
+        self.routes = routes
+
+    async def retrieve(self, query: str, max_results: int = 5) -> list[dict[str, Any]]:
+        enabled = [r for r in HYBRID_ROUTES if r in self.routes]
+        results = await asyncio.gather(
+            *(self.routes[r].retrieve(query, HYBRID_TOP_K) for r in enabled),
+            return_exceptions=True,
+        )
+        ranked: dict[str, list[dict[str, Any]]] = {}
+        for route, result in zip(enabled, results, strict=True):
+            if isinstance(result, BaseException):
+                logger.error(f"三路 RRF 的 {route} 路失敗，略過: {result}")
+                continue
+            ranked[route] = result
+
+        fused = rrf_fuse(ranked, k=RRF_K, top_n=max_results)
+        counts = "／".join(f"{r} {len(docs)}" for r, docs in ranked.items())
+        logger.info(f"三路 RRF 融合返回 {len(fused)} 個結果（各路候選：{counts}）")
+        return fused
 
 
 # Neo4j 節點上僅供資料維護使用的欄位（軟到期／軟刪除時間戳），不放進提供給模型的文字
@@ -1324,8 +1410,19 @@ class NaiveRAG(RAGStrategy):
 
 # RAG 策略註冊表
 _graph_only_strategy = GraphOnlyRAG()
+_vector_strategy = VectorOnlyRAG()
+
+# 系統級三路檢索（RET-01）：與下方舊策略並存，舊 id 待黃金集基準比較後再另行移除
+# （2026-10-01 使用者選定方案 A，見 docs/decision-log.md）
+_SYSTEM_ROUTES: dict[str, RAGStrategy] = {
+    "vector": _vector_strategy,
+    "fulltext": FulltextESRAG(),
+    "graph": _graph_only_strategy,
+}
 
 RAG_STRATEGIES = {
+    **_SYSTEM_ROUTES,
+    "hybrid": SystemHybridRAG(_SYSTEM_ROUTES),
     "vector_only": VectorOnlyRAG(),
     "hybrid_es_rag": HybridESRAG(),
     "graph_only": _graph_only_strategy,
@@ -1458,6 +1555,8 @@ async def clear_cache():
 async def process_retrieve_only(request: QueryRequest):
     """僅檢索、不生成答案 —— 用於事後回填評測用的原文片段（Faithfulness 計算）"""
     rag_strategy = request.model_combination_id.split("@")[-1]
+    if "@" not in request.model_combination_id and rag_strategy not in RAG_STRATEGIES:
+        rag_strategy = DEFAULT_STRATEGY  # 只給模型名稱時採預設策略（RET-02）
     strategy = RAG_STRATEGIES.get(rag_strategy)
     if not strategy:
         raise HTTPException(status_code=404, detail=f"未找到 RAG 策略: {rag_strategy}")
@@ -1489,7 +1588,9 @@ async def process_query(request: QueryRequest):
     """處理查詢請求"""
     start_time = datetime.now()
 
-    # 解析模型組合 ID
+    # 解析模型組合 ID；只給模型名稱（不帶 @策略）時採預設策略（RET-02）
+    if "@" not in request.model_combination_id:
+        request.model_combination_id = f"{request.model_combination_id}@{DEFAULT_STRATEGY}"
     try:
         llm_model, rag_strategy = request.model_combination_id.split("@")
     except ValueError as e:

@@ -5,6 +5,38 @@
 
 ---
 
+## 2026-10-01　系統級三路 RRF：新增 4 個策略，與舊 11 個並存（RET-01～07）
+
+### 背景
+Phase 5 主幹：向量／全文／圖三路檢索後以 RRF 融合。Phase 5 決策 #3 取消「與舊 11 個策略 id 並存觀察期」，照字面做會讓 Open WebUI 11 支 pipe 與 24 組合評測腳本失效。使用者要求先做比較（兩案表格見本日對話），**選定方案 A**。
+
+### 已決定
+| 項目 | 決定 | 決定者 |
+|---|---|---|
+| 新舊策略 | **方案 A：新增 `vector`／`fulltext`／`graph`／`hybrid`，舊 11 個 id 保留**。舊策略當黃金集基準比較的對照組；比較完成、確認 `hybrid` 不劣於舊策略後，另開 commit 移除 | 使用者，2026-10-01 |
+| 決策 #3 的解讀 | #3 取消的是「自動路由（`auto`）與舊 id 並存觀察」那套方案；保留舊 id 作為**量測對照組**不在 #3 範圍內 | 使用者選方案 A 時一併確認 |
+| 融合粒度 | 以**文件**對齊（Chroma／ES `parent_id` ＝ Neo4j Artwork `id`），同一文件多個 chunk 在同一路只計最前名次；與召回率粒度 EVL-05 一致 | AI 依規格判斷 |
+| 參數 | `RRF_K`=60、`HYBRID_TOP_K`=20、`HYBRID_ROUTES`=`vector,fulltext,graph`（環境變數，可逐路關閉） | 依規格 RET-03／04／07 預設值 |
+| 預設策略 | `/api/v1/query` 只給模型名稱（不帶 `@策略`，原本回 400）時採 `hybrid`；`/api/v1/retrieve` 保留「單給策略名」的舊行為，非策略名時才採 `hybrid` | AI 判斷：不改變任何既有可用請求的行為 |
+| 重排 | 不做（RET-05／06：先取得基準） | 既有決策 #2 |
+
+### 執行
+- `langchain-rag/retrieval_fusion.py`（新）：`document_key`、`rrf_fuse`（純函式）
+- `unified_rag_manager_v2.py`：新增 `FulltextESRAG`（BM25）、`SystemHybridRAG`（三路並行＋RRF，單路失敗時以其餘路融合）；`VectorOnlyRAG` 的 metadata 補 `chunk_id`（只增欄位）；預設策略
+- `rag_config.json` 登記 4 個新策略（只加 `rag_strategies`，未加 `model_combinations`，Open WebUI 選單不變）
+- 規格：RET-01／02／03／04／07 → ✅；RET-05 → ⚠️（RRF 已做，基準待黃金集）
+
+### 驗證
+- `tests/python/test_retrieval_fusion.py` 8 項；全量 98 通過、3 略過
+- 實機（2026-10-01 01:31 重啟後端）以 `/api/v1/retrieve` 查「Rembrandt The Night Watch Baroque painting」：四個新策略皆有結果；`hybrid` 第一名 The Night Watch（vector 1、fulltext 1），其餘為 MET 館藏 Rembrandt 作品；`vector_only` 結果與 `vector` 相同（無回歸）；只給模型名稱時走 `hybrid`
+
+### 發現、未處理
+- **圖路品質差**：`graph`（即既有 `graph_only`）對每個關鍵詞做模糊比對（`~`），此例 "Watch" 命中 Walsh、Lach 等無關藝術家。RRF 會把它們擠出前 5，暫不影響 `hybrid`，但圖路實際貢獻接近零，需另案改善（與 OPS-06 相關）。
+- 三路的 `retrieve` 內部是同步呼叫（Chroma／Neo4j 同步 client），`asyncio.gather` 實際上仍逐路執行；目前延遲可接受（實測約 0.4–0.6 秒，首次向量化暖機另計）。
+- 尚未提供 Open WebUI 的 `hybrid` pipe；目前只能透過 API 使用。
+
+---
+
 ## 2026-10-01　一致性稽核寫入 `eval.alerts`（DAT-05、EVL-11）
 
 ### 背景

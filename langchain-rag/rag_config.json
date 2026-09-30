@@ -142,6 +142,30 @@
       "display_name": "🕸️🤖 Agentic Graph RAG",
       "emoji": "🕸️🤖",
       "description": "LLM規劃查詢策略、多輪自我評估的圖譜檢索"
+    },
+    "vector": {
+      "name": "Vector",
+      "display_name": "🔍 向量（系統路由）",
+      "emoji": "🔍",
+      "description": "系統路由：ChromaDB 稠密向量檢索（RET-01）"
+    },
+    "fulltext": {
+      "name": "Fulltext",
+      "display_name": "📝 全文（系統路由）",
+      "emoji": "📝",
+      "description": "系統路由：Elasticsearch BM25 全文檢索（RET-01）"
+    },
+    "graph": {
+      "name": "Graph",
+      "display_name": "🕸️ 圖（系統路由）",
+      "emoji": "🕸️",
+      "description": "系統路由：Neo4j 知識圖譜檢索（RET-01）"
+    },
+    "hybrid": {
+      "name": "Hybrid",
+      "display_name": "🔀 三路融合（系統路由，預設）",
+      "emoji": "🔀",
+      "description": "系統路由：向量＋全文＋圖三路檢索，系統級 RRF 融合（RET-01～07）"
     }
   },
   "model_combinations": [

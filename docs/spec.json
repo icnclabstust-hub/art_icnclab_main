@@ -641,8 +641,8 @@
       "id": "RET-01",
       "line": 257,
       "section": "5.1 Router",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "策略選擇"
     },
     {
@@ -650,8 +650,8 @@
       "id": "RET-02",
       "line": 258,
       "section": "5.1 Router",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "預設策略"
     },
     {
@@ -659,8 +659,8 @@
       "id": "RET-03",
       "line": 259,
       "section": "5.1 Router",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "逐步啟用"
     },
     {
@@ -668,8 +668,8 @@
       "id": "RET-04",
       "line": 265,
       "section": "5.2 融合與重排",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "RRF 融合"
     },
     {
@@ -677,8 +677,8 @@
       "id": "RET-05",
       "line": 266,
       "section": "5.2 融合與重排",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
       "title": "實作順序"
     },
     {
@@ -695,8 +695,8 @@
       "id": "RET-07",
       "line": 268,
       "section": "5.2 融合與重排",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "候選數"
     },
     {
@@ -815,13 +815,13 @@
     },
     "srs": {
       "path": "docs/2026-09-23-system-spec-srs.md",
-      "sha256": "223135b4568f4a6aa1f7fc3005be74498d1a062a328e4cfba1b2173fbc0a76b8"
+      "sha256": "222874cea6cde5dc8e6712eb7b16c2729b2fc6ac0805ddee8bab4ccc95f0f030"
     }
   },
   "stats": {
     "requirements": 89,
-    "requirements_done": 19,
-    "requirements_todo": 64,
+    "requirements_done": 24,
+    "requirements_todo": 58,
     "steps": 27
   },
   "steps": [
