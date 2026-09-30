@@ -13,3 +13,9 @@
 - 2026-10-01　set：RET-05=partial
 - 2026-10-01　set：OPS-05=done
 - 2026-10-01　set：GEN-02=done
+- 2026-10-01　set：GRD-06=done
+- 2026-10-01　set：GRD-06a=done
+- 2026-10-01　set：GRD-06b=done
+- 2026-10-01　set：GRD-06c=partial
+- 2026-10-01　set：GRD-06d=partial
+- 2026-10-01　set：GRD-08=partial

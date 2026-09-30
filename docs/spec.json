@@ -488,8 +488,8 @@
       "id": "GRD-06",
       "line": 310,
       "section": "6.2 忠實度守門（決策 B4）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "同步粗篩"
     },
     {
@@ -497,8 +497,8 @@
       "id": "GRD-06a",
       "line": 311,
       "section": "6.2 忠實度守門（決策 B4）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "300 ms 的地位"
     },
     {
@@ -506,8 +506,8 @@
       "id": "GRD-06b",
       "line": 312,
       "section": "6.2 忠實度守門（決策 B4）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅",
       "title": "粗篩的實作邊界"
     },
     {
@@ -515,8 +515,8 @@
       "id": "GRD-06c",
       "line": 313,
       "section": "6.2 忠實度守門（決策 B4）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
       "title": "掛住保護硬上限"
     },
     {
@@ -524,8 +524,8 @@
       "id": "GRD-06d",
       "line": 314,
       "section": "6.2 忠實度守門（決策 B4）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
       "title": "掛住與崩潰須可分辨"
     },
     {
@@ -542,8 +542,8 @@
       "id": "GRD-08",
       "line": 316,
       "section": "6.2 忠實度守門（決策 B4）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
       "title": "影子模式"
     },
     {
@@ -815,13 +815,13 @@
     },
     "srs": {
       "path": "docs/2026-09-23-system-spec-srs.md",
-      "sha256": "f15a5b8b6c1e6f94e341060b7f6921422dc99f738d3fb115533ed9a96b4dc335"
+      "sha256": "359402759d9c0f6a18eb5feeeb14187bd6e4120afb5b460becbc6110ecd5da75"
     }
   },
   "stats": {
     "requirements": 89,
-    "requirements_done": 26,
-    "requirements_todo": 56,
+    "requirements_done": 29,
+    "requirements_todo": 50,
     "steps": 27
   },
   "steps": [

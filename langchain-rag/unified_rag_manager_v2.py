@@ -28,6 +28,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from graph_query import DEFAULT_MIN_RELATIVE_SCORE, apply_relative_cutoff, build_lucene_query
+from guard_coarse import CoarseResult, check_answer
 
 # 導入多語言查詢翻譯器
 from multilingual_query_translator import MultilingualQueryTranslator
@@ -243,6 +244,11 @@ GRAPH_MIN_RELATIVE_SCORE = float(
 
 # 是否記錄使用者提問（規格 BIZ-03：法規告知 P0-2 未完成前維持關閉）
 BIZ_LOGGING = os.getenv("BIZ_LOGGING", "false").lower() == "true"
+
+# Phase 4 防護（GRD-06、GRD-08）：shadow＝粗篩只計算並寫入 eval.guard_shadow、不改變回答；
+# off＝完全不執行。門檻須先以影子資料＋黃金集校準（GRD-05），故尚無阻擋模式
+GUARD_MODE = os.getenv("GUARD_MODE", "shadow").lower()
+GUARD_HARD_TIMEOUT_SEC = float(os.getenv("GUARD_HARD_TIMEOUT_SEC", "30"))  # GRD-06c 掛住保護
 
 # ==================== 請求/響應模型 ====================
 
@@ -1727,6 +1733,47 @@ async def process_retrieve_only(request: QueryRequest):
     return {"sources": sources, "citations": build_citations(sources)}
 
 
+async def _run_coarse_guard(
+    answer: str, sources: list[dict[str, Any]]
+) -> tuple[str, CoarseResult | None, float]:
+    """執行同步粗篩，回傳 (gate_status, 結果, 耗時 ms)。
+
+    gate_status 為 ok／hang／crash（GRD-06c／06d）。
+    """
+    start = time.monotonic()
+    texts = [str(doc.get("content", "")) for doc in sources]
+    try:
+        result = await asyncio.wait_for(
+            asyncio.to_thread(check_answer, answer, texts), timeout=GUARD_HARD_TIMEOUT_SEC
+        )
+        status = "ok"
+    except TimeoutError:
+        logger.error(f"粗篩逾 {GUARD_HARD_TIMEOUT_SEC} 秒未完成（gate_hang）")
+        result, status = None, "hang"
+    except Exception as e:
+        logger.error(f"粗篩失敗（gate_crash）: {e}")
+        result, status = None, "crash"
+    return status, result, (time.monotonic() - start) * 1000
+
+
+def _write_guard_shadow(row: dict[str, Any]) -> None:
+    """寫入 eval.guard_shadow；失敗只記 log，不影響已送出的回答。"""
+    try:
+        from guard_store import (
+            record_guard_shadow,  # noqa: PLC0415 -- 延遲載入，DB 問題不影響服務啟動
+        )
+        from ingest.db import connect  # noqa: PLC0415
+
+        with connect() as conn:
+            record_guard_shadow(conn, row)
+    except Exception as e:
+        logger.error(f"影子紀錄寫入失敗: {e}")
+
+
+# 背景寫入工作的參照，避免 task 被回收
+_background_tasks: set[asyncio.Task] = set()
+
+
 @app.post("/api/v1/query", response_model=QueryResponse)
 async def process_query(request: QueryRequest):
     """處理查詢請求"""
@@ -1868,6 +1915,31 @@ async def process_query(request: QueryRequest):
         raise HTTPException(status_code=500, detail=f"生成失敗: {str(e)}") from e
     generation_time = (datetime.now() - generation_start).total_seconds() * 1000
 
+    citations = build_citations(sources)
+
+    # 防護影子模式（GRD-06、GRD-08）：只計算與記錄，回答內容不變
+    guard_info = None
+    if GUARD_MODE == "shadow":
+        gate_status, coarse, guard_ms = await _run_coarse_guard(answer, sources)
+        scores = coarse.summary() if coarse else {}
+        guard_info = {"mode": "shadow", "gate_status": gate_status, "guard_ms": guard_ms, **scores}
+        task = asyncio.create_task(
+            asyncio.to_thread(
+                _write_guard_shadow,
+                {
+                    "route_id": rag_strategy,
+                    "model": llm_model,
+                    "gate_status": gate_status,
+                    "guard_ms": round(guard_ms, 3),
+                    **scores,
+                    "cited_doc_ids": [c["doc_id"] for c in citations if c["doc_id"]],
+                    "cache_hit": cache_hit,
+                },
+            )
+        )
+        _background_tasks.add(task)
+        task.add_done_callback(_background_tasks.discard)
+
     total_time = (datetime.now() - start_time).total_seconds() * 1000
 
     # 構建響應
@@ -1878,6 +1950,9 @@ async def process_query(request: QueryRequest):
         "answer_length": len(answer),
         "cache_hit": cache_hit,
     }
+    if guard_info:
+        metadata["guard"] = guard_info
+        metadata["timings"] = {"guard": guard_info["guard_ms"]}  # GRD-06a
 
     # 如果有翻譯信息，添加到元數據
     if translation_info:
@@ -1891,7 +1966,7 @@ async def process_query(request: QueryRequest):
         retrieval_time_ms=retrieval_time,
         generation_time_ms=generation_time,
         metadata=metadata,
-        citations=build_citations(sources),
+        citations=citations,
     )
 
     logger.info(
