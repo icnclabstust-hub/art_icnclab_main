@@ -19,7 +19,7 @@ DAT-17 的磁碟檢查量的是 WSL 虛擬磁碟**內部**剩餘空間（上限 
 | 夜間爬蟲與備份 | **使用者指示 2026-10-02 起停用**（`Disable-ScheduledTask ArtHistoryDB-DailyCrawl`），等使用者指示再恢復 |
 | D／F 重新分割 | 使用者要求 D = F = 1 TB；同一顆 NVMe 實際只有 1,863 GB，改為**各 931.5 GB**。Windows 內建工具無法把 D 縮出的空間（位於 F 前方）延伸給 F，故採「備份 F → 刪除 F → 縮小 D → 重建 F → 還原」。F 只有 2.3 GB，備份於 `D:\F_backup_2026-10-03` 並驗證後，由使用者核准 UAC 執行管理員腳本，10:41～10:42 完成；還原後逐檔比對 0 缺少、0 大小不同、SHA-256 抽樣 328 檔 0 不一致，`.env` 等機敏檔一致，`git fsck` 通過。腳本與紀錄保存於 `logs/ops/2026-10-03-repartition/` |
 | WSL 主系統搬到 F 槽 | `wsl --manage Ubuntu-22.04 --move F:\wsl\Ubuntu-22.04`；**C 槽 20.8 GB → 146.2 GB（33%），C 槽告警自動結案** |
-| 舊 Ubuntu | 重新匯出到 `D:\wsl_backup\Ubuntu_2026-10-03.tar`、驗證後移除（見下方後續） |
+| 舊 Ubuntu | 使用者指示備份檔改放 F 槽：匯出到 `F:\wsl_backup\Ubuntu_2026-10-03.tar`（83.17 GB，9.2 分鐘，結束代碼 0）；`tar -tvf` 讀到結尾結束代碼 0、179,251 項、83.6 GB，含 Ollama 模型 71.0 GB 與 `/home/user` 133,634 項（103 行 `LIBARCHIVE.xattr` 警告為無害的延伸屬性）。驗證後 `wsl --unregister Ubuntu`，預設 WSL 改為 Ubuntu-22.04。**C 槽 147.5 GB → 233.2 GB（52%）**；主系統 Ollama `NRestarts=0`，埠衝突消失 |
 
 ### 事故：WSL 搬移最後一步 `E_ACCESSDENIED`
 - **現象**：虛擬磁碟檔已搬到 F，但 WSL 回報 `Wsl/Service/MoveDistro/E_ACCESSDENIED`，登記位置（`HKCU\...\Lxss\{…}\BasePath`）仍指向 C 槽舊路徑，主系統無法啟動，全部服務中斷約 4 分鐘（10:48～10:52）。
@@ -30,7 +30,7 @@ DAT-17 的磁碟檢查量的是 WSL 虛擬磁碟**內部**剩餘空間（上限 
 - `shortcut.ico` 留在 C 槽舊資料夾（37 KB，開始功能表與終端機圖示仍引用），不搬。
 
 ### 待使用者處理
-- 刪除 `D:\F_backup_2026-10-03`（已驗證可刪；AI 工具不允許刪除該位置）與 `D:\wsl_backup\Ubuntu_2026-10-01.tar`（10-01 中斷、不完整的匯出檔）。
+- 刪除 `D:\F_backup_2026-10-03`（已驗證可刪；AI 工具不允許刪除該位置），以及 `D:\wsl_backup\` 下兩個不完整的匯出檔：`Ubuntu_2026-10-01.tar`（74.8 GB，10-01 中斷）、`Ubuntu_2026-10-03.tar`（8.66 GB，改放 F 槽時停止）。完整的舊 Ubuntu 備份在 `F:\wsl_backup\Ubuntu_2026-10-03.tar`（還原：`wsl --import Ubuntu <資料夾> F:\wsl_backup\Ubuntu_2026-10-03.tar`）。
 - 恢復夜間爬蟲與備份的時機。
 
 ---
