@@ -116,9 +116,11 @@ run_step "PostgreSQL 備份" bash "$PROJECT_DIR/scripts/ops/backup_postgres.sh"
 run_step "Neo4j 備份（短暫停機）" bash "$PROJECT_DIR/scripts/ops/backup_neo4j.sh"
 
 # 告警檢查與彙總（規格 DAT-17、GRD-10、EVL-12）：結果寫入 eval.alerts，失敗不中斷流程
-log "--- 備份磁碟剩餘空間 ---"
-python3 -m ingest check-disk --path "wsl=$HOME/backups" --path "f=/mnt/f/art_backups" \
-    2>&1 | grep -vE "INFO|Warning|warn" >> "$LOG_FILE"
+# c=/mnt/c：WSL 虛擬磁碟（含全部資料庫與主要備份）實際放在 C 槽；虛擬磁碟內部顯示的剩餘空間
+# 是其 1 TB 上限而非實體空間，C 槽滿了虛擬磁碟就無法成長，必須直接監控 C 槽（2026-10-01 發現）
+log "--- 磁碟剩餘空間 ---"
+python3 -m ingest check-disk --path "c=/mnt/c" --path "wsl=$HOME/backups" \
+    --path "f=/mnt/f/art_backups" 2>&1 | grep -vE "INFO|Warning|warn" >> "$LOG_FILE"
 log "--- 嵌入模型標註（混用或未標註即告警，DAT-31）---"
 python3 -m ingest check-embeddings 2>&1 | grep -vE "INFO|Warning|warn|_transport" >> "$LOG_FILE"
 log "--- 防護元件出錯比例（近 24 小時）---"

@@ -5,6 +5,36 @@
 
 ---
 
+## 2026-10-03　硬碟空間：C 槽只剩 5% 的處置（D／F 重新分割、WSL 搬到 F 槽、移除舊 Ubuntu）
+
+### 背景
+2026-10-01 查出：系統全部資料庫與主要備份都在 C 槽上的 WSL 虛擬磁碟內（`ext4.vhdx` 125.6 GB），另有一個舊的 WSL `Ubuntu`（85.6 GB），C 槽只剩 22 GB（5%）。兩個 WSL 各有一份相同的 10 個 Ollama 模型（約 86 GB／72 GB）。舊 Ubuntu 的 Ollama 因與主系統共用網路、搶不到 11434 埠，已失敗重啟 229 次。完整分析見桌面報告「系統硬碟存放大小問題.pdf」。
+
+### 發現：磁碟告警原本監控錯對象
+DAT-17 的磁碟檢查量的是 WSL 虛擬磁碟**內部**剩餘空間（上限 1 TB，顯示 82.6%），沒有量 C 槽本身；C 槽滿了虛擬磁碟就無法成長。已在夜間流程的 `check-disk` 加上 `c=/mnt/c`，當下即開 critical 告警（剩 4.85%）。
+
+### 已決定與執行（使用者，2026-10-01～10-03）
+| 項目 | 決定／結果 |
+|---|---|
+| 夜間爬蟲與備份 | **使用者指示 2026-10-02 起停用**（`Disable-ScheduledTask ArtHistoryDB-DailyCrawl`），等使用者指示再恢復 |
+| D／F 重新分割 | 使用者要求 D = F = 1 TB；同一顆 NVMe 實際只有 1,863 GB，改為**各 931.5 GB**。Windows 內建工具無法把 D 縮出的空間（位於 F 前方）延伸給 F，故採「備份 F → 刪除 F → 縮小 D → 重建 F → 還原」。F 只有 2.3 GB，備份於 `D:\F_backup_2026-10-03` 並驗證後，由使用者核准 UAC 執行管理員腳本，10:41～10:42 完成；還原後逐檔比對 0 缺少、0 大小不同、SHA-256 抽樣 328 檔 0 不一致，`.env` 等機敏檔一致，`git fsck` 通過。腳本與紀錄保存於 `logs/ops/2026-10-03-repartition/` |
+| WSL 主系統搬到 F 槽 | `wsl --manage Ubuntu-22.04 --move F:\wsl\Ubuntu-22.04`；**C 槽 20.8 GB → 146.2 GB（33%），C 槽告警自動結案** |
+| 舊 Ubuntu | 重新匯出到 `D:\wsl_backup\Ubuntu_2026-10-03.tar`、驗證後移除（見下方後續） |
+
+### 事故：WSL 搬移最後一步 `E_ACCESSDENIED`
+- **現象**：虛擬磁碟檔已搬到 F，但 WSL 回報 `Wsl/Service/MoveDistro/E_ACCESSDENIED`，登記位置（`HKCU\...\Lxss\{…}\BasePath`）仍指向 C 槽舊路徑，主系統無法啟動，全部服務中斷約 4 分鐘（10:48～10:52）。
+- **最可能原因**：新格式化的 F 槽根目錄只給一般使用者 Modify，不含變更權限；舊位置 `C:\Users\user\AppData\Local\wsl` 使用者有 Full Control。WSL 收尾時需要調整新資料夾權限被拒。舊資料夾只剩 `shortcut.ico`（其他檔案搬移未完成）與登記未更新，都與「最後一步失敗」一致；因錯誤發生在 WSL 服務內部，無法 100% 重現確認。
+- **處置**：先以 `reg export` 備份原設定（`logs/ops/2026-10-03-repartition/wsl_registry_before_fix.reg`），再把 `BasePath` 改為 `F:\wsl\Ubuntu-22.04`（即 `--move` 本應做的事）；WSL 隨即正常啟動。
+- **驗證**：8 個服務全部 UP；catalog、ChromaDB、ES 皆 5,442 chunk，Neo4j Artwork 3,973／Artist 2,940，與搬移前一致。
+- **預防**：已以 `icacls F:\wsl /grant MSI\user:(OI)(CI)F` 給使用者完整權限，避免日後壓縮、調整大小或再次搬移時又被拒。**之後搬移任何 WSL 前，先確認目標資料夾使用者有 Full Control。**
+- `shortcut.ico` 留在 C 槽舊資料夾（37 KB，開始功能表與終端機圖示仍引用），不搬。
+
+### 待使用者處理
+- 刪除 `D:\F_backup_2026-10-03`（已驗證可刪；AI 工具不允許刪除該位置）與 `D:\wsl_backup\Ubuntu_2026-10-01.tar`（10-01 中斷、不完整的匯出檔）。
+- 恢復夜間爬蟲與備份的時機。
+
+---
+
 ## 2026-10-01　維運查核：移除 Yale 後的夜間流程（OPS-02）、ES 重啟迴圈（OPS-07）
 
 ### OPS-02：✅ 確認
