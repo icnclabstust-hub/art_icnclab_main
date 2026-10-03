@@ -118,10 +118,12 @@ class SpecializedArtCrawler {
     async searchMetMuseum(query, limit = 10) {
         try {
             // 先搜尋物件ID
-            const searchUrl = 'https://collectionapi.metmuseum.org/public/collection/v1/search';
+            // v1/search 已於 2026-10-01 停用（回 410），改用分頁的 v1.1/search
+            const searchUrl = 'https://collectionapi.metmuseum.org/public/collection/v1.1/search';
             const searchParams = {
                 q: query,
-                hasImages: true
+                hasImages: true,
+                limit
             };
 
             const searchResponse = await getWithRetry(searchUrl, {

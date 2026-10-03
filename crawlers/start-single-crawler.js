@@ -47,7 +47,8 @@ class SimpleMETCrawler {
     async searchDepartment(departmentId, departmentName, limit) {
         try {
             console.log(`🔍 搜尋部門: ${departmentName} (ID: ${departmentId})`);
-            const searchUrl = `${this.baseUrl}/search?departmentId=${departmentId}&hasImages=true&q=art`;
+            // v1/search 已於 2026-10-01 停用（回 410），改用分頁的 v1.1/search
+            const searchUrl = `${this.baseUrl}.1/search?departmentId=${departmentId}&hasImages=true&q=art&limit=${limit}`;
             const response = await axios.get(searchUrl, { timeout: 30000, headers: REQUEST_HEADERS });
 
             if (!response.data || !response.data.objectIDs) {
@@ -150,7 +151,7 @@ class SimpleMETCrawler {
     async crawlByFallbackQueries(queries = ['Renaissance painting', 'Impressionist painting', 'Modern sculpture']) {
         for (const query of queries) {
             console.log(`\n📚 處理查詢: "${query}"`);
-            const searchUrl = `${this.baseUrl}/search?hasImages=true&q=${encodeURIComponent(query)}`;
+            const searchUrl = `${this.baseUrl}.1/search?hasImages=true&q=${encodeURIComponent(query)}&limit=20`;
             let objectIDs = [];
             try {
                 const response = await axios.get(searchUrl, { timeout: 30000, headers: REQUEST_HEADERS });

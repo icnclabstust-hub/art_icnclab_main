@@ -59,7 +59,8 @@ class RenaissanceBaroqueCrawler {
     async searchByQuery(query, limit = 30) {
         try {
             console.log(`🔍 搜尋: "${query}"`);
-            const searchUrl = `${this.baseUrl}/search?hasImages=true&q=${encodeURIComponent(query)}`;
+            // v1/search 已於 2026-10-01 停用（回 410），改用分頁的 v1.1/search
+            const searchUrl = `${this.baseUrl}.1/search?hasImages=true&q=${encodeURIComponent(query)}&limit=${limit}`;
             const response = await axios.get(searchUrl, { timeout: 30000, headers: REQUEST_HEADERS });
 
             if (!response.data || !response.data.objectIDs) {
@@ -79,7 +80,7 @@ class RenaissanceBaroqueCrawler {
     async searchByArtist(artistName, limit = 15) {
         try {
             console.log(`👨‍🎨 搜尋藝術家: "${artistName}"`);
-            const searchUrl = `${this.baseUrl}/search?hasImages=true&artistOrCulture=true&q=${encodeURIComponent(artistName)}`;
+            const searchUrl = `${this.baseUrl}.1/search?hasImages=true&artistOrCulture=true&q=${encodeURIComponent(artistName)}&limit=${limit}`;
             const response = await axios.get(searchUrl, { timeout: 30000, headers: REQUEST_HEADERS });
 
             if (!response.data || !response.data.objectIDs) {
