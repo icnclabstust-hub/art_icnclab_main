@@ -29,7 +29,15 @@ DAT-17 的磁碟檢查量的是 WSL 虛擬磁碟**內部**剩餘空間（上限 
 - **預防**：已以 `icacls F:\wsl /grant MSI\user:(OI)(CI)F` 給使用者完整權限，避免日後壓縮、調整大小或再次搬移時又被拒。**之後搬移任何 WSL 前，先確認目標資料夾使用者有 Full Control。**
 - `shortcut.ico` 留在 C 槽舊資料夾（37 KB，開始功能表與終端機圖示仍引用），不搬。
 
+### 後續（同日）：專案路徑一律改指 F 槽，`D:\art_icnclab-main` 可刪除
+使用者確認 `F:\art_icnclab-main` 為專案正確位置。評估 `D:\art_icnclab-main`（舊的非 git 副本＋Windows 版 `py311_venv`，約 0.8 GB）：D 獨有的 29 項皆為 F 已刻意處理者（Docker 遺留、Yale、舊 Node 架構已封存至 `archive/`、改名的設計文件），兩邊都有的檔案沒有任何一個 D 較新；排程、執行中程式、環境變數、VS Code、終端機、git、WSL 設定都沒有引用 D 槽。處理：
+- F 槽 `py311_venv` 是從 D 複製來的，39 個指令啟動檔（`pip.exe`、`chroma.exe` 等）與 7 個文字檔（`activate`、`activate.bat`、5 支腳本的 shebang）寫死 D 槽路徑：以 venv 內建 distlib 依套件登記的 entry points 離線重新產生啟動檔、`pip3.11.exe` 由 `pip.exe` 複製、文字檔直接替換路徑（保留原換行格式，已與備份比對除路徑外完全相同），`pyvenv.cfg` 的建立指令同步更新；實測 `pip`、`pip3.11`、`dotenv`、`activate.bat`、`import chromadb/neo4j` 皆正常。修改前 `Scripts` 已備份。
+- `scripts/collect.sh`：移除兩個過時的 `.env` 候選（`/mnt/d/art_icnclab/.env`、不存在的 `/mnt/f/art_icnclab/.env`）。
+- `docs/` 內 9/20～9/23 的報告與計畫提到 D 槽路徑者為當時紀錄，**不改寫**。
+- 刪除 `D:\art_icnclab-main` 前，VS Code 與 Claude Code 需改由 `F:\art_icnclab-main` 開啟（本對話工作目錄仍在 D 槽）。Claude Code 的專案記憶為空，無需搬移。
+
 ### 待使用者處理
+- 改由 F 槽開啟 VS Code／Claude Code 後，刪除 `D:\art_icnclab-main`。
 - 刪除 `D:\F_backup_2026-10-03`（已驗證可刪；AI 工具不允許刪除該位置），以及 `D:\wsl_backup\` 下兩個不完整的匯出檔：`Ubuntu_2026-10-01.tar`（74.8 GB，10-01 中斷）、`Ubuntu_2026-10-03.tar`（8.66 GB，改放 F 槽時停止）。完整的舊 Ubuntu 備份在 `F:\wsl_backup\Ubuntu_2026-10-03.tar`（還原：`wsl --import Ubuntu <資料夾> F:\wsl_backup\Ubuntu_2026-10-03.tar`）。
 - 恢復夜間爬蟲與備份的時機。
 
