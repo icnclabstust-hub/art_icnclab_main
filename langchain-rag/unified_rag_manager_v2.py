@@ -1723,6 +1723,16 @@ async def list_open_alerts():
     return {"alerts": alerts, "total": len(alerts)}
 
 
+def _route_for_source_filter(
+    rag_strategy: str, strategy: RAGStrategy, source_filter: str | None
+) -> tuple[str, RAGStrategy]:
+    """只有向量策略支援 source_filter；帶了過濾條件就改走 vector，避免條件被默默忽略。"""
+    if source_filter and not isinstance(strategy, VectorOnlyRAG):
+        logger.info(f"source_filter={source_filter}：策略 {rag_strategy} 不支援，改走 vector")
+        return "vector", RAG_STRATEGIES["vector"]
+    return rag_strategy, strategy
+
+
 @app.post("/api/v1/retrieve")
 async def process_retrieve_only(request: QueryRequest):
     """僅檢索、不生成答案 —— 用於事後回填評測用的原文片段（Faithfulness 計算）"""
@@ -1732,6 +1742,7 @@ async def process_retrieve_only(request: QueryRequest):
     strategy = RAG_STRATEGIES.get(rag_strategy)
     if not strategy:
         raise HTTPException(status_code=404, detail=f"未找到 RAG 策略: {rag_strategy}")
+    rag_strategy, strategy = _route_for_source_filter(rag_strategy, strategy, request.source_filter)
 
     query_text = request.query
     if query_translator:
@@ -1819,6 +1830,7 @@ async def process_query(request: QueryRequest):
     strategy = RAG_STRATEGIES.get(rag_strategy)
     if not strategy:
         raise HTTPException(status_code=404, detail=f"未找到 RAG 策略: {rag_strategy}")
+    rag_strategy, strategy = _route_for_source_filter(rag_strategy, strategy, request.source_filter)
 
     # 多語言查詢翻譯
     original_query = request.query
