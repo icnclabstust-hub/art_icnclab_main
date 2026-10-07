@@ -57,25 +57,43 @@ class MultilingualQueryTranslator:
         }
 
     def _build_term_index(self) -> dict[str, str]:
-        """建立術語索引：多語言詞彙 -> 英文關鍵詞"""
+        """建立術語索引：多語言詞彙 -> 英文關鍵詞；另記錄每個詞條出自哪些語言"""
         index = {}
+        self.term_langs: dict[str, set[str]] = {}
 
         for _category, terms in self.dictionary.items():
             for english_key, translations in terms.items():
                 # 英文本身也加入索引
                 index[english_key.lower()] = english_key
+                self.term_langs.setdefault(english_key.lower(), set()).add("en")
 
                 # 遍歷所有語言的翻譯
                 if isinstance(translations, dict):
-                    for _lang, term_list in translations.items():
-                        if isinstance(term_list, list):
-                            for term in term_list:
+                    for lang, term_list in translations.items():
+                        for term in term_list if isinstance(term_list, list) else [term_list]:
+                            if isinstance(term, str):
                                 index[term.lower()] = english_key
-                        elif isinstance(term_list, str):
-                            index[term_list.lower()] = english_key
+                                self.term_langs.setdefault(term.lower(), set()).add(lang)
 
         logger.info(f"✅ 建立術語索引: {len(index)} 個詞條")
         return index
+
+    def _match_allowed(self, text: str, pos: int, term: str, lang: str) -> bool:
+        """排除三種誤中：日文專用詞套在中文查詢（「影」→ shadow 切開「影響」）、
+        拉丁字母詞出現在更長的字裡（color 切開 colorito）、單一漢字出現在複合詞裡
+        （「光」切開「光學」、「銅」把「銅版畫」譯成 bronze）"""
+        if self.term_langs.get(term) == {"ja"} and lang != "ja":
+            return False
+        before = text[pos - 1] if pos > 0 else ""
+        after = text[pos + len(term)] if pos + len(term) < len(text) else ""
+        if term.isascii():
+            return not (before.isascii() and before.isalnum()) and not (
+                after.isascii() and after.isalnum()
+            )
+        if len(term) == 1:
+            cjk = self.language_patterns["zh"]
+            return not cjk.match(before) and not cjk.match(after)
+        return True
 
     def detect_language(self, text: str) -> str:
         """檢測文本的主要語言
@@ -91,10 +109,11 @@ class MultilingualQueryTranslator:
         has_japanese = bool(self.language_patterns["ja"].search(text))
         has_korean = bool(self.language_patterns["ko"].search(text))
 
-        if has_chinese:
-            return "zh"
-        elif has_japanese:
+        # 日文也含漢字，先看假名；中文查詢不會有假名
+        if has_japanese:
             return "ja"
+        elif has_chinese:
+            return "zh"
         elif has_korean:
             return "ko"
         elif text.isascii():
@@ -113,6 +132,7 @@ class MultilingualQueryTranslator:
         """
         # 將查詢轉為小寫以匹配索引
         query_lower = query.lower()
+        lang = self.detect_language(query)
 
         # 按詞彙長度排序（先匹配長詞彙）
         sorted_terms = sorted(self.term_index.keys(), key=len, reverse=True)
@@ -130,8 +150,10 @@ class MultilingualQueryTranslator:
                     if pos == -1:
                         break
 
-                    # 檢查是否與已找到的替換位置重疊
-                    if not any(pos <= p < pos + len(term) for p in replaced_positions):
+                    # 檢查是否與已找到的替換位置重疊，以及是否為誤中（見 _match_allowed）
+                    if not any(
+                        pos <= p < pos + len(term) for p in replaced_positions
+                    ) and self._match_allowed(query_lower, pos, term, lang):
                         # 獲取英文對應詞
                         english_term = self.term_index[term]
                         original_term = query[pos : pos + len(term)]
