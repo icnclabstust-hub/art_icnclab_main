@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-10-07　新架構路線圖、語料凍結、Phase 3 量測實作；更正機構欄位覆蓋率
+
+### 已決定（使用者，2026-10-07）
+1. **路線圖**：`docs/2026-10-07-roadmap.md` 確認；關鍵路徑為黃金集標註 → 基準 → 夜間回歸 → Phase 4。
+2. **語料凍結於 10-07**：`docs/golden-set/2026-10-07-corpus-snapshot.json`（4,523 件、6,270 chunk、指紋 `16d0d8de…`）。夜間攝取**不暫停**（暫停會連帶停備份）；量測 run 記錄與快照的漂移。候選表已依此重產為 `docs/golden-set/2026-10-07-baroque-candidates.xlsx`（371 筆；10-01 版保留存查，**不再使用**）。
+3. **影子模式流量**：合成查詢（黃金集＋改寫題）＋ 4-2 條件放寬為只看「滿 2 週」；論文須註明分布非真實。
+4. **Phase 3 量測照設計文件實作**（eval 部分）。與設計文件的差異以規格為準，已記於設計文件開頭：不開 trace 入口、改量系統路由、門檻 5 個百分點。
+5. **P1-4、方案 C 的 GD 步驟 1 依建議**，合併為 `docs/designs/2026-10-07-institution-context-and-met-rotation.md`（Tier B，待老師核可）。
+
+### 已實作
+- Phase 3 量測：migration `09-eval-runs-and-golden-labels.sql`（已套用至正式 DB，純新增）、`langchain-rag/evalrun/`（`import-golden`／`run`／`report`）、測試 13 項。端到端：以規則判定的**測試用**標註在正式 DB 跑一次（15 題、4 路由、192 筆量測、9.6 秒），結束後清除；過程中因 psycopg 最外層 `transaction()` 會自行提交，15 筆測試題曾寫入 `eval.golden_queries`，已以 `annotator = 'TEST_ONLY'` 刪除，正式表回到 0 筆。
+- 量測**尚未**加入夜間流程（設計 §8：須先有基準 run）。
+
+### 更正 2026-10-03 的紀錄
+- 「`specialized_art` 的 provider 0/706」「Europeana 來源只有 64% 可依機構過濾」**不成立**：`normalize_specialized_art` 把 provider 存在 **`department`**，Europeana 來源 552/552、MET 來源 345/345 皆有值。Europeana 來源的機構資訊實為 100%；P1-4 原決策 5「修爬蟲補 provider」因此不需要。唯一限制是部分 provider 為彙整平台而非實際收藏館。
+
+### 待老師核可（Tier B）
+- P0-2／P0-3 爬蟲產出與流程間隔告警：已實作、測試通過，**未提交**。原判定為小型修正，實作約 150 行超出例外門檻，補做評估表；art_icnclab 依 CODE_REVIEW_STANDARD §2 屬 Tier B，依 T-Tier-01 往上取。順帶修正 `diagnose.py` 每日 log 檔名樣式錯誤（從未掃描過每日 log）與知識庫 403／429 樣式誤中時間戳毫秒，一併在此待核。
+- P1-4a＋方案 C 設計與評估表。
+
+---
+
 ## 2026-10-03　系統檢查與暫定評估基準；精篩改用 LLM 裁判；機構檢索的立即修正
 
 ### 背景
