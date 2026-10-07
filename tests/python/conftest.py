@@ -19,6 +19,7 @@ MIGRATIONS = [
     REPO_ROOT / "context" / "database" / "05-catalog-external-id-and-grants.sql",
     REPO_ROOT / "context" / "database" / "07-eval-alerts-severity-and-grants.sql",
     REPO_ROOT / "context" / "database" / "08-eval-guard-shadow.sql",
+    REPO_ROOT / "context" / "database" / "09-eval-runs-and-golden-labels.sql",
 ]
 
 PREREQUISITES = """

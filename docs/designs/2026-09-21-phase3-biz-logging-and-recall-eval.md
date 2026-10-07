@@ -1,6 +1,13 @@
 # 設計文件：Phase 3「評測迴路」——對話記錄（biz）與召回率量測（eval）
 
-> 狀態：**草案，待使用者確認**（GD 步驟 3）。確認前不寫實作。
+> 狀態：**eval（量測）部分已確認並實作**（使用者 2026-10-07 確認「照文件實作」；老師核可見 P0-4，2026-09-23）。biz（對話記錄）部分仍隨 `BIZ_LOGGING` 鎖定暫緩。
+>
+> **實作與本文件的差異（2026-10-07，以規格書 09-23 版為準）**：
+> 1. 不新增 §5.3 的 `/api/v1/eval/trace`：`hybrid` 內部各路取 20 筆，與分別呼叫既有 `/api/v1/retrieve` 相同，改用後者，不新增對外介面。
+> 2. 量測路由改為系統路由 `vector`／`fulltext`／`graph`（`pre_fusion`）與 `hybrid`（`post_rrf`），取代 §9 第 6 項的舊四策略（RET-01 已改以系統路由為預設）。
+> 3. 退步告警門檻採規格 EVL-08 的「**> 5 個百分點**」，取代 §2 第 4 項的「下降超過 10%」。
+> 4. 黃金集欄位依 EVL-03 另加 `gold_answer_points`、`annotator`、`annotated_at`、`query_type`、`golden_key`；`eval.runs` 另記 `commit_sha`、`config_snapshot`、`corpus_snapshot`（EVL-07、路線圖 R2）。見 `context/database/09-eval-runs-and-golden-labels.sql`、`langchain-rag/evalrun/`。
+> 5. 依 §8 第 4 步，量測**尚未**加入夜間流程，待黃金集標註並設定基準 run 後才加入。
 > 上位設計：`docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md`（§5.1 Phase 3、§4.3、§7、§9）
 > 評估表簽核：`...-assessment.md` §九 目前仍為空白，依 `CLAUDE.md` R5 由使用者／老師填寫。
 > 風險 Tier：**B**（會修改線上後端的請求路徑與 Open WebUI 的 pipe，並新增排程）；開放多人使用後**新增個資處理**，評估表須補「隱私影響評估」。實作前需老師核可。
