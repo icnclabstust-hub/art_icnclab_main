@@ -248,6 +248,20 @@ BIZ_LOGGING = os.getenv("BIZ_LOGGING", "false").lower() == "true"
 # Phase 4 防護（GRD-06、GRD-08）：shadow＝粗篩只計算並寫入 eval.guard_shadow、不改變回答；
 # off＝完全不執行。門檻須先以影子資料＋黃金集校準（GRD-05），故尚無阻擋模式
 GUARD_MODE = os.getenv("GUARD_MODE", "shadow").lower()
+
+# 查詢翻譯（設計 docs/designs/2026-10-09-llm-query-translation.md）：llm_hinted＝詞典找出已知術語
+# 作為提示，再由 LLM 譯成英文檢索用查詢，生成仍用原問題；dictionary＝原本的詞典替換行為
+QUERY_TRANSLATION = os.getenv("QUERY_TRANSLATION", "llm_hinted").lower()
+QUERY_TRANSLATION_MODEL = os.getenv("QUERY_TRANSLATION_MODEL", "qwen3:8b")
+QUERY_TRANSLATION_TIMEOUT_SEC = float(os.getenv("QUERY_TRANSLATION_TIMEOUT_SEC", "3"))
+QUERY_TRANSLATION_PROMPT = """你是藝術史檢索系統的查詢翻譯器。
+把下列中文問題翻成英文，供英文藝術史資料庫檢索。
+規則：藝術家用通行英文全名；作品用通行英文標題；藝術史術語用英文學界慣用詞；
+問題中已出現的拉丁文、義大利文、德文術語（如 Kunstwollen、colorito、sfumato）原樣保留。
+{hint}只輸出英文翻譯，不要解釋。
+問題：{query}"""
+_translation_cache: dict[str, tuple[str, dict[str, Any]]] = {}
+_TRANSLATION_CACHE_MAX = 512
 GUARD_HARD_TIMEOUT_SEC = float(os.getenv("GUARD_HARD_TIMEOUT_SEC", "30"))  # GRD-06c 掛住保護
 
 # ==================== 請求/響應模型 ====================
@@ -1735,6 +1749,67 @@ def _route_for_source_filter(
     return rag_strategy, strategy
 
 
+async def translate_for_retrieval(query: str) -> tuple[str, dict[str, Any] | None]:
+    """產生檢索用查詢；英文問題原樣使用。
+
+    Returns:
+        (檢索用查詢, 翻譯資訊)；未翻譯時資訊為 None。``llm_hinted`` 模式下 LLM 失敗或逾時
+        退回詞典結果（method=fallback），不影響回答。
+    """
+    if not query_translator:
+        return query, None
+    if query in _translation_cache:
+        return _translation_cache[query]
+    start = time.monotonic()
+    result = query_translator.translate_query(query)
+    if result["detected_language"] == "en":
+        return query, None
+    dictionary_query = result["translated_query"] if result["found_terms"] else query
+    info: dict[str, Any] = {
+        "original_query": query,
+        "detected_language": result["detected_language"],
+        "found_terms": result["found_terms"],
+    }
+    retrieval_query, method = dictionary_query, "dictionary"
+    if QUERY_TRANSLATION == "llm_hinted":
+        hint = (
+            "已知術語對照（請採用）：" + "；".join(result["found_terms"]) + "\n"
+            if result["found_terms"]
+            else ""
+        )
+        try:
+            response = await conn_manager.http_client.post(
+                f"{OLLAMA_BASE_URL}/api/generate",
+                json={
+                    "model": QUERY_TRANSLATION_MODEL,
+                    "prompt": QUERY_TRANSLATION_PROMPT.format(hint=hint, query=query[:500]),
+                    "stream": False,
+                    "think": False,
+                    "options": {"temperature": 0, "num_predict": 300},
+                },
+                timeout=QUERY_TRANSLATION_TIMEOUT_SEC,
+            )
+            response.raise_for_status()
+            text = " ".join(response.json().get("response", "").split()).strip("\"'「」 ")
+            if text:
+                retrieval_query, method = text, "llm_hinted"
+            else:
+                method = "fallback"
+        except Exception as e:
+            logger.warning(f"⚠️ LLM 查詢翻譯失敗，退回詞典: {e}")
+            method = "fallback"
+    info.update(
+        retrieval_query=retrieval_query,
+        method=method,
+        ms=round((time.monotonic() - start) * 1000, 1),
+    )
+    if method != "fallback":  # 暫時性失敗不快取，下次再試 LLM
+        if len(_translation_cache) >= _TRANSLATION_CACHE_MAX:
+            _translation_cache.pop(next(iter(_translation_cache)))
+        _translation_cache[query] = (retrieval_query, info)
+    return retrieval_query, info
+
+
 @app.post("/api/v1/retrieve")
 async def process_retrieve_only(request: QueryRequest):
     """僅檢索、不生成答案 —— 用於事後回填評測用的原文片段（Faithfulness 計算）"""
@@ -1746,17 +1821,11 @@ async def process_retrieve_only(request: QueryRequest):
         raise HTTPException(status_code=404, detail=f"未找到 RAG 策略: {rag_strategy}")
     rag_strategy, strategy = _route_for_source_filter(rag_strategy, strategy, request.source_filter)
 
-    query_text = request.query
-    if query_translator:
-        try:
-            translation_result = query_translator.translate_query(request.query)
-            if (
-                translation_result["detected_language"] != "en"
-                and translation_result["found_terms"]
-            ):
-                query_text = translation_result["translated_query"]
-        except Exception as e:
-            logger.warning(f"⚠️ 查詢翻譯失敗: {e}，使用原始查詢")
+    try:
+        query_text, _ = await translate_for_retrieval(request.query)
+    except Exception as e:
+        logger.warning(f"⚠️ 查詢翻譯失敗: {e}，使用原始查詢")
+        query_text = request.query
 
     if isinstance(strategy, VectorOnlyRAG):
         sources = await strategy.retrieve(
@@ -1834,35 +1903,17 @@ async def process_query(request: QueryRequest):
         raise HTTPException(status_code=404, detail=f"未找到 RAG 策略: {rag_strategy}")
     rag_strategy, strategy = _route_for_source_filter(rag_strategy, strategy, request.source_filter)
 
-    # 多語言查詢翻譯
-    original_query = request.query
-    translation_info = None
-
-    if query_translator:
-        try:
-            translation_result = query_translator.translate_query(request.query)
-            translated_query = translation_result["translated_query"]
-
-            # 如果檢測到非英文且進行了翻譯，使用翻譯後的查詢
-            if (
-                translation_result["detected_language"] != "en"
-                and translation_result["found_terms"]
-            ):
-                n_terms = len(translation_result["found_terms"])
-                logger.info(
-                    f"🌐 查詢翻譯: '{original_query}' -> '{translated_query}' "
-                    f"({translation_result['detected_language']}, {n_terms} 個術語)"
-                )
-                request.query = translated_query
-                translation_info = {
-                    "original_query": original_query,
-                    "translated_query": translated_query,
-                    "detected_language": translation_result["detected_language"],
-                    "found_terms": translation_result["found_terms"],
-                    "translation_method": translation_result["translation_method"],
-                }
-        except Exception as e:
-            logger.warning(f"⚠️ 查詢翻譯失敗: {e}，使用原始查詢")
+    # 多語言查詢翻譯：llm_hinted 只把譯文用於檢索，生成仍用原問題；dictionary 維持原行為
+    # （譯文同時用於檢索與生成）
+    try:
+        retrieval_query, translation_info = await translate_for_retrieval(request.query)
+    except Exception as e:
+        logger.warning(f"⚠️ 查詢翻譯失敗: {e}，使用原始查詢")
+        retrieval_query, translation_info = request.query, None
+    if translation_info:
+        logger.info(f"🌐 查詢翻譯（{translation_info['method']}）完成，{translation_info['ms']} ms")
+        if QUERY_TRANSLATION == "dictionary":
+            request.query = retrieval_query
 
     # 檢索階段
     retrieval_start = datetime.now()
@@ -1876,14 +1927,16 @@ async def process_query(request: QueryRequest):
     async def _retrieve():
         if isinstance(strategy, VectorOnlyRAG):
             return await strategy.retrieve(
-                request.query, request.max_results, source_filter=request.source_filter
+                retrieval_query, request.max_results, source_filter=request.source_filter
             )
-        return await strategy.retrieve(request.query, request.max_results)
+        return await strategy.retrieve(retrieval_query, request.max_results)
 
     try:
         # 嘗試從緩存獲取
         if query_cache:
-            cached_sources = query_cache.get(request.query, cache_strategy_key, request.max_results)
+            cached_sources = query_cache.get(
+                retrieval_query, cache_strategy_key, request.max_results
+            )
             if cached_sources is not None:
                 sources = cached_sources
                 cache_hit = True
@@ -1891,7 +1944,7 @@ async def process_query(request: QueryRequest):
                 # 緩存未命中，執行檢索
                 sources = await _retrieve()
                 # 保存到緩存
-                query_cache.set(request.query, cache_strategy_key, request.max_results, sources)
+                query_cache.set(retrieval_query, cache_strategy_key, request.max_results, sources)
         else:
             # 緩存未啟用
             sources = await _retrieve()
