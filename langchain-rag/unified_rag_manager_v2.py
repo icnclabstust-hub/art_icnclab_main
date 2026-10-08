@@ -10,6 +10,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import time
 import uuid
 from collections import OrderedDict
@@ -267,7 +268,21 @@ QUERY_TRANSLATION_PROMPT = """你是藝術史檢索系統的查詢翻譯器。
 {hint}只輸出英文翻譯，不要解釋。
 問題：{query}"""
 _translation_cache: dict[tuple[str, str], tuple[str, dict[str, Any]]] = {}
+# llama3.1:8b 常不理會「只輸出翻譯」，先加「Here is the translation (of the problem):」之類開場白，
+# 這些字會直接進入檢索（spike 實測「林布蘭的肖像畫」命中 5→1）；去掉開場白與外圍引號
+_TRANSLATION_PREAMBLE = re.compile(
+    r"^\s*(here\s+is|here's|translation)\b[^:：]{0,60}[:：]\s*", re.IGNORECASE
+)
 _TRANSLATION_CACHE_MAX = 512
+
+
+def _clean_translation(text: str) -> str:
+    """把 LLM 譯文整理成單行檢索字串：去開場白、換行與外圍引號。"""
+    text = " ".join(text.split())
+    text = _TRANSLATION_PREAMBLE.sub("", text)
+    return text.strip("\"'「」“” ")
+
+
 GUARD_HARD_TIMEOUT_SEC = float(os.getenv("GUARD_HARD_TIMEOUT_SEC", "30"))  # GRD-06c 掛住保護
 
 # ==================== 請求/響應模型 ====================
@@ -1830,7 +1845,7 @@ async def translate_for_retrieval(
                 timeout=QUERY_TRANSLATION_TIMEOUT_SEC,
             )
             response.raise_for_status()
-            text = " ".join(response.json().get("response", "").split()).strip("\"'「」 ")
+            text = _clean_translation(response.json().get("response", ""))
             if text:
                 retrieval_query, method = text, "llm_hinted"
             else:
