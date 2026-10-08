@@ -567,7 +567,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-01",
-      "line": 528,
+      "line": 529,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -576,7 +576,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-02",
-      "line": 529,
+      "line": 530,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "✅",
       "status_raw": "✅",
@@ -585,7 +585,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-03",
-      "line": 530,
+      "line": 531,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -594,7 +594,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-04",
-      "line": 531,
+      "line": 532,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -603,7 +603,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-05",
-      "line": 532,
+      "line": 533,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "✅",
       "status_raw": "✅",
@@ -612,7 +612,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-06",
-      "line": 533,
+      "line": 534,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -621,7 +621,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-07",
-      "line": 534,
+      "line": 535,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "⚠️",
       "status_raw": "⚠️",
@@ -630,7 +630,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-08",
-      "line": 535,
+      "line": 536,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -815,7 +815,7 @@
     },
     "srs": {
       "path": "docs/2026-09-23-system-spec-srs.md",
-      "sha256": "54044a9dfe594f294b643df62cfc1df794bfa0ed1805b83ec72f95b215a709b2"
+      "sha256": "a083f0634390a73b93293992667de889e281e4c6d5f571f3568aedfee624d962"
     }
   },
   "stats": {
