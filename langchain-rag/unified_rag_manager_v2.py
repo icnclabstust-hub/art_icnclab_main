@@ -254,6 +254,8 @@ GUARD_MODE = os.getenv("GUARD_MODE", "shadow").lower()
 QUERY_TRANSLATION = os.getenv("QUERY_TRANSLATION", "llm_hinted").lower()
 QUERY_TRANSLATION_MODEL = os.getenv("QUERY_TRANSLATION_MODEL", "qwen3:8b")
 QUERY_TRANSLATION_TIMEOUT_SEC = float(os.getenv("QUERY_TRANSLATION_TIMEOUT_SEC", "3"))
+# Ollama 閒置 5 分鐘即卸載模型，冷啟動載入會超過逾時而退回詞典；延長常駐並在啟動時預熱
+QUERY_TRANSLATION_KEEP_ALIVE = os.getenv("QUERY_TRANSLATION_KEEP_ALIVE", "30m")
 QUERY_TRANSLATION_PROMPT = """你是藝術史檢索系統的查詢翻譯器。
 把下列中文問題翻成英文，供英文藝術史資料庫檢索。
 規則：藝術家用通行英文全名；作品用通行英文標題；藝術史術語用英文學界慣用詞；
@@ -1616,6 +1618,8 @@ async def startup_event():
     try:
         query_translator = MultilingualQueryTranslator()
         logger.info("✅ 多語言查詢翻譯器已初始化")
+        if QUERY_TRANSLATION == "llm_hinted":
+            _schedule_translation_warmup()
     except Exception as e:
         logger.warning(f"⚠️ 多語言翻譯器初始化失敗: {e}，將繼續使用原始查詢")
         query_translator = None
@@ -1749,6 +1753,25 @@ def _route_for_source_filter(
     return rag_strategy, strategy
 
 
+async def _warm_translation_model() -> None:
+    """請 Ollama 載入翻譯模型並常駐（不生成內容）；失敗只記 log。"""
+    try:
+        await conn_manager.http_client.post(
+            f"{OLLAMA_BASE_URL}/api/generate",
+            json={"model": QUERY_TRANSLATION_MODEL, "keep_alive": QUERY_TRANSLATION_KEEP_ALIVE},
+            timeout=120.0,
+        )
+        logger.info(f"✅ 翻譯模型 {QUERY_TRANSLATION_MODEL} 已預熱")
+    except Exception as e:
+        logger.warning(f"⚠️ 翻譯模型預熱失敗: {e!r}")
+
+
+def _schedule_translation_warmup() -> None:
+    task = asyncio.create_task(_warm_translation_model())
+    _background_tasks.add(task)
+    task.add_done_callback(_background_tasks.discard)
+
+
 async def translate_for_retrieval(query: str) -> tuple[str, dict[str, Any] | None]:
     """產生檢索用查詢；英文問題原樣使用。
 
@@ -1786,6 +1809,7 @@ async def translate_for_retrieval(query: str) -> tuple[str, dict[str, Any] | Non
                     "stream": False,
                     "think": False,
                     "options": {"temperature": 0, "num_predict": 300},
+                    "keep_alive": QUERY_TRANSLATION_KEEP_ALIVE,
                 },
                 timeout=QUERY_TRANSLATION_TIMEOUT_SEC,
             )
@@ -1796,8 +1820,9 @@ async def translate_for_retrieval(query: str) -> tuple[str, dict[str, Any] | Non
             else:
                 method = "fallback"
         except Exception as e:
-            logger.warning(f"⚠️ LLM 查詢翻譯失敗，退回詞典: {e}")
+            logger.warning(f"⚠️ LLM 查詢翻譯失敗，退回詞典: {e!r}")
             method = "fallback"
+            _schedule_translation_warmup()  # 多半是冷啟動：背景載入模型，下一題就能用
     info.update(
         retrieval_query=retrieval_query,
         method=method,
