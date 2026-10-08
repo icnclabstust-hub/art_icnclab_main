@@ -252,7 +252,11 @@ GUARD_MODE = os.getenv("GUARD_MODE", "shadow").lower()
 # 查詢翻譯（設計 docs/designs/2026-10-09-llm-query-translation.md）：llm_hinted＝詞典找出已知術語
 # 作為提示，再由 LLM 譯成英文檢索用查詢，生成仍用原問題；dictionary＝原本的詞典替換行為
 QUERY_TRANSLATION = os.getenv("QUERY_TRANSLATION", "llm_hinted").lower()
-QUERY_TRANSLATION_MODEL = os.getenv("QUERY_TRANSLATION_MODEL", "qwen3:8b")
+# same＝用本次請求的生成模型翻譯：筆電 GPU 只有 8 GB，翻譯與生成用不同模型時每題都要換模型、
+# 冷啟動逾時而退回詞典（spike 2026-10-09 實測）。
+# /retrieve 沒有生成模型時用 QUERY_TRANSLATION_DEFAULT_MODEL
+QUERY_TRANSLATION_MODEL = os.getenv("QUERY_TRANSLATION_MODEL", "same")
+QUERY_TRANSLATION_DEFAULT_MODEL = os.getenv("QUERY_TRANSLATION_DEFAULT_MODEL", "llama3.1:8b")
 QUERY_TRANSLATION_TIMEOUT_SEC = float(os.getenv("QUERY_TRANSLATION_TIMEOUT_SEC", "3"))
 # Ollama 閒置 5 分鐘即卸載模型，冷啟動載入會超過逾時而退回詞典；延長常駐並在啟動時預熱
 QUERY_TRANSLATION_KEEP_ALIVE = os.getenv("QUERY_TRANSLATION_KEEP_ALIVE", "30m")
@@ -262,7 +266,7 @@ QUERY_TRANSLATION_PROMPT = """你是藝術史檢索系統的查詢翻譯器。
 問題中已出現的拉丁文、義大利文、德文術語（如 Kunstwollen、colorito、sfumato）原樣保留。
 {hint}只輸出英文翻譯，不要解釋。
 問題：{query}"""
-_translation_cache: dict[str, tuple[str, dict[str, Any]]] = {}
+_translation_cache: dict[tuple[str, str], tuple[str, dict[str, Any]]] = {}
 _TRANSLATION_CACHE_MAX = 512
 GUARD_HARD_TIMEOUT_SEC = float(os.getenv("GUARD_HARD_TIMEOUT_SEC", "30"))  # GRD-06c 掛住保護
 
@@ -1753,26 +1757,37 @@ def _route_for_source_filter(
     return rag_strategy, strategy
 
 
-async def _warm_translation_model() -> None:
+def _translation_model(llm_model: str | None) -> str:
+    """翻譯用的模型：same 時用生成模型（未知模型改用預設），否則用設定值。"""
+    if QUERY_TRANSLATION_MODEL != "same":
+        return QUERY_TRANSLATION_MODEL
+    known = RAG_CONFIG.get("llm_models", {})
+    return llm_model if llm_model in known else QUERY_TRANSLATION_DEFAULT_MODEL
+
+
+async def _warm_translation_model(model: str | None = None) -> None:
     """請 Ollama 載入翻譯模型並常駐（不生成內容）；失敗只記 log。"""
+    model = _translation_model(model)
     try:
         await conn_manager.http_client.post(
             f"{OLLAMA_BASE_URL}/api/generate",
-            json={"model": QUERY_TRANSLATION_MODEL, "keep_alive": QUERY_TRANSLATION_KEEP_ALIVE},
+            json={"model": model, "keep_alive": QUERY_TRANSLATION_KEEP_ALIVE},
             timeout=120.0,
         )
-        logger.info(f"✅ 翻譯模型 {QUERY_TRANSLATION_MODEL} 已預熱")
+        logger.info(f"✅ 翻譯模型 {model} 已預熱")
     except Exception as e:
         logger.warning(f"⚠️ 翻譯模型預熱失敗: {e!r}")
 
 
-def _schedule_translation_warmup() -> None:
-    task = asyncio.create_task(_warm_translation_model())
+def _schedule_translation_warmup(model: str | None = None) -> None:
+    task = asyncio.create_task(_warm_translation_model(model))
     _background_tasks.add(task)
     task.add_done_callback(_background_tasks.discard)
 
 
-async def translate_for_retrieval(query: str) -> tuple[str, dict[str, Any] | None]:
+async def translate_for_retrieval(
+    query: str, llm_model: str | None = None
+) -> tuple[str, dict[str, Any] | None]:
     """產生檢索用查詢；英文問題原樣使用。
 
     Returns:
@@ -1781,8 +1796,9 @@ async def translate_for_retrieval(query: str) -> tuple[str, dict[str, Any] | Non
     """
     if not query_translator:
         return query, None
-    if query in _translation_cache:
-        return _translation_cache[query]
+    model = _translation_model(llm_model)
+    if (model, query) in _translation_cache:
+        return _translation_cache[(model, query)]
     start = time.monotonic()
     result = query_translator.translate_query(query)
     if result["detected_language"] == "en":
@@ -1804,7 +1820,7 @@ async def translate_for_retrieval(query: str) -> tuple[str, dict[str, Any] | Non
             response = await conn_manager.http_client.post(
                 f"{OLLAMA_BASE_URL}/api/generate",
                 json={
-                    "model": QUERY_TRANSLATION_MODEL,
+                    "model": model,
                     "prompt": QUERY_TRANSLATION_PROMPT.format(hint=hint, query=query[:500]),
                     "stream": False,
                     "think": False,
@@ -1822,16 +1838,17 @@ async def translate_for_retrieval(query: str) -> tuple[str, dict[str, Any] | Non
         except Exception as e:
             logger.warning(f"⚠️ LLM 查詢翻譯失敗，退回詞典: {e!r}")
             method = "fallback"
-            _schedule_translation_warmup()  # 多半是冷啟動：背景載入模型，下一題就能用
+            _schedule_translation_warmup(model)  # 多半是冷啟動：背景載入模型，下一題就能用
     info.update(
         retrieval_query=retrieval_query,
         method=method,
+        model=model,
         ms=round((time.monotonic() - start) * 1000, 1),
     )
     if method != "fallback":  # 暫時性失敗不快取，下次再試 LLM
         if len(_translation_cache) >= _TRANSLATION_CACHE_MAX:
             _translation_cache.pop(next(iter(_translation_cache)))
-        _translation_cache[query] = (retrieval_query, info)
+        _translation_cache[(model, query)] = (retrieval_query, info)
     return retrieval_query, info
 
 
@@ -1847,7 +1864,9 @@ async def process_retrieve_only(request: QueryRequest):
     rag_strategy, strategy = _route_for_source_filter(rag_strategy, strategy, request.source_filter)
 
     try:
-        query_text, _ = await translate_for_retrieval(request.query)
+        query_text, _ = await translate_for_retrieval(
+            request.query, request.model_combination_id.split("@")[0]
+        )
     except Exception as e:
         logger.warning(f"⚠️ 查詢翻譯失敗: {e}，使用原始查詢")
         query_text = request.query
@@ -1931,7 +1950,7 @@ async def process_query(request: QueryRequest):
     # 多語言查詢翻譯：llm_hinted 只把譯文用於檢索，生成仍用原問題；dictionary 維持原行為
     # （譯文同時用於檢索與生成）
     try:
-        retrieval_query, translation_info = await translate_for_retrieval(request.query)
+        retrieval_query, translation_info = await translate_for_retrieval(request.query, llm_model)
     except Exception as e:
         logger.warning(f"⚠️ 查詢翻譯失敗: {e}，使用原始查詢")
         retrieval_query, translation_info = request.query, None
