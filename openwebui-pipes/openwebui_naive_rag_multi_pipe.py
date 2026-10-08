@@ -17,11 +17,8 @@ LLM_MODELS = {
     "llama3-1-8b": ("llama3.1:8b", "Llama 3.1 8B"),
     "deepseek-r1-8b": ("deepseek-r1:8b", "DeepSeek-R1 8B"),
     "qwen3-8b": ("qwen3:8b", "Qwen3 8B"),
-    # 20B 以上暫時下架（2026-08-18 拍板：課堂以 8B/12B 為主；模型仍在 Ollama，
-    # 重新上架解除下列註解即可）
-    # "deepseek-r1-32b": ("deepseek-r1:32b", "DeepSeek-R1 32B"),
-    # "qwen3-30b": ("qwen3:30b", "Qwen3 30B"),
-    # "gpt-oss-20b": ("gpt-oss:20b", "GPT-OSS 20B"),
+    # 2026-10-08：deepseek-r1:32b、qwen3:30b 已自 Ollama 刪除；gpt-oss:20b 暫留選單（使用者決定）
+    "gpt-oss-20b": ("gpt-oss:20b", "GPT-OSS 20B"),
     "gemma4-12b": ("gemma4:12b", "Gemma 4 12B"),
 }
 
