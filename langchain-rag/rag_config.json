@@ -32,6 +32,14 @@
       "temperature_default": 0.15,
       "description": "專注推理，邏輯思維優秀"
     },
+    "qwen3:14b": {
+      "name": "Qwen 3 14B",
+      "display_name": "🔮 Qwen 3 14B",
+      "provider": "ollama",
+      "context_length": 32768,
+      "temperature_default": 0.1,
+      "description": "Qwen 3 中型版本（24 組合評估與模型補充層候選；未開放於 Open WebUI 選單）"
+    },
     "gpt-oss:20b": {
       "name": "GPT-OSS 20B",
       "display_name": "🤖 GPT-OSS 20B",
