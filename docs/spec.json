@@ -9,7 +9,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "BIZ-01",
-      "line": 392,
+      "line": 393,
       "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
       "status_glyph": "⚠️",
       "status_raw": "⚠️",
@@ -18,7 +18,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "BIZ-02",
-      "line": 393,
+      "line": 394,
       "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
       "status_glyph": "❌",
       "status_raw": "❌ **前置需求**",
@@ -27,7 +27,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "BIZ-03",
-      "line": 394,
+      "line": 395,
       "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
       "status_glyph": "❌",
       "status_raw": "❌ 鎖定關閉",
@@ -36,7 +36,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "BIZ-04",
-      "line": 395,
+      "line": 396,
       "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -45,7 +45,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "BIZ-04a",
-      "line": 396,
+      "line": 397,
       "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
       "status_glyph": "✔",
       "status_raw": "✔ 已定案",
@@ -54,7 +54,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "BIZ-04b",
-      "line": 397,
+      "line": 398,
       "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -63,7 +63,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "BIZ-05",
-      "line": 398,
+      "line": 399,
       "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
       "status_glyph": "⏸",
       "status_raw": "⏸ 暫緩",
@@ -72,7 +72,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "BIZ-06",
-      "line": 399,
+      "line": 400,
       "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
       "status_glyph": "✅",
       "status_raw": "✅ 已豁免",
@@ -81,7 +81,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "BIZ-07",
-      "line": 400,
+      "line": 401,
       "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
       "status_glyph": "❌",
       "status_raw": "❌ 另案",
@@ -270,7 +270,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-01",
-      "line": 355,
+      "line": 356,
       "section": "8.1 黃金測試集（決策 A1）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -279,7 +279,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-02",
-      "line": 356,
+      "line": 357,
       "section": "8.1 黃金測試集（決策 A1）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -288,7 +288,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-03",
-      "line": 357,
+      "line": 358,
       "section": "8.1 黃金測試集（決策 A1）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -297,7 +297,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-04",
-      "line": 358,
+      "line": 359,
       "section": "8.1 黃金測試集（決策 A1）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -306,7 +306,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-05",
-      "line": 364,
+      "line": 365,
       "section": "8.2 量測（決策 A2）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -315,7 +315,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-06",
-      "line": 365,
+      "line": 366,
       "section": "8.2 量測（決策 A2）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -324,7 +324,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-07",
-      "line": 366,
+      "line": 367,
       "section": "8.2 量測（決策 A2）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -333,7 +333,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-08",
-      "line": 367,
+      "line": 368,
       "section": "8.2 量測（決策 A2）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -342,7 +342,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-10",
-      "line": 373,
+      "line": 374,
       "section": "8.3 告警（決策 B12）",
       "status_glyph": "⚠️",
       "status_raw": "⚠️",
@@ -351,7 +351,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-11",
-      "line": 374,
+      "line": 375,
       "section": "8.3 告警（決策 B12）",
       "status_glyph": "✅",
       "status_raw": "✅",
@@ -360,7 +360,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-12",
-      "line": 375,
+      "line": 376,
       "section": "8.3 告警（決策 B12）",
       "status_glyph": "✅",
       "status_raw": "✅",
@@ -369,7 +369,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-15",
-      "line": 381,
+      "line": 382,
       "section": "8.4 拒答複審（決策 B6）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -378,7 +378,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-15a",
-      "line": 382,
+      "line": 383,
       "section": "8.4 拒答複審（決策 B6）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -387,7 +387,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-16",
-      "line": 383,
+      "line": 384,
       "section": "8.4 拒答複審（決策 B6）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -396,7 +396,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "EVL-17",
-      "line": 384,
+      "line": 385,
       "section": "8.4 拒答複審（決策 B6）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -405,7 +405,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GEN-01",
-      "line": 342,
+      "line": 343,
       "section": "7. 生成層規格（L6）",
       "status_glyph": "✅",
       "status_raw": "✅／⚠️",
@@ -414,7 +414,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GEN-02",
-      "line": 343,
+      "line": 344,
       "section": "7. 生成層規格（L6）",
       "status_glyph": "✅",
       "status_raw": "✅",
@@ -423,7 +423,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GEN-03",
-      "line": 344,
+      "line": 345,
       "section": "7. 生成層規格（L6）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -432,7 +432,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GEN-04",
-      "line": 345,
+      "line": 346,
       "section": "7. 生成層規格（L6）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -441,7 +441,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-01",
-      "line": 309,
+      "line": 310,
       "section": "6.1 證據判定與拒答",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -450,7 +450,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-02",
-      "line": 310,
+      "line": 311,
       "section": "6.1 證據判定與拒答",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -459,7 +459,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-03",
-      "line": 311,
+      "line": 312,
       "section": "6.1 證據判定與拒答",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -468,7 +468,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-04",
-      "line": 312,
+      "line": 313,
       "section": "6.1 證據判定與拒答",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -477,7 +477,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-05",
-      "line": 313,
+      "line": 314,
       "section": "6.1 證據判定與拒答",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -486,7 +486,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-06",
-      "line": 319,
+      "line": 320,
       "section": "6.2 忠實度守門（決策 B4）",
       "status_glyph": "✅",
       "status_raw": "✅",
@@ -495,7 +495,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-06a",
-      "line": 320,
+      "line": 321,
       "section": "6.2 忠實度守門（決策 B4）",
       "status_glyph": "✅",
       "status_raw": "✅",
@@ -504,7 +504,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-06b",
-      "line": 321,
+      "line": 322,
       "section": "6.2 忠實度守門（決策 B4）",
       "status_glyph": "✅",
       "status_raw": "✅",
@@ -513,7 +513,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-06c",
-      "line": 322,
+      "line": 323,
       "section": "6.2 忠實度守門（決策 B4）",
       "status_glyph": "⚠️",
       "status_raw": "⚠️",
@@ -522,7 +522,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-06d",
-      "line": 323,
+      "line": 324,
       "section": "6.2 忠實度守門（決策 B4）",
       "status_glyph": "⚠️",
       "status_raw": "⚠️",
@@ -531,7 +531,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-07",
-      "line": 324,
+      "line": 325,
       "section": "6.2 忠實度守門（決策 B4）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -540,7 +540,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-08",
-      "line": 325,
+      "line": 326,
       "section": "6.2 忠實度守門（決策 B4）",
       "status_glyph": "⚠️",
       "status_raw": "⚠️",
@@ -549,7 +549,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-09",
-      "line": 331,
+      "line": 332,
       "section": "6.3 失效行為（決策 B3）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -558,7 +558,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "GRD-10",
-      "line": 332,
+      "line": 333,
       "section": "6.3 失效行為（決策 B3）",
       "status_glyph": "✅",
       "status_raw": "✅",
@@ -567,7 +567,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-01",
-      "line": 529,
+      "line": 530,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -576,7 +576,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-02",
-      "line": 530,
+      "line": 531,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "✅",
       "status_raw": "✅",
@@ -585,7 +585,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-03",
-      "line": 531,
+      "line": 532,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -594,7 +594,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-04",
-      "line": 532,
+      "line": 533,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -603,7 +603,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-05",
-      "line": 533,
+      "line": 534,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "✅",
       "status_raw": "✅",
@@ -612,7 +612,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-06",
-      "line": 534,
+      "line": 535,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -621,7 +621,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-07",
-      "line": 535,
+      "line": 536,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "⚠️",
       "status_raw": "⚠️",
@@ -630,7 +630,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "OPS-08",
-      "line": 536,
+      "line": 537,
       "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -693,7 +693,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "RET-07",
-      "line": 280,
+      "line": 281,
       "section": "5.2 融合與重排",
       "status_glyph": "✅",
       "status_raw": "✅",
@@ -702,7 +702,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "RET-08",
-      "line": 286,
+      "line": 287,
       "section": "5.3 外部補充（決策 B13）",
       "status_glyph": "❌",
       "status_raw": "❌ 不實作",
@@ -710,8 +710,17 @@
     },
     {
       "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-09",
+      "line": 280,
+      "section": "5.2 融合與重排",
+      "status_glyph": "✅",
+      "status_raw": "✅ 2026-10-09（設計 `docs/designs/2026-10-09-llm-query-translation.md`）",
+      "title": "查詢翻譯"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
       "id": "RET-10",
-      "line": 292,
+      "line": 293,
       "section": "5.4 快取（決策 B10）",
       "status_glyph": "⚠️",
       "status_raw": "⚠️",
@@ -720,7 +729,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "RET-11",
-      "line": 293,
+      "line": 294,
       "section": "5.4 快取（決策 B10）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -729,7 +738,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "RET-12",
-      "line": 294,
+      "line": 295,
       "section": "5.4 快取（決策 B10）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -738,7 +747,7 @@
     {
       "file": "2026-09-23-system-spec-srs.md",
       "id": "RET-13",
-      "line": 295,
+      "line": 296,
       "section": "5.4 快取（決策 B10）",
       "status_glyph": "❌",
       "status_raw": "❌",
@@ -815,12 +824,12 @@
     },
     "srs": {
       "path": "docs/2026-09-23-system-spec-srs.md",
-      "sha256": "a083f0634390a73b93293992667de889e281e4c6d5f571f3568aedfee624d962"
+      "sha256": "1d4bf0f79fac6f6c61f0294c1db733e65d870dc71aeec529916804782f776b53"
     }
   },
   "stats": {
-    "requirements": 89,
-    "requirements_done": 37,
+    "requirements": 90,
+    "requirements_done": 38,
     "requirements_todo": 42,
     "steps": 27
   },

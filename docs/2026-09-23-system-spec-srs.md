@@ -277,6 +277,7 @@
 | RET-04 | RRF 融合 | 採 Reciprocal Rank Fusion：`score(d) = Σ 1/(k + rank_i(d))`，`k` 預設 60，可設定 | ✅ |
 | RET-05 | 實作順序 | **先做系統級 RRF**，取得量測基準後，再依量測結果決定是否加入重排與 Router 權重 | ⚠️ |
 | RET-06 | Reranker | 本階段**不使用 cross-encoder**；以輕量重排（RRF 分數 + 來源權重 + 時效）實作 | ❌ |
+| RET-09 | 查詢翻譯 | 非英文問題以「詞典找出已知術語作提示＋本次請求的生成模型」譯成英文**檢索用查詢**；生成使用**原問題**；LLM 失敗或逾時（3 秒）退回詞典。設定見 `.env.example`（QUERY_TRANSLATION*） | ✅ 2026-10-09（設計 `docs/designs/2026-10-09-llm-query-translation.md`） |
 | RET-07 | 候選數 | 各路取 top-k（預設 20），融合後取 top-n（預設 5）進入生成 | ✅ |
 
 ### 5.3 外部補充（決策 B13）
