@@ -73,6 +73,8 @@ def run(coro):
         ("Translation: What is sfumato?", "What is sfumato?"),
         ("  What did Vermeer paint?\n", "What did Vermeer paint?"),
         ("Here are the works by Vermeer", "Here are the works by Vermeer"),  # 不是開場白，保留
+        ("<think>\n嗯，用戶要翻譯…\n</think>\nWhen was it painted?", "When was it painted?"),
+        ("<think>\n思考到一半被截斷", ""),  # 沒有結束標記：整段不可用
     ],
 )
 def test_clean_translation_strips_preamble_quotes_and_newlines(rag, raw, clean):

@@ -277,7 +277,14 @@ _TRANSLATION_CACHE_MAX = 512
 
 
 def _clean_translation(text: str) -> str:
-    """把 LLM 譯文整理成單行檢索字串：去開場白、換行與外圍引號。"""
+    """把 LLM 譯文整理成單行檢索字串：去思考段落、開場白、換行與外圍引號。
+
+    deepseek-r1 不理會 think=false，會把 ``<think>…</think>`` 直接寫在回應裡；思考被長度上限
+    截斷（沒有結束標記）時整段不可用，回傳空字串讓呼叫端退回詞典。
+    """
+    text = re.sub(r"<think>.*?</think>", " ", text, flags=re.DOTALL)
+    if "<think>" in text:
+        return ""
     text = " ".join(text.split())
     text = _TRANSLATION_PREAMBLE.sub("", text)
     return text.strip("\"'「」“” ")
@@ -1839,7 +1846,8 @@ async def translate_for_retrieval(
                     "prompt": QUERY_TRANSLATION_PROMPT.format(hint=hint, query=query[:500]),
                     "stream": False,
                     "think": False,
-                    "options": {"temperature": 0, "num_predict": 300},
+                    # 會先思考的模型（deepseek-r1）思考也算在長度內，300 會被截斷
+                    "options": {"temperature": 0, "num_predict": 1024},
                     "keep_alive": QUERY_TRANSLATION_KEEP_ALIVE,
                 },
                 timeout=QUERY_TRANSLATION_TIMEOUT_SEC,
