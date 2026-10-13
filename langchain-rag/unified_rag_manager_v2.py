@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 import chromadb
+import graph_anchor
 import httpx
 import uvicorn
 
@@ -35,6 +36,7 @@ from guard_coarse import CoarseResult, check_answer
 from multilingual_query_translator import MultilingualQueryTranslator
 from neo4j import GraphDatabase
 from pydantic import BaseModel
+from redis_cache import RedisQueryCache, connect_redis, is_refusal
 from retrieval_fusion import DEFAULT_RRF_K, rrf_fuse
 
 # 導入智能關鍵詞提取器
@@ -93,7 +95,14 @@ class QueryCache:
         self.stats["misses"] += 1
         return None
 
-    def set(self, query: str, strategy: str, max_results: int, data: list[dict[str, Any]]):
+    def set(
+        self,
+        query: str,
+        strategy: str,
+        max_results: int,
+        data: list[dict[str, Any]],
+        doc_ids: Any = (),  # 介面同 RedisQueryCache；記憶體版不做來源失效
+    ):
         """設置緩存結果"""
         key = self._make_key(query, strategy, max_results)
 
@@ -419,6 +428,13 @@ keyword_extractor = None
 
 # 全局查詢緩存
 query_cache = None
+CACHE_BACKEND = os.getenv("CACHE_BACKEND", "redis").lower()
+RAG_CACHE_REDIS_URL = os.getenv("RAG_CACHE_REDIS_URL", "redis://localhost:6379/0")
+
+
+def _source_doc_ids(sources: list[dict[str, Any]]) -> list[str]:
+    """快取項用到的來源 doc_id（RET-12 反向索引）。"""
+    return [c["doc_id"] for c in build_citations(sources) if c.get("doc_id")]
 
 # ==================== RAG 策略實現 ====================
 
@@ -724,7 +740,12 @@ class SystemHybridRAG(RAGStrategy):
     async def retrieve(self, query: str, max_results: int = 5) -> list[dict[str, Any]]:
         enabled = [r for r in HYBRID_ROUTES if r in self.routes]
         results = await asyncio.gather(
-            *(self.routes[r].retrieve(query, HYBRID_TOP_K) for r in enabled),
+            *(
+                self.routes[r].retrieve(query, HYBRID_TOP_K, fallback=False)
+                if r == "graph" and isinstance(self.routes[r], SystemGraphRAG)
+                else self.routes[r].retrieve(query, HYBRID_TOP_K)
+                for r in enabled
+            ),
             return_exceptions=True,
         )
         ranked: dict[str, list[dict[str, Any]]] = {}
@@ -734,6 +755,14 @@ class SystemHybridRAG(RAGStrategy):
                 continue
             ranked[route] = result
 
+        # 限制條件題（錨點模板 T2：畫家 × 館藏）命中時只採 graph 結果：其他兩路不會套用館藏條件，
+        # 融合後會擠掉符合條件的作品（spike 限制條件 F1：graph 0.970、hybrid 0.665，2026-10-11）
+        graph_docs = ranked.get("graph") or []
+        if graph_docs and all(
+            (d.get("metadata") or {}).get("graph_match") == "anchor:T2" for d in graph_docs
+        ):
+            logger.info(f"三路 RRF：限制條件題由 graph 錨點 T2 直接回傳 {len(graph_docs)} 筆")
+            return graph_docs[:max_results]
         fused = rrf_fuse(ranked, k=RRF_K, top_n=max_results)
         counts = "／".join(f"{r} {len(docs)}" for r, docs in ranked.items())
         logger.info(f"三路 RRF 融合返回 {len(fused)} 個結果（各路候選：{counts}）")
@@ -757,6 +786,15 @@ class GraphOnlyRAG(RAGStrategy):
         if not conn_manager.neo4j_driver:
             logger.warning("Neo4j 未連接，返回空結果")
             return []
+        # 方案 A 擴及舊策略（Graph RAG、Advanced、Agentic 皆經此類）：問題中認得出畫家時改用
+        # 錨點結果，避免下方 Lucene「~」模糊比對把 Nicolas Poussin 錯配成 Nicolas Castille
+        # （2026-10-13 模擬 F4）。認不出畫家時維持原行為——此時沒有可錯配的畫家，不會退步。
+        if GRAPH_RETRIEVAL == "anchor" and type(self) is GraphOnlyRAG:
+            anchored = await _SYSTEM_ROUTES["graph"]._anchor_retrieve(
+                query, max_results, fallback=False
+            )
+            if anchored:
+                return anchored
 
         try:
             # 查詢改寫/實體正規化：跟 AdvancedGraphRAG 一樣，先用術語詞典把中文人名/作品名
@@ -1065,6 +1103,20 @@ def _node_metadata(node) -> dict[str, Any]:
     return metadata
 
 
+# 圖譜檢索修復方案 A（2026-10-13 老師核可上線）：anchor＝畫家錨點＋模板＋退回（預設）；
+# legacy＝舊版關鍵詞模糊比對，僅作回滾（設計
+# docs/designs/2026-10-11-graph-retrieval-anchor.md）
+GRAPH_RETRIEVAL = os.getenv("GRAPH_RETRIEVAL", "anchor")
+_alias_table = None
+
+
+def _graph_alias_table():
+    global _alias_table
+    if _alias_table is None:
+        _alias_table = graph_anchor.AliasTable()
+    return _alias_table
+
+
 class SystemGraphRAG(GraphOnlyRAG):
     """系統圖譜路（RET-01 ``graph``）：只回傳 Artwork，讓 RRF 能以文件 id 與另外兩路對齊
 
@@ -1094,10 +1146,14 @@ class SystemGraphRAG(GraphOnlyRAG):
 
         return re.findall(r"[a-zA-Z]{3,}", normalized) or [normalized]
 
-    async def retrieve(self, query: str, max_results: int = 5) -> list[dict[str, Any]]:
+    async def retrieve(
+        self, query: str, max_results: int = 5, fallback: bool = True
+    ) -> list[dict[str, Any]]:
         if not conn_manager.neo4j_driver:
             logger.warning("Neo4j 未連接，返回空結果")
             return []
+        if GRAPH_RETRIEVAL == "anchor":
+            return await self._anchor_retrieve(query, max_results, fallback)
         lucene = build_lucene_query(self._search_terms(query))
         if not lucene:
             return []
@@ -1150,6 +1206,70 @@ class SystemGraphRAG(GraphOnlyRAG):
             f"系統圖譜檢索返回 {len(documents)} 個結果"
             f"（標題命中 {len(titled)}、藝術家 {len(artists)} 位展開 {len(by_artist)} 件）"
         )
+        return documents
+
+    async def _anchor_retrieve(
+        self, query: str, max_results: int, fallback: bool
+    ) -> list[dict[str, Any]]:
+        """方案 A：錨點（M2）→ 模板 T1／T2（M3）→ 查無或 0 列時依題型退回（M4）→ 日誌（M5）。"""
+        original = graph_anchor.ORIGINAL_QUERY.get()
+        anchor = _graph_alias_table().anchor(original, query)
+        template, params = graph_anchor.choose_template(original, query)
+        log = {
+            "original": original,
+            "retrieval_query": query,
+            "anchors": anchor.matched,
+            "artist_nodes": len(anchor.names),
+            "template": template if anchor.hit else None,
+            "params": params if anchor.hit else {},
+        }
+        records: list = []
+        if anchor.hit:
+            cypher = graph_anchor._T2 if template == "T2" else graph_anchor._T1
+            try:
+                with conn_manager.neo4j_driver.session() as session:
+                    records = list(session.run(cypher, names=anchor.names, **params))
+                    ranked = graph_anchor.rank_artworks(records, query, max_results)
+                    documents = []
+                    for score, row in ranked:
+                        artwork = row["artwork"]
+                        relationships = session.run(
+                            _ARTWORK_RELATIONSHIPS, artwork_id=artwork.element_id
+                        ).single()["relationships"]
+                        metadata = _node_metadata(artwork)
+                        metadata["graph_match"] = f"anchor:{template}"
+                        documents.append(
+                            {
+                                "content": self._format_graph_node(artwork, relationships),
+                                "metadata": metadata,
+                                "score": float(score),
+                                "source": "Neo4j Knowledge Graph (Artwork)",
+                            }
+                        )
+            except Exception as e:
+                logger.error(f"錨點圖譜檢索失敗: {e}")
+                records, documents = [], []
+            log["rows"] = len(records)
+            if documents:
+                log.update(fallback=None, returned=[d["metadata"].get("id") for d in documents])
+                graph_anchor.write_log(log)
+                return documents
+        else:
+            log["rows"] = 0
+        route = "vector" if graph_anchor.question_type(original) == "fact" else "fulltext"
+        if not fallback:  # 呼叫端自行處理（三路融合已含 vector／fulltext；舊策略走原流程）
+            log.update(fallback="none(caller)", returned=[])
+            graph_anchor.write_log(log)
+            return []
+        documents = await _SYSTEM_ROUTES[route].retrieve(query, max_results)
+        for d in documents:
+            d.setdefault("metadata", {})["graph_fallback"] = route
+        log.update(
+            fallback=route,
+            reason="abstain" if not anchor.hit else "zero_rows",
+            returned=[(d.get("metadata") or {}).get("id") for d in documents],
+        )
+        graph_anchor.write_log(log)
         return documents
 
 
@@ -1661,15 +1781,24 @@ async def startup_event():
         logger.warning(f"⚠️ 關鍵詞提取器初始化失敗: {e}，將使用基礎提取")
         keyword_extractor = None
 
-    # 初始化查詢緩存
-    try:
-        cache_size = int(os.getenv("QUERY_CACHE_SIZE", "1000"))
-        cache_ttl = int(os.getenv("QUERY_CACHE_TTL", "3600"))
-        query_cache = QueryCache(max_size=cache_size, ttl_seconds=cache_ttl)
-        logger.info(f"✅ 查詢緩存已初始化 (大小: {cache_size}, TTL: {cache_ttl}秒)")
-    except Exception as e:
-        logger.warning(f"⚠️ 查詢緩存初始化失敗: {e}")
-        query_cache = None
+    # 初始化查詢緩存：預設 Redis（RET-11，決策 B10 一般鍵值快取）；連不上時退回程序內快取
+    cache_size = int(os.getenv("QUERY_CACHE_SIZE", "1000"))
+    cache_ttl = int(os.getenv("QUERY_CACHE_TTL", "3600"))
+    query_cache = None
+    if CACHE_BACKEND == "redis":
+        try:
+            client = connect_redis(RAG_CACHE_REDIS_URL, os.getenv("REDIS_PASSWORD"))
+            query_cache = RedisQueryCache(client, ttl_seconds=cache_ttl)
+            logger.info(f"✅ 查詢緩存：Redis {RAG_CACHE_REDIS_URL}（TTL: {cache_ttl}秒）")
+        except Exception as e:
+            logger.warning(f"⚠️ Redis 快取無法使用（{e}），退回程序內快取")
+    if query_cache is None:
+        try:
+            query_cache = QueryCache(max_size=cache_size, ttl_seconds=cache_ttl)
+            logger.info(f"✅ 查詢緩存：程序內 (大小: {cache_size}, TTL: {cache_ttl}秒)")
+        except Exception as e:
+            logger.warning(f"⚠️ 查詢緩存初始化失敗: {e}")
+            query_cache = None
 
     logger.info("✅ RAG 管理器服務已就緒")
 
@@ -1886,6 +2015,7 @@ async def process_retrieve_only(request: QueryRequest):
         raise HTTPException(status_code=404, detail=f"未找到 RAG 策略: {rag_strategy}")
     rag_strategy, strategy = _route_for_source_filter(rag_strategy, strategy, request.source_filter)
 
+    graph_anchor.ORIGINAL_QUERY.set(request.query)  # 圖譜錨點比對中文別名用
     try:
         query_text, _ = await translate_for_retrieval(
             request.query, request.model_combination_id.split("@")[0]
@@ -1970,6 +2100,7 @@ async def process_query(request: QueryRequest):
         raise HTTPException(status_code=404, detail=f"未找到 RAG 策略: {rag_strategy}")
     rag_strategy, strategy = _route_for_source_filter(rag_strategy, strategy, request.source_filter)
 
+    graph_anchor.ORIGINAL_QUERY.set(request.query)  # 圖譜錨點比對中文別名用
     # 多語言查詢翻譯：llm_hinted 只把譯文用於檢索，生成仍用原問題；dictionary 維持原行為
     # （譯文同時用於檢索與生成）
     try:
@@ -2010,8 +2141,15 @@ async def process_query(request: QueryRequest):
             else:
                 # 緩存未命中，執行檢索
                 sources = await _retrieve()
-                # 保存到緩存
-                query_cache.set(retrieval_query, cache_strategy_key, request.max_results, sources)
+                # 保存到緩存（空結果不快取，RET-13；記下 doc_id 供來源變動失效，RET-12）
+                if sources:
+                    query_cache.set(
+                        retrieval_query,
+                        cache_strategy_key,
+                        request.max_results,
+                        sources,
+                        doc_ids=_source_doc_ids(sources),
+                    )
         else:
             # 緩存未啟用
             sources = await _retrieve()
@@ -2064,8 +2202,14 @@ async def process_query(request: QueryRequest):
             answer = await strategy.generate(
                 request.query, sources, llm_model, temperature=temperature, max_tokens=max_tokens
             )
-            if query_cache:
-                query_cache.set(request.query, answer_cache_key, request.max_results, answer)
+            if query_cache and sources and not is_refusal(answer):  # 拒答不進快取（RET-13）
+                query_cache.set(
+                    request.query,
+                    answer_cache_key,
+                    request.max_results,
+                    answer,
+                    doc_ids=_source_doc_ids(sources),
+                )
     except Exception as e:
         logger.error(f"生成失敗: {e}")
         raise HTTPException(status_code=500, detail=f"生成失敗: {str(e)}") from e

@@ -1,4 +1,4 @@
-"""命令列：``python -m subscribers run --target chromadb|elasticsearch|neo4j [--once]``，
+"""命令列：``python -m subscribers run --target chromadb|elasticsearch|neo4j|cache [--once]``，
 ``python -m subscribers purge-neo4j [--days 30] [--apply]``（清除超過保留期的到期資料），
 ``python -m subscribers refresh-artist-sources``（重算全部藝術家的來源清單），
 以及 ``python -m subscribers label-embeddings [--apply]``（既有向量補嵌入模型標註，DAT-30）。"""
@@ -59,6 +59,14 @@ def _neo4j_subscriber(allow_empty_graph: bool):
 
 
 def _build_subscriber(target: str, allow_empty_graph: bool = False):
+    if target == "cache":  # Redis 查詢快取失效（RET-12）
+        from redis_cache import RedisQueryCache, connect_redis  # noqa: PLC0415
+
+        from subscribers.cache_sub import CacheInvalidationSubscriber  # noqa: PLC0415
+
+        url = os.getenv("RAG_CACHE_REDIS_URL", "redis://localhost:6379/0")
+        client = connect_redis(url, os.getenv("REDIS_PASSWORD"))
+        return CacheInvalidationSubscriber(RedisQueryCache(client))
     if target == "neo4j":
         return _neo4j_subscriber(allow_empty_graph)
     if target == "chromadb":
@@ -172,7 +180,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="subscribers")
     sub = parser.add_subparsers(dest="command", required=True)
     run = sub.add_parser("run", help="消費 catalog.sync_events")
-    run.add_argument("--target", required=True, choices=["chromadb", "elasticsearch", "neo4j"])
+    run.add_argument(
+        "--target", required=True, choices=["chromadb", "elasticsearch", "neo4j", "cache"]
+    )
     run.add_argument("--once", action="store_true", help="追上後即結束（預設持續輪詢）")
     run.add_argument(
         "--allow-empty-graph", action="store_true", help="允許寫入沒有 Artwork 節點的 Neo4j"

@@ -6,6 +6,7 @@
 
 import json
 import logging
+import os
 import re
 from pathlib import Path
 
@@ -45,6 +46,21 @@ class MultilingualQueryTranslator:
         except Exception as e:
             logger.warning(f"⚠️ 無法載入術語字典: {e}，使用空字典")
             self.dictionary = {}
+
+        # 擴充詞典（scripts/build_term_dictionary.py：Wikidata 畫家／機構＋Getty AAT，
+        # 2026-10-13 故障點 F1）。
+        # 放在前面、原詞典放後面，建索引時原詞典的同名詞條覆寫擴充詞條（原詞典優先，不改既有翻譯）
+        extended_path = Path(
+            os.getenv("QUERY_TERMS_EXTENDED", Path(__file__).with_name("art_terms_extended.json"))
+        )
+        if extended_path.exists():
+            try:
+                extended = json.loads(extended_path.read_text(encoding="utf-8"))
+                extended = {k: v for k, v in extended.items() if not k.startswith("_")}
+                self.dictionary = {**extended, **self.dictionary}
+                logger.info(f"✅ 載入擴充術語字典: {extended_path}")
+            except Exception as e:
+                logger.warning(f"⚠️ 無法載入擴充術語字典: {e}，只用原詞典")
 
         # 建立反向查詢索引（多語言 -> 英文）
         self.term_index = self._build_term_index()

@@ -88,6 +88,7 @@ done
 
 run_step "訂閱器 ChromaDB" python3 -m subscribers run --target chromadb --once
 run_step "訂閱器 Elasticsearch" python3 -m subscribers run --target elasticsearch --once
+run_step "訂閱器 Redis 快取失效" python3 -m subscribers run --target cache --once
 if [ -n "${NEO4J_PASSWORD:-}" ]; then
     run_step "訂閱器 Neo4j" python3 -m subscribers run --target neo4j --once
     # 訂閱器只寫 Artwork／Artist／CREATED；風格、材質、地點、機構等分類關係由這支規則式腳本
