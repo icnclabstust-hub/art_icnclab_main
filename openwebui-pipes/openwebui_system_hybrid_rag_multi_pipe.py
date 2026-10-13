@@ -14,10 +14,12 @@ _opencc = OpenCC("s2twp")
 # 後端系統路由（規格 RET-01）；與舊策略並存，黃金集基準比較完成前標示為實驗
 RAG_STRATEGY = "hybrid"
 
+# 選單排序：依實測回答速度由快到慢（2026-10-09 量測）
 LLM_MODELS = {
     "llama3-1-8b": ("llama3.1:8b", "Llama 3.1 8B"),
-    "deepseek-r1-8b": ("deepseek-r1:8b", "DeepSeek-R1 8B"),
     "qwen3-8b": ("qwen3:8b", "Qwen3 8B"),
+    "deepseek-r1-8b": ("deepseek-r1:8b", "DeepSeek-R1 8B"),
+    "qwen3-14b": ("qwen3:14b", "Qwen3 14B"),
     "gemma4-12b": ("gemma4:12b", "Gemma 4 12B"),
 }
 
@@ -51,7 +53,7 @@ class Pipe:
 
     def pipes(self):
         return [
-            {"id": sub_id, "name": f"{llm_name} + 三路融合 RAG（實驗）"}
+            {"id": sub_id, "name": f"三路融合 RAG（實驗）｜{llm_name}"}
             for sub_id, (llm_tag, llm_name) in LLM_MODELS.items()
         ]
 

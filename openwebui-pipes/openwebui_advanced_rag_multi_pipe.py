@@ -13,12 +13,11 @@ _opencc = OpenCC("s2twp")
 
 RAG_STRATEGY = "advanced_rag"
 
+# 選單排序：依實測回答速度由快到慢（2026-10-09 量測）
 LLM_MODELS = {
     "llama3-1-8b": ("llama3.1:8b", "Llama 3.1 8B"),
-    "deepseek-r1-8b": ("deepseek-r1:8b", "DeepSeek-R1 8B"),
     "qwen3-8b": ("qwen3:8b", "Qwen3 8B"),
-    # 2026-10-08：deepseek-r1:32b、qwen3:30b 已自 Ollama 刪除；gpt-oss:20b 暫留選單（使用者決定）
-    "gpt-oss-20b": ("gpt-oss:20b", "GPT-OSS 20B"),
+    "deepseek-r1-8b": ("deepseek-r1:8b", "DeepSeek-R1 8B"),
     "gemma4-12b": ("gemma4:12b", "Gemma 4 12B"),
 }
 
@@ -40,7 +39,7 @@ class Pipe:
 
     def pipes(self):
         return [
-            {"id": sub_id, "name": f"{llm_name} + Advanced RAG"}
+            {"id": sub_id, "name": f"Advanced RAG｜{llm_name}"}
             for sub_id, (llm_tag, llm_name) in LLM_MODELS.items()
         ]
 
