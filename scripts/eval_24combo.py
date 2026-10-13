@@ -16,6 +16,10 @@
 
 用法（WSL 內，評估實例須已在 --api 運作）：
     python3 scripts/eval_24combo.py --api http://127.0.0.1:8011 --runs 3
+    # 走使用者路徑：Open WebUI（8080）→ pipe → 線上 8001（翻譯逾時 3 秒）
+    python3 scripts/eval_24combo.py --webui http://127.0.0.1:8080 --key-file ~/.openwebui_key \\
+        --api http://127.0.0.1:8001 --out logs/eval/8080-2026-10-09 --runs 3
+    8080 模式只拿得到回答文字：關係題改以來源標題比對（relevant_titles.json，近似），術語無法量測。
     python3 scripts/eval_24combo.py --summary-only   # 只重算彙總
 可中斷續跑：已完成的（run, 模型, 路由, 題號）會略過。
 """
@@ -23,6 +27,7 @@
 import argparse
 import datetime as dt
 import json
+import re
 import statistics
 import subprocess
 import time
@@ -33,7 +38,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 GOLDEN = REPO / "docs" / "golden-set"
-MODELS = ["llama3.1:8b", "qwen3:8b", "deepseek-r1:8b", "gemma4:12b", "qwen3:14b", "gpt-oss:20b"]
+THEORY_CLAIMS = "2026-10-13-theory15-claims.json"
+MODELS = ["llama3.1:8b", "qwen3:8b", "deepseek-r1:8b", "gemma4:12b", "qwen3:14b"]
+# gpt-oss:20b 於 2026-10-09 移除（使用者決定；8011 第 1 次的部分資料不納入彙總）
 ROUTES = ["vector", "fulltext", "graph", "hybrid"]
 OLLAMA = "http://127.0.0.1:11434/api/generate"
 JUDGE = "gemma4:12b"
@@ -121,9 +128,13 @@ COV_PROMPT = """判斷「回答」是否表達了「參考主張」的內容（�
 只輸出 JSON：{{"verdict": "covered|contradicted|missing"}}"""
 
 
-def post(url, body, timeout=1800):
+# 8080 模式：系統路由對應的 Open WebUI pipe id（openwebui-pipes/openwebui_system_*_pipe.py）
+PIPES = {r: f"system_{r}_rag_multi" for r in ROUTES}
+
+
+def post(url, body, timeout=1800, headers=None):
     req = urllib.request.Request(  # noqa: S310 -- 固定本機位址
-        url, json.dumps(body).encode(), {"Content-Type": "application/json"}
+        url, json.dumps(body).encode(), {"Content-Type": "application/json", **(headers or {})}
     )
     with urllib.request.urlopen(req, timeout=timeout) as r:  # noqa: S310 -- 固定本機位址
         return json.load(r)
@@ -137,7 +148,9 @@ def questions():
     baroque = json.load(open(GOLDEN / "2026-10-01-baroque-questions.json", encoding="utf-8"))[
         "questions"
     ]
-    theory = json.load(open(GOLDEN / "2026-10-08-theory15-claims.json", encoding="utf-8"))
+    # 2026-10-13 改寫版（scripts/build_theory_golden.py）；10-08 版誤把「改寫版」說明文字當成
+    # 15 個 A 級主張，舊結果的理論覆蓋分母為 125（實際 110），重現舊結果請用 git 歷史版本
+    theory = json.load(open(GOLDEN / THEORY_CLAIMS, encoding="utf-8"))
     qs = [(f"B{q['no']}", q["question"]) for q in baroque] + [
         (f"T{b['no']}", b["question"]) for b in theory
     ]
@@ -159,7 +172,7 @@ def load_rows(path):
     ]
 
 
-def generate_run(api, run, qs, out):
+def generate_run(api, run, qs, out, webui=None, api_key=None):
     done = {(r["model"], r["route"], r["key"]) for r in load_rows(out)}
     with open(out, "a", encoding="utf-8") as f:
         for model in MODELS:  # 模型放最外層：同一模型的 4 路由×30 題連續跑，模型只載入一次
@@ -172,17 +185,20 @@ def generate_run(api, run, qs, out):
                     post(f"{api}/api/v1/cache/clear", {})
                     t = time.time()
                     try:
-                        d = post(
-                            f"{api}/api/v1/query",
-                            {
-                                "query": q,
-                                "model_combination_id": f"{model}@{route}",
-                                "max_results": 5,
-                                "temperature": 0.1,
-                                "max_tokens": 2048,
-                            },
-                        )
-                        err = None
+                        if webui:
+                            d = query_webui(webui, api_key, model, route, q)
+                        else:
+                            d = post(
+                                f"{api}/api/v1/query",
+                                {
+                                    "query": q,
+                                    "model_combination_id": f"{model}@{route}",
+                                    "max_results": 5,
+                                    "temperature": 0.1,
+                                    "max_tokens": 2048,
+                                },
+                            )
+                        err = d.pop("error", None)
                     except Exception as e:  # 單題失敗記錄後繼續
                         d, err = {"answer": "", "citations": [], "metadata": {}}, repr(e)[:300]
                     tr = (d.get("metadata") or {}).get("translation") or {}
@@ -194,7 +210,8 @@ def generate_run(api, run, qs, out):
                         "sec": round(time.time() - t, 2),
                         "answer": d.get("answer", ""),
                         "cited": [c.get("external_id") for c in d.get("citations", [])],
-                        "retrieval_query": tr.get("retrieval_query", q),
+                        "cited_titles": d.get("cited_titles"),
+                        "retrieval_query": None if webui else tr.get("retrieval_query", q),
                         "tr_method": tr.get("method"),
                         "tr_ms": tr.get("ms"),
                         "error": err,
@@ -207,7 +224,35 @@ def generate_run(api, run, qs, out):
                 print(f"[{stamp}] 第{run}次 {model}@{route} 完成（{elapsed:.0f}s）", flush=True)
 
 
-def judge_run(rows, claims, relevant, scored_path):
+def query_webui(webui, key, model, route, q):
+    """以使用者路徑提問；回答與 pipe 附加的來源清單分開，來源只取標題。"""
+    sub = model.replace(":", "-").replace(".", "-")
+    j = post(
+        f"{webui}/api/chat/completions",
+        {
+            "model": f"{PIPES[route]}.{sub}",
+            "messages": [{"role": "user", "content": q}],
+            "stream": False,
+        },
+        headers={"Authorization": f"Bearer {key}"},
+    )
+    text = j["choices"][0]["message"]["content"]
+    # pipe 在最後一個分隔線後附來源；回答本身也可能含分隔線，故取最後一個
+    answer, sep, src = text.rpartition("\n---\n")
+    if not sep:
+        answer, src = text, ""
+    titles = []
+    for line in src.splitlines():
+        m = re.match(r"\s*\d+\.\s+(.*?)(?:\s+\[[^\]]*\])?\s*(?:（[^）]*）)?\s*$", line)
+        if m:
+            titles.append(m.group(1).strip())
+    d = {"answer": answer.strip(), "citations": [], "cited_titles": titles, "metadata": {}}
+    if text.lstrip().startswith("❌"):
+        d["error"] = text.strip()[:300]
+    return d
+
+
+def judge_run(rows, claims, relevant, scored_path, relevant_titles=None):
     scored = {(r["model"], r["route"], r["key"]): r for r in load_rows(scored_path)}
     with open(scored_path, "a", encoding="utf-8") as f:
         for r in rows:
@@ -219,8 +264,13 @@ def judge_run(rows, claims, relevant, scored_path):
                     any(k.lower() in r["answer"].lower() for k in g) for g in FACT_KEYS[no]
                 ) / len(FACT_KEYS[no])
             if kind == "B" and str(no) in relevant:
-                rel = set(relevant[str(no)])
-                r["rel"] = sum(c in rel for c in r["cited"]) / max(len(r["cited"]), 1)
+                if r.get("cited_titles") is not None:  # 8080 模式：以標題比對（近似）
+                    rel_t = {fold(t) for t in relevant_titles[str(no)]}
+                    cited = r["cited_titles"]
+                    r["rel"] = sum(fold(t) in rel_t for t in cited) / max(len(cited), 1)
+                else:
+                    rel = set(relevant[str(no)])
+                    r["rel"] = sum(c in rel for c in r["cited"]) / max(len(r["cited"]), 1)
             if kind == "T":
                 c = Counter()
                 for claim in claims[r["key"]]:
@@ -246,9 +296,14 @@ def judge_run(rows, claims, relevant, scored_path):
                     except Exception:
                         c["?"] += 1
                 r["cov"] = dict(c)
-            r["terms"] = sum(
-                any(fold(v) in fold(r["retrieval_query"]) for v in g) for g in EXPECT[r["key"]]
-            ) / len(EXPECT[r["key"]])
+            r["terms"] = (
+                None
+                if r["retrieval_query"] is None
+                else sum(
+                    any(fold(v) in fold(r["retrieval_query"]) for v in g) for g in EXPECT[r["key"]]
+                )
+                / len(EXPECT[r["key"]])
+            )
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
             f.flush()
 
@@ -285,7 +340,9 @@ def summarize(out_dir, runs, claims):
                     "cov": mean("cov"),
                     "cov_runs": [round(v["cov"], 3) for v in per_run.values()],
                     "contra": mean("contra"),
-                    "terms": statistics.mean(r["terms"] for r in rs),
+                    "terms": statistics.mean(
+                        [r["terms"] for r in rs if r["terms"] is not None] or [float("nan")]
+                    ),
                     "fallback": sum(1 for r in rs if r["tr_method"] == "fallback"),
                     "tr_ms_median": statistics.median(
                         [r["tr_ms"] for r in rs if r["tr_ms"]] or [0]
@@ -312,13 +369,30 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--api", default="http://127.0.0.1:8011")
     ap.add_argument("--runs", type=int, default=3)
+    ap.add_argument("--routes", help="只跑指定路由，逗號分隔（例 graph）")
+    ap.add_argument("--keys", help="只跑指定題號前綴或題號，逗號分隔（例 B 或 B1,B7）")
     ap.add_argument("--out", default=str(REPO / "logs" / "eval" / "24combo-2026-10-09"))
     ap.add_argument("--summary-only", action="store_true")
+    ap.add_argument("--webui", help="走 Open WebUI（例 http://127.0.0.1:8080）；--api 則用於清快取")
+    ap.add_argument("--key-file", help="Open WebUI API 金鑰檔（只讀檔，不印出）")
     args = ap.parse_args()
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     qs, claims = questions()
+    if args.routes:
+        ROUTES[:] = args.routes.split(",")
+    if args.keys:
+        want = args.keys.split(",")
+        qs = [
+            (k, q)
+            for k, q in qs
+            if any(k == w or (w.isalpha() and k.startswith(w)) for w in want)
+        ]
     relevant = json.load(open(GOLDEN / "2026-10-09-relation-rule-relevant.json", encoding="utf-8"))
+    api_key = Path(args.key_file).expanduser().read_text().strip() if args.webui else None
+    rel_titles = None
+    if args.webui:
+        rel_titles = json.load(open(out_dir / "relevant_titles.json", encoding="utf-8"))
     if not args.summary_only:
         meta = out_dir / "meta.json"
         if not meta.exists():
@@ -343,9 +417,15 @@ def main():
             )
         for run in range(1, args.runs + 1):
             gen_path = out_dir / f"run{run}.jsonl"
-            generate_run(args.api, run, qs, gen_path)
+            generate_run(args.api, run, qs, gen_path, args.webui, api_key)
             print(f"[{dt.datetime.now():%m-%d %H:%M}] 第{run}次評分中…", flush=True)
-            judge_run(load_rows(gen_path), claims, relevant, out_dir / f"run{run}_scored.jsonl")
+            judge_run(
+                load_rows(gen_path),
+                claims,
+                relevant,
+                out_dir / f"run{run}_scored.jsonl",
+                rel_titles,
+            )
             summarize(out_dir, run, claims)
     else:
         summarize(out_dir, args.runs, claims)
