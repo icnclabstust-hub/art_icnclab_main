@@ -722,8 +722,8 @@
       "id": "RET-10",
       "line": 293,
       "section": "5.4 快取（決策 B10）",
-      "status_glyph": "⚠️",
-      "status_raw": "⚠️",
+      "status_glyph": "✅",
+      "status_raw": "✅ 已取代",
       "title": "現況"
     },
     {
@@ -731,8 +731,8 @@
       "id": "RET-11",
       "line": 294,
       "section": "5.4 快取（決策 B10）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅ 2026-10-13（`redis_cache.py`）",
       "title": "目標"
     },
     {
@@ -740,8 +740,8 @@
       "id": "RET-12",
       "line": 295,
       "section": "5.4 快取（決策 B10）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅ 2026-10-13（`subscribers run --target cache`，夜間流程）",
       "title": "失效"
     },
     {
@@ -749,8 +749,8 @@
       "id": "RET-13",
       "line": 296,
       "section": "5.4 快取（決策 B10）",
-      "status_glyph": "❌",
-      "status_raw": "❌",
+      "status_glyph": "✅",
+      "status_raw": "✅ 2026-10-13（拒答句型與空結果不寫入）",
       "title": "不快取拒答"
     },
     {
@@ -819,18 +819,18 @@
   ],
   "source": {
     "flow": {
-      "path": "docs/2026-09-23-system-flow-steps.md",
+      "path": "docs\\2026-09-23-system-flow-steps.md",
       "sha256": "8f7a1956c2b563fbe86a4743b65132fb53cb5b25a869f4b46981bb714ca975a2"
     },
     "srs": {
-      "path": "docs/2026-09-23-system-spec-srs.md",
-      "sha256": "1d4bf0f79fac6f6c61f0294c1db733e65d870dc71aeec529916804782f776b53"
+      "path": "docs\\2026-09-23-system-spec-srs.md",
+      "sha256": "cac6ba68eb27e89f3954eac92c73569f5fbbda573fd1b462151e0e3f672852f3"
     }
   },
   "stats": {
     "requirements": 90,
-    "requirements_done": 38,
-    "requirements_todo": 42,
+    "requirements_done": 42,
+    "requirements_todo": 39,
     "steps": 27
   },
   "steps": [
