@@ -59,7 +59,7 @@ golden set 尚未人工標註；用限制條件 33 題（Cypher 標準答案）�
 - 上線後驗證（使用者指定 8080）：8080 理論題 15 題重測空殼污染（預期 0%）與回答品質不下降；比對 E1 改動前數據。
 
 ## 六、可重現性
-- commit：尚未 commit（含 `EXCLUDE_EVIDENCE_PREFIXES` 開關的 `langchain-rag/unified_rag_manager_v2.py`）；commit 後補 SHA。
+- commit：`8e5547a`（開關與 `.env.example`）；8001 於 2026-10-14 14:42 以 `.env` 設定 `googlebooks_` 重啟上線。
 - 詞典：`art_terms_extended.json` 建置 2026-10-14；別名表 `artist_aliases.json` 建置 2026-10-11。
 - 路由：指定策略（hybrid／fulltext／vector／graph），graph＝錨點版（`GRAPH_RETRIEVAL=anchor`，非事實題退回 fulltext）。
 - 資料與腳本：`logs/eval/layer2-2026-10-14/`（`googlebooks_shells.json`、`e1_*.json`、`e10_filter_compare.json`）；腳本 E1／E10（暫存區，結論已寫入 `docs/reports/2026-10-14-layer2-experiments.md`）。
@@ -69,3 +69,15 @@ golden set 尚未人工標註；用限制條件 33 題（Cypher 標準答案）�
 |---|---|---|---|
 | 提案學生 | | | □ 確認 |
 | 指導老師 | | | □ 核可　□ 退回 |
+
+## 八、上線後驗證（8080，2026-10-14 15:35）
+條件同 E1（理論題 15 題 × hybrid／fulltext，每題輪換模型）；30 題全部退回詞典翻譯（最易污染情境）。資料：`logs/eval/layer2-2026-10-14/e1_8080_after.json`（含回答）。
+
+| 路由 | 污染率 改動前→後 | 含空殼題數 | 每題來源數 |
+|---|---|---|---|
+| hybrid | 25.3% → **0%** | 10／15 → **0／15** | 15 題皆 5 筆 |
+| fulltext | 74.3% → **0%** | 11／15 → **0／15** | 7 題 0 筆、5 題 1～2 筆、3 題 4～5 筆 |
+
+- fulltext 0 筆的題目，E10 取前 15 名過濾後同樣為 0：詞典翻譯留下中文詞，館藏內文多為英文，fulltext 只對得上中文書名的空殼——**這些題在 fulltext 原本就沒有實質證據**，過濾只是讓它顯露。回答多改為「參考資料中沒有相關資訊」；T10、T14 無來源仍作答（忠實度問題，改動前即存在，屬守門員 #15 範圍）。
+- 改動前未保存回答，無法逐題比較回答品質；本次已保存，作為之後比較基準。
+- 後續（不在本變更範圍）：fulltext 在詞典模式下的理論題召回，根因在翻譯退回（F1／詞典覆蓋），非本過濾。
