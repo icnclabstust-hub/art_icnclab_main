@@ -22,6 +22,7 @@ from typing import Any
 import chromadb
 import graph_anchor
 import httpx
+import k_scorer
 import uvicorn
 
 # ChromaDB 共用 embedding function（BGE-M3，取代預設的英文為主模型）
@@ -278,6 +279,12 @@ QUERY_TRANSLATION_KEEP_ALIVE = os.getenv("QUERY_TRANSLATION_KEEP_ALIVE", "30m")
 # 翻譯可改由另一個 Ollama 提供（例如只用 CPU 的 11435）：GPU Ollama 換載生成模型時會卸載閒置模型，
 # 即使翻譯模型只用 CPU 也會被一併卸載（2026-10-14 E13 實測）
 QUERY_TRANSLATION_OLLAMA_URL = os.getenv("QUERY_TRANSLATION_OLLAMA_URL", "") or None
+# 翻譯長度上限與重複懲罰：1024 是為會先思考的 deepseek-r1 而設；小模型（qwen3:1.7b，思考關閉）
+# 偶爾陷入重複迴圈直到上限（10-14 試做 1：T13 39 秒），逾時後 Ollama 仍佔住 CPU 拖慢下一題。
+# 試做結果：200＋重複懲罰 1.15 → 30 題全在 3 秒內、術語 0.867～0.872。預設不變
+QUERY_TRANSLATION_NUM_PREDICT = int(os.getenv("QUERY_TRANSLATION_NUM_PREDICT", "1024"))
+_QT_REPEAT = os.getenv("QUERY_TRANSLATION_REPEAT_PENALTY", "")
+QUERY_TRANSLATION_REPEAT_PENALTY = float(_QT_REPEAT) if _QT_REPEAT.strip() else None
 _QT_NUM_GPU = os.getenv("QUERY_TRANSLATION_NUM_GPU", "")
 QUERY_TRANSLATION_NUM_GPU = int(_QT_NUM_GPU) if _QT_NUM_GPU.strip() else None
 QUERY_TRANSLATION_PROMPT = """你是藝術史檢索系統的查詢翻譯器。
@@ -2033,7 +2040,12 @@ async def translate_for_retrieval(
                     # 會先思考的模型（deepseek-r1）思考也算在長度內，300 會被截斷
                     "options": {
                         "temperature": 0,
-                        "num_predict": 1024,
+                        "num_predict": QUERY_TRANSLATION_NUM_PREDICT,
+                        **(
+                            {"repeat_penalty": QUERY_TRANSLATION_REPEAT_PENALTY}
+                            if QUERY_TRANSLATION_REPEAT_PENALTY is not None
+                            else {}
+                        ),
                         **(
                             {"num_gpu": QUERY_TRANSLATION_NUM_GPU}
                             if QUERY_TRANSLATION_NUM_GPU is not None
@@ -2153,6 +2165,10 @@ async def _preload_generation_model(model: str) -> None:
         logger.warning(f"⚠️ 生成模型預載失敗: {e!r}")
 
 
+# K（檢索信心）評分器（規格 Q9；2026-10-14 試做，預設關閉）：開啟時只把 K 記入 metadata，不改回答
+K_SCORER = os.getenv("K_SCORER", "0") == "1"
+
+
 @dataclass
 class _QueryContext:
     """/query 與 /query/stream 共用的生成前狀態。"""
@@ -2169,6 +2185,7 @@ class _QueryContext:
     temperature: float
     max_tokens: int
     answer_cache_key: str
+    k_info: dict[str, Any] | None = None
 
 
 async def _prepare_query(request: QueryRequest) -> _QueryContext:
@@ -2267,6 +2284,13 @@ async def _prepare_query(request: QueryRequest) -> _QueryContext:
 
     retrieval_time = (datetime.now() - retrieval_start).total_seconds() * 1000
 
+    k_info = None
+    if K_SCORER and sources:
+        try:  # CPU 推論放到執行緒，不阻塞事件迴圈；以原問題打分（同 E6 校準方式）
+            k_info = await asyncio.to_thread(k_scorer.score_k, request.query, sources)
+        except Exception as e:
+            logger.warning(f"⚠️ K 評分失敗: {e!r}")
+
     # 獲取模型參數；如果沒有指定，從配置中獲取默認值
     temperature = request.temperature
     max_tokens = request.max_tokens
@@ -2305,6 +2329,7 @@ async def _prepare_query(request: QueryRequest) -> _QueryContext:
         temperature=temperature,
         max_tokens=max_tokens,
         answer_cache_key=answer_cache_key,
+        k_info=k_info,
     )
 
 
@@ -2371,6 +2396,8 @@ async def _finish_query(
     # 如果有翻譯信息，添加到元數據
     if ctx.translation_info:
         metadata["translation"] = ctx.translation_info
+    if ctx.k_info:
+        metadata["k"] = ctx.k_info
 
     logger.info(
         f"查詢完成: {ctx.request.query[:50]}... | "
@@ -2378,6 +2405,55 @@ async def _finish_query(
         f"總時間: {total_time:.0f}ms"
     )
     return metadata, citations
+
+
+# 三層回答（規格 Q8：直接依據／相關資料／無法回答；2026-10-14 試做，預設關閉，需 K_SCORER=1）：
+# 每筆來源以 K 校準機率分層；只把「直接依據」交給模型並要求逐句引用，「相關資料」由程式列出、
+# 不經模型；沒有直接依據時不呼叫模型。門檻為替代量尺下的暫定值
+ANSWER_LAYERS = os.getenv("ANSWER_LAYERS", "0") == "1"
+LAYER_DIRECT_MIN = float(os.getenv("LAYER_DIRECT_MIN", "0.7"))
+LAYER_RELATED_MIN = float(os.getenv("LAYER_RELATED_MIN", "0.3"))
+
+
+def _split_layers(ctx: _QueryContext) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """依每筆來源的 K 校準機率分成直接依據與相關資料（分數高者在前）。"""
+    scores = (ctx.k_info or {}).get("scores") or []
+    ranked = sorted(zip(scores, ctx.sources, strict=False), key=lambda t: -t[0])
+    direct = [s for sc, s in ranked if k_scorer.calibrate(sc) >= LAYER_DIRECT_MIN]
+    related = [
+        s for sc, s in ranked if LAYER_RELATED_MIN <= k_scorer.calibrate(sc) < LAYER_DIRECT_MIN
+    ]
+    return direct, related
+
+
+def _related_text(related: list[dict[str, Any]]) -> str:
+    lines = []
+    for i, s in enumerate(related, 1):
+        md = s.get("metadata") or {}
+        title = md.get("title") or md.get("name") or "未知"
+        lines.append(f"{i}. {title}" + (f"［{md['source']}］" if md.get("source") else ""))
+    return "\n".join(lines)
+
+
+async def _layered_answer(ctx: _QueryContext) -> tuple[str, dict[str, Any]]:
+    direct, related = _split_layers(ctx)
+    layers = {"direct": len(direct), "related": len(related), "answered": bool(direct)}
+    parts = []
+    if direct:
+        body = await ctx.strategy.generate(
+            ctx.request.query
+            + "\n（只根據參考資料回答；每句以 [文檔 n] 標注出處；資料沒有的內容不要寫。）",
+            direct,
+            ctx.llm_model,
+            temperature=ctx.temperature,
+            max_tokens=ctx.max_tokens,
+        )
+        parts.append("【直接依據】\n" + body.strip())
+    else:
+        parts.append("【無法回答】\n館藏中沒有可以直接回答這個問題的資料。")
+    if related:
+        parts.append("【相關資料】（可能有幫助，但不足以直接回答）\n" + _related_text(related))
+    return "\n\n".join(parts), layers
 
 
 @app.post("/api/v1/query", response_model=QueryResponse)
@@ -2388,9 +2464,12 @@ async def process_query(request: QueryRequest):
     # 生成階段
     generation_start = datetime.now()
     try:
-        answer = _cached_answer(ctx)
+        answer = None if ANSWER_LAYERS else _cached_answer(ctx)
+        layers = None
         if answer is not None:
             ctx.cache_hit = True
+        elif ANSWER_LAYERS and ctx.k_info:
+            answer, layers = await _layered_answer(ctx)
         else:
             answer = await ctx.strategy.generate(
                 ctx.request.query,
@@ -2406,6 +2485,8 @@ async def process_query(request: QueryRequest):
     generation_time = (datetime.now() - generation_start).total_seconds() * 1000
 
     metadata, citations = await _finish_query(ctx, answer)
+    if layers:
+        metadata["layers"] = layers
     return QueryResponse(
         answer=answer,
         sources=ctx.sources if request.include_sources else [],
@@ -2486,6 +2567,7 @@ async def process_query_stream(request: QueryRequest):
                 "citations": build_citations(ctx.sources),
                 "translation": ctx.translation_info,
                 "retrieval_time_ms": ctx.retrieval_time,
+                "k": ctx.k_info,
             }
         )
         generation_start = datetime.now()
