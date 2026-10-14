@@ -321,8 +321,11 @@ def summarize(out_dir, runs, claims):
             for k in sorted({r["run"] for r in rs}):
                 x = [r for r in rs if r["run"] == k]
                 per_run[k] = {
-                    "fact": statistics.mean(r["fact"] for r in x if "fact" in r),
-                    "rel": statistics.mean(r["rel"] for r in x if "rel" in r),
+                    # --keys 只跑部分題型時，缺的指標記 nan（不中斷彙總）
+                    "fact": statistics.mean(
+                        [r["fact"] for r in x if "fact" in r] or [float("nan")]
+                    ),
+                    "rel": statistics.mean([r["rel"] for r in x if "rel" in r] or [float("nan")]),
                     "cov": sum(r["cov"].get("covered", 0) for r in x if "cov" in r) / total_claims,
                     "contra": sum(r["cov"].get("contradicted", 0) for r in x if "cov" in r),
                 }
@@ -384,9 +387,7 @@ def main():
     if args.keys:
         want = args.keys.split(",")
         qs = [
-            (k, q)
-            for k, q in qs
-            if any(k == w or (w.isalpha() and k.startswith(w)) for w in want)
+            (k, q) for k, q in qs if any(k == w or (w.isalpha() and k.startswith(w)) for w in want)
         ]
     relevant = json.load(open(GOLDEN / "2026-10-09-relation-rule-relevant.json", encoding="utf-8"))
     api_key = Path(args.key_file).expanduser().read_text().strip() if args.webui else None
