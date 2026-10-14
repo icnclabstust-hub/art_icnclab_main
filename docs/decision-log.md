@@ -5,6 +5,16 @@
 
 ---
 
+## 2026-10-14　A1 查詢改寫：採用 CPU Ollama 分離架構（待老師核可）、串流設計待確認
+
+- E13／E14：GPU Ollama 換載生成模型時連帶卸載翻譯模型與 bge-m3；改由只用 CPU 的第二個 Ollama（11435）放 qwen3:1.7b＋bge-m3 後，輪換情境詞典退回 29／30→1／30、術語 0.652→0.876、檢索 2～5 秒→0.4 秒。
+- 使用者決定：①採用分離架構，接受 qwen3:1.7b 5 處誤譯（後續以詞典提示改善）；②採用串流顯示（完整回答 ≤5 秒做不到，首字可）；③gemma4:12b／qwen3:14b 先留在選單。
+- 國教院詞典本輪不採用（0.652→0.673／0.658），`BUILD_NAER` 預設關。
+- 已準備：嵌入自動退回主 Ollama（E15 驗證）、`Start-NativeServices.ps1` 第 2.5 步、評估表 `docs/designs/2026-10-14-cpu-ollama-split-experiment.md`；串流設計草案 `docs/designs/2026-10-14-streaming-response.md`（GD：確認前不實作）。
+- 11435 已以使用者程序啟動並預載兩模型（8001 尚未使用）。
+
+---
+
 ## 2026-10-14　graph 錨點查無時非事實題改退回 hybrid，上線 8001（Tier B）
 
 - 依據：E9（理論題 7 題退回題，覆蓋率 fulltext 0.096／vector 0.080／hybrid 0.110，皆不顯著）、E11（線上條件：理論題 0 筆來源 fulltext 4 題→hybrid 0 題；限制條件 Recall@5 0.879→0.885）。

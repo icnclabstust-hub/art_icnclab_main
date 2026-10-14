@@ -621,17 +621,22 @@ class HybridESRAG(RAGStrategy):
         super().__init__("Hybrid Elasticsearch RAG", "BM25 全文檢索 + 向量 kNN，RRF 融合排序")
 
     async def _embed_query(self, query: str) -> list[float] | None:
-        try:
-            response = await conn_manager.http_client.post(
-                f"{EMBED_OLLAMA_URL}/api/embed",
-                json={"model": "bge-m3:latest", "input": [query]},
-                timeout=30.0,
-            )
-            response.raise_for_status()
-            return response.json()["embeddings"][0]
-        except Exception as e:
-            logger.error(f"Hybrid ES RAG 查詢向量化失敗: {e}")
-            return None
+        # 獨立的嵌入 Ollama 沒啟動時退回主 Ollama（同 bge_m3_embedding）
+        urls = [EMBED_OLLAMA_URL] + (
+            [OLLAMA_BASE_URL] if EMBED_OLLAMA_URL != OLLAMA_BASE_URL else []
+        )
+        for url in urls:
+            try:
+                response = await conn_manager.http_client.post(
+                    f"{url}/api/embed",
+                    json={"model": "bge-m3:latest", "input": [query]},
+                    timeout=30.0,
+                )
+                response.raise_for_status()
+                return response.json()["embeddings"][0]
+            except Exception as e:
+                logger.error(f"Hybrid ES RAG 查詢向量化失敗（{url}）: {e}")
+        return None
 
     async def _es_search(self, body: dict[str, Any]) -> list[dict[str, Any]]:
         response = await conn_manager.es_http_client.post(

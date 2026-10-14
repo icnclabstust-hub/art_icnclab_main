@@ -72,6 +72,26 @@ if (Test-Port 8000) {
     if (Test-Port 8000) { Write-Log "✅ ChromaDB 啟動成功" } else { Write-Log "⚠️ ChromaDB 啟動後仍無回應，請檢查 /tmp/chromadb.log" }
 }
 
+# 2.5 只用 CPU 的第二個 Ollama（:11435），放查詢翻譯小模型與 bge-m3，不受 GPU 換載生成模型影響
+#     （2026-10-14 E13／E14；評估表 docs/designs/2026-10-14-cpu-ollama-split-experiment.md）
+#     只在 .env 設定改用 11435 時啟動；只比對設定名稱，不讀取值。沒啟動時後端自動退回主 Ollama／詞典
+$useCpuOllama = (Test-Path $EnvFile) -and [bool](Select-String -Path $EnvFile -Pattern '^(EMBED_OLLAMA_URL|QUERY_TRANSLATION_OLLAMA_URL)=.*:11435' -Quiet)
+if ($useCpuOllama) {
+    Write-Log "檢查 CPU Ollama (port 11435)..."
+    if (Test-Port 11435) {
+        Write-Log "✅ CPU Ollama 已在運作"
+    } else {
+        Write-Log "啟動 CPU Ollama..."
+        $cpuOllamaCmd = "env CUDA_VISIBLE_DEVICES= OLLAMA_HOST=127.0.0.1:11435 OLLAMA_MODELS=/usr/share/ollama/.ollama/models OLLAMA_NOPRUNE=1 OLLAMA_KEEP_ALIVE=-1 OLLAMA_MAX_LOADED_MODELS=2 OLLAMA_NUM_PARALLEL=2 /usr/local/bin/ollama serve > /tmp/ollama_cpu_11435.log 2>&1"
+        Start-WslBackground $cpuOllamaCmd
+        Start-Sleep -Seconds 5
+        if (Test-Port 11435) { Write-Log "✅ CPU Ollama 啟動成功" } else { Write-Log "⚠️ CPU Ollama 啟動後仍無回應，請檢查 /tmp/ollama_cpu_11435.log（後端會退回主 Ollama）" }
+    }
+    # 預載並常駐（已載入時立即返回）
+    $null = & wsl.exe -d Ubuntu-22.04 -- bash -c "curl -s -m 120 http://127.0.0.1:11435/api/generate -d '{\`"model\`":\`"qwen3:1.7b\`",\`"keep_alive\`":\`"8760h\`"}' >/dev/null; curl -s -m 120 http://127.0.0.1:11435/api/embed -d '{\`"model\`":\`"bge-m3:latest\`",\`"input\`":[\`"x\`"],\`"keep_alive\`":\`"8760h\`"}' >/dev/null"
+    Write-Log "CPU Ollama 已預載 qwen3:1.7b、bge-m3"
+}
+
 # 3. rag-manager-v2（原生 WSL，依賴 Neo4j/ChromaDB，:8001）
 Write-Log "檢查 rag-manager-v2 (port 8001)..."
 if (Test-Port 8001) {
