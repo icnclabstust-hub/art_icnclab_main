@@ -24,7 +24,7 @@ import httpx
 import uvicorn
 
 # ChromaDB 共用 embedding function（BGE-M3，取代預設的英文為主模型）
-from bge_m3_embedding import BGEM3EmbeddingFunction
+from bge_m3_embedding import EMBED_OLLAMA_URL, BGEM3EmbeddingFunction
 from citations import build_citations
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -270,6 +270,13 @@ QUERY_TRANSLATION_DEFAULT_MODEL = os.getenv("QUERY_TRANSLATION_DEFAULT_MODEL", "
 QUERY_TRANSLATION_TIMEOUT_SEC = float(os.getenv("QUERY_TRANSLATION_TIMEOUT_SEC", "3"))
 # Ollama 閒置 5 分鐘即卸載模型，冷啟動載入會超過逾時而退回詞典；延長常駐並在啟動時預熱
 QUERY_TRANSLATION_KEEP_ALIVE = os.getenv("QUERY_TRANSLATION_KEEP_ALIVE", "30m")
+# 翻譯模型使用的 GPU 層數（Ollama num_gpu）；0＝只用 CPU，與生成模型不搶 8 GB 顯存、換生成模型時
+# 不被卸載（第 2 層 A1 方案 1，2026-10-14 實驗）。未設定＝Ollama 預設（現行行為）
+# 翻譯可改由另一個 Ollama 提供（例如只用 CPU 的 11435）：GPU Ollama 換載生成模型時會卸載閒置模型，
+# 即使翻譯模型只用 CPU 也會被一併卸載（2026-10-14 E13 實測）
+QUERY_TRANSLATION_OLLAMA_URL = os.getenv("QUERY_TRANSLATION_OLLAMA_URL", "") or None
+_QT_NUM_GPU = os.getenv("QUERY_TRANSLATION_NUM_GPU", "")
+QUERY_TRANSLATION_NUM_GPU = int(_QT_NUM_GPU) if _QT_NUM_GPU.strip() else None
 QUERY_TRANSLATION_PROMPT = """你是藝術史檢索系統的查詢翻譯器。
 把下列中文問題翻成英文，供英文藝術史資料庫檢索。
 規則：藝術家用通行英文全名；作品用通行英文標題；藝術史術語用英文學界慣用詞；
@@ -616,7 +623,7 @@ class HybridESRAG(RAGStrategy):
     async def _embed_query(self, query: str) -> list[float] | None:
         try:
             response = await conn_manager.http_client.post(
-                f"{OLLAMA_BASE_URL}/api/embed",
+                f"{EMBED_OLLAMA_URL}/api/embed",
                 json={"model": "bge-m3:latest", "input": [query]},
                 timeout=30.0,
             )
@@ -1952,8 +1959,17 @@ async def _warm_translation_model(model: str | None = None) -> None:
     model = _translation_model(model)
     try:
         await conn_manager.http_client.post(
-            f"{OLLAMA_BASE_URL}/api/generate",
-            json={"model": model, "keep_alive": QUERY_TRANSLATION_KEEP_ALIVE},
+            f"{QUERY_TRANSLATION_OLLAMA_URL or OLLAMA_BASE_URL}/api/generate",
+            json={
+                "model": model,
+                "keep_alive": QUERY_TRANSLATION_KEEP_ALIVE,
+                # 預熱須與翻譯請求同一 num_gpu，否則先載進 GPU、翻譯時又以 CPU 重新載入
+                **(
+                    {"options": {"num_gpu": QUERY_TRANSLATION_NUM_GPU}}
+                    if QUERY_TRANSLATION_NUM_GPU is not None
+                    else {}
+                ),
+            },
             timeout=120.0,
         )
         logger.info(f"✅ 翻譯模型 {model} 已預熱")
@@ -2000,14 +2016,22 @@ async def translate_for_retrieval(
         )
         try:
             response = await conn_manager.http_client.post(
-                f"{OLLAMA_BASE_URL}/api/generate",
+                f"{QUERY_TRANSLATION_OLLAMA_URL or OLLAMA_BASE_URL}/api/generate",
                 json={
                     "model": model,
                     "prompt": QUERY_TRANSLATION_PROMPT.format(hint=hint, query=query[:500]),
                     "stream": False,
                     "think": False,
                     # 會先思考的模型（deepseek-r1）思考也算在長度內，300 會被截斷
-                    "options": {"temperature": 0, "num_predict": 1024},
+                    "options": {
+                        "temperature": 0,
+                        "num_predict": 1024,
+                        **(
+                            {"num_gpu": QUERY_TRANSLATION_NUM_GPU}
+                            if QUERY_TRANSLATION_NUM_GPU is not None
+                            else {}
+                        ),
+                    },
                     "keep_alive": QUERY_TRANSLATION_KEEP_ALIVE,
                 },
                 timeout=QUERY_TRANSLATION_TIMEOUT_SEC,
