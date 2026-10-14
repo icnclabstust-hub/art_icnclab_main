@@ -200,3 +200,6 @@ WDQS 逾時，改用 QLever（以完整 Wikidata 傾印建置的 SPARQL 服務�
 
 ### 追加 11　線上條件下的 graph 退回（E11）
 8011、詞典翻譯＋空殼過濾開啟、graph 路由 max_results=5：理論題 0 筆來源 fulltext 4 題→hybrid **0 題**（平均來源 3.4→4.7）；限制條件 Recall@5 0.879→0.885；關係、事實題不變。使用者同意改 hybrid，評估表 `docs/designs/2026-10-14-graph-fallback-hybrid-experiment.md`，待老師核可後上 8001。
+
+### 追加 12　graph 退回 hybrid 上線 8001 與 8080 驗證
+21:09 上線（老師核可）。8080 graph 理論題 15 題：平均來源 4.7、0 筆 0／15、空殼 0；T2、T6、T10、T12 實際退回 hybrid。詳見評估表 §八。
