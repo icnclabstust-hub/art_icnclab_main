@@ -432,9 +432,30 @@ CACHE_BACKEND = os.getenv("CACHE_BACKEND", "redis").lower()
 RAG_CACHE_REDIS_URL = os.getenv("RAG_CACHE_REDIS_URL", "redis://localhost:6379/0")
 
 
+# Google Books 空殼移出證據（規格 Q11，2026-10-14 實驗開關，預設關閉）：58 筆 googlebooks 全為空殼
+# （去書目後 ≤25 字，description 只是出版社名），在 hybrid 前 5 名佔位。設為 googlebooks_ 啟用。
+EXCLUDE_EVIDENCE_PREFIXES = tuple(
+    p for p in os.getenv("EXCLUDE_EVIDENCE_PREFIXES", "").split(",") if p.strip()
+)
+_EXCLUDE_MARGIN = 5  # 啟用時多取幾筆，過濾後仍能補滿 max_results
+
+
+def _evidence_only(sources: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
+    """移除被排除前綴的來源（空殼不作為證據），再截到 limit。"""
+    if not EXCLUDE_EVIDENCE_PREFIXES:
+        return sources
+    kept = [
+        d
+        for d, c in zip(sources, build_citations(sources), strict=True)
+        if not (c.get("external_id") or "").startswith(EXCLUDE_EVIDENCE_PREFIXES)
+    ]
+    return kept[:limit]
+
+
 def _source_doc_ids(sources: list[dict[str, Any]]) -> list[str]:
     """快取項用到的來源 doc_id（RET-12 反向索引）。"""
     return [c["doc_id"] for c in build_citations(sources) if c.get("doc_id")]
+
 
 # ==================== RAG 策略實現 ====================
 
@@ -1107,6 +1128,13 @@ def _node_metadata(node) -> dict[str, Any]:
 # legacy＝舊版關鍵詞模糊比對，僅作回滾（設計
 # docs/designs/2026-10-11-graph-retrieval-anchor.md）
 GRAPH_RETRIEVAL = os.getenv("GRAPH_RETRIEVAL", "anchor")
+# 錨點查無時，非事實題（關係／理論）的退回路由（規格 Q2，2026-10-14 實驗開關）：
+# 預設 fulltext（現行行為）；可設 vector 或 hybrid 比較理論題
+GRAPH_FALLBACK_NONFACT = os.getenv("GRAPH_FALLBACK_NONFACT", "fulltext")
+if GRAPH_FALLBACK_NONFACT not in ("fulltext", "vector", "hybrid"):
+    raise ValueError(
+        f"GRAPH_FALLBACK_NONFACT 只能是 fulltext／vector／hybrid：{GRAPH_FALLBACK_NONFACT}"
+    )
 _alias_table = None
 
 
@@ -1256,12 +1284,15 @@ class SystemGraphRAG(GraphOnlyRAG):
                 return documents
         else:
             log["rows"] = 0
-        route = "vector" if graph_anchor.question_type(original) == "fact" else "fulltext"
+        route = (
+            "vector" if graph_anchor.question_type(original) == "fact" else GRAPH_FALLBACK_NONFACT
+        )
         if not fallback:  # 呼叫端自行處理（三路融合已含 vector／fulltext；舊策略走原流程）
             log.update(fallback="none(caller)", returned=[])
             graph_anchor.write_log(log)
             return []
-        documents = await _SYSTEM_ROUTES[route].retrieve(query, max_results)
+        # hybrid 內部呼叫 graph 時帶 fallback=False，不會遞迴
+        documents = await RAG_STRATEGIES[route].retrieve(query, max_results)
         for d in documents:
             d.setdefault("metadata", {})["graph_fallback"] = route
         log.update(
@@ -2024,12 +2055,12 @@ async def process_retrieve_only(request: QueryRequest):
         logger.warning(f"⚠️ 查詢翻譯失敗: {e}，使用原始查詢")
         query_text = request.query
 
+    fetch = request.max_results + (_EXCLUDE_MARGIN if EXCLUDE_EVIDENCE_PREFIXES else 0)
     if isinstance(strategy, VectorOnlyRAG):
-        sources = await strategy.retrieve(
-            query_text, request.max_results, source_filter=request.source_filter
-        )
+        sources = await strategy.retrieve(query_text, fetch, source_filter=request.source_filter)
     else:
-        sources = await strategy.retrieve(query_text, request.max_results)
+        sources = await strategy.retrieve(query_text, fetch)
+    sources = _evidence_only(sources, request.max_results)
 
     return {"sources": sources, "citations": build_citations(sources)}
 
@@ -2121,13 +2152,20 @@ async def process_query(request: QueryRequest):
     cache_strategy_key = (
         f"{rag_strategy}:{request.source_filter}" if request.source_filter else rag_strategy
     )
+    if EXCLUDE_EVIDENCE_PREFIXES:  # 開關影響檢索結果，併入快取鍵
+        cache_strategy_key += ":ex=" + ",".join(EXCLUDE_EVIDENCE_PREFIXES)
+    if GRAPH_FALLBACK_NONFACT != "fulltext":
+        cache_strategy_key += ":gf=" + GRAPH_FALLBACK_NONFACT
 
     async def _retrieve():
+        fetch = request.max_results + (_EXCLUDE_MARGIN if EXCLUDE_EVIDENCE_PREFIXES else 0)
         if isinstance(strategy, VectorOnlyRAG):
-            return await strategy.retrieve(
-                retrieval_query, request.max_results, source_filter=request.source_filter
+            docs = await strategy.retrieve(
+                retrieval_query, fetch, source_filter=request.source_filter
             )
-        return await strategy.retrieve(retrieval_query, request.max_results)
+        else:
+            docs = await strategy.retrieve(retrieval_query, fetch)
+        return _evidence_only(docs, request.max_results)
 
     try:
         # 嘗試從緩存獲取
