@@ -14,6 +14,7 @@ import re
 import time
 import uuid
 from collections import OrderedDict
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,7 @@ from citations import build_citations
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from graph_query import DEFAULT_MIN_RELATIVE_SCORE, apply_relative_cutoff, build_lucene_query
 from guard_coarse import CoarseResult, check_answer
 
@@ -41,6 +43,7 @@ from retrieval_fusion import DEFAULT_RRF_K, rrf_fuse
 
 # 導入智能關鍵詞提取器
 from smart_keyword_extractor import SmartKeywordExtractor
+from streaming import SentenceSplitter, ThinkFilter, ndjson, sentence_hook, with_heartbeat
 
 # 配置日誌
 logging.basicConfig(
@@ -2135,9 +2138,41 @@ def _write_guard_shadow(row: dict[str, Any]) -> None:
 _background_tasks: set[asyncio.Task] = set()
 
 
-@app.post("/api/v1/query", response_model=QueryResponse)
-async def process_query(request: QueryRequest):
-    """處理查詢請求"""
+# 生成模型並行預載（串流設計 docs/designs/2026-10-14-streaming-response.md §3.4）：收到請求即請
+# GPU Ollama 載入生成模型，與翻譯、檢索同時進行，換載模型時省 1.5～2 秒。預設關閉
+GENERATION_PRELOAD = os.getenv("GENERATION_PRELOAD", "0") == "1"
+
+
+async def _preload_generation_model(model: str) -> None:
+    """只載入模型、不生成；失敗只記 log（生成時 Ollama 仍會自行載入）。"""
+    try:
+        await conn_manager.http_client.post(
+            f"{OLLAMA_BASE_URL}/api/generate", json={"model": model}, timeout=120.0
+        )
+    except Exception as e:
+        logger.warning(f"⚠️ 生成模型預載失敗: {e!r}")
+
+
+@dataclass
+class _QueryContext:
+    """/query 與 /query/stream 共用的生成前狀態。"""
+
+    request: QueryRequest
+    start_time: datetime
+    llm_model: str
+    rag_strategy: str
+    strategy: "RAGStrategy"
+    translation_info: dict[str, Any] | None
+    sources: list[dict[str, Any]]
+    cache_hit: bool
+    retrieval_time: float
+    temperature: float
+    max_tokens: int
+    answer_cache_key: str
+
+
+async def _prepare_query(request: QueryRequest) -> _QueryContext:
+    """解析模型組合、翻譯、檢索（含快取）、決定生成參數與答案快取鍵。"""
     start_time = datetime.now()
 
     # 解析模型組合 ID；只給模型名稱（不帶 @策略）時採預設策略（RET-02）
@@ -2159,6 +2194,11 @@ async def process_query(request: QueryRequest):
     if not strategy:
         raise HTTPException(status_code=404, detail=f"未找到 RAG 策略: {rag_strategy}")
     rag_strategy, strategy = _route_for_source_filter(rag_strategy, strategy, request.source_filter)
+
+    if GENERATION_PRELOAD:
+        task = asyncio.create_task(_preload_generation_model(llm_model))
+        _background_tasks.add(task)
+        task.add_done_callback(_background_tasks.discard)
 
     graph_anchor.ORIGINAL_QUERY.set(request.query)  # 圖譜錨點比對中文別名用
     # 多語言查詢翻譯：llm_hinted 只把譯文用於檢索，生成仍用原問題；dictionary 維持原行為
@@ -2227,122 +2267,281 @@ async def process_query(request: QueryRequest):
 
     retrieval_time = (datetime.now() - retrieval_start).total_seconds() * 1000
 
-    # 生成階段
-    generation_start = datetime.now()
-    try:
-        # 獲取模型參數
-        temperature = request.temperature
-        max_tokens = request.max_tokens
+    # 獲取模型參數；如果沒有指定，從配置中獲取默認值
+    temperature = request.temperature
+    max_tokens = request.max_tokens
+    if temperature is None or max_tokens is None:
+        for combo in RAG_CONFIG.get("model_combinations", []):
+            if combo["id"] == request.model_combination_id:
+                if temperature is None:
+                    temperature = combo["params"].get("temperature", 0.1)
+                if max_tokens is None:
+                    max_tokens = combo["params"].get("max_tokens", 2048)
+                break
 
-        # 如果沒有指定，從配置中獲取默認值
-        if temperature is None or max_tokens is None:
-            for combo in RAG_CONFIG.get("model_combinations", []):
-                if combo["id"] == request.model_combination_id:
-                    if temperature is None:
-                        temperature = combo["params"].get("temperature", 0.1)
-                    if max_tokens is None:
-                        max_tokens = combo["params"].get("max_tokens", 2048)
-                    break
+    # 部署層可設全域生成長度上限（RAG_MAX_TOKENS_CAP）：實測回應時間與答案
+    # 長度近乎線性（~60 字/s），課堂情境用上限換速度；0 或未設定表示不設限
+    cap = int(os.getenv("RAG_MAX_TOKENS_CAP", "0"))
+    if cap > 0 and max_tokens:
+        max_tokens = min(max_tokens, cap)
 
-        # 部署層可設全域生成長度上限（RAG_MAX_TOKENS_CAP）：實測回應時間與答案
-        # 長度近乎線性（~60 字/s），課堂情境用上限換速度；0 或未設定表示不設限
-        cap = int(os.getenv("RAG_MAX_TOKENS_CAP", "0"))
-        if cap > 0 and max_tokens:
-            max_tokens = min(max_tokens, cap)
+    # 答案層快取：原本只快取檢索結果，但檢索僅 ~0.04s、生成要 10s+，
+    # 快取蓋在不痛的地方——同題重問照樣付全額生成時間。答案 key 需含
+    # 會影響輸出的全部參數（組合、溫度、長度上限、來源過濾）。
+    answer_cache_key = (
+        f"ans:{request.model_combination_id}:{temperature}:{max_tokens}:"
+        f"{request.source_filter or ''}"
+    )
+    return _QueryContext(
+        request=request,
+        start_time=start_time,
+        llm_model=llm_model,
+        rag_strategy=rag_strategy,
+        strategy=strategy,
+        translation_info=translation_info,
+        sources=sources,
+        cache_hit=cache_hit,
+        retrieval_time=retrieval_time,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        answer_cache_key=answer_cache_key,
+    )
 
-        # 答案層快取：原本只快取檢索結果，但檢索僅 ~0.04s、生成要 10s+，
-        # 快取蓋在不痛的地方——同題重問照樣付全額生成時間。答案 key 需含
-        # 會影響輸出的全部參數（組合、溫度、長度上限、來源過濾）。
-        answer_cache_key = (
-            f"ans:{request.model_combination_id}:{temperature}:{max_tokens}:"
-            f"{request.source_filter or ''}"
+
+def _cached_answer(ctx: _QueryContext) -> str | None:
+    if not query_cache:
+        return None
+    return query_cache.get(ctx.request.query, ctx.answer_cache_key, ctx.request.max_results)
+
+
+def _store_answer(ctx: _QueryContext, answer: str) -> None:
+    if query_cache and ctx.sources and not is_refusal(answer):  # 拒答不進快取（RET-13）
+        query_cache.set(
+            ctx.request.query,
+            ctx.answer_cache_key,
+            ctx.request.max_results,
+            answer,
+            doc_ids=_source_doc_ids(ctx.sources),
         )
-        cached_answer = (
-            query_cache.get(request.query, answer_cache_key, request.max_results)
-            if query_cache
-            else None
-        )
-        if cached_answer is not None:
-            answer = cached_answer
-            cache_hit = True
-        else:
-            answer = await strategy.generate(
-                request.query, sources, llm_model, temperature=temperature, max_tokens=max_tokens
-            )
-            if query_cache and sources and not is_refusal(answer):  # 拒答不進快取（RET-13）
-                query_cache.set(
-                    request.query,
-                    answer_cache_key,
-                    request.max_results,
-                    answer,
-                    doc_ids=_source_doc_ids(sources),
-                )
-    except Exception as e:
-        logger.error(f"生成失敗: {e}")
-        raise HTTPException(status_code=500, detail=f"生成失敗: {str(e)}") from e
-    generation_time = (datetime.now() - generation_start).total_seconds() * 1000
 
-    citations = build_citations(sources)
+
+async def _finish_query(
+    ctx: _QueryContext, answer: str
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """生成完成後：守門員影子模式與回應 metadata（兩個端點共用）。"""
+    citations = build_citations(ctx.sources)
 
     # 防護影子模式（GRD-06、GRD-08）：只計算與記錄，回答內容不變
     guard_info = None
     if GUARD_MODE == "shadow":
-        gate_status, coarse, guard_ms = await _run_coarse_guard(answer, sources)
+        gate_status, coarse, guard_ms = await _run_coarse_guard(answer, ctx.sources)
         scores = coarse.summary() if coarse else {}
         guard_info = {"mode": "shadow", "gate_status": gate_status, "guard_ms": guard_ms, **scores}
         task = asyncio.create_task(
             asyncio.to_thread(
                 _write_guard_shadow,
                 {
-                    "route_id": rag_strategy,
-                    "model": llm_model,
+                    "route_id": ctx.rag_strategy,
+                    "model": ctx.llm_model,
                     "gate_status": gate_status,
                     "guard_ms": round(guard_ms, 3),
                     **scores,
                     "cited_doc_ids": [c["doc_id"] for c in citations if c["doc_id"]],
-                    "cache_hit": cache_hit,
+                    "cache_hit": ctx.cache_hit,
                 },
             )
         )
         _background_tasks.add(task)
         task.add_done_callback(_background_tasks.discard)
 
-    total_time = (datetime.now() - start_time).total_seconds() * 1000
+    total_time = (datetime.now() - ctx.start_time).total_seconds() * 1000
 
     # 構建響應
     metadata = {
         "total_time_ms": total_time,
-        "num_sources": len(sources),
-        "query_length": len(request.query),
+        "num_sources": len(ctx.sources),
+        "query_length": len(ctx.request.query),
         "answer_length": len(answer),
-        "cache_hit": cache_hit,
+        "cache_hit": ctx.cache_hit,
     }
     if guard_info:
         metadata["guard"] = guard_info
         metadata["timings"] = {"guard": guard_info["guard_ms"]}  # GRD-06a
 
     # 如果有翻譯信息，添加到元數據
-    if translation_info:
-        metadata["translation"] = translation_info
+    if ctx.translation_info:
+        metadata["translation"] = ctx.translation_info
 
-    response = QueryResponse(
+    logger.info(
+        f"查詢完成: {ctx.request.query[:50]}... | "
+        f"模型: {ctx.llm_model} | 策略: {ctx.rag_strategy} | "
+        f"總時間: {total_time:.0f}ms"
+    )
+    return metadata, citations
+
+
+@app.post("/api/v1/query", response_model=QueryResponse)
+async def process_query(request: QueryRequest):
+    """處理查詢請求"""
+    ctx = await _prepare_query(request)
+
+    # 生成階段
+    generation_start = datetime.now()
+    try:
+        answer = _cached_answer(ctx)
+        if answer is not None:
+            ctx.cache_hit = True
+        else:
+            answer = await ctx.strategy.generate(
+                ctx.request.query,
+                ctx.sources,
+                ctx.llm_model,
+                temperature=ctx.temperature,
+                max_tokens=ctx.max_tokens,
+            )
+            _store_answer(ctx, answer)
+    except Exception as e:
+        logger.error(f"生成失敗: {e}")
+        raise HTTPException(status_code=500, detail=f"生成失敗: {str(e)}") from e
+    generation_time = (datetime.now() - generation_start).total_seconds() * 1000
+
+    metadata, citations = await _finish_query(ctx, answer)
+    return QueryResponse(
         answer=answer,
-        sources=sources if request.include_sources else [],
-        model_used=llm_model,
-        rag_strategy=rag_strategy,
-        retrieval_time_ms=retrieval_time,
+        sources=ctx.sources if request.include_sources else [],
+        model_used=ctx.llm_model,
+        rag_strategy=ctx.rag_strategy,
+        retrieval_time_ms=ctx.retrieval_time,
         generation_time_ms=generation_time,
         metadata=metadata,
         citations=citations,
     )
 
-    logger.info(
-        f"查詢完成: {request.query[:50]}... | "
-        f"模型: {llm_model} | 策略: {rag_strategy} | "
-        f"總時間: {total_time:.0f}ms"
-    )
 
-    return response
+async def _stream_generate(ctx: _QueryContext):
+    """逐段產生模型輸出 (種類, 文字)：種類 "text"＝回答、"think"＝Ollama thinking 欄位的思考內容
+    （gemma4 等）。策略自訂 generate 時退回整段生成（不串流但結果相同）。"""
+    strategy = ctx.strategy
+    if type(strategy).generate is not RAGStrategy.generate:
+        yield (
+            "text",
+            await strategy.generate(
+                ctx.request.query,
+                ctx.sources,
+                ctx.llm_model,
+                temperature=ctx.temperature,
+                max_tokens=ctx.max_tokens,
+            ),
+        )
+        return
+    prompt = strategy._build_prompt(ctx.request.query, strategy._format_context(ctx.sources))
+    payload = {
+        "model": ctx.llm_model,
+        "prompt": prompt,
+        "stream": True,
+        "options": {"temperature": ctx.temperature, "num_predict": ctx.max_tokens},
+    }
+    if _no_think(ctx.llm_model):
+        payload["think"] = False
+    async with conn_manager.http_client.stream(
+        "POST", f"{OLLAMA_BASE_URL}/api/generate", json=payload, timeout=900.0
+    ) as response:
+        if response.status_code != 200:
+            detail = (await response.aread()).decode("utf-8", "replace")[:300]
+            raise RuntimeError(f"Ollama 生成失敗: {response.status_code} {detail}")
+        async for line in response.aiter_lines():
+            if not line.strip():
+                continue
+            chunk = json.loads(line)
+            if chunk.get("thinking"):
+                yield "think", chunk["thinking"]
+            if chunk.get("response"):
+                yield "text", chunk["response"]
+            if chunk.get("done"):
+                break
+
+
+@app.post("/api/v1/query/stream")
+async def process_query_stream(request: QueryRequest):
+    """串流版 /query（NDJSON：meta →（waiting／thinking…）→ delta… → done；錯誤時 error）。
+
+    設計：docs/designs/2026-10-14-streaming-response.md。每句經 sentence_hook 再送出
+    （預留守門員攔截 #15、分層回答 #12）；答案快取與守門員影子模式在生成結束後處理。
+    """
+    ctx = await _prepare_query(request)
+
+    def elapsed_ms() -> float:
+        return round((datetime.now() - ctx.start_time).total_seconds() * 1000, 1)
+
+    def checked(sentences: list[str]) -> list[str]:
+        return [s for s in (sentence_hook(x, ctx.sources) for x in sentences) if s]
+
+    async def events():
+        yield ndjson(
+            {
+                "type": "meta",
+                "model_used": ctx.llm_model,
+                "rag_strategy": ctx.rag_strategy,
+                "sources": ctx.sources if request.include_sources else [],
+                "citations": build_citations(ctx.sources),
+                "translation": ctx.translation_info,
+                "retrieval_time_ms": ctx.retrieval_time,
+            }
+        )
+        generation_start = datetime.now()
+        first_ms = None
+        parts: list[str] = []
+        try:
+            cached = _cached_answer(ctx)
+            if cached is not None:
+                ctx.cache_hit = True
+                first_ms = elapsed_ms()
+                parts.append(cached)
+                yield ndjson({"type": "delta", "text": cached})
+            else:
+                think, splitter = ThinkFilter(), SentenceSplitter()
+                last_thinking = 0.0
+                async for kind, piece in with_heartbeat(_stream_generate(ctx)):
+                    if kind == "waiting":  # 模型載入中、尚無任何輸出
+                        yield ndjson({"type": "waiting", "elapsed_ms": elapsed_ms()})
+                        continue
+                    visible = think.feed(piece) if kind == "text" else ""
+                    # 思考中（thinking 欄位或 <think> 段）：每 3 秒最多送一次，讓前端顯示進度
+                    if (kind == "think" or think.in_think) and first_ms is None:
+                        now = time.monotonic()
+                        if now - last_thinking >= 3:
+                            last_thinking = now
+                            yield ndjson({"type": "thinking", "elapsed_ms": elapsed_ms()})
+                    for sentence in checked(splitter.feed(visible)):
+                        first_ms = first_ms if first_ms is not None else elapsed_ms()
+                        parts.append(sentence)
+                        yield ndjson({"type": "delta", "text": sentence})
+                tail = splitter.feed(think.finish())
+                last = splitter.flush()
+                for sentence in checked(tail + ([last] if last else [])):
+                    first_ms = first_ms if first_ms is not None else elapsed_ms()
+                    parts.append(sentence)
+                    yield ndjson({"type": "delta", "text": sentence})
+                _store_answer(ctx, "".join(parts))
+        except Exception as e:
+            logger.error(f"串流生成失敗: {e}")
+            yield ndjson({"type": "error", "detail": str(e)})
+            return
+        answer = "".join(parts)
+        generation_time = (datetime.now() - generation_start).total_seconds() * 1000
+        metadata, _ = await _finish_query(ctx, answer)
+        metadata["first_sentence_ms"] = first_ms
+        yield ndjson(
+            {
+                "type": "done",
+                "answer": answer,
+                "retrieval_time_ms": ctx.retrieval_time,
+                "generation_time_ms": generation_time,
+                "metadata": metadata,
+            }
+        )
+
+    return StreamingResponse(events(), media_type="application/x-ndjson")
 
 
 @app.get("/")
