@@ -197,3 +197,6 @@ WDQS 逾時，改用 QLever（以完整 Wikidata 傾印建置的 SPARQL 服務�
 
 - 配對（35 對）：hybrid vs fulltext +0.014（12 勝 8 負 15 平，p=0.31）；vector vs fulltext −0.017（6 勝 9 負，p=0.24）。**皆無顯著差異**；矛盾主張數 fulltext 4.5、vector 5.5、hybrid 6.0。
 - 與上線後情境的關係：本實驗 LLM 翻譯成功。8080 實際常退回詞典翻譯，且空殼過濾已上線——此時 fulltext 退回對多數理論題**0 筆來源**（追加 9），hybrid 仍有 5 筆。品質上 hybrid ≥ fulltext（不顯著），穩健性上 hybrid 明顯較好。
+
+### 追加 11　線上條件下的 graph 退回（E11）
+8011、詞典翻譯＋空殼過濾開啟、graph 路由 max_results=5：理論題 0 筆來源 fulltext 4 題→hybrid **0 題**（平均來源 3.4→4.7）；限制條件 Recall@5 0.879→0.885；關係、事實題不變。使用者同意改 hybrid，評估表 `docs/designs/2026-10-14-graph-fallback-hybrid-experiment.md`，待老師核可後上 8001。
