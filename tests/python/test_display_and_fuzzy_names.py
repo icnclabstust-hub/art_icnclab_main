@@ -10,6 +10,24 @@ def test_display_names_replace_variant_and_keep_full_name():
     assert out == "李奧納多·達文西與林布蘭都曾研究光影。"  # 全名不被拆成「達文西·達文西」
 
 
+@pytest.mark.parametrize(
+    ("text", "question", "want"),
+    [
+        ("拉斐爾·聖齊奧的作品", None, "拉斐爾·聖齊奧的作品"),  # 不變「拉斐爾·拉斐爾」
+        ("聖齊奧的作品", None, "拉斐爾的作品"),
+        ("巴勃羅·畢卡索的作品", None, "巴勃羅·畢卡索的作品"),  # 已含顯示名
+        ("維米爾的作品", None, "維米爾的作品"),  # 可接受寫法
+        ("約翰尼斯·維梅爾", None, "約翰尼斯·維梅爾"),
+        ("維拉斯奎茲的作品", None, "維拉斯奎茲的作品"),  # 可接受寫法
+        ("迪亞哥·維拉斯奎茲的作品", None, "迪亞哥·維拉斯奎茲的作品"),  # 已含可接受寫法
+        ("委拉斯開茲的作品", None, "委拉斯奎茲的作品"),  # 國教院顯示名
+        ("倫勃朗的《夜巡》", "倫勃朗的《夜巡》是哪一年？", "倫勃朗的《夜巡》"),  # 使用者用字不改
+    ],
+)
+def test_display_names_rules_2026_10_16(text, question, want):
+    assert display_names.normalize(text, question) == want
+
+
 def test_display_names_leaves_unrelated_text():
     assert display_names.normalize("文藝復興的透視法") == "文藝復興的透視法"
 

@@ -1,10 +1,14 @@
-"""回答中的畫家譯名統一為台灣顯示名（規格 Q1；顯示表 display_names.json，2026-10-14 建置）。
+"""回答中的畫家譯名統一為台灣顯示名（規格 Q1）。
 
-- 對照：artist_aliases.json 中同一位畫家的中文別名 → display_names.json「畫家」的 display
-  （順序：自建台灣譯名表 → 國教院視覺藝術名詞 → Wikidata zh-tw → zh-hant → zh＋s2twp）。
-- 只替換 ≥ 3 個漢字、只屬於一位畫家、且不是顯示名一部分的別名（避免「拉斐爾」這類短名誤換）；
-  最長優先、不重疊。
-- 開關 DISPLAY_NAMES=1（呼叫時讀取）；串流於 sentence_hook 逐句套用，/query 套用整段回答。
+- 顯示名：display_overrides.json（人工表，使用者 2026-10-16 決定，最優先）→ display_names.json
+  （自建表 → 國教院視覺藝術名詞 → Wikidata zh-tw／zh-hant／zh＋s2twp）。
+- 替換對象：artist_aliases.json 中 ≥ 3 個漢字、只屬於一位畫家的中文別名；最長優先、不重疊。
+- 不替換（使用者 2026-10-16 規則）：
+  1. 可接受寫法（人工表 accepted，例如「維拉斯奎茲」「維米爾」）
+  2. 所在人名已包含顯示名或可接受寫法（「巴勃羅·畢卡索」「迪亞哥·維拉斯奎茲」；
+     「拉斐爾·聖齊奧」不會變「拉斐爾·拉斐爾」）
+  3. 使用者提問中用的寫法（回答跟提問用同一個字）
+- 開關 DISPLAY_NAMES=1（呼叫時讀取）；串流逐句、/query 整段套用。
 """
 
 import json
@@ -14,27 +18,36 @@ from pathlib import Path
 
 _HERE = Path(__file__).parent
 _CJK = re.compile(r"[一-鿿]")
-_table: tuple[re.Pattern, dict[str, str]] | None = None
+_NAME_CHARS = re.compile(r"[一-鿿·・．.]")  # 人名範圍（含間隔號）
+_table: tuple[re.Pattern, dict[str, str], dict[str, set[str]]] | None = None
 
 
 def enabled() -> bool:
     return os.getenv("DISPLAY_NAMES", "0") == "1"
 
 
-def _build() -> tuple[re.Pattern, dict[str, str]]:
+def _build() -> tuple[re.Pattern, dict[str, str], dict[str, set[str]]]:
+    """回傳 (比對式, 別名 → 替換結果, 別名 → 該畫家顯示名＋可接受寫法)；替換結果等於自己＝保護。"""
     aliases = json.loads((_HERE / "artist_aliases.json").read_text(encoding="utf-8"))
     display = json.loads((_HERE / "display_names.json").read_text(encoding="utf-8"))["畫家"]
+    over_path = _HERE / "display_overrides.json"
+    overrides = json.loads(over_path.read_text(encoding="utf-8")) if over_path.exists() else {}
     owners: dict[str, set[str]] = {}
     for a in aliases["artists"]:
         for al in a["aliases"]:
             if al["type"] != "en":
                 owners.setdefault(al["alias"], set()).add(a["qid"])
-    mapping: dict[str, str] = {}  # 別名 → 替換結果；值等於自己＝保護（整段比中但不改）
+    mapping: dict[str, str] = {}
+    shown_of: dict[str, set[str]] = {}
     for a in aliases["artists"]:
-        shown = (display.get(a["name_en"]) or {}).get("display")
+        over = overrides.get(a["name_en"]) or {}
+        shown = over.get("display") or (display.get(a["name_en"]) or {}).get("display")
         if not shown:
             continue
-        mapping[shown] = shown  # 顯示名本身受保護，避免其中片段被當成別名
+        keeps = {shown} | set(over.get("accepted") or [])
+        for keep in keeps:  # 顯示名與可接受寫法：整段保護
+            mapping[keep] = keep
+            shown_of[keep] = keeps
         for al in a["aliases"]:
             alias = al["alias"]
             if (
@@ -43,22 +56,49 @@ def _build() -> tuple[re.Pattern, dict[str, str]]:
                 or owners.get(alias) != {a["qid"]}
             ):
                 continue
-            # 含顯示名的全名（「李奧納多·達文西」含「達文西」）不改短，但要整段保護，
-            # 否則其中的別名片段（「李奧納多」）會被單獨替換成「達文西·達文西」
-            mapping[alias] = alias if (shown in alias or alias in shown) else shown
+            if alias in mapping:
+                continue
+            # 已含顯示名或可接受寫法的全名（「迪亞哥·維拉斯奎茲」）整段保護、不改短
+            protected = any(k in alias or alias in k for k in keeps)
+            mapping[alias] = alias if protected else shown
+            shown_of[alias] = keeps
     pattern = re.compile("|".join(re.escape(k) for k in sorted(mapping, key=len, reverse=True)))
-    return pattern, mapping
+    return pattern, mapping, shown_of
 
 
-def normalize(text: str) -> str:
-    """把回答中的畫家別名換成台灣顯示名；表不存在或為空時原樣回傳。"""
+def _name_span(text: str, start: int, end: int) -> str:
+    """比中位置所在的整個人名（向兩側延伸漢字與間隔號，最多各 12 字）。"""
+    left = start
+    while left > 0 and start - left < 12 and _NAME_CHARS.match(text[left - 1]):
+        left -= 1
+    right = end
+    while right < len(text) and right - end < 12 and _NAME_CHARS.match(text[right]):
+        right += 1
+    return text[left:right]
+
+
+def normalize(text: str, question: str | None = None) -> str:
+    """把回答中的畫家別名換成台灣顯示名；question＝使用者原問題（其中用到的寫法不替換）。"""
     global _table
     if _table is None:
         try:
             _table = _build()
         except (OSError, KeyError, ValueError):
-            _table = (re.compile(r"(?!x)x"), {})
-    pattern, mapping = _table
+            _table = (re.compile(r"(?!x)x"), {}, {})
+    pattern, mapping, shown_of = _table
     if not mapping:
         return text
-    return pattern.sub(lambda m: mapping[m.group(0)], text)
+    used = {m.group(0) for m in pattern.finditer(question)} if question else set()
+
+    def repl(m: re.Match) -> str:
+        alias = m.group(0)
+        target = mapping[alias]
+        if target == alias or alias in used:
+            return alias
+        span = _name_span(text, m.start(), m.end())
+        rest = span.replace(alias, "", 1)
+        if any(k in rest for k in shown_of[alias]):  # 所在人名已含顯示名或可接受寫法
+            return alias
+        return target
+
+    return pattern.sub(repl, text)

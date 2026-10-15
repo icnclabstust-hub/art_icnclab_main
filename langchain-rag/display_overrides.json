@@ -1,0 +1,26 @@
+{
+ "_meta": {
+  "purpose": "畫家顯示名人工表（規格 Q1）：優先於 build_display_names.py 的其他來源；accepted＝可接受寫法，回答中不替換",
+  "decided": "使用者 2026-10-16",
+  "principles": [
+   "有可引用出處（國教院樂詞網）者優先作為顯示名",
+   "使用者在提問中用的寫法，回答中不替換",
+   "要被替換的字串若已包含顯示名，不替換"
+  ]
+ },
+ "Diego Velázquez": {
+  "display": "委拉斯奎茲",
+  "accepted": ["維拉斯奎茲"],
+  "source": "國家教育研究院樂詞網「視覺藝術名詞」"
+ },
+ "Johannes Vermeer": {
+  "display": "維梅爾",
+  "accepted": ["維米爾"],
+  "source": "黃金集題目與使用者用字"
+ },
+ "Pablo Picasso": {
+  "display": "畢卡索",
+  "accepted": [],
+  "source": "人工（台灣通行簡稱）"
+ }
+}

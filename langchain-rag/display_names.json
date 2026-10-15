@@ -1,6 +1,7 @@
 {
  "meta": {
   "order": [
+   "override",
    "manual",
    "naer",
    "zh-tw",
@@ -93,8 +94,11 @@
   },
   "Diego Velázquez": {
    "qid": "Q297",
-   "display": "維拉斯奎茲",
-   "source": "manual"
+   "display": "委拉斯奎茲",
+   "source": "override",
+   "accepted": [
+    "維拉斯奎茲"
+   ]
   },
   "Jusepe de Ribera": {
    "qid": "Q297838",
@@ -128,8 +132,11 @@
   },
   "Johannes Vermeer": {
    "qid": "Q41264",
-   "display": "維米爾",
-   "source": "manual"
+   "display": "維梅爾",
+   "source": "override",
+   "accepted": [
+    "維米爾"
+   ]
   },
   "Nicolas Poussin": {
    "qid": "Q41554",
@@ -170,8 +177,8 @@
   },
   "Pablo Picasso": {
    "qid": "Q5593",
-   "display": "巴勃羅·魯伊斯·畢卡索",
-   "source": "zh-tw"
+   "display": "畢卡索",
+   "source": "override"
   },
   "Raphael": {
    "qid": "Q5597",
@@ -17927,6 +17934,11 @@
    "display": "Marina Torneus",
    "source": "original"
   },
+  "Q109487397": {
+   "qid": "Q109487397",
+   "display": "Q109487397",
+   "source": "original"
+  },
   "Irina Kokkinaki": {
    "qid": "Q109487720",
    "display": "Irina Kokkinaki",
@@ -23140,6 +23152,11 @@
   "Marko Stamenkovic": {
    "qid": "Q111905640",
    "display": "Marko Stamenkovic",
+   "source": "original"
+  },
+  "Nigel Strudwick": {
+   "qid": "Q111908363",
+   "display": "Nigel Strudwick",
    "source": "original"
   },
   "Hryhorii Hryhorovych Mishchenko": {
@@ -75743,6 +75760,11 @@
    "display": "Q131449212",
    "source": "original"
   },
+  "Q131452025": {
+   "qid": "Q131452025",
+   "display": "Q131452025",
+   "source": "original"
+  },
   "Everhard Korthals Altes": {
    "qid": "Q131452319",
    "display": "Everhard Korthals Altes",
@@ -78076,6 +78098,11 @@
   "Q132561937": {
    "qid": "Q132561937",
    "display": "Q132561937",
+   "source": "original"
+  },
+  "Davide Spagnoletto": {
+   "qid": "Q132562160",
+   "display": "Davide Spagnoletto",
    "source": "original"
   },
   "Radu Lupescu": {
@@ -118941,6 +118968,11 @@
    "display": "Q139594234",
    "source": "original"
   },
+  "Kersti Tiik": {
+   "qid": "Q139601195",
+   "display": "Kersti Tiik",
+   "source": "original"
+  },
   "Legier Biederman": {
    "qid": "Q139614620",
    "display": "Legier Biederman",
@@ -120326,6 +120358,16 @@
    "display": "Q141664301",
    "source": "original"
   },
+  "Q141671051": {
+   "qid": "Q141671051",
+   "display": "Q141671051",
+   "source": "original"
+  },
+  "Q141671490": {
+   "qid": "Q141671490",
+   "display": "Q141671490",
+   "source": "original"
+  },
   "Nazar Kozak": {
    "qid": "Q141679397",
    "display": "Nazar Kozak",
@@ -120374,6 +120416,31 @@
   "Q141724246": {
    "qid": "Q141724246",
    "display": "Q141724246",
+   "source": "original"
+  },
+  "Q141738279": {
+   "qid": "Q141738279",
+   "display": "Q141738279",
+   "source": "original"
+  },
+  "Q141738305": {
+   "qid": "Q141738305",
+   "display": "Q141738305",
+   "source": "original"
+  },
+  "Q141738342": {
+   "qid": "Q141738342",
+   "display": "Q141738342",
+   "source": "original"
+  },
+  "Marco Meccarelli": {
+   "qid": "Q141739591",
+   "display": "Marco Meccarelli",
+   "source": "original"
+  },
+  "Ingrid Lunnan": {
+   "qid": "Q141740106",
+   "display": "Ingrid Lunnan",
    "source": "original"
   },
   "Agustí Charles": {
@@ -157005,6 +157072,11 @@
    "display": "Giacomo Carrara",
    "source": "original"
   },
+  "Gianni Carlo Sciolla": {
+   "qid": "Q3763465",
+   "display": "Gianni Carlo Sciolla",
+   "source": "original"
+  },
   "Kurt Leo Schwarz": {
    "qid": "Q37636711",
    "display": "Kurt Leo Schwarz",
@@ -188701,6 +188773,11 @@
   "E. John Bullard": {
    "qid": "Q87250694",
    "display": "E. John Bullard",
+   "source": "original"
+  },
+  "Maria Pasternak": {
+   "qid": "Q87251392",
+   "display": "Maria Pasternak",
    "source": "original"
   },
   "David Blayney Brown": {

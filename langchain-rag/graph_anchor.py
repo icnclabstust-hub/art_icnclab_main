@@ -105,6 +105,11 @@ def fuzzy_threshold() -> float | None:
     return float(value) if value and float(value) > 0 else None
 
 
+def fuzzy_margin() -> float:
+    """GRAPH_FUZZY_MARGIN＝第一名與（不同畫家）第二名的最小分差，預設 5。呼叫時讀取。"""
+    return float(os.getenv("GRAPH_FUZZY_MARGIN", "5") or 5)
+
+
 @dataclass
 class Anchor:
     qids: list[str] = field(default_factory=list)
@@ -182,7 +187,7 @@ class AliasTable:
         """完整比對無命中時，以去聲調拼音模糊比對中文別名（規格 Q10，門檻由 GRAPH_FUZZY_NAMES）。
 
         只比對 ≥ 3 個漢字的別名（2 字名易與一般詞同音誤中），候選為原文中長度相近的連續漢字片段；
-        最高分 ≥ 門檻且最高分只屬於一位畫家才採用（同分不同人視為歧義、不錨定）。
+        最高分 ≥ 門檻、只屬於一位畫家，且比不同畫家的次高分多 GRAPH_FUZZY_MARGIN 分才採用。
         回傳 (qid, 別名, 原文片段, 分數) 或 None。依據：10-14 E2（門檻 90：0 錯配、找回 55.3%）。
         """
         from pypinyin import lazy_pinyin  # noqa: PLC0415 -- 只在啟用模糊比對時需要
@@ -194,25 +199,31 @@ class AliasTable:
                 for alias, qids in self.zh.items()
                 if len(_CJK.findall(alias)) >= 3
             ]
-        best: tuple[float, str, str, set[str]] | None = None
+        # 每位畫家（以別名的擁有者集合為單位）各自的最高分
+        per_owner: dict[frozenset[str], tuple[float, str, str]] = {}
         for run in _CJK_RUN.findall(original):
             run = _CJK_SEP.sub("", run)
             char_py = lazy_pinyin(run)  # 一字一拼音；片段拼音以切片串接，不逐片段重算
             for alias, qids, alias_py in self._fuzzy_index:
                 n = len(_CJK_SEP.sub("", alias))
+                key = frozenset(qids)
                 for size in (n - 1, n, n + 1):
                     for i in range(0, max(len(run) - size, -1) + 1):
                         window = run[i : i + size]
                         if len(window) < 3:
                             continue
                         score = fuzz.ratio("".join(char_py[i : i + size]), alias_py)
-                        if best is None or score > best[0]:
-                            best = (score, alias, window, qids)
-                        elif score == best[0] and qids != best[3]:
-                            best = (score, alias, window, best[3] | qids)
-        if not best or best[0] < threshold or len(best[3]) != 1:
+                        if key not in per_owner or score > per_owner[key][0]:
+                            per_owner[key] = (score, alias, window)
+        if not per_owner:
             return None
-        return next(iter(best[3])), best[1], best[2], best[0]
+        ranked = sorted(per_owner.items(), key=lambda kv: -kv[1][0])
+        (owners, (score, alias, window)) = ranked[0]
+        second = ranked[1][1][0] if len(ranked) > 1 else 0.0
+        # 差距規則（使用者 2026-10-16）：第一名須比不同畫家的第二名高出 GRAPH_FUZZY_MARGIN 分
+        if score < threshold or len(owners) != 1 or score - second < fuzzy_margin():
+            return None
+        return next(iter(owners)), alias, window, score
 
 
 def choose_template(original: str | None, retrieval_query: str) -> tuple[str, dict[str, Any]]:

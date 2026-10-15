@@ -2,6 +2,7 @@
 """Q1 顯示名稱表：以國際名（Wikidata 英文標籤）為 key，依台灣用語優先順序決定中文顯示名。
 
 設計：規格書 Q1；2026-10-14 使用者確認順序（避免 zh＋簡轉繁產生「倫勃朗」這類大陸譯名）：
+  0. 顯示名人工表 display_overrides.json（使用者 2026-10-16；含可接受寫法 accepted）
   1. 自建台灣譯名表（art_history_terms_dictionary.json 人工整理的第一個中文詞）
   2. 國家教育研究院「視覺藝術名詞」（樂詞網審譯，以英文名稱比對，不分大小寫）
   3. Wikidata zh-tw  4. zh-hant  5. zh 經 OpenCC s2twp 轉台灣繁體
@@ -36,6 +37,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 OUT = REPO / "langchain-rag" / "display_names.json"
 ALIASES = REPO / "langchain-rag" / "artist_aliases.json"
+OVERRIDES = REPO / "langchain-rag" / "display_overrides.json"
 BASE = REPO / "art_history_terms_dictionary.json"
 OPENCC_PY = "/home/user/openwebui-venv/bin/python"
 QLEVER = "https://qlever.dev/api/wikidata"
@@ -138,6 +140,8 @@ def main():
         for en, v in group.items()
         if isinstance(v, dict) and v.get("zh")
     }
+    # 顯示名人工表（使用者 2026-10-16）：最優先，accepted＝可接受寫法
+    overrides = json.loads(OVERRIDES.read_text(encoding="utf-8")) if OVERRIDES.exists() else {}
     cats = {}
     artists = json.loads(ALIASES.read_text(encoding="utf-8"))["artists"]
     qids = " ".join(f"wd:{a['qid']}" for a in artists)
@@ -150,7 +154,7 @@ def main():
     conv = dict(zip(need, s2twp(need), strict=True))
     out = {
         "meta": {
-            "order": ["manual", "naer", "zh-tw", "zh-hant", "zh+s2twp", "original"],
+            "order": ["override", "manual", "naer", "zh-tw", "zh-hant", "zh+s2twp", "original"],
             "attribution": [
                 "國家教育研究院樂詞網「視覺藝術名詞」（政府網站資料開放宣告，使用時應註明出處）",
                 "Wikidata（CC0），經 QLever 查詢",
@@ -162,6 +166,7 @@ def main():
         for qid, r in rows.items():
             en = r.get("en") or qid
             for source, value in (  # noqa: B007 -- 迴圈結束後使用 source
+                ("override", (overrides.get(en) or {}).get("display")),
                 ("manual", manual.get(en)),
                 ("naer", naer.get(en.lower())),
                 ("zh-tw", r.get("tw")),
@@ -173,6 +178,8 @@ def main():
                     break
             src[source] += 1
             entries[en] = {"qid": qid, "display": value, "source": source}
+            if (overrides.get(en) or {}).get("accepted"):
+                entries[en]["accepted"] = overrides[en]["accepted"]
             if source == "naer":  # 開放宣告第四點：保留原文，顯示值只去國籍尾綴與同義詞
                 entries[en]["naer_original"] = naer_raw[en.lower()]
         out[cat] = entries

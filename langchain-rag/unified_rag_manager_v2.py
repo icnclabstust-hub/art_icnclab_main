@@ -2512,7 +2512,7 @@ async def process_query(request: QueryRequest):
                 max_tokens=ctx.max_tokens,
             )
             if display_names.enabled():  # 畫家譯名統一為台灣顯示名（規格 Q1）
-                answer = display_names.normalize(answer)
+                answer = display_names.normalize(answer, ctx.request.query)
             _store_answer(ctx, answer)
     except Exception as e:
         logger.error(f"生成失敗: {e}")
@@ -2591,7 +2591,9 @@ async def process_query_stream(request: QueryRequest):
 
     def checked(sentences: list[str]) -> list[str]:
         out = [s for s in (sentence_hook(x, ctx.sources) for x in sentences) if s]
-        return [display_names.normalize(s) for s in out] if display_names.enabled() else out
+        if not display_names.enabled():
+            return out
+        return [display_names.normalize(s, ctx.request.query) for s in out]
 
     async def events():
         yield ndjson(
