@@ -30,7 +30,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 E = REPO / "logs" / "eval"
-MODELS = ["llama3.1:8b", "qwen3:8b", "deepseek-r1:8b"]  # 12B／14B 2026-10-15 起不用
+MODELS = ["llama3.1:8b", "qwen3:8b", "deepseek-r1:8b", "gemma4:12b", "qwen3:14b"]
 ROUTES = ["hybrid", "graph", "vector", "fulltext"]  # 順序即平手偏好（hybrid 為預設）
 TYPES = ["事實", "關係", "限制條件", "理論"]
 CONSTRAINT_ROUTE = {

@@ -16,6 +16,14 @@
       "temperature_default": 0.2,
       "description": "Qwen 3系列，性能提升"
     },
+    "gemma4:12b": {
+      "name": "Gemma 4 12B",
+      "display_name": "💎 Gemma 4 12B",
+      "provider": "ollama",
+      "context_length": 8192,
+      "temperature_default": 0.25,
+      "description": "Gemma 4系列，平衡性能"
+    },
     "deepseek-r1:8b": {
       "name": "DeepSeek-R1 8B",
       "display_name": "🧠 DeepSeek-R1 8B",
@@ -23,6 +31,14 @@
       "context_length": 32768,
       "temperature_default": 0.15,
       "description": "專注推理，邏輯思維優秀"
+    },
+    "qwen3:14b": {
+      "name": "Qwen 3 14B",
+      "display_name": "🔮 Qwen 3 14B",
+      "provider": "ollama",
+      "context_length": 32768,
+      "temperature_default": 0.1,
+      "description": "Qwen 3 中型版本（系統路由評估與模型補充層候選；只開放於 Open WebUI 系統路由選單）"
     }
   },
   "embedding_models": {
@@ -373,6 +389,126 @@
       },
       "params": {
         "temperature": 0.15,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma4:12b@naive_rag",
+      "name": "💎 Gemma 4 12B + 📝 Naive RAG",
+      "display_name": "📝 Gemma 4 12B + Naive RAG",
+      "description": "Gemma 4系列，平衡性能 + 基礎檢索生成",
+      "llm_model": "gemma4:12b",
+      "rag_strategy": "naive_rag",
+      "enabled": true,
+      "meta": {
+        "llm": {
+          "name": "Gemma 4 12B",
+          "display_name": "💎 Gemma 4 12B",
+          "provider": "ollama",
+          "context_length": 8192,
+          "temperature_default": 0.25,
+          "description": "Gemma 4系列，平衡性能"
+        },
+        "rag": {
+          "name": "Naive RAG",
+          "display_name": "📝 Naive RAG",
+          "emoji": "📝",
+          "description": "基礎檢索生成"
+        }
+      },
+      "params": {
+        "temperature": 0.25,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma4:12b@advanced_rag",
+      "name": "💎 Gemma 4 12B + 🎯 Advanced RAG",
+      "display_name": "🎯 Gemma 4 12B + Advanced RAG",
+      "description": "Gemma 4系列，平衡性能 + 多級檢索重排",
+      "llm_model": "gemma4:12b",
+      "rag_strategy": "advanced_rag",
+      "enabled": true,
+      "meta": {
+        "llm": {
+          "name": "Gemma 4 12B",
+          "display_name": "💎 Gemma 4 12B",
+          "provider": "ollama",
+          "context_length": 8192,
+          "temperature_default": 0.25,
+          "description": "Gemma 4系列，平衡性能"
+        },
+        "rag": {
+          "name": "Advanced RAG",
+          "display_name": "🎯 Advanced RAG",
+          "emoji": "🎯",
+          "description": "多級檢索重排"
+        }
+      },
+      "params": {
+        "temperature": 0.25,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma4:12b@graph_only",
+      "name": "💎 Gemma 4 12B + 🕸️ 圖譜RAG",
+      "display_name": "🕸️ Gemma 4 12B + Graph Only RAG",
+      "description": "Gemma 4系列，平衡性能 + 知識圖譜檢索",
+      "llm_model": "gemma4:12b",
+      "rag_strategy": "graph_only",
+      "enabled": true,
+      "meta": {
+        "llm": {
+          "name": "Gemma 4 12B",
+          "display_name": "💎 Gemma 4 12B",
+          "provider": "ollama",
+          "context_length": 8192,
+          "temperature_default": 0.25,
+          "description": "Gemma 4系列，平衡性能"
+        },
+        "rag": {
+          "name": "Graph Only RAG",
+          "display_name": "🕸️ 圖譜RAG",
+          "emoji": "🕸️",
+          "description": "知識圖譜檢索"
+        }
+      },
+      "params": {
+        "temperature": 0.25,
+        "max_tokens": 2048,
+        "use_rag": true
+      }
+    },
+    {
+      "id": "gemma4:12b@agentic_rag",
+      "name": "💎 Gemma 4 12B + 🤖 Agentic RAG",
+      "display_name": "🤖 Gemma 4 12B + Agentic RAG",
+      "description": "Gemma 4系列，平衡性能 + 智能代理推理",
+      "llm_model": "gemma4:12b",
+      "rag_strategy": "agentic_rag",
+      "enabled": true,
+      "meta": {
+        "llm": {
+          "name": "Gemma 4 12B",
+          "display_name": "💎 Gemma 4 12B",
+          "provider": "ollama",
+          "context_length": 8192,
+          "temperature_default": 0.25,
+          "description": "Gemma 4系列，平衡性能"
+        },
+        "rag": {
+          "name": "Agentic RAG",
+          "display_name": "🤖 Agentic RAG",
+          "emoji": "🤖",
+          "description": "智能代理推理"
+        }
+      },
+      "params": {
+        "temperature": 0.25,
         "max_tokens": 2048,
         "use_rag": true
       }

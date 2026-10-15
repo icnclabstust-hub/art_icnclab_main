@@ -18,6 +18,7 @@ LLM_MODELS = {
     "llama3-1-8b": ("llama3.1:8b", "Llama 3.1 8B"),
     "qwen3-8b": ("qwen3:8b", "Qwen3 8B"),
     "deepseek-r1-8b": ("deepseek-r1:8b", "DeepSeek-R1 8B"),
+    "gemma4-12b": ("gemma4:12b", "Gemma 4 12B"),
 }
 
 
