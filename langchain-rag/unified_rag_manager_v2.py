@@ -2155,6 +2155,32 @@ _background_tasks: set[asyncio.Task] = set()
 GENERATION_PRELOAD = os.getenv("GENERATION_PRELOAD", "0") == "1"
 
 
+# 換模型時主動卸載（使用者 2026-10-15）：收到請求即查 GPU Ollama 已載入的模型，
+# 與本次不同者先卸載（keep_alive=0），再載入本次模型；與翻譯、檢索並行，新模型可完整放進 GPU。
+# 只作用於 GPU Ollama（OLLAMA_BASE_URL）。進行中請求是否受影響見 E20 實測。預設關閉
+GENERATION_SWITCH_UNLOAD = os.getenv("GENERATION_SWITCH_UNLOAD", "0") == "1"
+_switch_lock = asyncio.Lock()
+
+
+async def _switch_generation_model(model: str) -> None:
+    """卸載 GPU Ollama 上其他生成模型，再載入 model；失敗只記 log。"""
+    async with _switch_lock:  # 同時多個請求換模型時依序處理，避免互相卸載
+        try:
+            ps = await conn_manager.http_client.get(f"{OLLAMA_BASE_URL}/api/ps", timeout=5.0)
+            loaded = [m.get("name") for m in ps.json().get("models", [])]
+            for other in loaded:
+                if other and other != model:
+                    await conn_manager.http_client.post(
+                        f"{OLLAMA_BASE_URL}/api/generate",
+                        json={"model": other, "keep_alive": 0},
+                        timeout=60.0,
+                    )
+                    logger.info(f"🔁 換模型：卸載 {other} → 載入 {model}")
+        except Exception as e:
+            logger.warning(f"⚠️ 卸載其他生成模型失敗: {e!r}")
+    await _preload_generation_model(model)
+
+
 async def _preload_generation_model(model: str) -> None:
     """只載入模型、不生成；失敗只記 log（生成時 Ollama 仍會自行載入）。"""
     try:
@@ -2212,8 +2238,9 @@ async def _prepare_query(request: QueryRequest) -> _QueryContext:
         raise HTTPException(status_code=404, detail=f"未找到 RAG 策略: {rag_strategy}")
     rag_strategy, strategy = _route_for_source_filter(rag_strategy, strategy, request.source_filter)
 
-    if GENERATION_PRELOAD:
-        task = asyncio.create_task(_preload_generation_model(llm_model))
+    if GENERATION_SWITCH_UNLOAD or GENERATION_PRELOAD:
+        job = _switch_generation_model if GENERATION_SWITCH_UNLOAD else _preload_generation_model
+        task = asyncio.create_task(job(llm_model))
         _background_tasks.add(task)
         task.add_done_callback(_background_tasks.discard)
 
