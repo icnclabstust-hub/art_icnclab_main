@@ -94,6 +94,17 @@ def _fold(s: str) -> str:
     return unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode().lower()
 
 
+_CJK = re.compile(r"[一-鿿]")
+_CJK_RUN = re.compile(r"[一-鿿·・]{3,}")
+_CJK_SEP = re.compile(r"[·・\s]")
+
+
+def fuzzy_threshold() -> float | None:
+    """GRAPH_FUZZY_NAMES＝模糊比對門檻（0～100）；未設定或 0＝不啟用。呼叫時讀取。"""
+    value = os.getenv("GRAPH_FUZZY_NAMES", "").strip()
+    return float(value) if value and float(value) > 0 else None
+
+
 @dataclass
 class Anchor:
     qids: list[str] = field(default_factory=list)
@@ -120,6 +131,7 @@ class AliasTable:
         self.types = {
             (qid, al["alias"]): al["type"] for qid, a in self.artists.items() for al in a["aliases"]
         }
+        self._fuzzy_index: list[tuple[str, set[str], str]] | None = None
 
     def anchor(self, original: str | None, retrieval_query: str) -> Anchor:
         """完整字串命中；較長的別名優先，被長別名覆蓋的短別名不計（避免『卡拉瓦喬』內的子字串誤中）。"""
@@ -146,9 +158,61 @@ class AliasTable:
                 )
                 if qid not in result.qids:
                     result.qids.append(qid)
+        if not result.qids and original:
+            threshold = fuzzy_threshold()
+            if threshold:
+                fuzzy = self.fuzzy_anchor(original, threshold)
+                if fuzzy:
+                    qid, alias, window, score = fuzzy
+                    result.matched.append(
+                        {
+                            "qid": qid,
+                            "alias": alias,
+                            "type": "fuzzy",
+                            "text": window,
+                            "score": str(round(score, 1)),
+                        }
+                    )
+                    result.qids.append(qid)
         for qid in result.qids:
             result.names += [n for n in self.artists[qid]["neo4j_names"] if n not in result.names]
         return result
+
+    def fuzzy_anchor(self, original: str, threshold: float):
+        """完整比對無命中時，以去聲調拼音模糊比對中文別名（規格 Q10，門檻由 GRAPH_FUZZY_NAMES）。
+
+        只比對 ≥ 3 個漢字的別名（2 字名易與一般詞同音誤中），候選為原文中長度相近的連續漢字片段；
+        最高分 ≥ 門檻且最高分只屬於一位畫家才採用（同分不同人視為歧義、不錨定）。
+        回傳 (qid, 別名, 原文片段, 分數) 或 None。依據：10-14 E2（門檻 90：0 錯配、找回 55.3%）。
+        """
+        from pypinyin import lazy_pinyin  # noqa: PLC0415 -- 只在啟用模糊比對時需要
+        from rapidfuzz import fuzz  # noqa: PLC0415
+
+        if self._fuzzy_index is None:
+            self._fuzzy_index = [
+                (alias, qids, "".join(lazy_pinyin(_CJK_SEP.sub("", alias))))
+                for alias, qids in self.zh.items()
+                if len(_CJK.findall(alias)) >= 3
+            ]
+        best: tuple[float, str, str, set[str]] | None = None
+        for run in _CJK_RUN.findall(original):
+            run = _CJK_SEP.sub("", run)
+            char_py = lazy_pinyin(run)  # 一字一拼音；片段拼音以切片串接，不逐片段重算
+            for alias, qids, alias_py in self._fuzzy_index:
+                n = len(_CJK_SEP.sub("", alias))
+                for size in (n - 1, n, n + 1):
+                    for i in range(0, max(len(run) - size, -1) + 1):
+                        window = run[i : i + size]
+                        if len(window) < 3:
+                            continue
+                        score = fuzz.ratio("".join(char_py[i : i + size]), alias_py)
+                        if best is None or score > best[0]:
+                            best = (score, alias, window, qids)
+                        elif score == best[0] and qids != best[3]:
+                            best = (score, alias, window, best[3] | qids)
+        if not best or best[0] < threshold or len(best[3]) != 1:
+            return None
+        return next(iter(best[3])), best[1], best[2], best[0]
 
 
 def choose_template(original: str | None, retrieval_query: str) -> tuple[str, dict[str, Any]]:

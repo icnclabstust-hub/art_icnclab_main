@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 import chromadb
+import display_names
 import graph_anchor
 import httpx
 import k_scorer
@@ -2346,6 +2347,8 @@ async def _prepare_query(request: QueryRequest) -> _QueryContext:
         f"ans:{request.model_combination_id}:{temperature}:{max_tokens}:"
         f"{request.source_filter or ''}"
     )
+    if display_names.enabled():  # 開關影響回答文字，併入答案快取鍵
+        answer_cache_key += ":dn"
     return _QueryContext(
         request=request,
         start_time=start_time,
@@ -2508,6 +2511,8 @@ async def process_query(request: QueryRequest):
                 temperature=ctx.temperature,
                 max_tokens=ctx.max_tokens,
             )
+            if display_names.enabled():  # 畫家譯名統一為台灣顯示名（規格 Q1）
+                answer = display_names.normalize(answer)
             _store_answer(ctx, answer)
     except Exception as e:
         logger.error(f"生成失敗: {e}")
@@ -2585,7 +2590,8 @@ async def process_query_stream(request: QueryRequest):
         return round((datetime.now() - ctx.start_time).total_seconds() * 1000, 1)
 
     def checked(sentences: list[str]) -> list[str]:
-        return [s for s in (sentence_hook(x, ctx.sources) for x in sentences) if s]
+        out = [s for s in (sentence_hook(x, ctx.sources) for x in sentences) if s]
+        return [display_names.normalize(s) for s in out] if display_names.enabled() else out
 
     async def events():
         yield ndjson(
