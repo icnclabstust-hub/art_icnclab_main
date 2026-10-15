@@ -21,11 +21,8 @@ LLM_MODELS = {
     "llama3-1-8b": ("llama3.1:8b", "Llama 3.1 8B"),
     "qwen3-8b": ("qwen3:8b", "Qwen3 8B"),
     "deepseek-r1-8b": ("deepseek-r1:8b", "DeepSeek-R1 8B"),
-    "qwen3-14b": ("qwen3:14b", "Qwen3 14B（深度思考·較慢）"),
-    "gemma4-12b": ("gemma4:12b", "Gemma 4 12B（深度思考·較慢）"),
 }
-# 8 GB VRAM 放不下、部分在 CPU 執行（decision-log 2026-10-14「硬體限制」）：回答前提示較慢
-DEEP_MODELS = {"qwen3:14b", "gemma4:12b"}
+# gemma4:12b、qwen3:14b 自 2026-10-15 起不作為本系統模型（8 GB VRAM 硬體限制，見 decision-log）
 
 ROUTE_LABELS = {"vector": "向量", "fulltext": "全文", "graph": "圖"}
 
@@ -94,7 +91,7 @@ class Pipe:
         }
         if not self.valves.STREAM:
             return await self._blocking(payload)
-        return self._stream(payload, llm_tag, __event_emitter__)
+        return self._stream(payload, __event_emitter__)
 
     async def _status(self, emitter, text: str, done: bool = False):
         if emitter:
@@ -116,13 +113,9 @@ class Pipe:
         answer = result.get("answer", "（沒有回答內容）")
         return _opencc.convert(answer + self._sources_text(result.get("sources", [])))
 
-    async def _stream(self, payload: dict, llm_tag: str, emitter):
+    async def _stream(self, payload: dict, emitter):
         """串流：後端 /api/v1/query/stream（NDJSON，整句送出）；端點不可用時退回完整回答。"""
         await self._status(emitter, "🔎 正在檢索…")
-        if llm_tag in DEEP_MODELS:
-            await self._status(
-                emitter, "🧠 深度思考模式：此模型在本機顯示卡上較慢，預估 15～30 秒開始回答…"
-            )
         sources, sent_any = [], False
         try:
             async with httpx.AsyncClient(timeout=self.valves.TIMEOUT) as client:

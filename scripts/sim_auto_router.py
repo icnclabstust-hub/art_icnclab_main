@@ -8,7 +8,8 @@ RAG Router 決定「走哪一路檢索」，模型由使用者以「模型@策�
 （10-14 第一版把模型與路由混成 20 組比較，比錯對象，已以本版取代。）
 
 - 意圖辨識（規則式四類，實驗用，未上線）：博物館＋「哪些／列出」＝限制條件；
-  書名號《》＋年代／媒材等問法＝事實；「有哪些」「哪些…作品／畫作／肖像」＝關係；其餘＝理論。
+  書名號《》＋年代／媒材等問法＝事實；「有哪些」「哪些…作品／畫作／肖像」＝關係；
+  其餘＝未知（走預設 hybrid；2026-10-15 前為「理論」，未見題正確率 64.7%）。
   規則是看著這批題目寫的，正確率會高估，需另備新題驗證。
 - 逐題分數（0～1）：
   事實 B1–B6、關係 B7–B12：規則指標，2 次平均（graph／hybrid 用錨點版 8011 API，
@@ -29,7 +30,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 E = REPO / "logs" / "eval"
-MODELS = ["llama3.1:8b", "qwen3:8b", "deepseek-r1:8b", "gemma4:12b", "qwen3:14b"]
+MODELS = ["llama3.1:8b", "qwen3:8b", "deepseek-r1:8b"]  # 12B／14B 2026-10-15 起不用
 ROUTES = ["hybrid", "graph", "vector", "fulltext"]  # 順序即平手偏好（hybrid 為預設）
 TYPES = ["事實", "關係", "限制條件", "理論"]
 CONSTRAINT_ROUTE = {
@@ -47,7 +48,7 @@ def classify(q: str) -> str:
         return "事實"
     if re.search(r"有哪些|哪些.{0,6}(作品|畫作|肖像)", q):
         return "關係"
-    return "理論"
+    return "未知"  # 2026-10-15 使用者決定：判不出時不硬判理論，走預設 hybrid
 
 
 def gold_type(key: str) -> str | None:
@@ -142,6 +143,10 @@ def main():
 
         auto, chosen = {}, defaultdict(Counter)
         for k in keys:
+            if pred[k] == "未知":  # 判不出：走預設路由
+                auto[k] = S[(m, "hybrid", k)]
+                chosen["未知"]["hybrid"] += 1
+                continue
             train = [x for x in by_type[pred[k]] if x != k]
             route = max(ROUTES, key=lambda r: (round(mean(r, train), 6), -ROUTES.index(r)))
             auto[k] = S[(m, route, k)]
