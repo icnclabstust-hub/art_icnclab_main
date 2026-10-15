@@ -9,6 +9,7 @@
   第一次使用時才載入（約 0.3 GB RAM）。
 """
 
+import logging
 import math
 import os
 import threading
@@ -17,6 +18,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+logger = logging.getLogger(__name__)
 PLATT_A = 0.9777
 PLATT_B = 2.5060
 MAX_LENGTH = 512
@@ -78,3 +80,12 @@ def score_k(query: str, sources: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "scores": [round(s, 4) for s in scores],
         "ms": round((time.monotonic() - start) * 1000, 1),
     }
+
+
+def warmup() -> None:
+    """啟動時預先載入模型並跑一次推論；失敗不影響服務（K 只記錄於 metadata）。"""
+    try:
+        raw_scores("warmup", ["warmup"])
+        logger.info("✅ K 評分器已預載")
+    except Exception as e:  # noqa: BLE001 -- 預熱失敗時，第一次查詢會再載入
+        logger.warning(f"⚠️ K 評分器預載失敗: {e!r}")

@@ -7,10 +7,18 @@ import requests
 from chromadb import Documents, EmbeddingFunction, Embeddings
 from embedding_labels import EMBEDDING_MODEL
 
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-# 嵌入可改由另一個 Ollama（例如只用 CPU 的 11435）提供，避免與生成模型搶顯存而被卸載
-# （2026-10-14 E13：GPU Ollama 換載生成模型時會連帶卸載 bge-m3，每次檢索重新載入 2～5 秒）
-EMBED_OLLAMA_URL = os.getenv("EMBED_OLLAMA_URL", OLLAMA_BASE_URL)
+
+def embed_urls() -> list[str]:
+    """嵌入用 Ollama 位址（依序嘗試）：EMBED_OLLAMA_URL（例如 CPU 的 11435），失敗退回主 Ollama。
+
+    呼叫時才讀環境變數：主程式在 import 本模組之後才載入 .env（ENV_FILE），模組層級讀取會拿到
+    預設值、讓嵌入仍走 GPU Ollama（2026-10-15 上線後 8080 驗證發現，每題重新載入 bge-m3 約 12 秒）。
+    """
+    base = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    embed = os.getenv("EMBED_OLLAMA_URL") or base
+    return [embed] + ([base] if embed != base else [])
+
+
 logger = logging.getLogger(__name__)
 BGE_M3_MODEL = EMBEDDING_MODEL  # 模型名稱與版本標註集中在 embedding_labels.py（DAT-30）
 
@@ -22,9 +30,7 @@ class BGEM3EmbeddingFunction(EmbeddingFunction):
     def __call__(self, input: Documents) -> Embeddings:
         texts = [t[:4000] if t else " " for t in input]
         # 獨立的嵌入 Ollama 沒啟動時退回主 Ollama（同一模型，E14 實測向量餘弦 ≥ 0.99999）
-        urls = [EMBED_OLLAMA_URL] + (
-            [OLLAMA_BASE_URL] if EMBED_OLLAMA_URL != OLLAMA_BASE_URL else []
-        )
+        urls = embed_urls()
         for i, url in enumerate(urls):
             try:
                 resp = requests.post(

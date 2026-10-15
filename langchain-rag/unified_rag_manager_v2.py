@@ -26,7 +26,7 @@ import k_scorer
 import uvicorn
 
 # ChromaDB 共用 embedding function（BGE-M3，取代預設的英文為主模型）
-from bge_m3_embedding import EMBED_OLLAMA_URL, BGEM3EmbeddingFunction
+from bge_m3_embedding import BGEM3EmbeddingFunction, embed_urls
 from citations import build_citations
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -632,9 +632,7 @@ class HybridESRAG(RAGStrategy):
 
     async def _embed_query(self, query: str) -> list[float] | None:
         # 獨立的嵌入 Ollama 沒啟動時退回主 Ollama（同 bge_m3_embedding）
-        urls = [EMBED_OLLAMA_URL] + (
-            [OLLAMA_BASE_URL] if EMBED_OLLAMA_URL != OLLAMA_BASE_URL else []
-        )
+        urls = embed_urls()
         for url in urls:
             try:
                 response = await conn_manager.http_client.post(
@@ -1821,6 +1819,11 @@ async def startup_event():
             _schedule_translation_warmup()
     except Exception as e:
         logger.warning(f"⚠️ 多語言翻譯器初始化失敗: {e}，將繼續使用原始查詢")
+
+    if K_SCORER:  # 預先載入 K 評分器（首次載入約 6 秒，不要算在第一位使用者頭上）
+        task = asyncio.create_task(asyncio.to_thread(k_scorer.warmup))
+        _background_tasks.add(task)
+        task.add_done_callback(_background_tasks.discard)
         query_translator = None
 
     # 初始化智能關鍵詞提取器

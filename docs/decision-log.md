@@ -5,6 +5,16 @@
 
 ---
 
+## 2026-10-15　第 2 層上線：CPU Ollama 分離、串流、翻譯穩定化、主動卸載、K 影子模式（Tier B）
+
+- 使用者 21:3x 指示「都上線」。評估表簽核欄依 R5 由使用者／老師填寫：`docs/designs/2026-10-14-cpu-ollama-split-experiment.md`、`docs/designs/2026-10-14-streaming-response-experiment.md`。
+- 上線內容：`.env` 加 11 行（翻譯 qwen3:1.7b＋嵌入走 11435、翻譯上限 200＋重複懲罰 1.15、`GENERATION_SWITCH_UNLOAD=1`、`K_SCORER=1`、`RAG_NO_THINK_MODELS=qwen3,gemma4`）；8001 重啟；Open WebUI 停機、備份 `webui_backup_1792071354.db`、更新 8 支 pipe（串流版、12B／14B 標「較慢」）、重啟。
+- **上線事故與修正**：8080 驗證發現 bge-m3 每題仍被載入 GPU Ollama（約 12 秒）——`bge_m3_embedding.py` 在模組載入時讀 `EMBED_OLLAMA_URL`，而主程式於 import 之後才 `load_dotenv`，正式環境拿到預設值（8011 實驗以命令列傳入環境變數，未暴露）。改為呼叫時讀取（`embed_urls()`，附單元測試），重啟後 GPU 不再出現 bge-m3。另加 K 評分器啟動預載（首題不再多等約 6 秒）。
+- 8080 驗證（最終）：選單 5 模型（12B／14B 標「較慢」）；串流首段 3.5 秒（已載入）、非串流 2.9 秒；換模型首段 llama／qwen3:8b 10.2～11.1 秒、deepseek-r1:8b 16～18 秒；翻譯失敗 0。
+- 回滾：刪 `.env` 新增各行並重啟 8001；pipe 以 Open WebUI 閥值 `STREAM` 關閉即回非串流，或以備份資料庫還原。
+
+---
+
 ## 2026-10-15　更正：gemma4:12b／qwen3:14b 先保留；無新題可驗證意圖辨識
 
 - 使用者聽取移除風險後決定 **12B／14B 先留在系統**（撤回同日「不再作為本系統模型」）：選單、`rag_config.json`、評估預設清單恢復 5 模型。gemma4:12b 仍兼任評估裁判。
