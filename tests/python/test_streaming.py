@@ -91,3 +91,27 @@ def test_heartbeat_wrapper_yields_waiting_without_cancelling():
     out = asyncio.run(collect())
     assert [x for x in out if x[0] == "text"] == [("text", "甲"), ("text", "乙")]
     assert sum(x[0] == "waiting" for x in out) >= 2
+
+
+def test_heartbeat_wrapper_closes_cleanly_when_consumer_stops_early():
+    import asyncio
+
+    closed = []
+
+    async def slow():
+        try:
+            yield "text", "甲"
+            await asyncio.sleep(10)
+            yield "text", "乙"
+        finally:
+            closed.append(True)
+
+    async def consume_one():
+        gen = with_heartbeat(slow(), interval=0.05)
+        first = await gen.__anext__()
+        await gen.__anext__()  # 讀取中（等待心跳）
+        await gen.aclose()  # 模擬用戶端斷線
+        return first
+
+    assert asyncio.run(consume_one()) == ("text", "甲")
+    assert closed == [True]

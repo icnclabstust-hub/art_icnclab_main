@@ -373,6 +373,7 @@ def main():
     ap.add_argument("--api", default="http://127.0.0.1:8011")
     ap.add_argument("--runs", type=int, default=3)
     ap.add_argument("--routes", help="只跑指定路由，逗號分隔（例 graph）")
+    ap.add_argument("--models", help="只跑指定模型，逗號分隔（例 llama3.1:8b,qwen3:8b）")
     ap.add_argument("--keys", help="只跑指定題號前綴或題號，逗號分隔（例 B 或 B1,B7）")
     ap.add_argument("--out", default=str(REPO / "logs" / "eval" / "24combo-2026-10-09"))
     ap.add_argument("--summary-only", action="store_true")
@@ -384,6 +385,8 @@ def main():
     qs, claims = questions()
     if args.routes:
         ROUTES[:] = args.routes.split(",")
+    if args.models:
+        MODELS[:] = args.models.split(",")
     if args.keys:
         want = args.keys.split(",")
         qs = [

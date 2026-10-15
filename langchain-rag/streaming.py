@@ -7,6 +7,7 @@
 """
 
 import asyncio
+import contextlib
 import json
 import re
 from collections.abc import Mapping, Sequence
@@ -125,5 +126,12 @@ async def with_heartbeat(agen, interval: float = 3.0):
             except StopAsyncIteration:
                 return
     finally:
+        # 用戶端提早斷線：先取消並等待讀取中的 task，再關閉內層產生器
+        # （直接關閉會出現「aclose(): asynchronous generator is already running」）
         if pending is not None:
             pending.cancel()
+            with contextlib.suppress(BaseException):  # 取消或結束時的例外不需處理
+                await pending
+        aclose = getattr(it, "aclose", None)
+        if aclose is not None:
+            await aclose()

@@ -458,6 +458,19 @@ EXCLUDE_EVIDENCE_PREFIXES = tuple(
 _EXCLUDE_MARGIN = 5  # 啟用時多取幾筆，過濾後仍能補滿 max_results
 
 
+def _es_query(query: str) -> dict[str, Any]:
+    """BM25 查詢；開啟證據排除時在 ES 查詢層就排除（parent_id＝external_id 前綴），
+    避免空殼佔滿前幾名、事後過濾後不足 5 筆（2026-10-16 體檢：fulltext Recall@5 0.465→0.102）。"""
+    match = {"match": {"content": query}}
+    if not EXCLUDE_EVIDENCE_PREFIXES:
+        return match
+    return {"bool": {"must": [match], "must_not": _es_exclude_clauses()}}
+
+
+def _es_exclude_clauses() -> list[dict[str, Any]]:
+    return [{"prefix": {"parent_id": p}} for p in EXCLUDE_EVIDENCE_PREFIXES]
+
+
 def _evidence_only(sources: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
     """移除被排除前綴的來源（空殼不作為證據），再截到 limit。"""
     if not EXCLUDE_EVIDENCE_PREFIXES:
@@ -670,7 +683,7 @@ class HybridESRAG(RAGStrategy):
         try:
             bm25_hits, knn_hits = [], []
             bm25_body = {
-                "query": {"match": {"content": query}},
+                "query": _es_query(query),
                 "size": candidate_pool,
                 "_source": ["content", "source", "title", "artist", "date"],
             }
@@ -680,6 +693,11 @@ class HybridESRAG(RAGStrategy):
                     "query_vector": query_vector,
                     "k": candidate_pool,
                     "num_candidates": candidate_pool * 4,
+                    **(
+                        {"filter": {"bool": {"must_not": _es_exclude_clauses()}}}
+                        if EXCLUDE_EVIDENCE_PREFIXES
+                        else {}
+                    ),
                 },
                 "size": candidate_pool,
                 "_source": ["content", "source", "title", "artist", "date"],
@@ -736,7 +754,7 @@ class FulltextESRAG(HybridESRAG):
             logger.warning("ES_PASSWORD 未設定，全文檢索無法使用，返回空結果")
             return []
         body = {
-            "query": {"match": {"content": query}},
+            "query": _es_query(query),
             "size": max_results,
             "_source": ["content", "source", "title", "artist", "date", "parent_id"],
         }
@@ -1820,12 +1838,12 @@ async def startup_event():
             _schedule_translation_warmup()
     except Exception as e:
         logger.warning(f"⚠️ 多語言翻譯器初始化失敗: {e}，將繼續使用原始查詢")
+        query_translator = None
 
     if K_SCORER:  # 預先載入 K 評分器（首次載入約 6 秒，不要算在第一位使用者頭上）
         task = asyncio.create_task(asyncio.to_thread(k_scorer.warmup))
         _background_tasks.add(task)
         task.add_done_callback(_background_tasks.discard)
-        query_translator = None
 
     # 初始化智能關鍵詞提取器
     try:
