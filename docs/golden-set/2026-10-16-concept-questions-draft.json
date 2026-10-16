@@ -1,0 +1,444 @@
+{
+ "status": "DRAFT — 需人工審核，未經教師確認，不可作為正式評分依據",
+ "created": "2026-10-16",
+ "source": "Wikipedia pilot 14 條目開頭段落（chroma/ES chunk）；主張由 Claude 依段落轉述",
+ "purpose": "學生程度概念題，範圍對齊現有館藏，量測理論類覆蓋率的上限",
+ "questions": [
+  {
+   "no": 1,
+   "id": "C1",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Sfumato",
+   "question": "什麼是暈塗法（sfumato）？哪位畫家最具代表性？",
+   "claims": [
+    {
+     "text": "暈塗法是柔化顏色之間過渡的繪畫技法，模仿人眼焦點以外的模糊區域。",
+     "chunk_id": "wikipedia_pilot_Sfumato_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "它是文藝復興的標準繪畫模式之一。",
+     "chunk_id": "wikipedia_pilot_Sfumato_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "達文西是最主要的實踐者，其基礎是他對光學與人類視覺的研究及暗箱實驗。",
+     "chunk_id": "wikipedia_pilot_Sfumato_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "達文西在《岩間聖母》與《蒙娜麗莎》中使用此技法，並形容它「沒有線條或邊界，如煙一般」。",
+     "chunk_id": "wikipedia_pilot_Sfumato_chunk1",
+     "reviewed": false
+    },
+    {
+     "text": "依 Marcia B. Hall 的理論，暈塗法與 cangiante、明暗對比法、unione 並列為文藝復興盛期的四種用色模式。",
+     "chunk_id": "wikipedia_pilot_Sfumato_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 2,
+   "id": "C2",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Fresco",
+   "question": "濕壁畫（fresco）是什麼技法？與乾壁畫（secco）有何不同？",
+   "claims": [
+    {
+     "text": "濕壁畫是在新抹上、仍潮濕的石灰灰泥上作畫的壁畫技法。",
+     "chunk_id": "wikipedia_pilot_Fresco_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "以水為媒介讓顏料粉末與灰泥結合，灰泥凝固後畫面成為牆的一部分。",
+     "chunk_id": "wikipedia_pilot_Fresco_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "fresco 一詞來自義大利文形容詞，意為「新鮮的」。",
+     "chunk_id": "wikipedia_pilot_Fresco_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "乾壁畫（secco）則是畫在已乾的灰泥上，用來補充濕壁畫。",
+     "chunk_id": "wikipedia_pilot_Fresco_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "此技法自古代即有，並與義大利文藝復興繪畫密切相關。",
+     "chunk_id": "wikipedia_pilot_Fresco_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 3,
+   "id": "C3",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Terribilità",
+   "question": "「terribilità」指的是什麼？與米開朗基羅有何關係？",
+   "claims": [
+    {
+     "text": "terribilità 是歸於米開朗基羅藝術的特質，令觀者產生恐懼、敬畏或崇高感。",
+     "chunk_id": "wikipedia_pilot_Terribilità_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "此詞尤其用於他的雕塑，如《大衛》與《摩西》。",
+     "chunk_id": "wikipedia_pilot_Terribilità_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "教宗儒略二世據說最早稱米開朗基羅為 uomo terribile，所指兼及其難相處的性格與藝術。",
+     "chunk_id": "wikipedia_pilot_Terribilità_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "這個概念也關聯到人文主義者 Marsilio Ficino 的新柏拉圖思想。",
+     "chunk_id": "wikipedia_pilot_Terribilità_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 4,
+   "id": "C4",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Paragone",
+   "question": "文藝復興的「paragone」爭論在比較什麼？",
+   "claims": [
+    {
+     "text": "paragone 意為「比較」，是義大利文藝復興時期關於繪畫與雕塑（某種程度也含建築）孰優的爭論。",
+     "chunk_id": "wikipedia_pilot_Paragone_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "爭論的主要焦點是繪畫與雕塑。",
+     "chunk_id": "wikipedia_pilot_Paragone_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "類似但較不具競爭性的問題是 ut pictura poesis（出自賀拉斯），比較繪畫與詩。",
+     "chunk_id": "wikipedia_pilot_Paragone_chunk1",
+     "reviewed": false
+    },
+    {
+     "text": "爭論約始於 15 世紀；達文西的繪畫論著是代表性文獻。",
+     "chunk_id": "wikipedia_pilot_Paragone_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 5,
+   "id": "C5",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Grotesque",
+   "question": "怪誕裝飾（grotesque）一詞從何而來？",
+   "claims": [
+    {
+     "text": "英文 grotesque 於 1560 年代出現，借自法文，源自義大利文 grottesca，字面意為「洞穴的」。",
+     "chunk_id": "wikipedia_pilot_Grotesque_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "它原指 15 世紀末在羅馬重新發現並被仿效的古羅馬華麗裝飾風格。",
+     "chunk_id": "wikipedia_pilot_Grotesque_chunk1",
+     "reviewed": false
+    },
+    {
+     "text": "最早用來稱呼羅馬廢墟地下室牆上的畫，當時這些地方被稱為「洞穴」（le Grotte）。",
+     "chunk_id": "wikipedia_pilot_Grotesque_chunk1",
+     "reviewed": false
+    },
+    {
+     "text": "這些「洞穴」其實是尼祿在公元 64 年羅馬大火後興建、未完成的金宮（Domus Aurea）的房間與走廊。",
+     "chunk_id": "wikipedia_pilot_Grotesque_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 6,
+   "id": "C6",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Trecento",
+   "question": "「Trecento」指哪個時期？在藝術史上有什麼地位？代表畫家有哪些？",
+   "claims": [
+    {
+     "text": "Trecento 是 milletrecento（1300）的簡稱，指義大利文化史上的 14 世紀。",
+     "chunk_id": "wikipedia_pilot_Trecento_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "它被視為義大利文藝復興的開端，或至少是原始文藝復興。",
+     "chunk_id": "wikipedia_pilot_Trecento_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "此時期文學活動旺盛，作家改用方言而非拉丁文寫作。",
+     "chunk_id": "wikipedia_pilot_Trecento_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "代表畫家包括喬托，以及錫耶納畫派的杜喬、西蒙尼·馬提尼、Lippo Memmi 等；錫耶納畫派是當時義大利最重要的畫派。",
+     "chunk_id": "wikipedia_pilot_Trecento_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 7,
+   "id": "C7",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Venetian_painting",
+   "question": "威尼斯畫派有哪些主要畫家？其風格特點是什麼？",
+   "claims": [
+    {
+     "text": "威尼斯繪畫始於喬凡尼·貝里尼與其兄弟真蒂萊·貝里尼及其工作坊。",
+     "chunk_id": "wikipedia_pilot_Venetian_painting_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "主要畫家包括吉奧喬尼、提香、丁托列托、委羅內塞與雅各布·巴薩諾。",
+     "chunk_id": "wikipedia_pilot_Venetian_painting_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "威尼斯畫派被認為重色彩甚於線條，與義大利其他地區流行的矯飾主義形成對比。",
+     "chunk_id": "wikipedia_pilot_Venetian_painting_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "威尼斯風格對後來西方繪畫影響很大。",
+     "chunk_id": "wikipedia_pilot_Venetian_painting_chunk1",
+     "reviewed": false
+    },
+    {
+     "text": "16 世紀輝煌、17 世紀衰落、18 世紀意外復興。",
+     "chunk_id": "wikipedia_pilot_Venetian_painting_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 8,
+   "id": "C8",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Early_Netherlandish_painting",
+   "question": "什麼是早期尼德蘭繪畫？大約涵蓋哪個時期與哪些城市？",
+   "claims": [
+    {
+     "text": "指 15、16 世紀北方文藝復興時期活躍於勃艮第與哈布斯堡尼德蘭的藝術家作品，舊稱「法蘭德斯原始畫派」。",
+     "chunk_id": "wikipedia_pilot_Early_Netherlandish_painting_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "尤其興盛於布魯日、根特、梅赫倫、魯汶、圖爾奈與布魯塞爾（今比利時）。",
+     "chunk_id": "wikipedia_pilot_Early_Netherlandish_painting_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "時期約從 1420 年代的羅伯特·坎平與揚·范艾克開始，至少延續到 1523 年傑拉德·大衛去世。",
+     "chunk_id": "wikipedia_pilot_Early_Netherlandish_painting_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "許多學者把下限延伸到 1566 或 1568 年荷蘭起義開始。",
+     "chunk_id": "wikipedia_pilot_Early_Netherlandish_painting_chunk1",
+     "reviewed": false
+    },
+    {
+     "text": "早期（約 1500 年前）被視為獨立於義大利人文主義的藝術發展。",
+     "chunk_id": "wikipedia_pilot_Early_Netherlandish_painting_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 9,
+   "id": "C9",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Medici_Bank",
+   "question": "麥第奇銀行是什麼？對銀行與會計有何貢獻？",
+   "claims": [
+    {
+     "text": "麥第奇銀行是麥第奇家族於 15 世紀在義大利創立的金融機構（1397–1494）。",
+     "chunk_id": "wikipedia_pilot_Medici_Bank_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "全盛時期是歐洲最大、最受尊敬的銀行。",
+     "chunk_id": "wikipedia_pilot_Medici_Bank_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "家族憑財富先在佛羅倫斯、後在義大利與歐洲取得政治權力。",
+     "chunk_id": "wikipedia_pilot_Medici_Bank_chunk1",
+     "reviewed": false
+    },
+    {
+     "text": "它改進了總分類帳制度，發展出記錄借貸的複式記帳法。",
+     "chunk_id": "wikipedia_pilot_Medici_Bank_chunk1",
+     "reviewed": false
+    },
+    {
+     "text": "銀行由喬凡尼·迪·比奇·德·麥第奇在佛羅倫斯創立。",
+     "chunk_id": "wikipedia_pilot_Medici_Bank_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 10,
+   "id": "C10",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Basilica_of_San_Lorenzo,_Florence",
+   "question": "佛羅倫斯聖羅倫佐大教堂與麥第奇家族有什麼關係？誰設計了新教堂？",
+   "claims": [
+    {
+     "text": "它是佛羅倫斯最大的教堂之一，是麥第奇家族從老科西莫到科西莫三世所有主要成員的墓地。",
+     "chunk_id": "wikipedia_pilot_Basilica_of_San_Lorenzo,_Florence_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "它於公元 393 年祝聖，是自稱佛羅倫斯最古老的教堂之一。",
+     "chunk_id": "wikipedia_pilot_Basilica_of_San_Lorenzo,_Florence_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "曾作為城市主教座堂三百年，之後主教座遷至 Santa Reparata。",
+     "chunk_id": "wikipedia_pilot_Basilica_of_San_Lorenzo,_Florence_chunk1",
+     "reviewed": false
+    },
+    {
+     "text": "它是麥第奇家族的堂區教堂；1419 年喬凡尼·迪·比奇出資重建。",
+     "chunk_id": "wikipedia_pilot_Basilica_of_San_Lorenzo,_Florence_chunk1",
+     "reviewed": false
+    },
+    {
+     "text": "設計委託給布魯內萊斯基。",
+     "chunk_id": "wikipedia_pilot_Basilica_of_San_Lorenzo,_Florence_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 11,
+   "id": "C11",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Isabella_d'Este",
+   "question": "伊莎貝拉·德埃斯特是誰？為何被視為文藝復興重要人物？",
+   "claims": [
+    {
+     "text": "伊莎貝拉·德埃斯特（1474–1539）是曼托瓦侯爵夫人，義大利文藝復興最重要的女性文化與政治人物之一。",
+     "chunk_id": "wikipedia_pilot_Isabella_d'Este_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "她是藝術贊助者，也是時尚引領者，其穿著風格被許多女性仿效。",
+     "chunk_id": "wikipedia_pilot_Isabella_d'Este_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "她在丈夫弗朗切斯科二世·貢扎加不在時及兒子費德里科未成年期間擔任曼托瓦攝政。",
+     "chunk_id": "wikipedia_pilot_Isabella_d'Este_chunk1",
+     "reviewed": false
+    },
+    {
+     "text": "她在費拉拉長大，受過良好的古典教育。",
+     "chunk_id": "wikipedia_pilot_Isabella_d'Este_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 12,
+   "id": "C12",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Alois_Riegl",
+   "question": "李格爾（Alois Riegl）在藝術史學科上的地位是什麼？",
+   "claims": [
+    {
+     "text": "李格爾（1858–1905）是奧地利藝術史學者，屬於維也納藝術史學派。",
+     "chunk_id": "wikipedia_pilot_Alois_Riegl_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "他是使藝術史成為獨立學科的主要人物之一，也是最具影響力的形式主義實踐者之一。",
+     "chunk_id": "wikipedia_pilot_Alois_Riegl_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "他在維也納大學求學，並依 Morelli 模式學習鑑定學。",
+     "chunk_id": "wikipedia_pilot_Alois_Riegl_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "1886 年起在維也納奧地利藝術與工業博物館擔任策展人約十年。",
+     "chunk_id": "wikipedia_pilot_Alois_Riegl_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 13,
+   "id": "C13",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Erich_Auerbach",
+   "question": "奧爾巴赫（Erich Auerbach）最著名的著作是什麼？在學術上有何地位？",
+   "claims": [
+    {
+     "text": "奧爾巴赫（1892–1957）是德國語文學家、比較學者與文學評論家。",
+     "chunk_id": "wikipedia_pilot_Erich_Auerbach_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "其代表作《模仿論》（Mimesis）是西方文學中再現現實的歷史，常被引為寫實主義研究的經典。",
+     "chunk_id": "wikipedia_pilot_Erich_Auerbach_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "他與 Leo Spitzer 並列為比較文學的奠基人物。",
+     "chunk_id": "wikipedia_pilot_Erich_Auerbach_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "1921 年於格來斯瓦德大學取得博士學位。",
+     "chunk_id": "wikipedia_pilot_Erich_Auerbach_chunk1",
+     "reviewed": false
+    }
+   ]
+  },
+  {
+   "no": 14,
+   "id": "C14",
+   "kind": "concept",
+   "article": "wikipedia_pilot_Ilkhanate",
+   "question": "伊兒汗國是如何建立的？核心領土在哪裡？",
+   "claims": [
+    {
+     "text": "伊兒汗國是蒙古帝國西南部建立的汗國，蒙古人稱之為旭烈兀兀魯思。",
+     "chunk_id": "wikipedia_pilot_Ilkhanate_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "由拖雷之子、成吉思汗之孫旭烈兀在其兄蒙哥汗 1259 年死後繼承帝國西亞與中亞部分而建立。",
+     "chunk_id": "wikipedia_pilot_Ilkhanate_chunk0",
+     "reviewed": false
+    },
+    {
+     "text": "核心領土在今伊朗、亞塞拜然與土耳其。",
+     "chunk_id": "wikipedia_pilot_Ilkhanate_chunk1",
+     "reviewed": false
+    },
+    {
+     "text": "自 1295 年合贊起，後期統治者改信伊斯蘭教。",
+     "chunk_id": "wikipedia_pilot_Ilkhanate_chunk1",
+     "reviewed": false
+    }
+   ]
+  }
+ ]
+}

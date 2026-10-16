@@ -2470,6 +2470,18 @@ async def _finish_query(
 # 每筆來源以 K 校準機率分層；只把「直接依據」交給模型並要求逐句引用，「相關資料」由程式列出、
 # 不經模型；沒有直接依據時不呼叫模型。門檻為替代量尺下的暫定值
 ANSWER_LAYERS = os.getenv("ANSWER_LAYERS", "0") == "1"
+# merged＝合併版（使用者 2026-10-16）：沒有直接依據時改為「模型補充說明（未經來源驗證）」，
+# 不直接拒答；refuse＝無法回答（10-15 試做版）
+ANSWER_LAYERS_MODE = os.getenv("ANSWER_LAYERS_MODE", "merged")
+_FAKE_CITE = re.compile(
+    r"[\[［【(（]\s*(文檔|文件|來源|資料|Document|Source)\s*\d+[^\]］】)）]*[\]］】)）]"
+)
+MODEL_SUPPLEMENT_PROMPT = """你是藝術史助理。藝術史資料庫中沒有可以直接回答下列問題的館藏資料。
+請以你的知識回答，並遵守：
+1. 不要假裝引用資料庫或任何文件，不要寫「[文檔 n]」「根據參考資料」之類的字樣
+2. 不確定或有爭議之處要明說，不要編造人名、年代、出處
+3. 回答精簡、條理清楚
+問題：{query}"""
 LAYER_DIRECT_MIN = float(os.getenv("LAYER_DIRECT_MIN", "0.7"))
 LAYER_RELATED_MIN = float(os.getenv("LAYER_RELATED_MIN", "0.3"))
 
@@ -2508,11 +2520,45 @@ async def _layered_answer(ctx: _QueryContext) -> tuple[str, dict[str, Any]]:
             max_tokens=ctx.max_tokens,
         )
         parts.append("【直接依據】\n" + body.strip())
+    elif ANSWER_LAYERS_MODE == "merged":
+        body = _FAKE_CITE.sub("", await _model_supplement(ctx)).strip()  # 補充層不得帶引用
+        layers["model_supplement"] = True
+        parts.append(
+            "【館藏無法直接回答】\n以下為模型補充說明，**未經資料庫來源驗證**，請自行查證：\n"
+            + body
+        )
     else:
         parts.append("【無法回答】\n館藏中沒有可以直接回答這個問題的資料。")
     if related:
         parts.append("【相關資料】（可能有幫助，但不足以直接回答）\n" + _related_text(related))
     return "\n\n".join(parts), layers
+
+
+async def _model_supplement(ctx: _QueryContext) -> str:
+    """合併版第三層：不給來源、由模型以自身知識回答（標示未經驗證）。"""
+    payload = {
+        "model": ctx.llm_model,
+        "prompt": MODEL_SUPPLEMENT_PROMPT.format(query=ctx.request.query),
+        "stream": False,
+        "options": {"temperature": ctx.temperature, "num_predict": ctx.max_tokens},
+    }
+    if _no_think(ctx.llm_model):
+        payload["think"] = False
+    try:
+        response = await conn_manager.http_client.post(
+            f"{OLLAMA_BASE_URL}/api/generate", json=payload, timeout=900.0
+        )
+        response.raise_for_status()
+        return _strip_think(response.json().get("response", ""))
+    except Exception as e:
+        logger.error(f"模型補充層生成失敗: {e}")
+        return "（模型補充說明暫時無法產生）"
+
+
+def _strip_think(text: str) -> str:
+    """去掉 deepseek-r1 寫進回應的思考段落（未閉合者整段丟棄）。"""
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
+    return text.split("<think>")[0]
 
 
 @app.post("/api/v1/query", response_model=QueryResponse)
