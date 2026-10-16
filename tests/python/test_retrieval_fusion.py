@@ -80,3 +80,18 @@ def test_input_documents_are_not_mutated():
 
     assert "fusion" not in original["metadata"]
     assert original["score"] == 0.9
+
+
+def test_rrf_fuse_chunks_per_doc_attaches_more_segments_of_selected_docs():
+    def chunk(doc, n, text):
+        return {"content": text, "metadata": {"parent_id": doc, "chunk_id": f"{doc}_chunk{n}"}}
+
+    lists = {
+        "vector": [chunk("wiki_A", 1, "a1"), chunk("wiki_A", 2, "a2"), chunk("doc_B", 1, "b1")],
+        "fulltext": [chunk("wiki_A", 3, "a3"), chunk("doc_B", 1, "b1")],
+    }
+    one = rrf_fuse(lists, top_n=2)
+    assert [d["content"] for d in one] == ["a1", "b1"]  # 預設：每份文件一段（舊行為）
+    many = rrf_fuse(lists, top_n=2, chunks_per_doc=3)
+    # 其他段落依各路名次：a3 為全文第 1 名、a2 為向量第 2 名
+    assert [d["content"] for d in many] == ["a1", "a3", "a2", "b1"]

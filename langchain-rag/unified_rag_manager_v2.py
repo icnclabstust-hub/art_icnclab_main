@@ -249,6 +249,11 @@ ES_INDEX = "art_history_hybrid"
 DEFAULT_STRATEGY = "hybrid"
 RRF_K = int(os.getenv("RRF_K", str(DEFAULT_RRF_K)))
 HYBRID_TOP_K = int(os.getenv("HYBRID_TOP_K", "20"))
+# 每份入選文件附幾個段落（預設 1＝舊行為；理論題長條目證據不足，2026-10-16 試驗）
+HYBRID_CHUNKS_PER_DOC = int(os.getenv("HYBRID_CHUNKS_PER_DOC", "1"))
+# 生成模型讀入長度上限（Ollama num_ctx；未設定＝模型預設）；送更多段落時需放寬
+_GEN_NUM_CTX = os.getenv("GENERATION_NUM_CTX", "")
+GENERATION_NUM_CTX = int(_GEN_NUM_CTX) if _GEN_NUM_CTX.strip() else None
 HYBRID_ROUTES = [
     r.strip() for r in os.getenv("HYBRID_ROUTES", "vector,fulltext,graph").split(",") if r.strip()
 ]
@@ -527,6 +532,7 @@ class RAGStrategy:
                 "options": {
                     "temperature": temperature,
                     "num_predict": max_tokens,
+                    **({"num_ctx": GENERATION_NUM_CTX} if GENERATION_NUM_CTX else {}),
                 },
             }
             if _no_think(model_id):
@@ -823,7 +829,7 @@ class SystemHybridRAG(RAGStrategy):
         ):
             logger.info(f"三路 RRF：限制條件題由 graph 錨點 T2 直接回傳 {len(graph_docs)} 筆")
             return graph_docs[:max_results]
-        fused = rrf_fuse(ranked, k=RRF_K, top_n=max_results)
+        fused = rrf_fuse(ranked, k=RRF_K, top_n=max_results, chunks_per_doc=HYBRID_CHUNKS_PER_DOC)
         counts = "／".join(f"{r} {len(docs)}" for r, docs in ranked.items())
         logger.info(f"三路 RRF 融合返回 {len(fused)} 個結果（各路候選：{counts}）")
         return fused
@@ -2300,7 +2306,9 @@ async def _prepare_query(request: QueryRequest) -> _QueryContext:
             )
         else:
             docs = await strategy.retrieve(retrieval_query, fetch)
-        return _evidence_only(docs, request.max_results)
+        # 三路融合每份文件可附多段（HYBRID_CHUNKS_PER_DOC）：上限依段落數放大
+        per_doc = HYBRID_CHUNKS_PER_DOC if isinstance(strategy, SystemHybridRAG) else 1
+        return _evidence_only(docs, request.max_results * per_doc)
 
     try:
         # 嘗試從緩存獲取
@@ -2573,7 +2581,11 @@ async def _stream_generate(ctx: _QueryContext):
         "model": ctx.llm_model,
         "prompt": prompt,
         "stream": True,
-        "options": {"temperature": ctx.temperature, "num_predict": ctx.max_tokens},
+        "options": {
+            "temperature": ctx.temperature,
+            "num_predict": ctx.max_tokens,
+            **({"num_ctx": GENERATION_NUM_CTX} if GENERATION_NUM_CTX else {}),
+        },
     }
     if _no_think(ctx.llm_model):
         payload["think"] = False

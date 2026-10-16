@@ -55,6 +55,7 @@ def rrf_fuse(
     ranked_lists: Mapping[str, Sequence[Mapping[str, Any]]],
     k: int = DEFAULT_RRF_K,
     top_n: int = 5,
+    chunks_per_doc: int = 1,
 ) -> list[dict[str, Any]]:
     """以 Reciprocal Rank Fusion 合併多路排名：``score(d) = Σ 1/(k + rank_i(d))``。
 
@@ -62,6 +63,8 @@ def rrf_fuse(
         ranked_lists: 路由名稱 → 該路依相關度排序的結果。
         k: RRF 常數（RET-04 預設 60）。
         top_n: 融合後保留的文件數（RET-07 預設 5）。
+        chunks_per_doc: 每份入選文件最多附幾個段落（預設 1＝舊行為）。長條目（如 Wikipedia
+            39 段）只取 1 段時理論題證據不足（10-08 根因 #3）；其餘段落取自各路候選，依名次排序。
 
     Returns:
         依 RRF 分數由高到低的文件；每筆為該文件名次最好那一路的結果副本，``score`` 改為
@@ -70,10 +73,13 @@ def rrf_fuse(
     scores: dict[str, float] = {}
     ranks: dict[str, dict[str, int]] = {}
     best: dict[str, tuple[int, Mapping[str, Any]]] = {}
+    extra: dict[str, list[tuple[int, Mapping[str, Any]]]] = {}  # 文件的其他段落（名次, 段落）
     for route, docs in ranked_lists.items():
         seen: set[str] = set()
-        for doc in docs:
+        for pos, doc in enumerate(docs, 1):
             key = document_key(doc)
+            if chunks_per_doc > 1:  # 各路出現過的所有段落都是候選（不只同一路的重複）
+                extra.setdefault(key, []).append((pos, doc))
             if key in seen:
                 continue
             seen.add(key)
@@ -92,4 +98,26 @@ def rrf_fuse(
         doc["metadata"] = metadata
         doc["score"] = scores[key]
         fused.append(doc)
+        if chunks_per_doc > 1:
+            taken = {_chunk_identity(doc)}
+            for _, other in sorted(extra.get(key, []), key=lambda t: t[0]):
+                if len(taken) >= chunks_per_doc:
+                    break
+                ident = _chunk_identity(other)
+                if ident in taken:
+                    continue
+                taken.add(ident)
+                more = dict(other)
+                more["metadata"] = {
+                    **dict(other.get("metadata") or {}),
+                    "fusion": metadata["fusion"],
+                }
+                more["score"] = scores[key]
+                fused.append(more)
     return fused
+
+
+def _chunk_identity(doc: Mapping[str, Any]) -> str:
+    """同一段落在不同路出現時視為相同（chunk_id 或內容開頭）。"""
+    meta = doc.get("metadata") or {}
+    return str(meta.get("chunk_id") or str(doc.get("content", ""))[:200])

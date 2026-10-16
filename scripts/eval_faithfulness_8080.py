@@ -36,6 +36,7 @@ from eval_24combo import (  # noqa: E402
     ROUTES,
     load_rows,
     post,
+    unload_model,
     wait_for_night_window,
 )
 
@@ -210,4 +211,7 @@ def summarize(rows, path):
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    finally:
+        unload_model(JUDGE)  # 釋放裁判模型（約 10 GB RAM），避免與夜間流程等爭用記憶體

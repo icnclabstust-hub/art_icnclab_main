@@ -158,9 +158,26 @@ def questions():
     return qs, claims
 
 
+def unload_model(model):
+    """請 Ollama 立即卸載模型（釋放 VRAM 與 RAM）；失敗不影響評估。"""
+    try:
+        post(OLLAMA, {"model": model, "keep_alive": 0}, timeout=60)
+    except Exception:  # noqa: BLE001
+        print(f"⚠️ 卸載 {model} 失敗", flush=True)
+
+
 def wait_for_night_window():
-    """夜間流程（03:00 起，備份會停 Neo4j）期間暫停。"""
+    """夜間流程（03:00 起，備份會停 Neo4j）期間暫停；進入暫停時先卸載裁判模型。
+
+    2026-10-16：評分迴圈未暫停，gemma4:12b（RAM 約 10 GB）與夜間流程重疊，
+    WSL 記憶體與 swap 用盡，爬蟲寫檔與備份鏡像 ENOMEM 失敗。
+    """
+    paused = False
     while NIGHT_START <= dt.datetime.now().time() < NIGHT_END:
+        if not paused:
+            print(f"[{dt.datetime.now():%m-%d %H:%M}] 夜間流程時段，暫停並卸載 {JUDGE}", flush=True)
+            unload_model(JUDGE)
+            paused = True
         time.sleep(60)
 
 
@@ -258,6 +275,7 @@ def judge_run(rows, claims, relevant, scored_path, relevant_titles=None):
         for r in rows:
             if (r["model"], r["route"], r["key"]) in scored:
                 continue
+            wait_for_night_window()  # 評分也須避開夜間流程（裁判模型佔大量 RAM）
             no, kind = int(r["key"][1:]), r["key"][0]
             if kind == "B" and no in FACT_KEYS:
                 r["fact"] = sum(
@@ -430,6 +448,7 @@ def main():
                 out_dir / f"run{run}_scored.jsonl",
                 rel_titles,
             )
+            unload_model(JUDGE)  # 評分完立即釋放裁判模型（約 10 GB RAM）
             summarize(out_dir, run, claims)
     else:
         summarize(out_dir, args.runs, claims)
