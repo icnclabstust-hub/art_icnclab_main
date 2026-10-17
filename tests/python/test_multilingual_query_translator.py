@@ -72,3 +72,40 @@ def test_standalone_terms_still_translate(translator):
 def test_japanese_with_kanji_is_detected_as_japanese(translator):
     assert translator.detect_language("ルネサンスの絵画") == "ja"
     assert translator.detect_language("文藝復興的繪畫") == "zh"
+
+
+def test_name_dots_are_normalized_with_extra_dictionary(tmp_path, monkeypatch, translator):
+    """E25：「喬凡尼．貝里尼」（全形點）原本對不上詞典的「喬凡尼·貝里尼」；設額外詞典時才統一。"""
+    from multilingual_query_translator import normalize_name_dots  # noqa: PLC0415
+
+    assert normalize_name_dots("喬凡尼．貝里尼的作品") == "喬凡尼·貝里尼的作品"
+    assert normalize_name_dots("1.5 公尺．") == "1.5 公尺．"  # 不在兩個漢字之間不換
+    _, terms = translator.translate_terms("拉斐爾．聖齊奧的作品")
+    assert "拉斐爾．聖齊奧 -> Raphael" not in terms  # 預設不統一：只對到「聖齊奧」（現行行為）
+
+    extra = tmp_path / "extra.json"
+    extra.write_text('{"artists_graph": {}}', encoding="utf-8")
+    monkeypatch.setenv("QUERY_TERMS_EXTRA", str(extra))
+    _, terms = MultilingualQueryTranslator().translate_terms("拉斐爾．聖齊奧的作品")
+    assert "拉斐爾．聖齊奧 -> Raphael" in terms
+
+
+def test_extra_dictionary_is_loaded_with_lowest_priority(tmp_path, monkeypatch):
+    extra = tmp_path / "extra.json"
+    extra.write_text(
+        '{"_meta": {}, "artists_graph": {"Gustav Klimt": {"zh": ["克林姆"]},'
+        ' "Wrong Rembrandt": {"zh": ["林布蘭"]}}}',
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("QUERY_TERMS_EXTRA", str(extra))
+    t = MultilingualQueryTranslator()
+
+    _, terms = t.translate_terms("克林姆和林布蘭")
+    assert "克林姆 -> Gustav Klimt" in terms
+    assert "林布蘭 -> Rembrandt" in terms  # 原詞典優先，不被額外詞典覆寫
+    assert "Gustav Klimt" in t.person_terms
+
+
+def test_extra_dictionary_not_loaded_by_default(translator):
+    _, terms = translator.translate_terms("克林姆的作品")
+    assert not any("Klimt" in x for x in terms)

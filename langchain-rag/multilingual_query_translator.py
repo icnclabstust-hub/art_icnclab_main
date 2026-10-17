@@ -13,6 +13,14 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
+_NAME_DOTS = re.compile(r"(?<=[一-鿿])[.．・•‧･](?=[一-鿿])")
+
+
+def normalize_name_dots(text: str) -> str:
+    """中文名字中間的點統一為「·」（「喬凡尼．貝里尼」→「喬凡尼·貝里尼」，E25）；逐字替換、長度不變。"""
+    return _NAME_DOTS.sub("·", text)
+
+
 class MultilingualQueryTranslator:
     """多語言查詢翻譯器"""
 
@@ -62,6 +70,20 @@ class MultilingualQueryTranslator:
             except Exception as e:
                 logger.warning(f"⚠️ 無法載入擴充術語字典: {e}，只用原詞典")
 
+        # 額外詞典（逗號分隔路徑；scripts/build_artist_terms.py 的圖譜畫家中文名，E25 2026-10-17）：
+        # 優先序最低，不覆寫原詞典與擴充詞典；未設定＝不載入（現行行為）。
+        # 設定時一併把名字中間點統一為「·」再比對（見 normalize_name_dots）
+        extras = [p.strip() for p in os.getenv("QUERY_TERMS_EXTRA", "").split(",") if p.strip()]
+        self._norm = normalize_name_dots if extras else (lambda text: text)
+        for extra in extras:
+            try:
+                data = json.loads(Path(extra).read_text(encoding="utf-8"))
+                data = {k: v for k, v in data.items() if not k.startswith("_")}
+                self.dictionary = {**data, **self.dictionary}
+                logger.info(f"✅ 載入額外術語字典: {extra}")
+            except Exception as e:
+                logger.warning(f"⚠️ 無法載入額外術語字典 {extra}: {e}")
+
         # 建立反向查詢索引（多語言 -> 英文）
         self.term_index = self._build_term_index()
 
@@ -76,9 +98,13 @@ class MultilingualQueryTranslator:
         """建立術語索引：多語言詞彙 -> 英文關鍵詞；另記錄每個詞條出自哪些語言"""
         index = {}
         self.term_langs: dict[str, set[str]] = {}
+        # 人名詞條的英文（分類名含 artist）：譯後檢查用（QUERY_TRANSLATION_NAME_GUARD）
+        self.person_terms: set[str] = set()
 
-        for _category, terms in self.dictionary.items():
+        for category, terms in self.dictionary.items():
             for english_key, translations in terms.items():
+                if "artist" in category:
+                    self.person_terms.add(english_key)
                 # 英文本身也加入索引
                 index[english_key.lower()] = english_key
                 self.term_langs.setdefault(english_key.lower(), set()).add("en")
@@ -88,8 +114,9 @@ class MultilingualQueryTranslator:
                     for lang, term_list in translations.items():
                         for term in term_list if isinstance(term_list, list) else [term_list]:
                             if isinstance(term, str):
-                                index[term.lower()] = english_key
-                                self.term_langs.setdefault(term.lower(), set()).add(lang)
+                                term = self._norm(term).lower()
+                                index[term] = english_key
+                                self.term_langs.setdefault(term, set()).add(lang)
 
         logger.info(f"✅ 建立術語索引: {len(index)} 個詞條")
         return index
@@ -146,8 +173,8 @@ class MultilingualQueryTranslator:
         Returns:
             (翻譯後的查詢, 識別的術語列表)
         """
-        # 將查詢轉為小寫以匹配索引
-        query_lower = query.lower()
+        # 將查詢轉為小寫以匹配索引；名字中間點統一為「·」（逐字替換，位置不變）
+        query_lower = self._norm(query).lower()
         lang = self.detect_language(query)
 
         # 按詞彙長度排序（先匹配長詞彙）

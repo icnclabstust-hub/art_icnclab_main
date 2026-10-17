@@ -1,0 +1,1984 @@
+{
+ "_meta": {
+  "built": "2026-10-17",
+  "sources": "Neo4j Artist × Wikidata (CC0) via QLever; display_names.json",
+  "artists": 319,
+  "dropped_ambiguous_zh": 0
+ },
+ "artists_graph": {
+  "Ad Reinhardt": {
+   "zh": [
+    "阿德·萊因哈特",
+    "阿德·賴因哈特"
+   ]
+  },
+  "Adam Raphael": {
+   "zh": [
+    "亞當·拉斐爾"
+   ]
+  },
+  "Adolph Gottlieb": {
+   "zh": [
+    "阿道夫·戈特利布"
+   ]
+  },
+  "Adolphe Braun": {
+   "zh": [
+    "阿道夫·布朗"
+   ]
+  },
+  "Akseli Gallen-Kallela": {
+   "zh": [
+    "阿克塞利·加倫-卡萊拉",
+    "阿克塞爾·瓦爾德馬·加倫"
+   ]
+  },
+  "Albert Gleizes": {
+   "zh": [
+    "阿爾伯特·格列茲"
+   ]
+  },
+  "Albert Marquet": {
+   "zh": [
+    "阿爾貝·馬凱"
+   ]
+  },
+  "Albert-Ernest Carrier-Belleuse": {
+   "zh": [
+    "阿爾貝-埃內斯特·卡里耶-貝勒斯"
+   ]
+  },
+  "Albrecht Altdorfer": {
+   "zh": [
+    "阿爾布雷希特·阿爾特多夫",
+    "阿爾布雷希特·阿爾特多費"
+   ]
+  },
+  "Albrecht Dürer": {
+   "zh": [
+    "亞伯利希·杜勒",
+    "阿布雷希特·杜勒",
+    "阿爾布雷希特·丟勒",
+    "阿爾布雷希特·杜勒"
+   ]
+  },
+  "Alessandro Magnasco": {
+   "zh": [
+    "亞歷山德羅·馬尼亞斯科"
+   ]
+  },
+  "Alexander Calder": {
+   "zh": [
+    "亞歷山大·柯爾達",
+    "亞歷山大·考爾德"
+   ]
+  },
+  "Alexandre Falguière": {
+   "zh": [
+    "亞歷山大·法爾吉埃"
+   ]
+  },
+  "Alfred East": {
+   "zh": [
+    "阿爾弗雷德·伊斯特"
+   ]
+  },
+  "Alfred Gilbert": {
+   "zh": [
+    "阿爾弗雷·德吉爾伯特",
+    "阿爾弗雷德·吉爾伯特"
+   ]
+  },
+  "Amar Kanwar": {
+   "zh": [
+    "亞瑪·金華",
+    "阿瑪爾·坎沃爾"
+   ]
+  },
+  "Ambrogio Lorenzetti": {
+   "zh": [
+    "安布羅吉奧·羅倫澤蒂",
+    "安布羅喬·洛倫澤蒂",
+    "安布羅焦·洛倫採蒂"
+   ]
+  },
+  "Andrea Mantegna": {
+   "zh": [
+    "安德烈·曼泰尼亞",
+    "安德烈亞·曼特尼亞",
+    "安德里亞·曼泰尼亞"
+   ]
+  },
+  "Andrea Palladio": {
+   "zh": [
+    "安卓·帕拉底歐",
+    "安君亞·帕拉底歐",
+    "安德烈·帕拉底奧",
+    "安德烈亞·帕拉迪奧",
+    "帕拉第奧"
+   ]
+  },
+  "Andrea Sacchi": {
+   "zh": [
+    "安德烈·薩基"
+   ]
+  },
+  "Andrea Schiavone": {
+   "zh": [
+    "安德雷亞·梅爾多拉"
+   ]
+  },
+  "Andrea del Sarto": {
+   "zh": [
+    "安德烈亞·德爾·薩爾託"
+   ]
+  },
+  "André Derain": {
+   "zh": [
+    "安德烈·德蘭"
+   ]
+  },
+  "Andy Warhol": {
+   "zh": [
+    "安迪·威荷",
+    "安迪·沃荷",
+    "安迪·沃霍爾",
+    "安迪·華荷",
+    "安迪華荷"
+   ]
+  },
+  "Anne Brigman": {
+   "zh": [
+    "安妮·布里奇曼"
+   ]
+  },
+  "Annette Messager": {
+   "zh": [
+    "安妮特·梅薩熱"
+   ]
+  },
+  "Annibale Carracci": {
+   "zh": [
+    "安尼巴萊·卡拉齊"
+   ]
+  },
+  "Anselm Kiefer": {
+   "zh": [
+    "安塞姆·基弗",
+    "安森·基佛",
+    "安瑟姆·基弗"
+   ]
+  },
+  "Anthony van Dyck": {
+   "zh": [
+    "凡·代克",
+    "凡·戴克",
+    "安東尼·凡·戴克",
+    "安東尼·範·戴克",
+    "安東尼·範戴克",
+    "範戴克",
+    "范戴克"
+   ]
+  },
+  "Anton Raphael Mengs": {
+   "zh": [
+    "安東·拉斐爾·門斯"
+   ]
+  },
+  "Antonio Canova": {
+   "zh": [
+    "安東尼奧·卡諾瓦"
+   ]
+  },
+  "Antonio Rossellino": {
+   "zh": [
+    "安東尼奧·羅塞利諾"
+   ]
+  },
+  "Antonio da Correggio": {
+   "zh": [
+    "安東尼奧·達·柯勒喬"
+   ]
+  },
+  "Antonio del Pollaiuolo": {
+   "zh": [
+    "安東尼奧·德爾·波萊奧羅"
+   ]
+  },
+  "Arnold Newman": {
+   "zh": [
+    "阿諾德·紐曼"
+   ]
+  },
+  "Art Sinsabaugh": {
+   "zh": [
+    "A. 辛薩鮑"
+   ]
+  },
+  "Art Smith": {
+   "zh": [
+    "阿特·史密斯 (珠寶設計師)"
+   ]
+  },
+  "Artemisia Gentileschi": {
+   "zh": [
+    "阿特米西亞·真蒂萊斯基"
+   ]
+  },
+  "Ascanio Condivi": {
+   "zh": [
+    "阿斯卡尼奧·康迪維"
+   ]
+  },
+  "Auguste Rodin": {
+   "zh": [
+    "奧古斯特·羅丹"
+   ]
+  },
+  "Augustus Pugin": {
+   "zh": [
+    "A.W.普金",
+    "奧古斯塔斯·普金",
+    "奧古斯都·皮然"
+   ]
+  },
+  "Augustus Saint-Gaudens": {
+   "zh": [
+    "奧古斯塔斯·聖·高登斯",
+    "奧古斯都·聖高頓"
+   ]
+  },
+  "Bartolomé Esteban Murillo": {
+   "zh": [
+    "牟利羅"
+   ]
+  },
+  "Bernardo Buontalenti": {
+   "zh": [
+    "貝爾納多·布翁塔倫蒂",
+    "貝爾納爾多·布翁塔蘭提"
+   ]
+  },
+  "Bernardo Daddi": {
+   "zh": [
+    "貝爾納多·達迪"
+   ]
+  },
+  "Berthe Morisot": {
+   "zh": [
+    "博熱·莫里索",
+    "貝爾特·莫利索",
+    "貝爾特·莫里索",
+    "貝瑟·莫里索"
+   ]
+  },
+  "Bill Viola": {
+   "zh": [
+    "比爾·維奧拉",
+    "比爾·維尤拉"
+   ]
+  },
+  "Burhan Doğançay": {
+   "zh": [
+    "布林汗·多安恰伊"
+   ]
+  },
+  "Camille Pissarro": {
+   "zh": [
+    "卡米爾·畢沙羅",
+    "卡米耶·畢沙羅",
+    "卡美爾·畢沙羅",
+    "畢沙羅"
+   ]
+  },
+  "Caravaggio": {
+   "zh": [
+    "卡拉瓦喬",
+    "卡拉瓦喬, 米開朗基羅·梅里西·達",
+    "卡拉華治奧",
+    "米開朗基羅·梅里西",
+    "米開朗基羅·梅里西·達·卡拉瓦喬",
+    "米開朗琪羅·梅里西"
+   ]
+  },
+  "Carl Gustav Carus": {
+   "zh": [
+    "卡爾·古斯塔夫·卡魯斯"
+   ]
+  },
+  "Carl Hårleman": {
+   "zh": [
+    "卡爾·哈爾曼"
+   ]
+  },
+  "Carle Vernet": {
+   "zh": [
+    "卡爾·韋爾內"
+   ]
+  },
+  "Carlo Dolci": {
+   "zh": [
+    "卡洛·多爾齊"
+   ]
+  },
+  "Carolus-Duran": {
+   "zh": [
+    "卡羅呂斯-迪朗"
+   ]
+  },
+  "Charles Barry": {
+   "zh": [
+    "查爾斯·巴里"
+   ]
+  },
+  "Charles Le Brun": {
+   "zh": [
+    "夏爾·勒布倫",
+    "夏爾·勒布朗",
+    "查爾斯·勒布倫"
+   ]
+  },
+  "Charles Nègre": {
+   "zh": [
+    "夏爾·內格",
+    "夏爾·內格雷",
+    "查理斯·內格爾"
+   ]
+  },
+  "Charles Sheeler": {
+   "zh": [
+    "查爾斯·希勒",
+    "查爾斯·席勒"
+   ]
+  },
+  "Christopher Dresser": {
+   "zh": [
+    "克里斯托弗·德萊賽"
+   ]
+  },
+  "Cigoli": {
+   "zh": [
+    "奇哥利"
+   ]
+  },
+  "Claude Lorrain": {
+   "zh": [
+    "克勞德·洛蘭",
+    "克洛德·洛蘭",
+    "克羅德·勞蘭"
+   ]
+  },
+  "Claude Monet": {
+   "zh": [
+    "克勞德·莫奈",
+    "克洛德·莫內",
+    "克洛德·莫奈",
+    "哥迪·莫奈"
+   ]
+  },
+  "Cornelis Cort": {
+   "zh": [
+    "科內利斯·科特"
+   ]
+  },
+  "Cy Twombly": {
+   "zh": [
+    "塞·敦普利",
+    "塞·湯伯利",
+    "塞·託姆佈雷"
+   ]
+  },
+  "Da Chongguang": {
+   "zh": [
+    "始青道人",
+    "掃葉道人",
+    "松子閣",
+    "江上外史",
+    "江上逸史",
+    "笪傳光",
+    "笪重光",
+    "鐵甕城西逸叟",
+    "鬱岡掃葉道人",
+    "鬱龍岡掃葉道人",
+    "鵝池閣"
+   ]
+  },
+  "Daniel Chester French": {
+   "zh": [
+    "丹尼爾·切斯特·弗倫奇",
+    "丹尼爾·切斯特·弗蘭奇",
+    "丹尼爾·切斯特·法蘭奇",
+    "丹尼爾·弗萊奇"
+   ]
+  },
+  "Dante Gabriel Rossetti": {
+   "zh": [
+    "丹蒂·加布裡埃爾·羅塞蒂",
+    "但丁·加百列·羅塞蒂",
+    "但丁·加百利·羅塞蒂"
+   ]
+  },
+  "Diego Rivera": {
+   "zh": [
+    "迪亞哥·利弗拉",
+    "迪亞哥·裡維拉",
+    "迭戈·裡韋拉",
+    "迭戈·里維拉"
+   ]
+  },
+  "Diego Velázquez": {
+   "zh": [
+    "委拉斯凱茲",
+    "委拉斯奎茲",
+    "委拉斯貴支",
+    "委拉斯開茲",
+    "狄亞哥·維拉斯奎茲",
+    "維拉斯奎茲",
+    "迪亞哥·委拉斯蓋茲",
+    "迪亞哥·維拉斯奎茲",
+    "迭戈·委拉斯貴支",
+    "迭戈·委拉斯開茲"
+   ]
+  },
+  "Domenichino": {
+   "zh": [
+    "多梅尼基諾"
+   ]
+  },
+  "Domenico Beccafumi": {
+   "zh": [
+    "多梅尼科·貝卡富米"
+   ]
+  },
+  "Domenico Fetti": {
+   "zh": [
+    "多明尼科·費提",
+    "多梅尼科·費提",
+    "費地"
+   ]
+  },
+  "Donatello": {
+   "zh": [
+    "多納太羅",
+    "多納泰羅",
+    "多那太羅"
+   ]
+  },
+  "Doris Salcedo": {
+   "zh": [
+    "多麗絲·薩爾塞多",
+    "朵莉絲·薩爾塞多",
+    "桃樂絲·薩爾塞多",
+    "桃瑞絲·沙爾塞朵"
+   ]
+  },
+  "Eastman Johnson": {
+   "zh": [
+    "伊斯門·約翰遜"
+   ]
+  },
+  "Edgar Degas": {
+   "zh": [
+    "埃德加·德加",
+    "愛德加·竇加",
+    "艾德嘉·德加",
+    "艾德嘉·竇加",
+    "葉德加爾·竇加"
+   ]
+  },
+  "Edward Burne-Jones": {
+   "zh": [
+    "伯恩·瓊斯",
+    "愛德華·伯恩-瓊斯",
+    "愛德華·伯納-瓊斯",
+    "般尼·鐘斯"
+   ]
+  },
+  "El Greco": {
+   "zh": [
+    "埃爾·格列柯",
+    "埃爾·格雷考",
+    "格雷考"
+   ]
+  },
+  "Elsa Schiaparelli": {
+   "zh": [
+    "埃爾薩·斯基亞帕雷利",
+    "艾爾莎·夏帕瑞麗"
+   ]
+  },
+  "Ernst Ludwig Kirchner": {
+   "zh": [
+    "恩斯特·路德維希·基希納"
+   ]
+  },
+  "Ettore Sottsass": {
+   "zh": [
+    "埃託雷·索特薩斯"
+   ]
+  },
+  "Eugène Atget": {
+   "zh": [
+    "尤金·阿杰",
+    "尤金·阿杰特",
+    "歐仁·阿切",
+    "歐仁·阿熱",
+    "歐仁·阿特熱"
+   ]
+  },
+  "Eugène Delacroix": {
+   "zh": [
+    "德拉克洛瓦",
+    "德拉克羅瓦",
+    "歐仁·德拉克洛瓦",
+    "歐仁·德拉克羅瓦",
+    "歐仁·德拉克魯瓦"
+   ]
+  },
+  "Eugène Fromentin": {
+   "zh": [
+    "歐仁·弗羅芒坦"
+   ]
+  },
+  "Eugène Grasset": {
+   "zh": [
+    "歐仁·格拉塞"
+   ]
+  },
+  "Federico Barocci": {
+   "zh": [
+    "費德里科·巴羅奇"
+   ]
+  },
+  "Federico Zuccari": {
+   "zh": [
+    "費德里科·祖卡里"
+   ]
+  },
+  "Ferdinand Hodler": {
+   "zh": [
+    "費迪南德·霍德勒"
+   ]
+  },
+  "Fernand Khnopff": {
+   "zh": [
+    "費爾南·諾普夫",
+    "費爾南德·赫諾普夫"
+   ]
+  },
+  "Fernand Léger": {
+   "zh": [
+    "費爾南·萊熱",
+    "費爾南·雷捷"
+   ]
+  },
+  "Fernando Yáñez de la Almedina": {
+   "zh": [
+    "費爾南多·阿爾梅迪納"
+   ]
+  },
+  "Filippino Lippi": {
+   "zh": [
+    "菲利比諾·李比",
+    "菲利皮諾·利皮"
+   ]
+  },
+  "Filippo Lippi": {
+   "zh": [
+    "弗拉·菲利普·利比",
+    "菲利普·利皮",
+    "菲利波·利皮"
+   ]
+  },
+  "Fra Angelico": {
+   "zh": [
+    "安傑利訶修士",
+    "弗拉·安傑利科"
+   ]
+  },
+  "Fra Bartolomeo": {
+   "zh": [
+    "巴託羅梅奧·布拉"
+   ]
+  },
+  "Francesco Borromini": {
+   "zh": [
+    "博羅米尼"
+   ]
+  },
+  "Francesco Francia": {
+   "zh": [
+    "弗朗切斯科·弗朗西亞",
+    "弗朗西斯科·弗朗西亞"
+   ]
+  },
+  "Francesco Guardi": {
+   "zh": [
+    "弗朗切斯科·瓜爾迪"
+   ]
+  },
+  "Francesco Primaticcio": {
+   "zh": [
+    "弗朗切斯科·普里馬蒂喬"
+   ]
+  },
+  "Francesco di Giorgio": {
+   "zh": [
+    "弗朗切斯科·迪·喬吉奧·瑪蒂尼",
+    "弗朗切斯科·迪·喬爾吉奧·馬爾提尼",
+    "弗朗西斯·迪·喬治·馬爾蒂尼",
+    "弗朗西斯科·迪·喬治"
+   ]
+  },
+  "Francis Legatt Chantrey": {
+   "zh": [
+    "尚特里"
+   ]
+  },
+  "Francisco Goya": {
+   "zh": [
+    "弗朗西斯哥·戈雅",
+    "弗朗西斯科·哥雅",
+    "弗朗西斯科·德·戈雅",
+    "弗朗西斯科·德·戈雅·盧西恩特斯",
+    "弗朗西斯科·戈雅",
+    "法蘭西斯科·哥雅",
+    "法蘭西斯科·德·戈雅",
+    "費蘭西斯科·德·戈雅"
+   ]
+  },
+  "Francisco de Zurbarán": {
+   "zh": [
+    "弗朗西斯科·德·蘇巴朗",
+    "蘇巴蘭"
+   ]
+  },
+  "Frank Gehry": {
+   "zh": [
+    "弗蘭克·格里",
+    "弗蘭克·蓋裡",
+    "法蘭克·加里",
+    "法蘭克·蓋瑞",
+    "蓋瑞住宅"
+   ]
+  },
+  "Franklin Simmons": {
+   "zh": [
+    "富蘭克林·西蒙斯"
+   ]
+  },
+  "Frans Hals": {
+   "zh": [
+    "哈爾斯"
+   ]
+  },
+  "Franz Xaver Messerschmidt": {
+   "zh": [
+    "法蘭茲·克薩佛·麥瑟史密特"
+   ]
+  },
+  "François Boucher": {
+   "zh": [
+    "佛朗索瓦·布歇",
+    "弗朗索瓦·布歇",
+    "法蘭索瓦·佈雪"
+   ]
+  },
+  "François Girardon": {
+   "zh": [
+    "弗朗索瓦·吉拉爾東"
+   ]
+  },
+  "Frederic Edwin Church": {
+   "zh": [
+    "弗雷德裡克·埃德溫·丘奇"
+   ]
+  },
+  "Frida Kahlo": {
+   "zh": [
+    "弗莉達·卡洛",
+    "弗裡達",
+    "弗裡達·卡洛",
+    "弗裡達·卡羅",
+    "芙烈達·卡蘿"
+   ]
+  },
+  "Frédéric Bazille": {
+   "zh": [
+    "弗雷德裡克·巴齊耶"
+   ]
+  },
+  "Félix Bracquemond": {
+   "zh": [
+    "費利克斯·布拉克蒙"
+   ]
+  },
+  "Gao Fenghan": {
+   "zh": [
+    "丁巳殘人",
+    "南阜山人",
+    "尚左生",
+    "松嫩道人",
+    "歸雲老人",
+    "石之農",
+    "石頑老子",
+    "高鳯翰",
+    "高鳳翰"
+   ]
+  },
+  "George Bellows": {
+   "zh": [
+    "喬治·伯羅斯",
+    "喬治·拜羅斯",
+    "喬治·貝婁斯",
+    "喬治·貝洛斯"
+   ]
+  },
+  "George Edmund Street": {
+   "zh": [
+    "佐治·埃德蒙·斯特里特",
+    "喬治·埃德蒙·斯特里特",
+    "喬治·艾得蒙·史垂特"
+   ]
+  },
+  "George Henry Boughton": {
+   "zh": [
+    "喬治·亨利·鮑頓"
+   ]
+  },
+  "George Luks": {
+   "zh": [
+    "喬治·盧克斯"
+   ]
+  },
+  "George Tooker": {
+   "zh": [
+    "喬治·圖克"
+   ]
+  },
+  "Georges de La Tour": {
+   "zh": [
+    "喬治·德·拉·圖爾",
+    "喬治·德·拉圖爾",
+    "喬治·德拉圖爾",
+    "拉·圖爾"
+   ]
+  },
+  "Gerard David": {
+   "zh": [
+    "傑拉爾德·大衛"
+   ]
+  },
+  "Gerard de Lairesse": {
+   "zh": [
+    "傑拉爾·德·萊裡瑟",
+    "熱拉爾·德·萊雷斯"
+   ]
+  },
+  "Gertrude Käsebier": {
+   "zh": [
+    "葛忒茹德·卡瑟比爾"
+   ]
+  },
+  "Giacomo Ceruti": {
+   "zh": [
+    "賈科莫·切魯蒂"
+   ]
+  },
+  "Giambologna": {
+   "zh": [
+    "詹波隆那"
+   ]
+  },
+  "Gian Lorenzo Bernini": {
+   "zh": [
+    "吉安·洛倫佐·貝尼尼",
+    "貝尼尼",
+    "貝爾尼尼"
+   ]
+  },
+  "Gianni Versace": {
+   "zh": [
+    "詹尼·範思哲"
+   ]
+  },
+  "Giovanni Battista Foggini": {
+   "zh": [
+    "福格尼"
+   ]
+  },
+  "Giovanni Battista Gaulli": {
+   "zh": [
+    "喬凡尼·巴蒂斯塔·高裡"
+   ]
+  },
+  "Giovanni Battista Tiepolo": {
+   "zh": [
+    "喬瓦尼·巴蒂斯塔·提埃坡羅"
+   ]
+  },
+  "Giovanni Bellini": {
+   "zh": [
+    "喬凡尼·貝里尼"
+   ]
+  },
+  "Giovanni Benedetto Castiglione": {
+   "zh": [
+    "喬瓦尼·班奈迪託·卡斯蒂廖內"
+   ]
+  },
+  "Giovanni Boldini": {
+   "zh": [
+    "喬瓦尼·波爾蒂尼"
+   ]
+  },
+  "Giovanni Paolo Panini": {
+   "zh": [
+    "喬瓦尼·保羅·帕尼尼"
+   ]
+  },
+  "Giovanni di Paolo": {
+   "zh": [
+    "喬凡尼·第·保祿",
+    "喬瓦尼·迪·保羅",
+    "喬萬尼·迪保羅"
+   ]
+  },
+  "Gregory Crewdson": {
+   "zh": [
+    "格雷戈裡·克魯森",
+    "葛瑞格利·庫德森"
+   ]
+  },
+  "Grete Stern": {
+   "zh": [
+    "格蕾特·斯特恩"
+   ]
+  },
+  "Guercino": {
+   "zh": [
+    "圭爾奇諾"
+   ]
+  },
+  "Guido Cagnacci": {
+   "zh": [
+    "圭多·卡尼亞奇",
+    "圭多·卡納契"
+   ]
+  },
+  "Guido Reni": {
+   "zh": [
+    "古伊多·雷尼",
+    "圭多·雷尼"
+   ]
+  },
+  "Guillaume Apollinaire": {
+   "zh": [
+    "紀堯姆·阿波利奈爾",
+    "阿波利奈爾"
+   ]
+  },
+  "Gustave Caillebotte": {
+   "zh": [
+    "古斯塔夫·卡耶博特"
+   ]
+  },
+  "Gustave Courbet": {
+   "zh": [
+    "古斯塔夫·庫爾貝",
+    "居斯塔夫·庫爾貝",
+    "庫爾貝"
+   ]
+  },
+  "Hans Memling": {
+   "zh": [
+    "漢斯·梅姆林"
+   ]
+  },
+  "Harriet Hosmer": {
+   "zh": [
+    "哈莉特·霍斯默"
+   ]
+  },
+  "Heiner Müller": {
+   "zh": [
+    "海涅·穆勒",
+    "海納·穆勒"
+   ]
+  },
+  "Henri Evenepoel": {
+   "zh": [
+    "亨利·埃費內普爾"
+   ]
+  },
+  "Henri Harpignies": {
+   "zh": [
+    "亨利·阿皮尼"
+   ]
+  },
+  "Henri Matisse": {
+   "zh": [
+    "亨利·馬蒂斯",
+    "亨利·馬蒂西",
+    "亨利·馬諦斯",
+    "馬蒂斯",
+    "馬諦斯"
+   ]
+  },
+  "Henri de Toulouse-Lautrec": {
+   "zh": [
+    "亨利·德·圖盧茲-洛特雷克",
+    "亨利·德·土魯斯-羅特列克",
+    "亨利·德·土魯斯羅特列克",
+    "亨利·德圖盧茲-洛特雷克",
+    "亨利·德土魯斯-羅特列克",
+    "土魯斯-勞特累克",
+    "土魯斯-羅特列克",
+    "羅特列克"
+   ]
+  },
+  "Henry Fuseli": {
+   "zh": [
+    "亨利·富澤利",
+    "亨利·弗塞裡",
+    "約翰·亨利希·菲斯利"
+   ]
+  },
+  "Honoré Daumier": {
+   "zh": [
+    "奧諾雷·杜米埃",
+    "杜米埃",
+    "歐諾雷·多米耶"
+   ]
+  },
+  "Huma Bhabha": {
+   "zh": [
+    "胡瑪·芭芭"
+   ]
+  },
+  "Imogen Cunningham": {
+   "zh": [
+    "伊莫金·坎寧安"
+   ]
+  },
+  "Isoda Koryūsai": {
+   "zh": [
+    "礒田湖龍齋"
+   ]
+  },
+  "J. M. W. Turner": {
+   "zh": [
+    "J. M. W. 透納",
+    "J·M·W·透納",
+    "約瑟夫·馬洛德·威廉·透納"
+   ]
+  },
+  "Jackson Pollock": {
+   "zh": [
+    "傑克森·波拉克",
+    "傑克森·波洛克",
+    "傑克遜·波洛克",
+    "波洛克",
+    "積遜·波歷"
+   ]
+  },
+  "Jacopo Sansovino": {
+   "zh": [
+    "雅各布·桑索維諾"
+   ]
+  },
+  "Jacques Villon": {
+   "zh": [
+    "雅克·維庸"
+   ]
+  },
+  "Jacques-Louis David": {
+   "zh": [
+    "大衛特",
+    "賈克-路易·大衛",
+    "雅克-路易·大衛",
+    "雅克·路易·大衛"
+   ]
+  },
+  "James Stirling": {
+   "zh": [
+    "佔士·史特靈",
+    "詹姆斯·斯特林"
+   ]
+  },
+  "Jasper Johns": {
+   "zh": [
+    "積斯柏·莊士",
+    "賈斯培·瓊斯"
+   ]
+  },
+  "Jean Arp": {
+   "zh": [
+    "讓·阿爾普"
+   ]
+  },
+  "Jean Dubuffet": {
+   "zh": [
+    "尚·杜布菲",
+    "讓·杜布菲",
+    "讓·迪比費"
+   ]
+  },
+  "Jean Metzinger": {
+   "zh": [
+    "尚·梅金傑"
+   ]
+  },
+  "Jean-Baptiste Camille Corot": {
+   "zh": [
+    "尚-巴蒂斯特·卡密爾·柯洛",
+    "讓-巴蒂斯特·卡米耶·柯洛"
+   ]
+  },
+  "Jean-Baptiste Greuze": {
+   "zh": [
+    "讓-巴蒂斯特·格勒茲"
+   ]
+  },
+  "Jean-Baptiste Marie Pierre": {
+   "zh": [
+    "讓-巴蒂斯特·馬裡·皮埃爾",
+    "讓·巴蒂斯特·瑪麗·皮埃爾"
+   ]
+  },
+  "Jean-Honoré Fragonard": {
+   "zh": [
+    "讓-奧諾雷·弗拉戈納爾",
+    "讓·奧諾雷·弗拉戈納爾"
+   ]
+  },
+  "Jean-Marc Nattier": {
+   "zh": [
+    "讓-馬克·納捷"
+   ]
+  },
+  "Jim Dine": {
+   "zh": [
+    "吉姆·戴恩"
+   ]
+  },
+  "Joachim Patinir": {
+   "zh": [
+    "若阿基姆·帕蒂尼爾"
+   ]
+  },
+  "Joaquín Torres-García": {
+   "zh": [
+    "華金·託雷斯-加西亞"
+   ]
+  },
+  "Johann Friedrich Overbeck": {
+   "zh": [
+    "奧韋爾貝克",
+    "約翰·弗裡德利希·奧韋爾貝克"
+   ]
+  },
+  "Johann Zoffany": {
+   "zh": [
+    "約翰·佐法尼"
+   ]
+  },
+  "Johannes Vermeer": {
+   "zh": [
+    "維梅爾",
+    "維米爾"
+   ]
+  },
+  "John Baldessari": {
+   "zh": [
+    "約翰·巴爾代薩裡"
+   ]
+  },
+  "John Beasley Greene": {
+   "zh": [
+    "約翰·比斯利·格林"
+   ]
+  },
+  "John Constable": {
+   "zh": [
+    "康斯特勃",
+    "約翰·康斯特勃",
+    "約翰·康斯特布林"
+   ]
+  },
+  "John Henry Twachtman": {
+   "zh": [
+    "約翰·亨利·特瓦克特曼"
+   ]
+  },
+  "John James Audubon": {
+   "zh": [
+    "奧杜邦",
+    "約翰·詹姆斯·奧杜邦"
+   ]
+  },
+  "John La Farge": {
+   "zh": [
+    "約翰·拉·法爾熱",
+    "約翰拉法基"
+   ]
+  },
+  "John Russell Pope": {
+   "zh": [
+    "約翰·羅素·波普"
+   ]
+  },
+  "John Singleton Copley": {
+   "zh": [
+    "約翰·科普利"
+   ]
+  },
+  "John Sloan": {
+   "zh": [
+    "約翰·斯隆"
+   ]
+  },
+  "John Smibert": {
+   "zh": [
+    "約翰·斯米伯特"
+   ]
+  },
+  "John Trumbull": {
+   "zh": [
+    "約翰-特倫布林",
+    "約翰·查布林",
+    "約翰·特倫布",
+    "約翰·特朗布林"
+   ]
+  },
+  "Joseph August Knip": {
+   "zh": [
+    "約瑟夫·奧古斯特·克尼普",
+    "若瑟·奧格斯特·克尼普"
+   ]
+  },
+  "José Guadalupe Posada": {
+   "zh": [
+    "何塞·瓜達盧佩·波薩達"
+   ]
+  },
+  "Juan Bautista Martínez del Mazo": {
+   "zh": [
+    "胡安·包蒂斯塔·馬丁內斯·德爾·馬佐"
+   ]
+  },
+  "Juan Gris": {
+   "zh": [
+    "胡安·格里斯"
+   ]
+  },
+  "Juan de Flandes": {
+   "zh": [
+    "胡安·德·弗蘭德斯"
+   ]
+  },
+  "Jules Bastien-Lepage": {
+   "zh": [
+    "朱爾·巴斯蒂安-勒帕吉"
+   ]
+  },
+  "Jules Jacquemart": {
+   "zh": [
+    "朱爾·雅克馬爾"
+   ]
+  },
+  "Julia Margaret Cameron": {
+   "zh": [
+    "朱莉婭·瑪格麗特·卡梅倫",
+    "朱麗亞·瑪格麗特·卡梅隆",
+    "茱莉亞·瑪格麗特·卡梅倫",
+    "茱莉亞·瑪格麗特·卡梅隆"
+   ]
+  },
+  "Jusepe de Ribera": {
+   "zh": [
+    "胡塞佩·德·裡韋拉",
+    "里貝拉"
+   ]
+  },
+  "Katsushika Hokusai": {
+   "zh": [
+    "葛飾北斎",
+    "葛飾北齋",
+    "近藤市太郎"
+   ]
+  },
+  "Kawanabe Kyōsai": {
+   "zh": [
+    "河鍋暁斎",
+    "河鍋曉斉,"
+   ]
+  },
+  "Kazimir Malevich": {
+   "zh": [
+    "卡濟米爾·謝韋裡諾維奇·馬列維奇",
+    "馬列維奇"
+   ]
+  },
+  "Kerry James Marshall": {
+   "zh": [
+    "凱瑞·詹姆斯·馬歇爾"
+   ]
+  },
+  "Le Corbusier": {
+   "zh": [
+    "勒·柯布西耶",
+    "勒·柯比意",
+    "柯比意",
+    "羅·柯必意"
+   ]
+  },
+  "Leonardo da Vinci": {
+   "zh": [
+    "列奧納多·迪·瑟皮耶羅·達·芬奇",
+    "列奧納多·達·芬奇",
+    "列奧納多·達文西",
+    "列奧納多·達芬奇",
+    "列奧那多·達芬奇",
+    "列昂納多·達芬奇",
+    "李奧納多·達·文西",
+    "李奧納多·達文西",
+    "李安納度·迪·瑟皮耶羅·達文西",
+    "李安納度·達文西",
+    "萊奧納多",
+    "萊奧納多·達·芬奇",
+    "萊奧納爾多·達芬奇",
+    "萊昂納多·達·芬奇",
+    "達·芬奇",
+    "達文西",
+    "達文謇",
+    "達芬奇"
+   ]
+  },
+  "Lorenzo Lotto": {
+   "zh": [
+    "羅倫佐·洛託"
+   ]
+  },
+  "Lorenzo Monaco": {
+   "zh": [
+    "洛倫佐·莫納科",
+    "洛倫佐摩納哥",
+    "羅倫佐·摩那科"
+   ]
+  },
+  "Louis Comfort Tiffany": {
+   "zh": [
+    "蒂凡尼",
+    "路易斯·C·蒂芙尼",
+    "路易斯·康福特·蒂芙尼"
+   ]
+  },
+  "Louis-Auguste Bisson": {
+   "zh": [
+    "路易斯-奧古斯特·比森"
+   ]
+  },
+  "Louis-Léopold Boilly": {
+   "zh": [
+    "路易-利奧波德·布瓦伊"
+   ]
+  },
+  "Louise Nevelson": {
+   "zh": [
+    "路易斯·奈佛遜",
+    "露易絲·奈佛遜"
+   ]
+  },
+  "Luca Giordano": {
+   "zh": [
+    "盧卡·焦爾達諾"
+   ]
+  },
+  "Luca Signorelli": {
+   "zh": [
+    "盧卡·西諾萊利"
+   ]
+  },
+  "Ludovico Carracci": {
+   "zh": [
+    "盧多維科·卡拉奇"
+   ]
+  },
+  "Luigi Garzi": {
+   "zh": [
+    "路易吉·加爾齊"
+   ]
+  },
+  "Luis de Morales": {
+   "zh": [
+    "路易斯·德·莫拉雷斯"
+   ]
+  },
+  "László Moholy-Nagy": {
+   "zh": [
+    "莫霍利-納吉·拉斯洛"
+   ]
+  },
+  "Man Ray": {
+   "zh": [
+    "曼·雷"
+   ]
+  },
+  "Marcantonio Raimondi": {
+   "zh": [
+    "馬爾坎託尼奧·雷夢迪"
+   ]
+  },
+  "Marcel Broodthaers": {
+   "zh": [
+    "馬塞爾·布達埃爾",
+    "馬賽·布達埃爾"
+   ]
+  },
+  "Marcel Duchamp": {
+   "zh": [
+    "馬些·杜桑",
+    "馬塞爾·杜尚",
+    "馬塞爾·杜桑",
+    "馬塞爾·杜象",
+    "馬歇爾·杜尚",
+    "馬賽爾·杜尚"
+   ]
+  },
+  "Mark di Suvero": {
+   "zh": [
+    "馬克·迪·蘇維羅"
+   ]
+  },
+  "Marta Minujín": {
+   "zh": [
+    "瑪塔·米努金",
+    "馬爾塔·邁納士"
+   ]
+  },
+  "Martin Wong": {
+   "zh": [
+    "黃馬鼎"
+   ]
+  },
+  "Mary Cassatt": {
+   "zh": [
+    "卡薩特",
+    "瑪麗·卡薩特"
+   ]
+  },
+  "Mattia Preti": {
+   "zh": [
+    "瑪蒂亞·普雷蒂",
+    "馬蒂亞·普雷提"
+   ]
+  },
+  "Maurice Denis": {
+   "zh": [
+    "莫里斯·丹尼",
+    "莫里斯·丹尼斯"
+   ]
+  },
+  "Michal Rovner": {
+   "zh": [
+    "米哈爾·羅夫納"
+   ]
+  },
+  "Michelangelo": {
+   "zh": [
+    "米開朗基羅",
+    "米開朗基羅·博納羅蒂",
+    "米開朗基羅·波納羅蒂",
+    "米開朗琪羅",
+    "米開蘭基羅",
+    "米高安哲羅",
+    "米高安捷羅",
+    "麥開蘭基羅"
+   ]
+  },
+  "Michelangelo Pistoletto": {
+   "zh": [
+    "米凱蘭傑洛·皮斯托萊託"
+   ]
+  },
+  "Mihály Munkácsy": {
+   "zh": [
+    "米哈伊·蒙卡奇",
+    "蒙卡奇·米哈伊"
+   ]
+  },
+  "Moretto da Brescia": {
+   "zh": [
+    "莫雷託",
+    "莫雷託·達·佈雷西亞"
+   ]
+  },
+  "Morris Louis": {
+   "zh": [
+    "莫里斯·路易斯"
+   ]
+  },
+  "Muhanna Al-Dura": {
+   "zh": [
+    "穆罕納·杜拉"
+   ]
+  },
+  "Nam June Paik": {
+   "zh": [
+    "白南準"
+   ]
+  },
+  "Nicolas Poussin": {
+   "zh": [
+    "尼古拉·普桑",
+    "普桑"
+   ]
+  },
+  "Nicolás García Uriburu": {
+   "zh": [
+    "烏裡武魯"
+   ]
+  },
+  "Odilon Redon": {
+   "zh": [
+    "奧迪隆·雷東"
+   ]
+  },
+  "Okumura Masanobu": {
+   "zh": [
+    "奧村政信"
+   ]
+  },
+  "Orazio Gentileschi": {
+   "zh": [
+    "奧拉齊奧·真蒂萊斯基"
+   ]
+  },
+  "Oskar Schlemmer": {
+   "zh": [
+    "奧斯卡·施萊默"
+   ]
+  },
+  "Pablo Picasso": {
+   "zh": [
+    "畢卡索"
+   ]
+  },
+  "Parmigianino": {
+   "zh": [
+    "帕爾米賈尼諾"
+   ]
+  },
+  "Paul Cézanne": {
+   "zh": [
+    "保羅·塞尚",
+    "保羅·施傘"
+   ]
+  },
+  "Paul Delvaux": {
+   "zh": [
+    "保羅·德爾沃"
+   ]
+  },
+  "Paul Poiret": {
+   "zh": [
+    "普瓦·波烈"
+   ]
+  },
+  "Perino del Vaga": {
+   "zh": [
+    "佩裡諾·德爾瓦加"
+   ]
+  },
+  "Peter Paul Rubens": {
+   "zh": [
+    "彼得·保羅·呂本斯",
+    "彼得·保羅·魯本斯",
+    "彼得·魯本斯",
+    "盧本斯",
+    "魯本斯"
+   ]
+  },
+  "Petrus Christus": {
+   "zh": [
+    "彼得魯斯·克里斯蒂"
+   ]
+  },
+  "Philip Galle": {
+   "zh": [
+    "菲利甫·加勒"
+   ]
+  },
+  "Philip-Lorca diCorcia": {
+   "zh": [
+    "菲臘羅卡·狄哥士亞"
+   ]
+  },
+  "Philippe de Champaigne": {
+   "zh": [
+    "菲利普·德·尚帕涅"
+   ]
+  },
+  "Pier Jacopo Alari Bonacolsi": {
+   "zh": [
+    "皮爾·雅各布·阿拉里·博納科爾西"
+   ]
+  },
+  "Pierre Puvis de Chavannes": {
+   "zh": [
+    "夏凡納",
+    "皮埃爾·皮維·德·夏凡納"
+   ]
+  },
+  "Pierre-Auguste Renoir": {
+   "zh": [
+    "奧古斯特·雷諾阿",
+    "皮埃爾-奧古斯特·勒努瓦",
+    "皮埃爾-奧古斯特·雷諾阿",
+    "皮埃爾·奧古斯特·雷諾阿",
+    "皮耶-奧古斯特·雷諾瓦"
+   ]
+  },
+  "Piet Mondrian": {
+   "zh": [
+    "彼埃·蒙德里安",
+    "皮特·蒙德里安",
+    "皮耶·蒙德利安",
+    "蒙得裡安",
+    "蒙德裡安",
+    "蒙德里安"
+   ]
+  },
+  "Pieter Brueghel the Younger": {
+   "zh": [
+    "小彼得·布呂赫爾"
+   ]
+  },
+  "Pietro Bernini": {
+   "zh": [
+    "彼得·貝尼尼"
+   ]
+  },
+  "Pietro Perugino": {
+   "zh": [
+    "彼得羅·佩魯吉諾"
+   ]
+  },
+  "Pietro da Cortona": {
+   "zh": [
+    "皮得羅·達·科爾託納"
+   ]
+  },
+  "Polidoro da Caravaggio": {
+   "zh": [
+    "波利多羅·達·卡拉瓦喬"
+   ]
+  },
+  "Péter Dobai": {
+   "zh": [
+    "彼得·多鮑伊",
+    "彼德·多鮑伊"
+   ]
+  },
+  "Ramon Casas": {
+   "zh": [
+    "拉蒙·卡薩斯",
+    "拉蒙·卡薩斯·卡波"
+   ]
+  },
+  "Raphael": {
+   "zh": [
+    "拉斐爾",
+    "拉斐爾·桑齊奧",
+    "拉斐爾·聖齊奧",
+    "拉菲爾"
+   ]
+  },
+  "Rembrandt": {
+   "zh": [
+    "倫勃朗",
+    "林布蘭",
+    "林布蘭·哈爾曼松·範·萊因"
+   ]
+  },
+  "Rembrandt Peale": {
+   "zh": [
+    "雷姆布蘭特·皮爾"
+   ]
+  },
+  "René Lalique": {
+   "zh": [
+    "勒內·拉利克",
+    "雷內·拉利克"
+   ]
+  },
+  "Richard Hamilton": {
+   "zh": [
+    "李察·鹹美頓",
+    "理察·哈密爾頓",
+    "理查德·哈密爾頓"
+   ]
+  },
+  "Richard Long": {
+   "zh": [
+    "理査·隆恩"
+   ]
+  },
+  "Richard Serra": {
+   "zh": [
+    "李察·塞拉",
+    "理查德·塞拉"
+   ]
+  },
+  "Robert Campin": {
+   "zh": [
+    "羅伯特·康平"
+   ]
+  },
+  "Robert Motherwell": {
+   "zh": [
+    "羅伯特·馬瑟韋爾"
+   ]
+  },
+  "Robert Rauschenberg": {
+   "zh": [
+    "勞生柏",
+    "羅伯特·勞森伯格",
+    "羅拔·華森堡"
+   ]
+  },
+  "Robert Venturi": {
+   "zh": [
+    "範裘利",
+    "羅伯·範裘利",
+    "羅伯特·文丘裡",
+    "羅伯特·範裘莉",
+    "羅拔·雲杜釐"
+   ]
+  },
+  "Rockwell Kent": {
+   "zh": [
+    "羅克韋爾·肯特"
+   ]
+  },
+  "Roger Fenton": {
+   "zh": [
+    "羅傑·芬頓",
+    "羅格·芬頓"
+   ]
+  },
+  "Rogier van der Weyden": {
+   "zh": [
+    "羅吉爾·凡·德爾·韋登",
+    "羅吉爾·範·德·韋登",
+    "羅吉爾·範·德爾·維登",
+    "羅希爾·範·德韋登",
+    "羅希爾·範德魏登"
+   ]
+  },
+  "Roy Lichtenstein": {
+   "zh": [
+    "羅伊·利希滕斯坦",
+    "羅伊·李奇登斯坦",
+    "羅依·李奇登斯坦"
+   ]
+  },
+  "Rudi Gernreich": {
+   "zh": [
+    "設計師",
+    "魯迪·格恩萊西",
+    "魯迪·簡萊什"
+   ]
+  },
+  "Ryūryūkyo Shinsai": {
+   "zh": [
+    "柳柳居辰齋"
+   ]
+  },
+  "Saloua Raouda Choucair": {
+   "zh": [
+    "薩盧阿·拉烏達·舒卡爾"
+   ]
+  },
+  "Salvator Rosa": {
+   "zh": [
+    "薩爾瓦多·羅莎",
+    "薩爾瓦多·羅薩",
+    "薩爾瓦託·羅薩",
+    "薩爾瓦託雷·羅莎"
+   ]
+  },
+  "Sandro Botticelli": {
+   "zh": [
+    "桑德羅·波提切利",
+    "波提切利"
+   ]
+  },
+  "Saul Steinberg": {
+   "zh": [
+    "索爾·斯坦伯格"
+   ]
+  },
+  "Shikō Munakata": {
+   "zh": [
+    "棟方誌功"
+   ]
+  },
+  "Simone Martini": {
+   "zh": [
+    "西蒙尼·馬蒂尼"
+   ]
+  },
+  "Sol LeWitt": {
+   "zh": [
+    "索爾·勒維特"
+   ]
+  },
+  "Song Dong": {
+   "zh": [
+    "宋冬"
+   ]
+  },
+  "Sophie Taeuber-Arp": {
+   "zh": [
+    "索菲·託伊伯-阿爾普"
+   ]
+  },
+  "Stephen Shore": {
+   "zh": [
+    "史提芬·梭亞",
+    "斯蒂芬·沙爾"
+   ]
+  },
+  "Suzuki Harunobu": {
+   "zh": [
+    "鈴木春信"
+   ]
+  },
+  "Thomas Cole": {
+   "zh": [
+    "託馬斯·科爾"
+   ]
+  },
+  "Thomas Eakins": {
+   "zh": [
+    "托馬斯·埃金斯",
+    "湯瑪斯·埃金斯",
+    "湯馬士·埃金斯",
+    "託馬斯·艾金斯"
+   ]
+  },
+  "Thomas Hart Benton": {
+   "zh": [
+    "託馬斯·哈特·本頓"
+   ]
+  },
+  "Thomas Rowlandson": {
+   "zh": [
+    "托馬斯·羅蘭森",
+    "託馬斯·羅蘭森"
+   ]
+  },
+  "Théo van Rysselberghe": {
+   "zh": [
+    "泰奧·範賴瑟爾貝赫"
+   ]
+  },
+  "Théodore Chassériau": {
+   "zh": [
+    "夏斯里奧",
+    "泰奧多爾·夏塞裡奧",
+    "泰奧多爾·夏塞里奧",
+    "泰奧多爾·夏斯里奧",
+    "西奧多·夏斯里奧"
+   ]
+  },
+  "Théodore Géricault": {
+   "zh": [
+    "傑利柯",
+    "泰奧多爾·傑利柯",
+    "熱里科"
+   ]
+  },
+  "Titian": {
+   "zh": [
+    "提香"
+   ]
+  },
+  "Tom Wesselmann": {
+   "zh": [
+    "湯姆·維塞爾曼"
+   ]
+  },
+  "Torii Kiyonaga": {
+   "zh": [
+    "鳥居清長"
+   ]
+  },
+  "Tullio Lombardo": {
+   "zh": [
+    "圖裡歐·隆巴多",
+    "塗裡歐·隆巴多",
+    "隆巴多"
+   ]
+  },
+  "Utagawa Hiroshige": {
+   "zh": [
+    "安籐広重,",
+    "安藤廣重",
+    "歌川廣重"
+   ]
+  },
+  "Utagawa Kuniyoshi": {
+   "zh": [
+    "一勇齋",
+    "歌川國芳"
+   ]
+  },
+  "Utagawa Yoshitsuya": {
+   "zh": [
+    "歌川芳艷",
+    "歌川芳豔"
+   ]
+  },
+  "Vanessa Bell": {
+   "zh": [
+    "凡妮莎·貝爾",
+    "瓦妮莎·貝爾"
+   ]
+  },
+  "Vincent van Gogh": {
+   "zh": [
+    "凡·高",
+    "文森·威廉·梵谷",
+    "文森·梵谷",
+    "文森特·梵高",
+    "文生·梵谷",
+    "梵·高",
+    "梵谷",
+    "梵高"
+   ]
+  },
+  "Walker Evans": {
+   "zh": [
+    "沃克·埃文斯",
+    "獲加·伊雲斯"
+   ]
+  },
+  "Walter Crane": {
+   "zh": [
+    "沃爾特·克萊恩",
+    "華特·克藍"
+   ]
+  },
+  "Wassily Kandinsky": {
+   "zh": [
+    "康丁斯基",
+    "康定斯基",
+    "瓦西里·康丁斯基",
+    "瓦西里·康定斯基"
+   ]
+  },
+  "Watanabe Shōtei": {
+   "zh": [
+    "渡邊省亭"
+   ]
+  },
+  "Wenceslaus Hollar": {
+   "zh": [
+    "文策斯勞斯·霍洛"
+   ]
+  },
+  "William Chambers": {
+   "zh": [
+    "威廉·錢伯斯"
+   ]
+  },
+  "William Merritt Chase": {
+   "zh": [
+    "威廉·梅里特·蔡斯",
+    "威廉·馬裡特·切斯"
+   ]
+  },
+  "William-Adolphe Bouguereau": {
+   "zh": [
+    "威廉·阿道夫·布格羅"
+   ]
+  },
+  "Winslow Homer": {
+   "zh": [
+    "溫斯洛·霍默"
+   ]
+  },
+  "Yun Shouping": {
+   "zh": [
+    "南國餘民",
+    "南田客",
+    "南田小隱",
+    "南田抱甕客",
+    "南田翁",
+    "南田老人",
+    "南田草衣",
+    "壽平子",
+    "夢墨齋",
+    "夢暉室",
+    "巢楓客",
+    "惲壽平",
+    "抱甕客",
+    "望古齋",
+    "東園外史",
+    "東園客",
+    "東園客壽",
+    "東園生",
+    "東園草衣",
+    "東園草衣生",
+    "東野道人",
+    "棗花齋",
+    "橫山樵者",
+    "深柳溪堂",
+    "甌香散人",
+    "甌香館",
+    "白華齋",
+    "白雲外史",
+    "研雲草閣",
+    "紅雨軒",
+    "苕華館",
+    "草衣生",
+    "葺芰生",
+    "鑑湖漁隱",
+    "雪衣居士",
+    "雲溪外史",
+    "雲溪嬾漁",
+    "雲溪懶漁",
+    "雲溪漁父",
+    "雲溪隱漁"
+   ]
+  },
+  "Yves Klein": {
+   "zh": [
+    "伊夫·克萊因",
+    "伊夫·祈因",
+    "伊維斯·克萊因"
+   ]
+  },
+  "Édouard Baldus": {
+   "zh": [
+    "愛德華·巴爾杜斯"
+   ]
+  },
+  "Édouard Manet": {
+   "zh": [
+    "愛德華·馬內",
+    "愛德華·馬奈",
+    "愛杜爾·馬奈"
+   ]
+  },
+  "Étienne Carjat": {
+   "zh": [
+    "艾蒂安·卡爾雅",
+    "艾蒂安·卡賈特"
+   ]
+  }
+ }
+}

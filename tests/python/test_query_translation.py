@@ -151,3 +151,35 @@ def test_dictionary_mode_does_not_call_llm(setup, rag):
 
     assert (query, info["method"]) == ("Rembrandt的The Night Watch", "dictionary")
     assert client.calls == []
+
+
+def test_name_guard_appends_hinted_name_and_adds_rule(setup, rag, monkeypatch):
+    """E25：詞典提示了人名但模型沒採用（聖齊奧→Saint Zachary），補在句尾；提示詞加保留人名規則。"""
+    client = setup("List the artworks associated with Saint Zachary.")
+    monkeypatch.setattr(rag, "QUERY_TRANSLATION_NAME_GUARD", True)
+
+    query, info = run(rag.translate_for_retrieval("請列出聖齊奧的作品。", "llama3.1:8b"))
+
+    assert query == "List the artworks associated with Saint Zachary. (Raphael)"
+    assert info["names_appended"] == ["Raphael"]
+    assert rag.NAME_GUARD_RULE.strip() in client.calls[0]["prompt"]
+
+
+def test_name_guard_keeps_translation_when_name_present(setup, rag, monkeypatch):
+    setup("Which works by Rembrandt are in the Met?")
+    monkeypatch.setattr(rag, "QUERY_TRANSLATION_NAME_GUARD", True)
+
+    query, info = run(rag.translate_for_retrieval("林布蘭有哪些作品？", "llama3.1:8b"))
+
+    assert query == "Which works by Rembrandt are in the Met?"
+    assert info["names_appended"] == []
+
+
+def test_name_guard_off_by_default(setup, rag):
+    client = setup("List the artworks associated with Saint Zachary.")
+
+    query, info = run(rag.translate_for_retrieval("請列出聖齊奧的作品。", "llama3.1:8b"))
+
+    assert query == "List the artworks associated with Saint Zachary."
+    assert "names_appended" not in info
+    assert rag.NAME_GUARD_RULE.strip() not in client.calls[0]["prompt"]

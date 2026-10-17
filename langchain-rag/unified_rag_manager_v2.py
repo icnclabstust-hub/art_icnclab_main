@@ -12,6 +12,7 @@ import logging
 import os
 import re
 import time
+import unicodedata
 import uuid
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -291,6 +292,10 @@ QUERY_TRANSLATION_OLLAMA_URL = os.getenv("QUERY_TRANSLATION_OLLAMA_URL", "") or 
 QUERY_TRANSLATION_NUM_PREDICT = int(os.getenv("QUERY_TRANSLATION_NUM_PREDICT", "1024"))
 _QT_REPEAT = os.getenv("QUERY_TRANSLATION_REPEAT_PENALTY", "")
 QUERY_TRANSLATION_REPEAT_PENALTY = float(_QT_REPEAT) if _QT_REPEAT.strip() else None
+# 人名防呆（E25，2026-10-17）：詞典沒列的人名要求保留中文原字（模型會亂猜：席勒→Schiller、
+# 米勒→整個漏掉）；詞典提示的英文人名沒出現在譯文就補在句尾（聖齊奧→Saint Zachary）。預設關閉
+QUERY_TRANSLATION_NAME_GUARD = os.getenv("QUERY_TRANSLATION_NAME_GUARD", "0") == "1"
+NAME_GUARD_RULE = "詞典未列出的人名保留中文原字，不要自行翻譯、改寫或省略。\n"
 _QT_NUM_GPU = os.getenv("QUERY_TRANSLATION_NUM_GPU", "")
 QUERY_TRANSLATION_NUM_GPU = int(_QT_NUM_GPU) if _QT_NUM_GPU.strip() else None
 QUERY_TRANSLATION_PROMPT = """你是藝術史檢索系統的查詢翻譯器。
@@ -2026,6 +2031,23 @@ def _schedule_translation_warmup(model: str | None = None) -> None:
     task.add_done_callback(_background_tasks.discard)
 
 
+def _fold(text: str) -> str:
+    return "".join(
+        c for c in unicodedata.normalize("NFKD", text) if not unicodedata.combining(c)
+    ).lower()
+
+
+def _append_missing_names(text: str, found_terms: list[str]) -> tuple[str, list[str]]:
+    """詞典提示的人名（英文）沒出現在譯文就補在句尾；回傳 (譯文, 補上的人名)。"""
+    persons = getattr(query_translator, "person_terms", set())
+    missing = []
+    for term in found_terms:
+        en = term.split(" -> ", 1)[-1]
+        if en in persons and _fold(en) not in _fold(text) and en not in missing:
+            missing.append(en)
+    return (f"{text} ({', '.join(missing)})" if missing else text), missing
+
+
 async def translate_for_retrieval(
     query: str, llm_model: str | None = None
 ) -> tuple[str, dict[str, Any] | None]:
@@ -2057,6 +2079,8 @@ async def translate_for_retrieval(
             if result["found_terms"]
             else ""
         )
+        if QUERY_TRANSLATION_NAME_GUARD:
+            hint += NAME_GUARD_RULE
         try:
             response = await conn_manager.http_client.post(
                 f"{QUERY_TRANSLATION_OLLAMA_URL or OLLAMA_BASE_URL}/api/generate",
@@ -2086,6 +2110,8 @@ async def translate_for_retrieval(
             )
             response.raise_for_status()
             text = _clean_translation(response.json().get("response", ""))
+            if text and QUERY_TRANSLATION_NAME_GUARD:
+                text, info["names_appended"] = _append_missing_names(text, result["found_terms"])
             if text:
                 retrieval_query, method = text, "llm_hinted"
             else:
