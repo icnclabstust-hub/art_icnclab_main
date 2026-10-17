@@ -8,11 +8,14 @@ import json
 import logging
 import os
 import re
+from collections import Counter
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 
+# 名字裡少見、但常緊接在人名後面的字：不當作「名字還沒完」的訊號
+_NOT_NAME_CHARS = set("的與和及跟同在是有之等為對於把被如")
 _NAME_DOTS = re.compile(r"(?<=[一-鿿])[.．・•‧･](?=[一-鿿])")
 
 
@@ -100,6 +103,7 @@ class MultilingualQueryTranslator:
         self.term_langs: dict[str, set[str]] = {}
         # 人名詞條的英文（分類名含 artist）：譯後檢查用（QUERY_TRANSLATION_NAME_GUARD）
         self.person_terms: set[str] = set()
+        name_chars: Counter[str] = Counter()
 
         for category, terms in self.dictionary.items():
             for english_key, translations in terms.items():
@@ -117,6 +121,14 @@ class MultilingualQueryTranslator:
                                 term = self._norm(term).lower()
                                 index[term] = english_key
                                 self.term_langs.setdefault(term, set()).add(lang)
+                                if "artist" in category:
+                                    name_chars.update(term)
+
+        # 外文人名的常用譯字（出現 ≥ 3 次）：姓氏詞條後面接這些字，多半是更長名字的一部分
+        # （「聖羅倫」切開「聖羅倫佐」、「沃爾夫」切開「沃爾夫林」，E27）
+        self.name_chars = {
+            c for c, n in name_chars.items() if n >= 3 and "一" <= c <= "鿿"
+        } - _NOT_NAME_CHARS
 
         logger.info(f"✅ 建立術語索引: {len(index)} 個詞條")
         return index
@@ -136,6 +148,10 @@ class MultilingualQueryTranslator:
         if len(term) == 1:
             cjk = self.language_patterns["zh"]
             return not cjk.match(before) and not cjk.match(after)
+        if self.term_langs.get(term) == {"zh_surname"}:
+            # 只有姓氏的詞條（scripts/build_artist_terms.py --famous）：前面是「·」或後面接譯名
+            # 常用字時，是另一個較長名字的一部分
+            return before != "·" and after not in self.name_chars
         return True
 
     def detect_language(self, text: str) -> str:

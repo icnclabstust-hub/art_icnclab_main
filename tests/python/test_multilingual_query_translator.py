@@ -109,3 +109,23 @@ def test_extra_dictionary_is_loaded_with_lowest_priority(tmp_path, monkeypatch):
 def test_extra_dictionary_not_loaded_by_default(translator):
     _, terms = translator.translate_terms("克林姆的作品")
     assert not any("Klimt" in x for x in terms)
+
+
+def test_surname_terms_respect_name_boundary(tmp_path, monkeypatch):
+    """E27：只有姓氏的詞條不可切開較長的名字（「聖羅倫」切開「聖羅倫佐」），正常用法照常對中。"""
+    extra = tmp_path / "extra.json"
+    extra.write_text(
+        '{"artists_famous": {'
+        '"Yves Saint Laurent": {"zh": ["伊夫·聖羅倫"], "zh_surname": ["聖羅倫"]},'
+        '"Gustav Klimt": {"zh": ["古斯塔夫·克林姆"], "zh_surname": ["克林姆"]},'
+        '"Lorenzo Lotto": {"zh": ["洛倫佐·洛托"]}, "Lorenzo Monaco": {"zh": ["洛倫佐·摩納哥"]},'
+        '"Lorenzo Costa": {"zh": ["洛倫佐·科斯塔"]}}}',
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("QUERY_TERMS_EXTRA", str(extra))
+    t = MultilingualQueryTranslator()
+
+    assert "佐" in t.name_chars  # 「洛倫佐」出現 3 次
+    assert not any("Laurent" in x for x in t.translate_terms("聖羅倫佐大教堂")[1])
+    assert "克林姆 -> Gustav Klimt" in t.translate_terms("克林姆的代表作")[1]
+    assert "聖羅倫 -> Yves Saint Laurent" in t.translate_terms("聖羅倫的設計")[1]
