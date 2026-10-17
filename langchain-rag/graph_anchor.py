@@ -43,6 +43,34 @@ MUSEUMS = {
     "國家博物館（阿姆斯特丹）": "Rijksmuseum",
     "rijksmuseum": "Rijksmuseum",
 }
+# 館名擴充（E28，2026-10-18，GRAPH_MUSEUMS_EXT=1）：這四館的作品在圖譜沒有 HELD_BY
+# （classify_art_history_graph.py 的來源對照表漏列），以作品 source 補判；HELD_BY 補齊後仍相容
+MUSEUMS_EXT = {
+    "芝加哥藝術博物館": "Art Institute of Chicago",
+    "芝加哥藝術學院": "Art Institute of Chicago",
+    "芝加哥美術館": "Art Institute of Chicago",
+    "art institute of chicago": "Art Institute of Chicago",
+    "克里夫蘭藝術博物館": "Cleveland Museum of Art",
+    "克利夫蘭藝術博物館": "Cleveland Museum of Art",
+    "克里夫蘭美術館": "Cleveland Museum of Art",
+    "cleveland museum of art": "Cleveland Museum of Art",
+    "維多利亞與艾伯特博物館": "Victoria and Albert Museum",
+    "維多利亞與亞伯特博物館": "Victoria and Albert Museum",
+    "維多利亞和艾伯特博物館": "Victoria and Albert Museum",
+    "victoria and albert museum": "Victoria and Albert Museum",
+    "v&a": "Victoria and Albert Museum",
+    "耶魯大學美術館": "Yale University Art Gallery",
+    "耶魯大學藝廊": "Yale University Art Gallery",
+    "yale university art gallery": "Yale University Art Gallery",
+}
+MUSEUM_SOURCES = {
+    "Metropolitan Museum of Art": ["met_museum"],
+    "Harvard Art Museums": ["harvard"],
+    "Art Institute of Chicago": ["art_institute_chicago"],
+    "Cleveland Museum of Art": ["cleveland_museum"],
+    "Victoria and Albert Museum": ["va_museum"],
+    "Yale University Art Gallery": ["yale_university_art_gallery"],
+}
 # 作品排序時忽略的英文詞
 STOP = {
     "what",
@@ -88,6 +116,26 @@ WHERE a.name IN $names AND i.name = $museum AND c.valid_to IS NULL AND h.valid_t
   AND coalesce(w.is_deleted, false) = false
 RETURN DISTINCT w AS artwork
 """
+# T2 館名擴充版：HELD_BY 或作品來源（$sources）任一成立
+_T2_EXT = """
+MATCH (a:Artist)-[c:CREATED]->(w:Artwork)
+WHERE a.name IN $names AND c.valid_to IS NULL AND coalesce(w.is_deleted, false) = false
+  AND (w.source IN $sources OR EXISTS {
+    MATCH (w)-[h:HELD_BY]->(i:Institution) WHERE i.name = $museum AND h.valid_to IS NULL
+  })
+RETURN DISTINCT w AS artwork
+"""
+
+
+def museums_ext() -> bool:
+    """GRAPH_MUSEUMS_EXT=1：館名擴充與來源補判（呼叫時讀取）。"""
+    return os.getenv("GRAPH_MUSEUMS_EXT", "0") == "1"
+
+
+def cypher_for(template: str, params: dict[str, Any]) -> str:
+    if template != "T2":
+        return _T1
+    return _T2_EXT if "sources" in params else _T2
 
 
 def _fold(s: str) -> str:
@@ -228,9 +276,13 @@ class AliasTable:
 
 def choose_template(original: str | None, retrieval_query: str) -> tuple[str, dict[str, Any]]:
     text = f"{original or ''} {retrieval_query}".lower()
-    for key in sorted(MUSEUMS, key=len, reverse=True):
+    table = {**MUSEUMS, **MUSEUMS_EXT} if museums_ext() else MUSEUMS
+    for key in sorted(table, key=len, reverse=True):
         if key in text:
-            return "T2", {"museum": MUSEUMS[key]}
+            museum = table[key]
+            if museums_ext():
+                return "T2", {"museum": museum, "sources": MUSEUM_SOURCES.get(museum, [])}
+            return "T2", {"museum": museum}
     return "T1", {}
 
 

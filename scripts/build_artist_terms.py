@@ -52,6 +52,10 @@ FAMOUS = "--famous" in sys.argv
 _DEFAULT_OUT = "art_terms_artists_famous.json" if FAMOUS else "art_terms_artists_graph.json"
 OUT = Path(os.getenv("ARTIST_TERMS_OUT", REPO / "langchain-rag" / _DEFAULT_OUT))
 GRAPH_TERMS = REPO / "langchain-rag" / "art_terms_artists_graph.json"
+FAMOUS_TERMS = REPO / "langchain-rag" / "art_terms_artists_famous.json"
+ALIASES = REPO / "langchain-rag" / "artist_aliases.json"
+ALIAS_EXT_OUT = Path(os.getenv("ALIAS_EXT_OUT", REPO / "langchain-rag" / "artist_aliases_ext.json"))
+GRAPH_NODES: dict = {}  # graph_info 填入：{qid: {names, works, en}}
 FAMOUS_MIN_SITELINKS = 30
 SURNAME_MIN_SITELINKS = 40
 COLLISION_RATIO = 0.5
@@ -237,6 +241,14 @@ def graph_info():
     qid_of = resolve(allc)
     qids = {qid_of[c] for cs in cand_of.values() for c in cs if c in qid_of}
     print(f"唯一對到 Wikidata 人物：{len(qids)} 位")
+    # 圖譜節點 → QID（候選名全部對到同一人才算），供擴充別名表使用
+    for name, cs in cand_of.items():
+        hit = {qid_of[c] for c in cs if c in qid_of}
+        if len(hit) == 1:
+            row = GRAPH_NODES.setdefault(next(iter(hit)), {"names": [], "works": 0, "en": set()})
+            row["names"].append(name)
+            row["works"] += artists[name]
+            row["en"].update(c for c in cs if c in qid_of)
     return zh_names(qids)
 
 
@@ -315,6 +327,78 @@ def main():
     print(
         f"輸出 {OUT}：{len(terms)} 位畫家、{sum(map(len, terms.values()))} 個中文名；"
         f"歧義捨棄 {dropped}"
+    )
+    if not FAMOUS:
+        write_alias_ext(info, terms)
+
+
+def write_alias_ext(info, terms):
+    """擴充圖譜錨點別名表（E28，2026-10-18）：artist_aliases.json 只有 40 位，其他畫家的問題
+    圖譜認不出、只能退回。原 40 位條目原樣保留；其餘圖譜畫家（對到唯一 QID）加入：
+    英文名＝Wikidata 英文標籤＋對到的圖譜候選名；中文＝本詞典與館藏外詞典（含姓氏）的中文名。
+    一個別名對到多位畫家則捨棄。圖譜錨點設 GRAPH_ALIAS_PATH 指向輸出檔才會使用。
+    """
+    base = json.loads(ALIASES.read_text(encoding="utf-8"))
+    famous = (
+        json.loads(FAMOUS_TERMS.read_text(encoding="utf-8"))["artists_famous"]
+        if FAMOUS_TERMS.exists()
+        else {}
+    )
+    owner = defaultdict(set)  # 別名（英文 fold／中文）→ {qid}
+    for a in base["artists"]:
+        for al in a["aliases"]:
+            owner[fold(al["alias"]) if al["type"] == "en" else al["alias"]].add(a["qid"])
+    known = {a["qid"] for a in base["artists"]}
+    new = []
+    for qid, node in GRAPH_NODES.items():
+        r = info.get(qid)
+        if qid in known or not r or not r["en"]:
+            continue
+        en = r["en"]
+        aliases = [
+            {"alias": e, "type": "en", "source": "wikidata"} for e in sorted({en, *node["en"]})
+        ]
+        aliases += [
+            {"alias": z, "type": "full", "source": "wikidata", "tw": True}
+            for z in sorted(terms.get(en, set()) | set(famous.get(en, {}).get("zh", [])))
+        ]
+        aliases += [
+            {"alias": z, "type": "surname", "source": "wikidata", "tw": True}
+            for z in famous.get(en, {}).get("zh_surname", [])
+        ]
+        for al in aliases:
+            owner[fold(al["alias"]) if al["type"] == "en" else al["alias"]].add(qid)
+        new.append(
+            {
+                "qid": qid,
+                "name_en": en,
+                "en": sorted({en, *node["en"]}),
+                "aliases": aliases,
+                "neo4j_names": sorted(node["names"]),
+                "neo4j_works": node["works"],
+            }
+        )
+    dropped = sorted(k for k, q in owner.items() if len(q) > 1)
+    for a in new:
+        a["aliases"] = [
+            al
+            for al in a["aliases"]
+            if len(owner[fold(al["alias"]) if al["type"] == "en" else al["alias"]]) == 1
+        ]
+    new = [a for a in new if a["aliases"]]
+    out = {
+        "meta": {
+            **base["meta"],
+            "extended": time.strftime("%Y-%m-%d"),
+            "extended_by": "scripts/build_artist_terms.py（E28）",
+            "extended_dropped_ambiguous": dropped[:200],
+        },
+        "artists": base["artists"] + new,
+    }
+    ALIAS_EXT_OUT.write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(
+        f"輸出 {ALIAS_EXT_OUT}：原 {len(base['artists'])} 位＋新增 {len(new)} 位；"
+        f"歧義別名 {len(dropped)}"
     )
 
 

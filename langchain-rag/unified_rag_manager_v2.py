@@ -1303,7 +1303,7 @@ class SystemGraphRAG(GraphOnlyRAG):
         }
         records: list = []
         if anchor.hit:
-            cypher = graph_anchor._T2 if template == "T2" else graph_anchor._T1
+            cypher = graph_anchor.cypher_for(template, params)
             try:
                 with conn_manager.neo4j_driver.session() as session:
                     records = list(session.run(cypher, names=anchor.names, **params))

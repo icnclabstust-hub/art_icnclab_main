@@ -115,3 +115,24 @@ def test_rank_artworks_prefers_title_hits():
     ]
     ranked = g.rank_artworks(recs, "Which portraits by Rembrandt?", 2)
     assert [r["artwork"]["id"] for _, r in ranked] == ["b", "c"]
+
+
+def test_museums_ext_off_by_default(monkeypatch):
+    monkeypatch.delenv("GRAPH_MUSEUMS_EXT", raising=False)
+    assert g.choose_template("芝加哥藝術博物館有哪些莫內的作品？", "") == ("T1", {})
+    assert g.cypher_for("T2", {"museum": "Metropolitan Museum of Art"}) == g._T2
+
+
+def test_museums_ext_matches_new_museums_with_sources(monkeypatch):
+    """E28：四館作品沒有 HELD_BY，開關開啟時以作品 source 補判。"""
+    monkeypatch.setenv("GRAPH_MUSEUMS_EXT", "1")
+    template, params = g.choose_template("芝加哥藝術博物館有哪些莫內的作品？", "")
+    assert (template, params) == (
+        "T2",
+        {"museum": "Art Institute of Chicago", "sources": ["art_institute_chicago"]},
+    )
+    assert g.cypher_for(template, params) == g._T2_EXT
+    # 原有三館照舊命中，並帶上來源（大都會有 HELD_BY，來源條件只是並集）
+    _, params = g.choose_template("", "Which works by Monet are in the Metropolitan Museum?")
+    assert params == {"museum": "Metropolitan Museum of Art", "sources": ["met_museum"]}
+    assert g.cypher_for("T1", {}) == g._T1
