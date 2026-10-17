@@ -136,3 +136,13 @@ def test_museums_ext_matches_new_museums_with_sources(monkeypatch):
     _, params = g.choose_template("", "Which works by Monet are in the Metropolitan Museum?")
     assert params == {"museum": "Metropolitan Museum of Art", "sources": ["met_museum"]}
     assert g.cypher_for("T1", {}) == g._T1
+
+
+def test_name_boundary_skips_alias_inside_longer_name(table, monkeypatch):
+    """E30：「亞當·拉斐爾」裡的「林布蘭」類別名（前面是「·」）是別人全名的後半段，不算命中。"""
+    question = "大都會藝術博物館收藏了哪些亞當·林布蘭的作品？"
+    monkeypatch.delenv("GRAPH_NAME_BOUNDARY", raising=False)
+    assert table.anchor(question, "").hit  # 預設行為不變
+    monkeypatch.setenv("GRAPH_NAME_BOUNDARY", "1")
+    assert not table.anchor(question, "").hit
+    assert table.anchor("林布蘭有哪些作品？", "").hit

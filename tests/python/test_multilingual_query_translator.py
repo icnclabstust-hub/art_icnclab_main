@@ -129,3 +129,15 @@ def test_surname_terms_respect_name_boundary(tmp_path, monkeypatch):
     assert not any("Laurent" in x for x in t.translate_terms("聖羅倫佐大教堂")[1])
     assert "克林姆 -> Gustav Klimt" in t.translate_terms("克林姆的代表作")[1]
     assert "聖羅倫 -> Yves Saint Laurent" in t.translate_terms("聖羅倫的設計")[1]
+
+
+def test_person_after_middle_dot_is_part_of_longer_name(tmp_path, monkeypatch):
+    """E30：「亞當·拉斐爾」不是拉斐爾；設額外詞典時才啟用（預設行為不變）。"""
+    _, terms = MultilingualQueryTranslator().translate_terms("亞當·林布蘭的作品")
+    assert "林布蘭 -> Rembrandt" in terms
+    extra = tmp_path / "extra.json"
+    extra.write_text('{"artists_graph": {}}', encoding="utf-8")
+    monkeypatch.setenv("QUERY_TERMS_EXTRA", str(extra))
+    t = MultilingualQueryTranslator()
+    assert "林布蘭 -> Rembrandt" not in t.translate_terms("亞當·林布蘭的作品")[1]
+    assert "林布蘭 -> Rembrandt" in t.translate_terms("林布蘭的作品")[1]

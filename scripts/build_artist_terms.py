@@ -345,6 +345,9 @@ def write_alias_ext(info, terms):
         else {}
     )
     owner = defaultdict(set)  # 別名（英文 fold／中文）→ {qid}
+    # 原表刻意捨棄的歧義別名（拉斐爾、卡拉瓦喬、卡拉奇）擴充版也不收
+    # （E30：「亞當·拉斐爾」誤中拉斐爾）
+    base_dropped = set(base["meta"].get("dropped_ambiguous") or [])
     for a in base["artists"]:
         for al in a["aliases"]:
             owner[fold(al["alias"]) if al["type"] == "en" else al["alias"]].add(a["qid"])
@@ -384,6 +387,7 @@ def write_alias_ext(info, terms):
             al
             for al in a["aliases"]
             if len(owner[fold(al["alias"]) if al["type"] == "en" else al["alias"]]) == 1
+            and al["alias"] not in base_dropped
         ]
     new = [a for a in new if a["aliases"]]
     out = {

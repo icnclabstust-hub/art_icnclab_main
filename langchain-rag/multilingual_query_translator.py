@@ -78,6 +78,7 @@ class MultilingualQueryTranslator:
         # 設定時一併把名字中間點統一為「·」再比對（見 normalize_name_dots）
         extras = [p.strip() for p in os.getenv("QUERY_TERMS_EXTRA", "").split(",") if p.strip()]
         self._norm = normalize_name_dots if extras else (lambda text: text)
+        self._extras = bool(extras)
         for extra in extras:
             try:
                 data = json.loads(Path(extra).read_text(encoding="utf-8"))
@@ -148,6 +149,9 @@ class MultilingualQueryTranslator:
         if len(term) == 1:
             cjk = self.language_patterns["zh"]
             return not cjk.match(before) and not cjk.match(after)
+        if self._extras and before == "·" and self.term_index.get(term) in self.person_terms:
+            # 人名緊接在「·」後面＝別人全名的後半段（「亞當·拉斐爾」不是拉斐爾，E30）
+            return False
         if self.term_langs.get(term) == {"zh_surname"}:
             # 只有姓氏的詞條（scripts/build_artist_terms.py --famous）：前面是「·」或後面接譯名
             # 常用字時，是另一個較長名字的一部分

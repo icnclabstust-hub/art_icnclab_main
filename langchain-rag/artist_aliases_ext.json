@@ -7,6 +7,7 @@
    "卡拉瓦喬",
    "拉斐爾"
   ],
+  "neo4j_names_refreshed": "2026-10-18（作者遷移後；人選與別名維持 2026-10-11 版）",
   "extended": "2026-10-18",
   "extended_by": "scripts/build_artist_terms.py（E28）",
   "extended_dropped_ambiguous": [
@@ -302,7 +303,7 @@
     "Leonardo da Vinci",
     "Leonardo da Vinci (1452 - 1519)"
    ],
-   "neo4j_works": 15
+   "neo4j_works": 17
   },
   {
    "qid": "Q5592",
@@ -657,7 +658,7 @@
     "Raphael",
     "Raphael (Raffaello Sanzio or Santi)"
    ],
-   "neo4j_works": 9
+   "neo4j_works": 11
   },
   {
    "qid": "Q5598",
@@ -1861,12 +1862,13 @@
     }
    ],
    "neo4j_names": [
+    "Harmensz van Rijn Rembrandt",
     "Rembrandt",
     "Rembrandt (Rembrandt van Rijn)",
     "Rembrandt van Rijn",
     "Rembrandt van Rijn (Dutch"
    ],
-   "neo4j_works": 26
+   "neo4j_works": 28
   },
   {
    "qid": "Q296",
@@ -2022,7 +2024,7 @@
    "neo4j_names": [
     "Claude Monet"
    ],
-   "neo4j_works": 5
+   "neo4j_works": 6
   },
   {
    "qid": "Q5582",
@@ -2116,9 +2118,10 @@
     }
    ],
    "neo4j_names": [
+    "Vincent Van Gogh",
     "Vincent van Gogh"
    ],
-   "neo4j_works": 11
+   "neo4j_works": 13
   },
   {
    "qid": "Q5593",
@@ -2300,7 +2303,7 @@
     "Pablo Picasso\nSpanish",
     "Pablo Picasso (Spanish"
    ],
-   "neo4j_works": 19
+   "neo4j_works": 30
   },
   {
    "qid": "Q37562",
@@ -2613,7 +2616,7 @@
     "Nicolas Poussin",
     "Nicolas Poussin (French"
    ],
-   "neo4j_works": 18
+   "neo4j_works": 19
   },
   {
    "qid": "Q297",
@@ -5344,8 +5347,10 @@
      "tw": false
     }
    ],
-   "neo4j_names": [],
-   "neo4j_works": 0
+   "neo4j_names": [
+    "Titian (Tiziano Vecellio)"
+   ],
+   "neo4j_works": 1
   },
   {
    "qid": "Q160538",
@@ -7856,7 +7861,7 @@
     "Guido Reni",
     "Reni"
    ],
-   "neo4j_works": 20
+   "neo4j_works": 21
   },
   {
    "qid": "Q150679",
@@ -10423,7 +10428,7 @@
     "Francisco de Zurbarán",
     "Francisco de Zurbarán (Spanish"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 3
   },
   {
    "qid": "Q192062",
@@ -13987,7 +13992,7 @@
     "Art Sinsabaugh",
     "Art Sinsabaugh\nAmerican"
    ],
-   "neo4j_works": 12
+   "neo4j_works": 13
   },
   {
    "qid": "Q363308",
@@ -14891,9 +14896,10 @@
     }
    ],
    "neo4j_names": [
-    "Dante Gabriel Rossetti"
+    "Dante Gabriel Rossetti",
+    "Rossetti"
    ],
-   "neo4j_works": 5
+   "neo4j_works": 6
   },
   {
    "qid": "Q78885",
@@ -15881,9 +15887,10 @@
     }
    ],
    "neo4j_names": [
+    "Albert Gleizes",
     "Gleizes, Albert"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q313096",
@@ -15905,9 +15912,10 @@
     }
    ],
    "neo4j_names": [
+    "Jean Metzinger",
     "Metzinger, Jean"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q170068",
@@ -15947,9 +15955,10 @@
     }
    ],
    "neo4j_names": [
+    "Akseli Gallen-Kallela",
     "Gallen-Kallela, Akseli"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q95401044",
@@ -15966,9 +15975,10 @@
    ],
    "neo4j_names": [
     "Gawlik, Zdeněk (director)",
-    "Gawlik, Zdeněk (writer)"
+    "Gawlik, Zdeněk (writer)",
+    "Zdeněk Gawlik"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 3
   },
   {
    "qid": "Q19958541",
@@ -15984,9 +15994,10 @@
     }
    ],
    "neo4j_names": [
-    "Ouless, Philip John"
+    "Ouless, Philip John",
+    "Philip John Ouless"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q38265646",
@@ -16008,9 +16019,10 @@
     }
    ],
    "neo4j_names": [
+    "Antonio Portela Paradela",
     "Portela Paradela, Antonio (Lugar de nacimiento: La Coruña, 1865 - Lugar de defunción: La Coruña, 30/03/1927)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q6281178",
@@ -16038,10 +16050,11 @@
     }
    ],
    "neo4j_names": [
+    "Joseph August Knip",
     "Joseph August Knip (Künstler_in)",
     "Joseph August Knip (artist)"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 3
   },
   {
    "qid": "Q159619",
@@ -16087,9 +16100,10 @@
     }
    ],
    "neo4j_names": [
-    "Aranda Navarro, Fernando"
+    "Aranda Navarro, Fernando",
+    "Fernando Aranda Navarro"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q30755",
@@ -16120,7 +16134,7 @@
     "Auguste Rodin",
     "Rodin, Auguste (1840-1917) (Künstler/Hersteller)"
    ],
-   "neo4j_works": 6
+   "neo4j_works": 10
   },
   {
    "qid": "Q2545507",
@@ -16209,10 +16223,11 @@
     }
    ],
    "neo4j_names": [
+    "Ingolf Thiel",
     "Thiel, Ingolf",
     "Thiel, Ingolf (Herstellung) (Fotograf)"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 4
   },
   {
    "qid": "Q5796620",
@@ -16228,9 +16243,10 @@
     }
    ],
    "neo4j_names": [
-    "Hedström, Åke (1932- )"
+    "Hedström, Åke (1932- )",
+    "Åke Hedström"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q360978",
@@ -16270,9 +16286,10 @@
     }
    ],
    "neo4j_names": [
+    "Hans Vredeman de Vries",
     "Vries, Hans Vredeman de"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q15450700",
@@ -16288,9 +16305,10 @@
     }
    ],
    "neo4j_names": [
-    "John, Paul W. (Herstellung) (Fotograf)"
+    "John, Paul W. (Herstellung) (Fotograf)",
+    "Paul W. John"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 4
   },
   {
    "qid": "Q6699459",
@@ -16306,9 +16324,10 @@
     }
    ],
    "neo4j_names": [
+    "Ludwik Stasiak",
     "Stasiak, Ludwik"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q115190834",
@@ -16324,9 +16343,10 @@
     }
    ],
    "neo4j_names": [
-    "Gallenberg, Hugo von"
+    "Gallenberg, Hugo von",
+    "Hugo von Gallenberg"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q6238906",
@@ -16345,7 +16365,7 @@
     "John Henry Parker",
     "Parker, John Henry"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 6
   },
   {
    "qid": "Q6152343",
@@ -16447,7 +16467,7 @@
    "neo4j_names": [
     "Jasper Johns"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 4
   },
   {
    "qid": "Q1294110",
@@ -16553,9 +16573,10 @@
     }
    ],
    "neo4j_names": [
+    "Franz Riepenhausen",
     "Riepenhausen, Franz"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q1698250",
@@ -16571,9 +16592,10 @@
     }
    ],
    "neo4j_names": [
+    "Johannes Riepenhausen",
     "Riepenhausen, Johannes"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q715909",
@@ -16661,9 +16683,10 @@
     }
    ],
    "neo4j_names": [
-    "Füssli, Johann Heinrich"
+    "Füssli, Johann Heinrich",
+    "Johann Heinrich Füssli"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q17550345",
@@ -16679,9 +16702,10 @@
     }
    ],
    "neo4j_names": [
-    "Craffonara, Giuseppe"
+    "Craffonara, Giuseppe",
+    "Giuseppe Craffonara"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q216406",
@@ -16739,20 +16763,27 @@
     }
    ],
    "neo4j_names": [
+    "Edward Burne-Jones",
     "Sir Edward Burne-Jones"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 4
   },
   {
    "qid": "Q5432",
    "name_en": "Francisco Goya",
    "en": [
     "Francisco Goya",
+    "Francisco José de Goya y Lucientes",
     "Francisco de Goya y Lucientes"
    ],
    "aliases": [
     {
      "alias": "Francisco Goya",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Francisco José de Goya y Lucientes",
      "type": "en",
      "source": "wikidata"
     },
@@ -16829,9 +16860,10 @@
     }
    ],
    "neo4j_names": [
+    "Francisco José de Goya y Lucientes",
     "Goya (Francisco de Goya y Lucientes)"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 10
   },
   {
    "qid": "Q39931",
@@ -16893,7 +16925,7 @@
     "Pierre-Auguste Renoir",
     "Renoir, Auguste"
    ],
-   "neo4j_works": 6
+   "neo4j_works": 8
   },
   {
    "qid": "Q40599",
@@ -16939,9 +16971,10 @@
     }
    ],
    "neo4j_names": [
-    "Edouard Manet"
+    "Edouard Manet",
+    "Édouard Manet"
    ],
-   "neo4j_works": 4
+   "neo4j_works": 5
   },
   {
    "qid": "Q214564",
@@ -17101,9 +17134,10 @@
     }
    ],
    "neo4j_names": [
+    "Alfred Gilbert",
     "Sir Alfred Gilbert"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q15522104",
@@ -17125,9 +17159,10 @@
     }
    ],
    "neo4j_names": [
+    "Jay DeFeo (Mary Joan DeFeo)",
     "Jay DeFeo (Mary Joan DeFeo)\nAmerican"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q4102532",
@@ -17229,7 +17264,7 @@
    "neo4j_names": [
     "Christopher Dresser"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 3
   },
   {
    "qid": "Q2839772",
@@ -17269,9 +17304,10 @@
     }
    ],
    "neo4j_names": [
+    "Franz Stoedtner",
     "Stoedtner, Franz (Lichtbildverlag) (Herstellung) (Fotograf)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q834926",
@@ -17299,9 +17335,10 @@
     }
    ],
    "neo4j_names": [
-    "Broodthaers, Marcel"
+    "Broodthaers, Marcel",
+    "Marcel Broodthaers"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q151152",
@@ -17325,7 +17362,7 @@
    "neo4j_names": [
     "Juan Gris"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 5
   },
   {
    "qid": "Q345569",
@@ -17389,9 +17426,11 @@
     }
    ],
    "neo4j_names": [
-    "Arp, Hans"
+    "Arp, Hans",
+    "Hans Arp",
+    "Jean Arp"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 3
   },
   {
    "qid": "Q177415",
@@ -17473,9 +17512,10 @@
     }
    ],
    "neo4j_names": [
+    "Andrea di Cione",
     "Andrea di Cione (Orcagna)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q675619",
@@ -17675,7 +17715,7 @@
     "Kandinsky, Wassily (1866-1944) (Künstler/Hersteller)",
     "Wassily Kandinsky"
    ],
-   "neo4j_works": 9
+   "neo4j_works": 10
   },
   {
    "qid": "Q271918",
@@ -17699,7 +17739,7 @@
    "neo4j_names": [
     "Gertrude Käsebier"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q134741",
@@ -17745,11 +17785,12 @@
     }
    ],
    "neo4j_names": [
+    "Camille Jacob Pissarro",
     "Camille Pissarro",
     "Pissarro, Camille",
     "Pissarro, Camille Jacob"
    ],
-   "neo4j_works": 4
+   "neo4j_works": 6
   },
   {
    "qid": "Q486692",
@@ -17765,9 +17806,10 @@
     }
    ],
    "neo4j_names": [
-    "Lapin, Leonhard (autor)"
+    "Lapin, Leonhard (autor)",
+    "Leonhard Lapin"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q102192415",
@@ -17839,7 +17881,7 @@
    "neo4j_names": [
     "Georges de Feure"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 15
   },
   {
    "qid": "Q466654",
@@ -18161,9 +18203,10 @@
     }
    ],
    "neo4j_names": [
-    "Nakonieczny, Ryszard"
+    "Nakonieczny, Ryszard",
+    "Ryszard Nakonieczny"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q50825975",
@@ -18185,9 +18228,10 @@
     }
    ],
    "neo4j_names": [
+    "Andreas Schüller",
     "Schüller, Andreas (Herstellung) (Künstler/in)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q312950",
@@ -18271,7 +18315,7 @@
    "neo4j_names": [
     "Jakob von Sandrart"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q220136",
@@ -18353,9 +18397,10 @@
     }
    ],
    "neo4j_names": [
+    "Johann Jakob Kornmann",
     "Johann Jakob Kornmann (called Cormano)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q1464234",
@@ -18941,7 +18986,7 @@
     "Marcantonio Raimondi",
     "Raimondi, Marcantonio"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 4
   },
   {
    "qid": "Q316731",
@@ -18987,9 +19032,10 @@
     }
    ],
    "neo4j_names": [
+    "Liselotte Strelow",
     "Strelow, Liselotte"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 4
   },
   {
    "qid": "Q21857518",
@@ -19167,9 +19213,10 @@
     }
    ],
    "neo4j_names": [
-    "Ahlers, Henrik (Herstellung) (Fotograf)"
+    "Ahlers, Henrik (Herstellung) (Fotograf)",
+    "Henrik Ahlers"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 6
   },
   {
    "qid": "Q4933611",
@@ -19192,9 +19239,10 @@
    ],
    "neo4j_names": [
     "Payne, Robert  (1911-1983)",
-    "Payne, Robert (1911-1983)"
+    "Payne, Robert (1911-1983)",
+    "Robert Payne"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 3
   },
   {
    "qid": "Q3388216",
@@ -19285,7 +19333,7 @@
     "Andy Warhol",
     "Warhol, Andy"
    ],
-   "neo4j_works": 4
+   "neo4j_works": 6
   },
   {
    "qid": "Q14252289",
@@ -19451,9 +19499,10 @@
     }
    ],
    "neo4j_names": [
+    "Giovanni di ser Giovanni Guidi",
     "Giovanni di ser Giovanni Guidi (called Scheggia)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q186202",
@@ -19637,9 +19686,10 @@
     }
    ],
    "neo4j_names": [
-    "Fiks, Yevgeniy (1972)"
+    "Fiks, Yevgeniy (1972)",
+    "Yevgeniy Fiks"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q281653",
@@ -19697,9 +19747,10 @@
     }
    ],
    "neo4j_names": [
-    "Evenepoel, Henri"
+    "Evenepoel, Henri",
+    "Henri Evenepoel"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q809488",
@@ -20082,9 +20133,10 @@
     }
    ],
    "neo4j_names": [
-    "Boughton, George Henry"
+    "Boughton, George Henry",
+    "George Henry Boughton"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q3770905",
@@ -20208,9 +20260,10 @@
     }
    ],
    "neo4j_names": [
+    "Colard Mansion",
     "Mansion, Colard"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q16198368",
@@ -20244,9 +20297,10 @@
     }
    ],
    "neo4j_names": [
+    "Agaate Veeber",
     "Veeber, Agaate (kujutatu)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q2141574",
@@ -20298,9 +20352,10 @@
     }
    ],
    "neo4j_names": [
-    "Brogi, Giacomo (autor)"
+    "Brogi, Giacomo (autor)",
+    "Giacomo Brogi"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 6
   },
   {
    "qid": "Q822980",
@@ -20472,9 +20527,10 @@
     }
    ],
    "neo4j_names": [
+    "El Greco",
     "El Greco (Domenikos Theotokopoulos)"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 4
   },
   {
    "qid": "Q21567931",
@@ -20538,9 +20594,10 @@
     }
    ],
    "neo4j_names": [
+    "Anthonie Waterloo",
     "Waterloo, Anthonie"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 4
   },
   {
    "qid": "Q97853365",
@@ -20712,9 +20769,10 @@
     }
    ],
    "neo4j_names": [
+    "Antonio López Aguado",
     "López Aguado, Antonio"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q973881",
@@ -20736,9 +20794,10 @@
     }
    ],
    "neo4j_names": [
+    "John Russell Pope",
     "Pope, John Russell"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q1440918",
@@ -20862,9 +20921,10 @@
     }
    ],
    "neo4j_names": [
+    "Oskar Schlemmer",
     "Oskar Schlemmer (04.09.1888 - 13.04.1943)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q180374",
@@ -20928,9 +20988,10 @@
     }
    ],
    "neo4j_names": [
+    "Frank O. Gehry",
     "Gehry, Frank O."
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q50805118",
@@ -20946,9 +21007,10 @@
     }
    ],
    "neo4j_names": [
+    "Narcís Sans Prats",
     "Sans Prats, Narcís"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 6
   },
   {
    "qid": "Q22236679",
@@ -21018,9 +21080,10 @@
     }
    ],
    "neo4j_names": [
+    "Federico Zuccaro",
     "Federico Zuccaro (Zuccari)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q703250",
@@ -21066,9 +21129,10 @@
     }
    ],
    "neo4j_names": [
+    "A. S. Hartrick",
     "Hartrick, A. S."
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q1525712",
@@ -21126,9 +21190,10 @@
     }
    ],
    "neo4j_names": [
+    "Alfred Kirstein",
     "Kirstein, Alfred"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q503575",
@@ -21222,9 +21287,10 @@
     }
    ],
    "neo4j_names": [
+    "Helmi Herman",
     "Herman, Helmi (autor)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q3047757",
@@ -21240,9 +21306,10 @@
     }
    ],
    "neo4j_names": [
-    "Blampied, Edmund"
+    "Blampied, Edmund",
+    "Edmund Blampied"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q1967967",
@@ -21288,9 +21355,10 @@
     }
    ],
    "neo4j_names": [
-    "Apollinaire, Guillaume (author)"
+    "Apollinaire, Guillaume (author)",
+    "Guillaume Apollinaire"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 3
   },
   {
    "qid": "Q20528917",
@@ -21306,9 +21374,10 @@
     }
    ],
    "neo4j_names": [
+    "Gunnar Neeme",
     "Neeme, Gunnar (autor)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q16404400",
@@ -21324,9 +21393,10 @@
     }
    ],
    "neo4j_names": [
-    "Krusten, Otto (autor)"
+    "Krusten, Otto (autor)",
+    "Otto Krusten"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q16197627",
@@ -21390,9 +21460,10 @@
     }
    ],
    "neo4j_names": [
+    "Giuseppe Poggi",
     "Poggi, Giuseppe"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q114405",
@@ -21522,9 +21593,10 @@
     }
    ],
    "neo4j_names": [
-    "Froer, Veit (Production) (Autor)"
+    "Froer, Veit (Production) (Autor)",
+    "Veit Froer"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q721545",
@@ -21546,9 +21618,10 @@
     }
    ],
    "neo4j_names": [
+    "Ascanio Condivi",
     "Condivi, Ascanio"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q365683",
@@ -21573,7 +21646,7 @@
     "Adolphe Braun",
     "Braun, Adolphe"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 5
   },
   {
    "qid": "Q21638890",
@@ -21615,7 +21688,7 @@
    "neo4j_names": [
     "Yinka Shonibare"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 3
   },
   {
    "qid": "Q5980778",
@@ -21637,9 +21710,10 @@
     }
    ],
    "neo4j_names": [
+    "Carl Peter Mazer",
     "Mazer, Carl Peter"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q493332",
@@ -21673,9 +21747,10 @@
     }
    ],
    "neo4j_names": [
+    "Ben van Meerendonk",
     "Meerendonk, Ben van"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 4
   },
   {
    "qid": "Q558371",
@@ -21745,9 +21820,10 @@
     }
    ],
    "neo4j_names": [
+    "Ivan Kliun",
     "Kliun, Ivan (1873-1943)"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 6
   },
   {
    "qid": "Q271676",
@@ -21835,9 +21911,10 @@
     }
    ],
    "neo4j_names": [
+    "Henri Matisse",
     "Matisse, Henri"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 3
   },
   {
    "qid": "Q711974",
@@ -22750,7 +22827,7 @@
     "Apollonio di Giovanni",
     "Apollonio di Giovanni di Tomaso"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 4
   },
   {
    "qid": "Q3619250",
@@ -22960,9 +23037,15 @@
    "qid": "Q3155497",
    "name_en": "Isoda Koryūsai",
    "en": [
+    "Isoda Koryusai",
     "Isoda Koryūsai"
    ],
    "aliases": [
+    {
+     "alias": "Isoda Koryusai",
+     "type": "en",
+     "source": "wikidata"
+    },
     {
      "alias": "Isoda Koryūsai",
      "type": "en",
@@ -22976,9 +23059,10 @@
     }
    ],
    "neo4j_names": [
+    "Isoda Koryusai",
     "Isoda Koryūsai"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 3
   },
   {
    "qid": "Q3317298",
@@ -23074,7 +23158,7 @@
    "neo4j_names": [
     "Agostino Brunias"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q11644287",
@@ -23636,9 +23720,10 @@
     }
    ],
    "neo4j_names": [
+    "Alfred East",
     "Sir Alfred East"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q533958",
@@ -24444,11 +24529,23 @@
    "qid": "Q187506",
    "name_en": "Honoré Daumier",
    "en": [
-    "Honoré Daumier"
+    "Honoré Daumier",
+    "Honoré Victorin Daumier",
+    "Honoré-Victorin Daumier"
    ],
    "aliases": [
     {
      "alias": "Honoré Daumier",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Honoré Victorin Daumier",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Honoré-Victorin Daumier",
      "type": "en",
      "source": "wikidata"
     },
@@ -24472,9 +24569,11 @@
     }
    ],
    "neo4j_names": [
-    "Honoré Daumier"
+    "Honoré Daumier",
+    "Honoré Victorin Daumier",
+    "Honoré-Victorin Daumier"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 5
   },
   {
    "qid": "Q970511",
@@ -24702,7 +24801,7 @@
    "neo4j_names": [
     "Piet Mondrian"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 4
   },
   {
    "qid": "Q80442",
@@ -25846,9 +25945,10 @@
     }
    ],
    "neo4j_names": [
+    "Adam van Vianen I",
     "Adam van Vianen I (artist)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q2442116",
@@ -25930,9 +26030,10 @@
     }
    ],
    "neo4j_names": [
+    "Philipp Galle",
     "Philipp Galle (Verleger_in)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q71244",
@@ -26310,7 +26411,7 @@
    "neo4j_names": [
     "Thomas Cole"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 3
   },
   {
    "qid": "Q214905",
@@ -26490,11 +26591,17 @@
    "qid": "Q167132",
    "name_en": "George Bellows",
    "en": [
-    "George Bellows"
+    "George Bellows",
+    "George Wesley Bellows"
    ],
    "aliases": [
     {
      "alias": "George Bellows",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "George Wesley Bellows",
      "type": "en",
      "source": "wikidata"
     },
@@ -26524,9 +26631,10 @@
     }
    ],
    "neo4j_names": [
-    "George Bellows"
+    "George Bellows",
+    "George Wesley Bellows"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q2320449",
@@ -26670,7 +26778,7 @@
    "neo4j_names": [
     "Henri de Toulouse-Lautrec"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 3
   },
   {
    "qid": "Q180932",
@@ -26742,7 +26850,7 @@
    "neo4j_names": [
     "Johann Zoffany"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q732526",
@@ -26766,7 +26874,7 @@
    "neo4j_names": [
     "José Guadalupe Posada"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q7780",
@@ -27059,9 +27167,10 @@
     }
    ],
    "neo4j_names": [
+    "Mihály von Munkácsy",
     "Mihály von Munkácsy (Künstler/in)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q25965292",
@@ -27077,9 +27186,10 @@
     }
    ],
    "neo4j_names": [
+    "Alfons Spring",
     "Spring, Alfons"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q112398219",
@@ -27095,9 +27205,10 @@
     }
    ],
    "neo4j_names": [
-    "Döring, Gerhard (Herstellung) (Fotograf)"
+    "Döring, Gerhard (Herstellung) (Fotograf)",
+    "Gerhard Döring"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q16650339",
@@ -27254,7 +27365,7 @@
     "George Edmund Street",
     "Street, George Edmund"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 5
   },
   {
    "qid": "Q27654701",
@@ -27288,9 +27399,10 @@
     }
    ],
    "neo4j_names": [
+    "Aili Vint",
     "Vint, Aili (autor)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q32837259",
@@ -27546,9 +27658,10 @@
     }
    ],
    "neo4j_names": [
-    "Eschen, Fritz (Herstellung) (Fotograf)"
+    "Eschen, Fritz (Herstellung) (Fotograf)",
+    "Fritz Eschen"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 4
   },
   {
    "qid": "Q6687620",
@@ -27606,9 +27719,10 @@
     }
    ],
    "neo4j_names": [
+    "Oliviero Toscani",
     "Toscani, Oliviero"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q17353170",
@@ -27630,9 +27744,10 @@
     }
    ],
    "neo4j_names": [
-    "Cottart, Pierre"
+    "Cottart, Pierre",
+    "Pierre Cottart"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q5545495",
@@ -27939,7 +28054,7 @@
    "neo4j_names": [
     "Théodore Géricault"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q1342683",
@@ -28005,7 +28120,7 @@
    "neo4j_names": [
     "Mary Cassatt"
    ],
-   "neo4j_works": 3
+   "neo4j_works": 4
   },
   {
    "qid": "Q105320",
@@ -28284,12 +28399,6 @@
      "tw": true
     },
     {
-     "alias": "杜尚",
-     "type": "surname",
-     "source": "wikidata",
-     "tw": true
-    },
-    {
      "alias": "杜桑",
      "type": "surname",
      "source": "wikidata",
@@ -28305,7 +28414,7 @@
    "neo4j_names": [
     "Marcel Duchamp"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q37571",
@@ -28359,7 +28468,7 @@
    "neo4j_names": [
     "Jackson Pollock"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 3
   },
   {
    "qid": "Q452254",
@@ -29175,7 +29284,7 @@
    "neo4j_names": [
     "Charles Courtney Curran"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q321245",
@@ -29205,7 +29314,7 @@
    "neo4j_names": [
     "Richard Serra"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q151580",
@@ -29665,9 +29774,10 @@
     }
    ],
    "neo4j_names": [
+    "Costas Coulentianos",
     "Coulentianos, Costas (1918-1995)"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q18538318",
@@ -29683,9 +29793,10 @@
     }
    ],
    "neo4j_names": [
-    "Brătescu, Geta"
+    "Brătescu, Geta",
+    "Geta Brătescu"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q862154",
@@ -30441,7 +30552,7 @@
    "neo4j_names": [
     "Saul Steinberg"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 3
   },
   {
    "qid": "Q552584",
@@ -30728,12 +30839,6 @@
     {
      "alias": "弗朗切斯科·瓜爾迪",
      "type": "full",
-     "source": "wikidata",
-     "tw": true
-    },
-    {
-     "alias": "瓜爾迪",
-     "type": "surname",
      "source": "wikidata",
      "tw": true
     }
@@ -32577,7 +32682,7 @@
    "neo4j_names": [
     "Odilon Redon"
    ],
-   "neo4j_works": 1
+   "neo4j_works": 2
   },
   {
    "qid": "Q63117856",
@@ -32618,6 +32723,6109 @@
    ],
    "neo4j_names": [
     "Martha S. Baker"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q711775",
+   "name_en": "Jan Saenredam",
+   "en": [
+    "Jan Saenredam"
+   ],
+   "aliases": [
+    {
+     "alias": "Jan Saenredam",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "揚·薩恩雷丹",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Jan Saenredam"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q28737356",
+   "name_en": "Li Junyi",
+   "en": [
+    "Li Junyi"
+   ],
+   "aliases": [
+    {
+     "alias": "Li Junyi",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "李君毅",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Lee Chun-Yi (Li Junyi) 李君毅"
+   ],
+   "neo4j_works": 5
+  },
+  {
+   "qid": "Q2825010",
+   "name_en": "Adriaen Collaert",
+   "en": [
+    "Adriaen Collaert"
+   ],
+   "aliases": [
+    {
+     "alias": "Adriaen Collaert",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "阿德里安·科拉爾特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Adriaen Collaert"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q430155",
+   "name_en": "Galeazzo Mondella",
+   "en": [
+    "Galeazzo Mondella"
+   ],
+   "aliases": [
+    {
+     "alias": "Galeazzo Mondella",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Moderno (Galeazzo Mondella)"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q376691",
+   "name_en": "Charles Joseph Hullmandel",
+   "en": [
+    "Charles Joseph Hullmandel"
+   ],
+   "aliases": [
+    {
+     "alias": "Charles Joseph Hullmandel",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "查爾斯·約瑟夫·赫爾曼德爾",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Charles Joseph Hullmandel"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q2778104",
+   "name_en": "Hieronymus Wierix",
+   "en": [
+    "Hieronymus Wierix"
+   ],
+   "aliases": [
+    {
+     "alias": "Hieronymus Wierix",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Hieronymus Wierix"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q452530",
+   "name_en": "Chrispijn van den Broeck",
+   "en": [
+    "Chrispijn van den Broeck"
+   ],
+   "aliases": [
+    {
+     "alias": "Chrispijn van den Broeck",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Chrispijn van den Broeck"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q152788",
+   "name_en": "Emil Nolde",
+   "en": [
+    "Emil Nolde"
+   ],
+   "aliases": [
+    {
+     "alias": "Emil Nolde",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "埃米爾·諾爾德",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "諾爾德",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Emil Nolde"
+   ],
+   "neo4j_works": 7
+  },
+  {
+   "qid": "Q686321",
+   "name_en": "George Brecht",
+   "en": [
+    "George Brecht"
+   ],
+   "aliases": [
+    {
+     "alias": "George Brecht",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "喬治·布萊希特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "George Brecht"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q604546",
+   "name_en": "Ben Vautier",
+   "en": [
+    "Ben Vautier"
+   ],
+   "aliases": [
+    {
+     "alias": "Ben Vautier",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "本·沃捷",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "班·沃蒂埃傑",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Ben Vautier"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q3579741",
+   "name_en": "Édouard Bertin",
+   "en": [
+    "François-Edouard Bertin",
+    "Édouard Bertin"
+   ],
+   "aliases": [
+    {
+     "alias": "François-Edouard Bertin",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Édouard Bertin",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "愛德華·貝爾坦",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "François-Edouard Bertin"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q213727",
+   "name_en": "Ludwig Meidner",
+   "en": [
+    "Ludwig Meidner"
+   ],
+   "aliases": [
+    {
+     "alias": "Ludwig Meidner",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Ludwig Meidner"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q16853684",
+   "name_en": "Carlo Labruzzo",
+   "en": [
+    "Carlo Labruzzi",
+    "Carlo Labruzzo"
+   ],
+   "aliases": [
+    {
+     "alias": "Carlo Labruzzi",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Carlo Labruzzo",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Carlo Labruzzi"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1777607",
+   "name_en": "Roelant Roghman",
+   "en": [
+    "Roelant Roghman"
+   ],
+   "aliases": [
+    {
+     "alias": "Roelant Roghman",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Roelant Roghman"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q597322",
+   "name_en": "Jacob van Strij",
+   "en": [
+    "Jacob van Strij"
+   ],
+   "aliases": [
+    {
+     "alias": "Jacob van Strij",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jacob van Strij"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q158062",
+   "name_en": "Max Liebermann",
+   "en": [
+    "Max Liebermann"
+   ],
+   "aliases": [
+    {
+     "alias": "Max Liebermann",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "馬克思·利伯曼",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "馬克斯·利伯曼",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "利伯曼",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Max Liebermann"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q4664475",
+   "name_en": "Abby Leigh",
+   "en": [
+    "Abby Leigh"
+   ],
+   "aliases": [
+    {
+     "alias": "Abby Leigh",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Abby Leigh"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3903816",
+   "name_en": "Pietro Damini",
+   "en": [
+    "Pietro Damini"
+   ],
+   "aliases": [
+    {
+     "alias": "Pietro Damini",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Pietro Damini"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q366081",
+   "name_en": "Paris Bordone",
+   "en": [
+    "Paris Bordone"
+   ],
+   "aliases": [
+    {
+     "alias": "Paris Bordone",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "巴里斯·博爾多內",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Paris Bordone"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q708968",
+   "name_en": "Isidore Pils",
+   "en": [
+    "Isidore Pils",
+    "Isidore-Alexandre-Augustin Pils"
+   ],
+   "aliases": [
+    {
+     "alias": "Isidore Pils",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Isidore-Alexandre-Augustin Pils",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "伊西多爾·皮爾斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Isidore-Alexandre-Augustin Pils"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1342809",
+   "name_en": "Giovanni Francesco Grimaldi",
+   "en": [
+    "Giovanni Francesco Grimaldi"
+   ],
+   "aliases": [
+    {
+     "alias": "Giovanni Francesco Grimaldi",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Giovanni Francesco Grimaldi"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q312529",
+   "name_en": "André Masson",
+   "en": [
+    "André Masson"
+   ],
+   "aliases": [
+    {
+     "alias": "André Masson",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "安德烈·馬松",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "André Masson"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q641304",
+   "name_en": "Stanley William Hayter",
+   "en": [
+    "Stanley William Hayter"
+   ],
+   "aliases": [
+    {
+     "alias": "Stanley William Hayter",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "史丹利·威廉·海特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Stanley William Hayter"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q3192787",
+   "name_en": "Kanō Naonobu",
+   "en": [
+    "Kano Naonobu",
+    "Kanō Naonobu"
+   ],
+   "aliases": [
+    {
+     "alias": "Kano Naonobu",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Kanō Naonobu",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Kano Naonobu"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q52431",
+   "name_en": "George Nakashima",
+   "en": [
+    "George Nakashima"
+   ],
+   "aliases": [
+    {
+     "alias": "George Nakashima",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "George Nakashima"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q158255",
+   "name_en": "Lyonel Feininger",
+   "en": [
+    "Lyonel Feininger"
+   ],
+   "aliases": [
+    {
+     "alias": "Lyonel Feininger",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "利奧尼·費寧格",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "萊昂內爾·費寧格",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "費寧格",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Lyonel Feininger"
+   ],
+   "neo4j_works": 17
+  },
+  {
+   "qid": "Q25591768",
+   "name_en": "Dieter Roth",
+   "en": [
+    "Dieter Roth"
+   ],
+   "aliases": [
+    {
+     "alias": "Dieter Roth",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Dieter Roth"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q57588",
+   "name_en": "Marcel Breuer",
+   "en": [
+    "Marcel Breuer"
+   ],
+   "aliases": [
+    {
+     "alias": "Marcel Breuer",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "布若伊",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "馬塞爾·布勞耶",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "馬塞爾·布羅伊爾",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "馬歇·布勞耶",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "馬歇爾·布魯耶",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "馬素·布勞耶",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "布勞耶",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "布羅伊爾",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Marcel Breuer"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q16014925",
+   "name_en": "Maki Haku",
+   "en": [
+    "Maki Haku"
+   ],
+   "aliases": [
+    {
+     "alias": "Maki Haku",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Maki Haku"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q22031340",
+   "name_en": "Thomas Bogaert",
+   "en": [
+    "Thomas Bogaert"
+   ],
+   "aliases": [
+    {
+     "alias": "Thomas Bogaert",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Thomas Bogaert"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q62992",
+   "name_en": "Christian Rohlfs",
+   "en": [
+    "Christian Rohlfs"
+   ],
+   "aliases": [
+    {
+     "alias": "Christian Rohlfs",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "克里斯蒂安·羅爾夫斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Christian Rohlfs"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q164683",
+   "name_en": "Max Beckmann",
+   "en": [
+    "Max Beckmann"
+   ],
+   "aliases": [
+    {
+     "alias": "Max Beckmann",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "馬克斯·貝克曼",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "貝克曼",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Max Beckmann"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q2224527",
+   "name_en": "Sarah W. Whitman",
+   "en": [
+    "Sarah W. Whitman",
+    "Sarah Wyman Whitman"
+   ],
+   "aliases": [
+    {
+     "alias": "Sarah W. Whitman",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Sarah Wyman Whitman",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Sarah Wyman Whitman"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3328160",
+   "name_en": "Fernando Zóbel de Ayala y Montojo",
+   "en": [
+    "Fernando Zóbel",
+    "Fernando Zóbel de Ayala y Montojo"
+   ],
+   "aliases": [
+    {
+     "alias": "Fernando Zóbel",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Fernando Zóbel de Ayala y Montojo",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "費爾南多·索韋爾",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Fernando Zóbel"
+   ],
+   "neo4j_works": 5
+  },
+  {
+   "qid": "Q573374",
+   "name_en": "Jan Dibbets",
+   "en": [
+    "Jan Dibbets"
+   ],
+   "aliases": [
+    {
+     "alias": "Jan Dibbets",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jan Dibbets"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q809510",
+   "name_en": "Bartolomeo Pinelli",
+   "en": [
+    "Bartolomeo Pinelli"
+   ],
+   "aliases": [
+    {
+     "alias": "Bartolomeo Pinelli",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Bartolomeo Pinelli"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q371280",
+   "name_en": "George Romney",
+   "en": [
+    "George Romney"
+   ],
+   "aliases": [
+    {
+     "alias": "George Romney",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "喬治·羅姆尼",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "George Romney"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q605447",
+   "name_en": "Antonio Tempesta",
+   "en": [
+    "Antonio Tempesta"
+   ],
+   "aliases": [
+    {
+     "alias": "Antonio Tempesta",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "安東尼奧·坦佩斯塔",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Antonio Tempesta"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q61507",
+   "name_en": "Gerhard Marcks",
+   "en": [
+    "Gerhard Marcks"
+   ],
+   "aliases": [
+    {
+     "alias": "Gerhard Marcks",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "格哈德·馬克斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Gerhard Marcks"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q325633",
+   "name_en": "Charles Robert Leslie",
+   "en": [
+    "Charles Robert Leslie"
+   ],
+   "aliases": [
+    {
+     "alias": "Charles Robert Leslie",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "查爾斯·羅伯特·萊斯利",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Charles Robert Leslie"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q20392014",
+   "name_en": "Max Arthur Cohn",
+   "en": [
+    "Max Arthur Cohn"
+   ],
+   "aliases": [
+    {
+     "alias": "Max Arthur Cohn",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Max Arthur Cohn"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q3439545",
+   "name_en": "Roger Vieillard",
+   "en": [
+    "Roger Vieillard"
+   ],
+   "aliases": [
+    {
+     "alias": "Roger Vieillard",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Roger Vieillard"
+   ],
+   "neo4j_works": 6
+  },
+  {
+   "qid": "Q21176533",
+   "name_en": "Christopher Wilmarth",
+   "en": [
+    "Christopher Wilmarth"
+   ],
+   "aliases": [
+    {
+     "alias": "Christopher Wilmarth",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Christopher Wilmarth"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q64212",
+   "name_en": "Giorgio Sommer",
+   "en": [
+    "Giorgio Sommer"
+   ],
+   "aliases": [
+    {
+     "alias": "Giorgio Sommer",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Giorgio Sommer"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q6150317",
+   "name_en": "Jan Visscher",
+   "en": [
+    "Jan Visscher",
+    "Johannes Visscher"
+   ],
+   "aliases": [
+    {
+     "alias": "Jan Visscher",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Johannes Visscher",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Johannes Visscher"
+   ],
+   "neo4j_works": 3
+  },
+  {
+   "qid": "Q454671",
+   "name_en": "Philips Wouwerman",
+   "en": [
+    "Philips Wouwerman"
+   ],
+   "aliases": [
+    {
+     "alias": "Philips Wouwerman",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Philips Wouwerman"
+   ],
+   "neo4j_works": 3
+  },
+  {
+   "qid": "Q577598",
+   "name_en": "Pieter Post",
+   "en": [
+    "Pieter Jansz. Post",
+    "Pieter Post"
+   ],
+   "aliases": [
+    {
+     "alias": "Pieter Jansz. Post",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Pieter Post",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "彼得·波斯特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Pieter Jansz. Post"
+   ],
+   "neo4j_works": 3
+  },
+  {
+   "qid": "Q2886080",
+   "name_en": "Bartolomeo Biscaino",
+   "en": [
+    "Bartolomeo Biscaino",
+    "Bartolommeo Biscaino"
+   ],
+   "aliases": [
+    {
+     "alias": "Bartolomeo Biscaino",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Bartolommeo Biscaino",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Bartolommeo Biscaino"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q721633",
+   "name_en": "György Kepes",
+   "en": [
+    "Gyorgy Kepes",
+    "György Kepes"
+   ],
+   "aliases": [
+    {
+     "alias": "Gyorgy Kepes",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "György Kepes",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Gyorgy Kepes"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q446451",
+   "name_en": "Charlotte Perriand",
+   "en": [
+    "Charlotte Perriand"
+   ],
+   "aliases": [
+    {
+     "alias": "Charlotte Perriand",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "夏洛特·佩里昂",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Charlotte Perriand"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3552727",
+   "name_en": "Utagawa Sadahide",
+   "en": [
+    "Utagawa Sadahide"
+   ],
+   "aliases": [
+    {
+     "alias": "Utagawa Sadahide",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Utagawa Sadahide"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q495226",
+   "name_en": "Andrea Vanni",
+   "en": [
+    "Andrea Vanni"
+   ],
+   "aliases": [
+    {
+     "alias": "Andrea Vanni",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "安德里亞·萬尼",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Andrea Vanni"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q450236",
+   "name_en": "Roberto Matta",
+   "en": [
+    "Roberto Matta",
+    "Roberto Matta Echaurren"
+   ],
+   "aliases": [
+    {
+     "alias": "Roberto Matta",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Roberto Matta Echaurren",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "羅貝託·馬塔",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Roberto Matta",
+    "Roberto Matta Echaurren"
+   ],
+   "neo4j_works": 3
+  },
+  {
+   "qid": "Q3121400",
+   "name_en": "Gustavo Torner",
+   "en": [
+    "Gustavo Torner"
+   ],
+   "aliases": [
+    {
+     "alias": "Gustavo Torner",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Gustavo Torner"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3075032",
+   "name_en": "Yoshida Hanbei",
+   "en": [
+    "Yoshida Hanbei"
+   ],
+   "aliases": [
+    {
+     "alias": "Yoshida Hanbei",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Yoshida Hanbei"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q590969",
+   "name_en": "Giovanni Antonio Guardi",
+   "en": [
+    "Giovanni Antonio Guardi"
+   ],
+   "aliases": [
+    {
+     "alias": "Giovanni Antonio Guardi",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "喬瓦尼·安東尼奧·瓜爾迪",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Giovanni Antonio Guardi"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q107591035",
+   "name_en": "Edith A. Scott",
+   "en": [
+    "Edith A. Scott"
+   ],
+   "aliases": [
+    {
+     "alias": "Edith A. Scott",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Edith A. Scott"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q827547",
+   "name_en": "Alfonso A. Ossorio",
+   "en": [
+    "Alfonso A. Ossorio",
+    "Alfonso Ossorio"
+   ],
+   "aliases": [
+    {
+     "alias": "Alfonso A. Ossorio",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Alfonso Ossorio",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "阿方索·A·奧索裡歐",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Alfonso Ossorio"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1681499",
+   "name_en": "Johan Teyler",
+   "en": [
+    "Johan Teyler",
+    "Johannes Teyler"
+   ],
+   "aliases": [
+    {
+     "alias": "Johan Teyler",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Johannes Teyler",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Johannes Teyler"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3165683",
+   "name_en": "Jean-François Janinet",
+   "en": [
+    "Jean François Janinet",
+    "Jean-François Janinet"
+   ],
+   "aliases": [
+    {
+     "alias": "Jean François Janinet",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Jean-François Janinet",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jean François Janinet"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q559969",
+   "name_en": "Claude Gillot",
+   "en": [
+    "Claude Gillot"
+   ],
+   "aliases": [
+    {
+     "alias": "Claude Gillot",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Claude Gillot"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q156736",
+   "name_en": "Eduardo Chillida",
+   "en": [
+    "Eduardo Chillida"
+   ],
+   "aliases": [
+    {
+     "alias": "Eduardo Chillida",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "愛德華多·奇利達",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "奇利達",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Eduardo Chillida"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q61579426",
+   "name_en": "Irwin D. Hoffman",
+   "en": [
+    "Irwin D. Hoffman"
+   ],
+   "aliases": [
+    {
+     "alias": "Irwin D. Hoffman",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Irwin D. Hoffman"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3088175",
+   "name_en": "Joan Fontcuberta",
+   "en": [
+    "Joan Fontcuberta"
+   ],
+   "aliases": [
+    {
+     "alias": "Joan Fontcuberta",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Joan Fontcuberta"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q349377",
+   "name_en": "Adam Frans van der Meulen",
+   "en": [
+    "Adam Frans van der Meulen"
+   ],
+   "aliases": [
+    {
+     "alias": "Adam Frans van der Meulen",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "亞當·弗蘭斯·範·德·莫伊倫",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Adam Frans van der Meulen"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q703369",
+   "name_en": "Walter Sickert",
+   "en": [
+    "Walter Sickert"
+   ],
+   "aliases": [
+    {
+     "alias": "Walter Sickert",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "沃爾特·西克爾特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "沃爾特·西克特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Walter Sickert"
+   ],
+   "neo4j_works": 8
+  },
+  {
+   "qid": "Q2325139",
+   "name_en": "Jean-Baptiste Wicar",
+   "en": [
+    "Jean-Baptiste Wicar",
+    "Jean-Baptiste-Joseph Wicar"
+   ],
+   "aliases": [
+    {
+     "alias": "Jean-Baptiste Wicar",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Jean-Baptiste-Joseph Wicar",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jean-Baptiste-Joseph Wicar"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q12053160",
+   "name_en": "Jan de Bisschop",
+   "en": [
+    "Jan de Bisschop"
+   ],
+   "aliases": [
+    {
+     "alias": "Jan de Bisschop",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jan de Bisschop"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q107186330",
+   "name_en": "Gaetano Bonatti",
+   "en": [
+    "Gaetano Bonatti"
+   ],
+   "aliases": [
+    {
+     "alias": "Gaetano Bonatti",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Gaetano Bonatti"
+   ],
+   "neo4j_works": 6
+  },
+  {
+   "qid": "Q473684",
+   "name_en": "Jan van de Velde",
+   "en": [
+    "Jan van de Velde",
+    "Jan van de Velde II"
+   ],
+   "aliases": [
+    {
+     "alias": "Jan van de Velde",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Jan van de Velde II",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jan van de Velde II"
+   ],
+   "neo4j_works": 3
+  },
+  {
+   "qid": "Q34242272",
+   "name_en": "Leila Usher",
+   "en": [
+    "Leila Usher"
+   ],
+   "aliases": [
+    {
+     "alias": "Leila Usher",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Leila Usher"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q6812010",
+   "name_en": "Melchior Küsel",
+   "en": [
+    "Melchior Küsel"
+   ],
+   "aliases": [
+    {
+     "alias": "Melchior Küsel",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Melchior Küsel"
+   ],
+   "neo4j_works": 7
+  },
+  {
+   "qid": "Q324487",
+   "name_en": "Johann Wilhelm Baur",
+   "en": [
+    "Johann Wilhelm Baur"
+   ],
+   "aliases": [
+    {
+     "alias": "Johann Wilhelm Baur",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Johann Wilhelm Baur"
+   ],
+   "neo4j_works": 7
+  },
+  {
+   "qid": "Q16124002",
+   "name_en": "Stephen E. Coit",
+   "en": [
+    "Stephen E. Coit"
+   ],
+   "aliases": [
+    {
+     "alias": "Stephen E. Coit",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Stephen E. Coit"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q555224",
+   "name_en": "Henri-Edmond Cross",
+   "en": [
+    "Henri-Edmond Cross"
+   ],
+   "aliases": [
+    {
+     "alias": "Henri-Edmond Cross",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "亨利-埃德蒙·克羅斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Henri-Edmond Cross"
+   ],
+   "neo4j_works": 5
+  },
+  {
+   "qid": "Q1347418",
+   "name_en": "Joseph Stella",
+   "en": [
+    "Joseph Stella"
+   ],
+   "aliases": [
+    {
+     "alias": "Joseph Stella",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "約瑟夫·斯泰拉",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Joseph Stella"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q456521",
+   "name_en": "Marianne Brandt",
+   "en": [
+    "Marianne Brandt"
+   ],
+   "aliases": [
+    {
+     "alias": "Marianne Brandt",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "瑪麗安·勃蘭特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Marianne Brandt"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q22002479",
+   "name_en": "Elsbeth Deser",
+   "en": [
+    "Elsbeth Deser"
+   ],
+   "aliases": [
+    {
+     "alias": "Elsbeth Deser",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Elsbeth Deser"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q258726",
+   "name_en": "Theodore Roszak",
+   "en": [
+    "Theodore Roszak"
+   ],
+   "aliases": [
+    {
+     "alias": "Theodore Roszak",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "西奧多·羅斯札克",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Theodore Roszak"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q153965",
+   "name_en": "Joseph Beuys",
+   "en": [
+    "Joseph Beuys"
+   ],
+   "aliases": [
+    {
+     "alias": "Joseph Beuys",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "喬瑟夫·波依斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "約瑟·波伊斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "約瑟夫·博伊斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "波依斯",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Joseph Beuys"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q7308806",
+   "name_en": "Reginald Marsh",
+   "en": [
+    "Reginald Marsh"
+   ],
+   "aliases": [
+    {
+     "alias": "Reginald Marsh",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "雷金納德·馬什",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Reginald Marsh"
+   ],
+   "neo4j_works": 3
+  },
+  {
+   "qid": "Q436874",
+   "name_en": "Hedda Sterne",
+   "en": [
+    "Hedda Sterne"
+   ],
+   "aliases": [
+    {
+     "alias": "Hedda Sterne",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Hedda Sterne"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q326226",
+   "name_en": "Wolf Vostell",
+   "en": [
+    "Wolf Vostell"
+   ],
+   "aliases": [
+    {
+     "alias": "Wolf Vostell",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "沃爾夫·福斯特爾",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "沃爾芙·弗斯帖爾",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Wolf Vostell"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q562540",
+   "name_en": "Augustus John",
+   "en": [
+    "Augustus Edwin John",
+    "Augustus John"
+   ],
+   "aliases": [
+    {
+     "alias": "Augustus Edwin John",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Augustus John",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "奧古斯塔斯·約翰",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "奧古斯特·埃德溫·約翰",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "奧古斯都·約翰",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "約翰·奧古斯塔斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Augustus Edwin John"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q316307",
+   "name_en": "Giovanni Battista Piranesi",
+   "en": [
+    "Giovanni Battista Piranesi"
+   ],
+   "aliases": [
+    {
+     "alias": "Giovanni Battista Piranesi",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "喬凡尼·巴提斯塔·皮拉奈奇",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "喬瓦尼·巴蒂斯塔·皮拉內西",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "皮拉內西",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "皮拉奈奇",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Giovanni Battista Piranesi"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q587829",
+   "name_en": "Andries Jacobsz Stock",
+   "en": [
+    "Andries Jacobsz Stock"
+   ],
+   "aliases": [
+    {
+     "alias": "Andries Jacobsz Stock",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Andries Jacobsz Stock"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1347434",
+   "name_en": "Jacob de Gheyn II",
+   "en": [
+    "Jacob de Gheyn II",
+    "Jacques de Gheyn II"
+   ],
+   "aliases": [
+    {
+     "alias": "Jacob de Gheyn II",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Jacques de Gheyn II",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jacques de Gheyn II"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q130774017",
+   "name_en": "Nicolaes de Clerck",
+   "en": [
+    "Nicolaes de Clerck"
+   ],
+   "aliases": [
+    {
+     "alias": "Nicolaes de Clerck",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Nicolaes de Clerck"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q16211622",
+   "name_en": "Johannes Girardoni",
+   "en": [
+    "Johannes Girardoni"
+   ],
+   "aliases": [
+    {
+     "alias": "Johannes Girardoni",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Johannes Girardoni"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q846264",
+   "name_en": "Isaac de Moucheron",
+   "en": [
+    "Isaac de Moucheron"
+   ],
+   "aliases": [
+    {
+     "alias": "Isaac de Moucheron",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Isaac de Moucheron"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q2623716",
+   "name_en": "Agostino Veneziano",
+   "en": [
+    "Agostino Veneziano"
+   ],
+   "aliases": [
+    {
+     "alias": "Agostino Veneziano",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Agostino Veneziano"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q329811",
+   "name_en": "Abraham Bloemaert",
+   "en": [
+    "Abraham Bloemaert"
+   ],
+   "aliases": [
+    {
+     "alias": "Abraham Bloemaert",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "亞伯拉罕·布盧馬特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Abraham Bloemaert"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q2207316",
+   "name_en": "Adriaan Bloemaert",
+   "en": [
+    "Adriaan Bloemaert",
+    "Adriaen Bloemaert"
+   ],
+   "aliases": [
+    {
+     "alias": "Adriaan Bloemaert",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Adriaen Bloemaert",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Adriaen Bloemaert"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q130039",
+   "name_en": "Cornelis Saftleven",
+   "en": [
+    "Cornelis Saftleven"
+   ],
+   "aliases": [
+    {
+     "alias": "Cornelis Saftleven",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "薩夫特萊文",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Cornelis Saftleven"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q97593148",
+   "name_en": "Ernest Le Deley",
+   "en": [
+    "E. Le Deley",
+    "Ernest Le Deley"
+   ],
+   "aliases": [
+    {
+     "alias": "E. Le Deley",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Ernest Le Deley",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "E. Le Deley"
+   ],
+   "neo4j_works": 4
+  },
+  {
+   "qid": "Q2401049",
+   "name_en": "Pieter Christoffel Wonder",
+   "en": [
+    "Pieter Christoffel Wonder"
+   ],
+   "aliases": [
+    {
+     "alias": "Pieter Christoffel Wonder",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Pieter Christoffel Wonder"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q428550",
+   "name_en": "Jules Olitski",
+   "en": [
+    "Jules Olitski"
+   ],
+   "aliases": [
+    {
+     "alias": "Jules Olitski",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "朱爾斯·奧列斯基",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Jules Olitski"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q472243",
+   "name_en": "Mario Prassinos",
+   "en": [
+    "Mario Prassinos"
+   ],
+   "aliases": [
+    {
+     "alias": "Mario Prassinos",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Mario Prassinos"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q132305",
+   "name_en": "Willem de Kooning",
+   "en": [
+    "Willem de Kooning"
+   ],
+   "aliases": [
+    {
+     "alias": "Willem de Kooning",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "威廉·德·庫寧",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "威廉·德庫寧",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "威廉·迪冠寧",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "庫寧",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "德庫寧",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "迪冠寧",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Willem de Kooning"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q7088530",
+   "name_en": "Olowe of Ise",
+   "en": [
+    "Olowe of Ise"
+   ],
+   "aliases": [
+    {
+     "alias": "Olowe of Ise",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Olowe of Ise"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1074290",
+   "name_en": "Paul Gavarni",
+   "en": [
+    "Paul Gavarni"
+   ],
+   "aliases": [
+    {
+     "alias": "Paul Gavarni",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Paul Gavarni"
+   ],
+   "neo4j_works": 4
+  },
+  {
+   "qid": "Q167414",
+   "name_en": "František Kupka",
+   "en": [
+    "Frantisek Kupka",
+    "František Kupka"
+   ],
+   "aliases": [
+    {
+     "alias": "Frantisek Kupka",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "František Kupka",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "弗朗齊歇克·庫普卡",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Frantisek Kupka"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q7966127",
+   "name_en": "Walter Shirlaw",
+   "en": [
+    "Walter Shirlaw"
+   ],
+   "aliases": [
+    {
+     "alias": "Walter Shirlaw",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Walter Shirlaw"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q7836",
+   "name_en": "René Magritte",
+   "en": [
+    "René Magritte"
+   ],
+   "aliases": [
+    {
+     "alias": "René Magritte",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "若爾熱特·貝爾熱",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "賀內·馬格利特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "雷內·弗朗索瓦·吉蘭·馬格利特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "雷內·馬格利特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "雷內·馬格麗特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "雷尼·馬格列特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "貝爾熱",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "馬格列特",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "馬格利特",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "馬格麗特",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "René Magritte"
+   ],
+   "neo4j_works": 4
+  },
+  {
+   "qid": "Q1254856",
+   "name_en": "Everett Shinn",
+   "en": [
+    "Everett Shinn"
+   ],
+   "aliases": [
+    {
+     "alias": "Everett Shinn",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "埃弗裡特·希恩",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Everett Shinn"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q2462348",
+   "name_en": "Jean-Louis Lemoyne",
+   "en": [
+    "Jean Louis Lemoyne",
+    "Jean-Louis Lemoyne"
+   ],
+   "aliases": [
+    {
+     "alias": "Jean Louis Lemoyne",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Jean-Louis Lemoyne",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "讓-路易·勒穆瓦納",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Jean Louis Lemoyne"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q203401",
+   "name_en": "Edward Hopper",
+   "en": [
+    "Edward Hopper"
+   ],
+   "aliases": [
+    {
+     "alias": "Edward Hopper",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "愛德華·霍普",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Edward Hopper"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q153793",
+   "name_en": "Georges Braque",
+   "en": [
+    "Georges Braque"
+   ],
+   "aliases": [
+    {
+     "alias": "Georges Braque",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "喬治·布拉克",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Georges Braque"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q435558",
+   "name_en": "Suzanne Duchamp",
+   "en": [
+    "Suzanne Duchamp"
+   ],
+   "aliases": [
+    {
+     "alias": "Suzanne Duchamp",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "蘇珊·杜尚",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Suzanne Duchamp"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q5622142",
+   "name_en": "Guy C. Wiggins",
+   "en": [
+    "Guy C. Wiggins",
+    "Guy Carleton Wiggins"
+   ],
+   "aliases": [
+    {
+     "alias": "Guy C. Wiggins",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Guy Carleton Wiggins",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Guy Carleton Wiggins"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3720237",
+   "name_en": "George Hitchcock",
+   "en": [
+    "George Hitchcock"
+   ],
+   "aliases": [
+    {
+     "alias": "George Hitchcock",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "George Hitchcock"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q203643",
+   "name_en": "James McNeill Whistler",
+   "en": [
+    "James McNeill Whistler"
+   ],
+   "aliases": [
+    {
+     "alias": "James McNeill Whistler",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "詹姆斯·亞伯特·馬克尼爾·惠斯勒",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "詹姆斯·惠斯勒",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "James McNeill Whistler"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1325708",
+   "name_en": "Eleanor Antin",
+   "en": [
+    "Eleanor Antin"
+   ],
+   "aliases": [
+    {
+     "alias": "Eleanor Antin",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Eleanor Antin"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q5577",
+   "name_en": "Salvador Dalí",
+   "en": [
+    "Salvador Dalí"
+   ],
+   "aliases": [
+    {
+     "alias": "Salvador Dalí",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "沙華多·達利",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "薩爾瓦多·達利",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "達利薩爾瓦多",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "達利",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Salvador Dalí"
+   ],
+   "neo4j_works": 4
+  },
+  {
+   "qid": "Q77132",
+   "name_en": "Albert Bierstadt",
+   "en": [
+    "Albert Bierstadt"
+   ],
+   "aliases": [
+    {
+     "alias": "Albert Bierstadt",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "阿爾伯特·比爾施塔特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Albert Bierstadt"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3697719",
+   "name_en": "Cristoforo Stati",
+   "en": [
+    "Cristoforo Stati"
+   ],
+   "aliases": [
+    {
+     "alias": "Cristoforo Stati",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Cristoforo Stati"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3435664",
+   "name_en": "Robert Lapoujade",
+   "en": [
+    "Robert Lapoujade"
+   ],
+   "aliases": [
+    {
+     "alias": "Robert Lapoujade",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "羅伯特·拉布亞德",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Robert Lapoujade"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q34013",
+   "name_en": "Georges Seurat",
+   "en": [
+    "Georges Seurat"
+   ],
+   "aliases": [
+    {
+     "alias": "Georges Seurat",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "喬治-皮埃爾·秀拉",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "喬治·修拉",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "喬治·皮埃爾·秀拉",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "喬治·秀拉",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "修拉",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "秀拉",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Georges Seurat"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q1367020",
+   "name_en": "Harald Sohlberg",
+   "en": [
+    "Harald Sohlberg"
+   ],
+   "aliases": [
+    {
+     "alias": "Harald Sohlberg",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Harald Sohlberg"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1288359",
+   "name_en": "Félix González-Torres",
+   "en": [
+    "Felix Gonzalez-Torres",
+    "Félix González-Torres"
+   ],
+   "aliases": [
+    {
+     "alias": "Felix Gonzalez-Torres",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Félix González-Torres",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "菲力克斯·岡薩雷茲-託瑞斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "費利克斯·岡薩雷斯-託雷斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Felix Gonzalez-Torres"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q2130722",
+   "name_en": "Randolph Rogers",
+   "en": [
+    "Randolph Rogers"
+   ],
+   "aliases": [
+    {
+     "alias": "Randolph Rogers",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "魯道夫·羅傑斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Randolph Rogers"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q705421",
+   "name_en": "Bernat Martorell",
+   "en": [
+    "Bernat Martorell"
+   ],
+   "aliases": [
+    {
+     "alias": "Bernat Martorell",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Bernat Martorell"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q41406",
+   "name_en": "Edvard Munch",
+   "en": [
+    "Edvard Munch"
+   ],
+   "aliases": [
+    {
+     "alias": "Edvard Munch",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "愛德華·孟克",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "愛德華·蒙克",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "孟克",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "蒙克",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Edvard Munch"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q260617",
+   "name_en": "Marlene Dumas",
+   "en": [
+    "Marlene Dumas"
+   ],
+   "aliases": [
+    {
+     "alias": "Marlene Dumas",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "瑪琳·杜馬斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Marlene Dumas"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3402687",
+   "name_en": "Preston Dickinson",
+   "en": [
+    "Preston Dickinson"
+   ],
+   "aliases": [
+    {
+     "alias": "Preston Dickinson",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Preston Dickinson"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q297525",
+   "name_en": "Jeff Koons",
+   "en": [
+    "Jeff Koons"
+   ],
+   "aliases": [
+    {
+     "alias": "Jeff Koons",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "傑夫·昆斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "謝夫·昆斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Jeff Koons"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1485390",
+   "name_en": "Mel Bochner",
+   "en": [
+    "Mel Bochner"
+   ],
+   "aliases": [
+    {
+     "alias": "Mel Bochner",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "梅爾·包切納",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "梅爾·波切內爾",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Mel Bochner"
+   ],
+   "neo4j_works": 6
+  },
+  {
+   "qid": "Q219634",
+   "name_en": "Claude Cahun",
+   "en": [
+    "Claude Cahun"
+   ],
+   "aliases": [
+    {
+     "alias": "Claude Cahun",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "克勞德·卡翁",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Claude Cahun"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q4797070",
+   "name_en": "Art Shay",
+   "en": [
+    "Art Shay"
+   ],
+   "aliases": [
+    {
+     "alias": "Art Shay",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Art Shay"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q2425397",
+   "name_en": "Torii Kiyomasu II",
+   "en": [
+    "Torii Kiyomasu II"
+   ],
+   "aliases": [
+    {
+     "alias": "Torii Kiyomasu II",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Torii Kiyomasu II"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q2100080",
+   "name_en": "Pieter Gerritsz van Roestraten",
+   "en": [
+    "Pieter Gerritsz van Roestraten",
+    "Pieter Gerritsz. van Roestraeten"
+   ],
+   "aliases": [
+    {
+     "alias": "Pieter Gerritsz van Roestraten",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Pieter Gerritsz. van Roestraeten",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Pieter Gerritsz. van Roestraeten"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q6376482",
+   "name_en": "Katherine McCoy",
+   "en": [
+    "Katherine McCoy"
+   ],
+   "aliases": [
+    {
+     "alias": "Katherine McCoy",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Katherine McCoy"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q6760826",
+   "name_en": "Marguerite Zorach",
+   "en": [
+    "Marguerite Thompson Zorach",
+    "Marguerite Zorach"
+   ],
+   "aliases": [
+    {
+     "alias": "Marguerite Thompson Zorach",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Marguerite Zorach",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Marguerite Thompson Zorach"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q18422135",
+   "name_en": "Dave Heath",
+   "en": [
+    "Dave Heath",
+    "David Heath"
+   ],
+   "aliases": [
+    {
+     "alias": "Dave Heath",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "David Heath",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "David Heath"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q6765578",
+   "name_en": "Marisa Merz",
+   "en": [
+    "Marisa Merz"
+   ],
+   "aliases": [
+    {
+     "alias": "Marisa Merz",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Marisa Merz"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q11724975",
+   "name_en": "Jerzy Lewczyński",
+   "en": [
+    "Jerzy Lewczyński"
+   ],
+   "aliases": [
+    {
+     "alias": "Jerzy Lewczyński",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jerzy Lewczyński"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q49010462",
+   "name_en": "Minol Araki",
+   "en": [
+    "Minol Araki"
+   ],
+   "aliases": [
+    {
+     "alias": "Minol Araki",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "荒木 實",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Minol Araki"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q13560755",
+   "name_en": "Sarah Charlesworth",
+   "en": [
+    "Sarah Charlesworth"
+   ],
+   "aliases": [
+    {
+     "alias": "Sarah Charlesworth",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Sarah Charlesworth"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q2013867",
+   "name_en": "Bartolomeo di Giovanni",
+   "en": [
+    "Bartolomeo di Giovanni"
+   ],
+   "aliases": [
+    {
+     "alias": "Bartolomeo di Giovanni",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Bartolomeo di Giovanni"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q974618",
+   "name_en": "Thomas Hicks",
+   "en": [
+    "Thomas Hicks"
+   ],
+   "aliases": [
+    {
+     "alias": "Thomas Hicks",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Thomas Hicks"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q110165583",
+   "name_en": "F. Koralewsky",
+   "en": [
+    "F. Koralewsky",
+    "Frank L. Koralewsky"
+   ],
+   "aliases": [
+    {
+     "alias": "F. Koralewsky",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Frank L. Koralewsky",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Frank L. Koralewsky"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q156622",
+   "name_en": "Giorgio de Chirico",
+   "en": [
+    "Giorgio de Chirico"
+   ],
+   "aliases": [
+    {
+     "alias": "Giorgio de Chirico",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "喬吉歐·達·基里訶",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "喬治·德·基里科",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "喬治歐·德·奇裡訶",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "基裡訶",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "基里科",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "奇里科",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "德基裡柯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "基里訶",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "奇裡訶",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Giorgio de Chirico"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q468453",
+   "name_en": "Jean Lurçat",
+   "en": [
+    "Jean Lurçat"
+   ],
+   "aliases": [
+    {
+     "alias": "Jean Lurçat",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "讓·呂爾薩",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Jean Lurçat"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q690790",
+   "name_en": "Rufino Tamayo",
+   "en": [
+    "Rufino Tamayo"
+   ],
+   "aliases": [
+    {
+     "alias": "Rufino Tamayo",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Rufino Tamayo"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q6525806",
+   "name_en": "Leonard Volk",
+   "en": [
+    "Leonard Volk",
+    "Leonard Wells Volk"
+   ],
+   "aliases": [
+    {
+     "alias": "Leonard Volk",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Leonard Wells Volk",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "倫納德·沃克",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Leonard Wells Volk"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q93284",
+   "name_en": "Marc Chagall",
+   "en": [
+    "Marc Chagall"
+   ],
+   "aliases": [
+    {
+     "alias": "Marc Chagall",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "夏加爾",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "夏卡爾",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "馬克·夏加爾",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "馬克·夏卡爾",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Marc Chagall"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q698256",
+   "name_en": "On Kawara",
+   "en": [
+    "On Kawara"
+   ],
+   "aliases": [
+    {
+     "alias": "On Kawara",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "河原溫",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "On Kawara"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q721166",
+   "name_en": "Bartolomeo Manfredi",
+   "en": [
+    "Bartolomeo Manfredi"
+   ],
+   "aliases": [
+    {
+     "alias": "Bartolomeo Manfredi",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "巴爾託洛梅奧·曼弗雷迪",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Bartolomeo Manfredi"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q450110",
+   "name_en": "Kurt Seligmann",
+   "en": [
+    "Kurt Seligmann"
+   ],
+   "aliases": [
+    {
+     "alias": "Kurt Seligmann",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Kurt Seligmann"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q217434",
+   "name_en": "Grant Wood",
+   "en": [
+    "Grant Wood"
+   ],
+   "aliases": [
+    {
+     "alias": "Grant Wood",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "格蘭特·伍德",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Grant Wood"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q709461",
+   "name_en": "Arthur Dove",
+   "en": [
+    "Arthur Dove"
+   ],
+   "aliases": [
+    {
+     "alias": "Arthur Dove",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "亞瑟·德夫",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "亞瑟·達夫",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Arthur Dove"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q666171",
+   "name_en": "John Marin",
+   "en": [
+    "John Marin"
+   ],
+   "aliases": [
+    {
+     "alias": "John Marin",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "約翰·馬林",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "John Marin"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q6272171",
+   "name_en": "Jonas Lie",
+   "en": [
+    "Jonas Lie"
+   ],
+   "aliases": [
+    {
+     "alias": "Jonas Lie",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jonas Lie"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q7325393",
+   "name_en": "Richard Edward Miller",
+   "en": [
+    "Richard E. Miller",
+    "Richard Edward Miller"
+   ],
+   "aliases": [
+    {
+     "alias": "Richard E. Miller",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Richard Edward Miller",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Richard E. Miller"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1252045",
+   "name_en": "Edward Henry Potthast",
+   "en": [
+    "Edward Henry Potthast"
+   ],
+   "aliases": [
+    {
+     "alias": "Edward Henry Potthast",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Edward Henry Potthast"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1441151",
+   "name_en": "Francesco Mochi",
+   "en": [
+    "Francesco Mochi"
+   ],
+   "aliases": [
+    {
+     "alias": "Francesco Mochi",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "弗朗切斯科·莫奇",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Francesco Mochi"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q466677",
+   "name_en": "Cecilia Beaux",
+   "en": [
+    "Cecilia Beaux"
+   ],
+   "aliases": [
+    {
+     "alias": "Cecilia Beaux",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "西西莉亞·包斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Cecilia Beaux"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q160149",
+   "name_en": "Mark Rothko",
+   "en": [
+    "Mark Rothko"
+   ],
+   "aliases": [
+    {
+     "alias": "Mark Rothko",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "馬克·羅斯科",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "麥克·羅夫高",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "羅夫高",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Mark Rothko (Marcus Rothkowitz)"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q467130",
+   "name_en": "Rodolphe Bresdin",
+   "en": [
+    "Rodolphe Bresdin"
+   ],
+   "aliases": [
+    {
+     "alias": "Rodolphe Bresdin",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Rodolphe Bresdin"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1378807",
+   "name_en": "Thomas Dewing",
+   "en": [
+    "Thomas Dewing",
+    "Thomas Wilmer Dewing"
+   ],
+   "aliases": [
+    {
+     "alias": "Thomas Dewing",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Thomas Wilmer Dewing",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "托馬斯·威爾墨·杜因",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "托馬斯·結露",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "託馬斯·威爾墨·杜因",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "託馬斯·結露",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Thomas Wilmer Dewing"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1392676",
+   "name_en": "Ivan Albright",
+   "en": [
+    "Ivan Albright"
+   ],
+   "aliases": [
+    {
+     "alias": "Ivan Albright",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "依凡·阿爾布萊特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Ivan Albright"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q161145",
+   "name_en": "Horace Vernet",
+   "en": [
+    "Horace Vernet"
+   ],
+   "aliases": [
+    {
+     "alias": "Horace Vernet",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "奧拉斯·韋爾內",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "烏哈斯·乃美",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "乃美",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Horace Vernet"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q970016",
+   "name_en": "Gabor Peterdi",
+   "en": [
+    "Gabor Peterdi"
+   ],
+   "aliases": [
+    {
+     "alias": "Gabor Peterdi",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Gabor Peterdi"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q18819435",
+   "name_en": "Frederick Smith",
+   "en": [
+    "Frederick Smith"
+   ],
+   "aliases": [
+    {
+     "alias": "Frederick Smith",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Frederick Smith"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q94763697",
+   "name_en": "Gertrud Osthaus",
+   "en": [
+    "Gertrud Osthaus"
+   ],
+   "aliases": [
+    {
+     "alias": "Gertrud Osthaus",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Gertrud Osthaus"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q124849474",
+   "name_en": "Rudolf Wille",
+   "en": [
+    "Rudolf Wille"
+   ],
+   "aliases": [
+    {
+     "alias": "Rudolf Wille",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Rudolf Wille"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q2749012",
+   "name_en": "Antonio Ramos Espejo",
+   "en": [
+    "Antonio Ramos Espejo"
+   ],
+   "aliases": [
+    {
+     "alias": "Antonio Ramos Espejo",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "雷瑪斯",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Antonio Ramos Espejo"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q53547767",
+   "name_en": "Luis Costillo",
+   "en": [
+    "Luis Costillo"
+   ],
+   "aliases": [
+    {
+     "alias": "Luis Costillo",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Luis Costillo"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q119981532",
+   "name_en": "José Luis",
+   "en": [
+    "José Luis"
+   ],
+   "aliases": [
+    {
+     "alias": "José Luis",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "José Luis"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q23",
+   "name_en": "George Washington",
+   "en": [
+    "George Washington"
+   ],
+   "aliases": [
+    {
+     "alias": "George Washington",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "佐治·華盛頓",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "兀興騰",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "喬治·華盛頓",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "瓦乘敦",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "華盛頓",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "George Washington (Künstler/Hersteller)"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3103347",
+   "name_en": "Georges Pillement",
+   "en": [
+    "Georges Pillement"
+   ],
+   "aliases": [
+    {
+     "alias": "Georges Pillement",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Georges Pillement"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q55946077",
+   "name_en": "Maurice Sérullaz",
+   "en": [
+    "Maurice Sérullaz"
+   ],
+   "aliases": [
+    {
+     "alias": "Maurice Sérullaz",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Maurice Sérullaz"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1073926",
+   "name_en": "Henri Parmentier",
+   "en": [
+    "Henri Parmentier"
+   ],
+   "aliases": [
+    {
+     "alias": "Henri Parmentier",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "亨利·帕爾芒捷",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Henri Parmentier"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q161955",
+   "name_en": "André Breton",
+   "en": [
+    "André Breton"
+   ],
+   "aliases": [
+    {
+     "alias": "André Breton",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "安德列·佈列東",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "安德列·布勒東",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "安德烈·佈列東",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "安德烈·布勒東",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "安德黑·布赫東",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "佈列東",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "布赫東",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "André Breton"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q17452617",
+   "name_en": "Louis Gossin",
+   "en": [
+    "Louis Gossin"
+   ],
+   "aliases": [
+    {
+     "alias": "Louis Gossin",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Louis Gossin"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q2673824",
+   "name_en": "Louis Cloquet",
+   "en": [
+    "Louis Cloquet"
+   ],
+   "aliases": [
+    {
+     "alias": "Louis Cloquet",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "路易·克洛凱",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Louis Cloquet"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q264193",
+   "name_en": "Émile Bernard",
+   "en": [
+    "Émile Bernard"
+   ],
+   "aliases": [
+    {
+     "alias": "Émile Bernard",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "埃米爾·貝爾納",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "貝爾納",
+     "type": "surname",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Émile Bernard"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q19260060",
+   "name_en": "Louis Gillet",
+   "en": [
+    "Louis Gillet"
+   ],
+   "aliases": [
+    {
+     "alias": "Louis Gillet",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Louis Gillet"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q218471",
+   "name_en": "Wilson Bentley",
+   "en": [
+    "Wilson Bentley"
+   ],
+   "aliases": [
+    {
+     "alias": "Wilson Bentley",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "威爾遜·班特利",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Wilson Bentley"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q19670719",
+   "name_en": "Wilhelm Koller",
+   "en": [
+    "Wilhelm Koller"
+   ],
+   "aliases": [
+    {
+     "alias": "Wilhelm Koller",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Wilhelm Koller"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q21850319",
+   "name_en": "Master G.Z.",
+   "en": [
+    "Master G.Z."
+   ],
+   "aliases": [
+    {
+     "alias": "Master G.Z.",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Master G.Z."
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q12769408",
+   "name_en": "Konrád Švestka",
+   "en": [
+    "Konrád Švestka"
+   ],
+   "aliases": [
+    {
+     "alias": "Konrád Švestka",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Konrád Švestka"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q7665260",
+   "name_en": "Sándor Brodszky",
+   "en": [
+    "Alexander Brodszky",
+    "Sándor Brodszky"
+   ],
+   "aliases": [
+    {
+     "alias": "Alexander Brodszky",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Sándor Brodszky",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Alexander Brodszky"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q24074247",
+   "name_en": "Eduard Majsch",
+   "en": [
+    "Eduard Majsch"
+   ],
+   "aliases": [
+    {
+     "alias": "Eduard Majsch",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Eduard Majsch"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3489752",
+   "name_en": "Mikuláš Galanda",
+   "en": [
+    "Mikuláš Galanda"
+   ],
+   "aliases": [
+    {
+     "alias": "Mikuláš Galanda",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Mikuláš Galanda"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q833333",
+   "name_en": "Jakob Bogdani",
+   "en": [
+    "Jakob Bogdani",
+    "Jakub Bogdan"
+   ],
+   "aliases": [
+    {
+     "alias": "Jakob Bogdani",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Jakub Bogdan",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jakub Bogdan"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q874537",
+   "name_en": "Pieter Quast",
+   "en": [
+    "Pieter Jansz. Quast",
+    "Pieter Quast"
+   ],
+   "aliases": [
+    {
+     "alias": "Pieter Jansz. Quast",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Pieter Quast",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Pieter Jansz. Quast"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q718203",
+   "name_en": "Jozef Hanula",
+   "en": [
+    "Jozef Hanula"
+   ],
+   "aliases": [
+    {
+     "alias": "Jozef Hanula",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jozef Hanula"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q14126250",
+   "name_en": "Arnold Peter Weisz-Kubínčan",
+   "en": [
+    "Arnold Peter Weisz-Kubínčan"
+   ],
+   "aliases": [
+    {
+     "alias": "Arnold Peter Weisz-Kubínčan",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Arnold Peter Weisz-Kubínčan"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q50746645",
+   "name_en": "Dezider Czölder",
+   "en": [
+    "Dezider Czölder"
+   ],
+   "aliases": [
+    {
+     "alias": "Dezider Czölder",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Dezider Czölder"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q965654",
+   "name_en": "Segundo de Chomón",
+   "en": [
+    "Segundo de Chomón"
+   ],
+   "aliases": [
+    {
+     "alias": "Segundo de Chomón",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Segundo de Chomón"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1316530",
+   "name_en": "Humphry Repton",
+   "en": [
+    "Humphry Repton"
+   ],
+   "aliases": [
+    {
+     "alias": "Humphry Repton",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "漢弗裡·雷普頓",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Humphry Repton"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q6779618",
+   "name_en": "Martha Gartside",
+   "en": [
+    "Martha Gartside",
+    "Mary Gartside"
+   ],
+   "aliases": [
+    {
+     "alias": "Martha Gartside",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Mary Gartside",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Mary Gartside"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q313787",
+   "name_en": "John Gould",
+   "en": [
+    "John Gould"
+   ],
+   "aliases": [
+    {
+     "alias": "John Gould",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "約翰·古爾德",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "John Gould"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q248935",
+   "name_en": "Stefan Bryła",
+   "en": [
+    "Stefan Bryła"
+   ],
+   "aliases": [
+    {
+     "alias": "Stefan Bryła",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "斯特凡·布里瓦",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Stefan Bryła"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q46482836",
+   "name_en": "Henryk Poddębski",
+   "en": [
+    "Henryk Poddębski"
+   ],
+   "aliases": [
+    {
+     "alias": "Henryk Poddębski",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Henryk Poddębski"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q440896",
+   "name_en": "Władysław Łuszczkiewicz",
+   "en": [
+    "Władysław Łuszczkiewicz"
+   ],
+   "aliases": [
+    {
+     "alias": "Władysław Łuszczkiewicz",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Władysław Łuszczkiewicz"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q109914660",
+   "name_en": "Iwona Benek",
+   "en": [
+    "Iwona Benek"
+   ],
+   "aliases": [
+    {
+     "alias": "Iwona Benek",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Iwona Benek"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q58228896",
+   "name_en": "Tomasz Wagner",
+   "en": [
+    "Tomasz Wagner"
+   ],
+   "aliases": [
+    {
+     "alias": "Tomasz Wagner",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Tomasz Wagner"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q60613155",
+   "name_en": "Krzysztof Rostański",
+   "en": [
+    "Krzysztof Marek Rostański",
+    "Krzysztof Rostański"
+   ],
+   "aliases": [
+    {
+     "alias": "Krzysztof Marek Rostański",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Krzysztof Rostański",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Krzysztof Marek Rostański"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q104381109",
+   "name_en": "Juho Nurmi",
+   "en": [
+    "Juho Nurmi"
+   ],
+   "aliases": [
+    {
+     "alias": "Juho Nurmi",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Juho Nurmi"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q82840",
+   "name_en": "Alvar Aalto",
+   "en": [
+    "Alvar Aalto"
+   ],
+   "aliases": [
+    {
+     "alias": "Alvar Aalto",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "奧爾凡‧ 奧脫",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "艾華·亞圖",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "阿爾瓦·阿爾託",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "阿爾瓦爾·阿爾託",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "阿爾託",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "阿瓦‧ 奧圖",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "阿瓦奧圖",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "雨果·阿爾瓦·亨裡克·阿爾託",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Alvar Aalto"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q137351571",
+   "name_en": "Merja Wesander",
+   "en": [
+    "Merja Wesander"
+   ],
+   "aliases": [
+    {
+     "alias": "Merja Wesander",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Merja Wesander"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q11852866",
+   "name_en": "Arttu Brummer",
+   "en": [
+    "Arttu Brummer"
+   ],
+   "aliases": [
+    {
+     "alias": "Arttu Brummer",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Arttu Brummer"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q42303830",
+   "name_en": "Volker von Bonin",
+   "en": [
+    "Volker von Bonin"
+   ],
+   "aliases": [
+    {
+     "alias": "Volker von Bonin",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Volker von Bonin"
+   ],
+   "neo4j_works": 3
+  },
+  {
+   "qid": "Q92730747",
+   "name_en": "Giorgos Vafiadakis",
+   "en": [
+    "Georgios Vafiadakis",
+    "Giorgos Vafiadakis"
+   ],
+   "aliases": [
+    {
+     "alias": "Georgios Vafiadakis",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Giorgos Vafiadakis",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Georgios Vafiadakis"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q100271538",
+   "name_en": "Nikos Haralampidis",
+   "en": [
+    "Nikos Charalambidis",
+    "Nikos Haralampidis"
+   ],
+   "aliases": [
+    {
+     "alias": "Nikos Charalambidis",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Nikos Haralampidis",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Nikos Charalambidis"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q259594",
+   "name_en": "Lyubov Popova",
+   "en": [
+    "Liubov Popova",
+    "Lyubov Popova"
+   ],
+   "aliases": [
+    {
+     "alias": "Liubov Popova",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Lyubov Popova",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Liubov Popova"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q91362945",
+   "name_en": "Eugenia Apostolou",
+   "en": [
+    "Eugenia Apostolou"
+   ],
+   "aliases": [
+    {
+     "alias": "Eugenia Apostolou",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Eugenia Apostolou"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q11955331",
+   "name_en": "Javier Vilató y Ruiz",
+   "en": [
+    "Javier Vilato",
+    "Javier Vilató y Ruiz"
+   ],
+   "aliases": [
+    {
+     "alias": "Javier Vilato",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Javier Vilató y Ruiz",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Javier Vilato"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q132262568",
+   "name_en": "Asmus Steuerlein",
+   "en": [
+    "Asmus Steuerlein"
+   ],
+   "aliases": [
+    {
+     "alias": "Asmus Steuerlein",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Asmus Steuerlein"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q2905214",
+   "name_en": "Björn Weckström",
+   "en": [
+    "Björn Weckström"
+   ],
+   "aliases": [
+    {
+     "alias": "Björn Weckström",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Björn Weckström"
+   ],
+   "neo4j_works": 3
+  },
+  {
+   "qid": "Q15884591",
+   "name_en": "Zoltán Popovits",
+   "en": [
+    "Zoltán Popovits"
+   ],
+   "aliases": [
+    {
+     "alias": "Zoltán Popovits",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Zoltán Popovits"
+   ],
+   "neo4j_works": 3
+  },
+  {
+   "qid": "Q3433028",
+   "name_en": "Edward William Nelson",
+   "en": [
+    "Edward William Nelson"
+   ],
+   "aliases": [
+    {
+     "alias": "Edward William Nelson",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Edward William Nelson"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q11867488",
+   "name_en": "Juhani Linnovaara",
+   "en": [
+    "Juhani Linnovaara"
+   ],
+   "aliases": [
+    {
+     "alias": "Juhani Linnovaara",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Juhani Linnovaara"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q109646886",
+   "name_en": "Christophe Burger",
+   "en": [
+    "Christophe Burger"
+   ],
+   "aliases": [
+    {
+     "alias": "Christophe Burger",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Christophe Burger"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q716808",
+   "name_en": "Theodor Aman",
+   "en": [
+    "Theodor Aman"
+   ],
+   "aliases": [
+    {
+     "alias": "Theodor Aman",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Theodor Aman"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3087294",
+   "name_en": "Toyohara Chikanobu",
+   "en": [
+    "Toyohara Chikanobu"
+   ],
+   "aliases": [
+    {
+     "alias": "Toyohara Chikanobu",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "楊洲周延",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "橋本週延,",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Toyohara Chikanobu"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q11541091",
+   "name_en": "Nobukazu Yōsai",
+   "en": [
+    "Nobukazu Yōsai",
+    "Watanabe Nobukazu"
+   ],
+   "aliases": [
+    {
+     "alias": "Nobukazu Yōsai",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Watanabe Nobukazu",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "楊齋延一",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Watanabe Nobukazu"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q272045",
+   "name_en": "Kitagawa Utamaro",
+   "en": [
+    "Kitagawa Utamaro"
+   ],
+   "aliases": [
+    {
+     "alias": "Kitagawa Utamaro",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "喜多川歌麿",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Kitagawa Utamaro"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q17093945",
+   "name_en": "Michael Barrett",
+   "en": [
+    "Michael Barrett"
+   ],
+   "aliases": [
+    {
+     "alias": "Michael Barrett",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "伯·邁克",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "邁克爾·巴瑞特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "麥可·巴瑞特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "麥可·巴雷特 (攝影師)",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Michael Barrett"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q2959700",
+   "name_en": "Charles Loupot",
+   "en": [
+    "Charles Loupot"
+   ],
+   "aliases": [
+    {
+     "alias": "Charles Loupot",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Charles Loupot"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q318372",
+   "name_en": "Joseph Paxton",
+   "en": [
+    "Joseph Paxton"
+   ],
+   "aliases": [
+    {
+     "alias": "Joseph Paxton",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "約瑟夫·帕克斯頓",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Joseph Paxton"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q532091",
+   "name_en": "Hans Brosamer",
+   "en": [
+    "Hans Brosamer"
+   ],
+   "aliases": [
+    {
+     "alias": "Hans Brosamer",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "漢斯·布羅山",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Hans Brosamer"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q52051292",
+   "name_en": "Christian Engelbrecht",
+   "en": [
+    "Christian Engelbrecht"
+   ],
+   "aliases": [
+    {
+     "alias": "Christian Engelbrecht",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Christian Engelbrecht"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q834449",
+   "name_en": "Yūsaku Kamekura",
+   "en": [
+    "Yusaku Kamekura",
+    "Yūsaku Kamekura"
+   ],
+   "aliases": [
+    {
+     "alias": "Yusaku Kamekura",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Yūsaku Kamekura",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "亀倉雄策,",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "龜倉雄策",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Yusaku Kamekura"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3595454",
+   "name_en": "Jamini Roy",
+   "en": [
+    "Jamini Roy"
+   ],
+   "aliases": [
+    {
+     "alias": "Jamini Roy",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jamini Roy"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3078576",
+   "name_en": "Fortunino Matania",
+   "en": [
+    "Fortunino Matania"
+   ],
+   "aliases": [
+    {
+     "alias": "Fortunino Matania",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Fortunino Matania"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q7183721",
+   "name_en": "Philip Henry Delamotte",
+   "en": [
+    "Philip Henry Delamotte"
+   ],
+   "aliases": [
+    {
+     "alias": "Philip Henry Delamotte",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Philip Henry Delamotte"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q18632254",
+   "name_en": "Joe Sheehan",
+   "en": [
+    "Joe Sheehan"
+   ],
+   "aliases": [
+    {
+     "alias": "Joe Sheehan",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Joe Sheehan"
+   ],
+   "neo4j_works": 4
+  },
+  {
+   "qid": "Q6387949",
+   "name_en": "Ken Kiff",
+   "en": [
+    "Ken Kiff"
+   ],
+   "aliases": [
+    {
+     "alias": "Ken Kiff",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Ken Kiff"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1525816",
+   "name_en": "Giovanni Battista Borra",
+   "en": [
+    "Giovanni Battista Borra"
+   ],
+   "aliases": [
+    {
+     "alias": "Giovanni Battista Borra",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Giovanni Battista Borra"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q17421960",
+   "name_en": "Hans Tisdall",
+   "en": [
+    "Hans Tisdall"
+   ],
+   "aliases": [
+    {
+     "alias": "Hans Tisdall",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Hans Tisdall"
+   ],
+   "neo4j_works": 3
+  },
+  {
+   "qid": "Q21464119",
+   "name_en": "Gerald Cooper",
+   "en": [
+    "Gerald Cooper"
+   ],
+   "aliases": [
+    {
+     "alias": "Gerald Cooper",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Gerald Cooper"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q4328435",
+   "name_en": "John Nash",
+   "en": [
+    "John Nash",
+    "John Northcote Nash"
+   ],
+   "aliases": [
+    {
+     "alias": "John Nash",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "John Northcote Nash",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "約翰·納什",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "約翰·納西",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "約翰·諾思科特·納什",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "John Northcote Nash"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q3189110",
+   "name_en": "Julian Trevelyan",
+   "en": [
+    "Julian Trevelyan"
+   ],
+   "aliases": [
+    {
+     "alias": "Julian Trevelyan",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Julian Trevelyan"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q29843006",
+   "name_en": "Ronald Louis Carter",
+   "en": [
+    "Ronald Carter",
+    "Ronald Louis Carter"
+   ],
+   "aliases": [
+    {
+     "alias": "Ronald Carter",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Ronald Louis Carter",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Ronald Carter"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q214565",
+   "name_en": "Beatrix Potter",
+   "en": [
+    "Beatrix Potter"
+   ],
+   "aliases": [
+    {
+     "alias": "Beatrix Potter",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "比阿特麗克斯·波特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "碧翠絲·波特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    },
+    {
+     "alias": "碧雅翠絲·波特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Beatrix Potter"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q1403572",
+   "name_en": "George Dunlop Leslie",
+   "en": [
+    "George Dunlop Leslie"
+   ],
+   "aliases": [
+    {
+     "alias": "George Dunlop Leslie",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "George Dunlop Leslie"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q21460914",
+   "name_en": "Frederick Bacon Barwell",
+   "en": [
+    "Frederick Bacon Barwell"
+   ],
+   "aliases": [
+    {
+     "alias": "Frederick Bacon Barwell",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Frederick Bacon Barwell"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q26154073",
+   "name_en": "Sally Anderson",
+   "en": [
+    "Sally Anderson"
+   ],
+   "aliases": [
+    {
+     "alias": "Sally Anderson",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Sally Anderson"
+   ],
+   "neo4j_works": 5
+  },
+  {
+   "qid": "Q19325713",
+   "name_en": "Walter Bird",
+   "en": [
+    "Walter Bird"
+   ],
+   "aliases": [
+    {
+     "alias": "Walter Bird",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Walter Bird"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q43130137",
+   "name_en": "Adolf Fassbender",
+   "en": [
+    "Adolf Fassbender"
+   ],
+   "aliases": [
+    {
+     "alias": "Adolf Fassbender",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Adolf Fassbender"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q5261826",
+   "name_en": "Derek Boshier",
+   "en": [
+    "Derek Boshier"
+   ],
+   "aliases": [
+    {
+     "alias": "Derek Boshier",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Derek Boshier"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q52218865",
+   "name_en": "John Cimon Warburg",
+   "en": [
+    "John Cimon Warburg"
+   ],
+   "aliases": [
+    {
+     "alias": "John Cimon Warburg",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "John Cimon Warburg"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q6201070",
+   "name_en": "Jimmy Pike",
+   "en": [
+    "Jimmy Pike"
+   ],
+   "aliases": [
+    {
+     "alias": "Jimmy Pike",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Jimmy Pike"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q5541327",
+   "name_en": "George Keyt",
+   "en": [
+    "George Keyt"
+   ],
+   "aliases": [
+    {
+     "alias": "George Keyt",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "George Keyt"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q766166",
+   "name_en": "Duncan Grant",
+   "en": [
+    "Duncan Grant"
+   ],
+   "aliases": [
+    {
+     "alias": "Duncan Grant",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "鄧肯·格蘭特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Duncan Grant"
+   ],
+   "neo4j_works": 5
+  },
+  {
+   "qid": "Q3295343",
+   "name_en": "Martin Bloch",
+   "en": [
+    "Martin Bloch"
+   ],
+   "aliases": [
+    {
+     "alias": "Martin Bloch",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Martin Bloch"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q560115",
+   "name_en": "Frank Brangwyn",
+   "en": [
+    "Frank Brangwyn",
+    "Frank William Brangwyn"
+   ],
+   "aliases": [
+    {
+     "alias": "Frank Brangwyn",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Frank William Brangwyn",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Frank William Brangwyn"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q330009",
+   "name_en": "Romeo Gigli",
+   "en": [
+    "Romeo Gigli"
+   ],
+   "aliases": [
+    {
+     "alias": "Romeo Gigli",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Romeo Gigli"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q465163",
+   "name_en": "Edward Poynter",
+   "en": [
+    "Edward John Poynter",
+    "Edward Poynter"
+   ],
+   "aliases": [
+    {
+     "alias": "Edward John Poynter",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Edward Poynter",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "愛德華·波因特",
+     "type": "full",
+     "source": "wikidata",
+     "tw": true
+    }
+   ],
+   "neo4j_names": [
+    "Edward John Poynter"
+   ],
+   "neo4j_works": 3
+  },
+  {
+   "qid": "Q19630851",
+   "name_en": "Zineb Sedira",
+   "en": [
+    "Zineb Sedira"
+   ],
+   "aliases": [
+    {
+     "alias": "Zineb Sedira",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Zineb Sedira"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q2860090",
+   "name_en": "Archibald Knox",
+   "en": [
+    "Archibald Knox"
+   ],
+   "aliases": [
+    {
+     "alias": "Archibald Knox",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Archibald Knox"
+   ],
+   "neo4j_works": 1
+  },
+  {
+   "qid": "Q55219786",
+   "name_en": "Rex (Reginald C.) Silver",
+   "en": [
+    "Rex (Reginald C.) Silver",
+    "Rex Silver"
+   ],
+   "aliases": [
+    {
+     "alias": "Rex (Reginald C.) Silver",
+     "type": "en",
+     "source": "wikidata"
+    },
+    {
+     "alias": "Rex Silver",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Rex Silver"
+   ],
+   "neo4j_works": 2
+  },
+  {
+   "qid": "Q1563132",
+   "name_en": "Patrick Heron",
+   "en": [
+    "Patrick Heron"
+   ],
+   "aliases": [
+    {
+     "alias": "Patrick Heron",
+     "type": "en",
+     "source": "wikidata"
+    }
+   ],
+   "neo4j_names": [
+    "Patrick Heron"
    ],
    "neo4j_works": 1
   }

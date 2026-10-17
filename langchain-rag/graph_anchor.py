@@ -127,6 +127,11 @@ RETURN DISTINCT w AS artwork
 """
 
 
+def name_boundary() -> bool:
+    """GRAPH_NAME_BOUNDARY=1：中文別名前面是「·」時不算命中（呼叫時讀取）。"""
+    return os.getenv("GRAPH_NAME_BOUNDARY", "0") == "1"
+
+
 def museums_ext() -> bool:
     """GRAPH_MUSEUMS_EXT=1：館名擴充與來源補判（呼叫時讀取）。"""
     return os.getenv("GRAPH_MUSEUMS_EXT", "0") == "1"
@@ -190,8 +195,12 @@ class AliasTable:
         """完整字串命中；較長的別名優先，被長別名覆蓋的短別名不計（避免『卡拉瓦喬』內的子字串誤中）。"""
         hits: list[tuple[int, int, str, set[str]]] = []
         if original:
+            boundary = name_boundary()
             for alias, qids in self.zh.items():
                 for m in re.finditer(re.escape(alias), original):
+                    # 別名緊接在「·」後面＝別人全名的後半段（「亞當·拉斐爾」不是拉斐爾，E30）
+                    if boundary and m.start() > 0 and original[m.start() - 1] in "·・．":
+                        continue
                     hits.append((m.start(), m.end(), alias, qids))
         folded = _fold(retrieval_query)
         offset = 10**6  # 英文命中與中文命中分開計位置，不互相覆蓋

@@ -2,14 +2,24 @@
  "_meta": {
   "built": "2026-10-18",
   "sources": "Neo4j Artist × Wikidata (CC0) via QLever; display_names.json",
-  "artists": 319,
+  "artists": 420,
   "dropped_ambiguous_zh": 0
  },
  "artists_graph": {
+  "Abraham Bloemaert": {
+   "zh": [
+    "亞伯拉罕·布盧馬特"
+   ]
+  },
   "Ad Reinhardt": {
    "zh": [
     "阿德·萊因哈特",
     "阿德·賴因哈特"
+   ]
+  },
+  "Adam Frans van der Meulen": {
+   "zh": [
+    "亞當·弗蘭斯·範·德·莫伊倫"
    ]
   },
   "Adam Raphael": {
@@ -27,10 +37,20 @@
     "阿道夫·布朗"
    ]
   },
+  "Adriaen Collaert": {
+   "zh": [
+    "阿德里安·科拉爾特"
+   ]
+  },
   "Akseli Gallen-Kallela": {
    "zh": [
     "阿克塞利·加倫-卡萊拉",
     "阿克塞爾·瓦爾德馬·加倫"
+   ]
+  },
+  "Albert Bierstadt": {
+   "zh": [
+    "阿爾伯特·比爾施塔特"
    ]
   },
   "Albert Gleizes": {
@@ -78,6 +98,11 @@
     "亞歷山大·法爾吉埃"
    ]
   },
+  "Alfonso A. Ossorio": {
+   "zh": [
+    "阿方索·A·奧索裡歐"
+   ]
+  },
   "Alfred East": {
    "zh": [
     "阿爾弗雷德·伊斯特"
@@ -87,6 +112,18 @@
    "zh": [
     "阿爾弗雷·德吉爾伯特",
     "阿爾弗雷德·吉爾伯特"
+   ]
+  },
+  "Alvar Aalto": {
+   "zh": [
+    "奧爾凡‧ 奧脫",
+    "艾華·亞圖",
+    "阿爾瓦·阿爾託",
+    "阿爾瓦爾·阿爾託",
+    "阿爾託",
+    "阿瓦‧ 奧圖",
+    "阿瓦奧圖",
+    "雨果·阿爾瓦·亨裡克·阿爾託"
    ]
   },
   "Amar Kanwar": {
@@ -128,14 +165,32 @@
     "安德雷亞·梅爾多拉"
    ]
   },
+  "Andrea Vanni": {
+   "zh": [
+    "安德里亞·萬尼"
+   ]
+  },
   "Andrea del Sarto": {
    "zh": [
     "安德烈亞·德爾·薩爾託"
    ]
   },
+  "André Breton": {
+   "zh": [
+    "安德列·佈列東",
+    "安德列·布勒東",
+    "安德烈·佈列東",
+    "安德烈·布勒東"
+   ]
+  },
   "André Derain": {
    "zh": [
     "安德烈·德蘭"
+   ]
+  },
+  "André Masson": {
+   "zh": [
+    "安德烈·馬松"
    ]
   },
   "Andy Warhol": {
@@ -190,9 +245,19 @@
     "安東尼奧·卡諾瓦"
    ]
   },
+  "Antonio Ramos Espejo": {
+   "zh": [
+    "雷瑪斯"
+   ]
+  },
   "Antonio Rossellino": {
    "zh": [
     "安東尼奧·羅塞利諾"
+   ]
+  },
+  "Antonio Tempesta": {
+   "zh": [
+    "安東尼奧·坦佩斯塔"
    ]
   },
   "Antonio da Correggio": {
@@ -225,6 +290,12 @@
     "阿特米西亞·真蒂萊斯基"
    ]
   },
+  "Arthur Dove": {
+   "zh": [
+    "亞瑟·德夫",
+    "亞瑟·達夫"
+   ]
+  },
   "Ascanio Condivi": {
    "zh": [
     "阿斯卡尼奧·康迪維"
@@ -233,6 +304,14 @@
   "Auguste Rodin": {
    "zh": [
     "奧古斯特·羅丹"
+   ]
+  },
+  "Augustus John": {
+   "zh": [
+    "奧古斯塔斯·約翰",
+    "奧古斯特·埃德溫·約翰",
+    "奧古斯都·約翰",
+    "約翰·奧古斯塔斯"
    ]
   },
   "Augustus Pugin": {
@@ -248,9 +327,27 @@
     "奧古斯都·聖高頓"
    ]
   },
+  "Bartolomeo Manfredi": {
+   "zh": [
+    "巴爾託洛梅奧·曼弗雷迪"
+   ]
+  },
   "Bartolomé Esteban Murillo": {
    "zh": [
     "牟利羅"
+   ]
+  },
+  "Beatrix Potter": {
+   "zh": [
+    "比阿特麗克斯·波特",
+    "碧翠絲·波特",
+    "碧雅翠絲·波特"
+   ]
+  },
+  "Ben Vautier": {
+   "zh": [
+    "本·沃捷",
+    "班·沃蒂埃傑"
    ]
   },
   "Bernardo Buontalenti": {
@@ -326,9 +423,19 @@
     "卡羅呂斯-迪朗"
    ]
   },
+  "Cecilia Beaux": {
+   "zh": [
+    "西西莉亞·包斯"
+   ]
+  },
   "Charles Barry": {
    "zh": [
     "查爾斯·巴里"
+   ]
+  },
+  "Charles Joseph Hullmandel": {
+   "zh": [
+    "查爾斯·約瑟夫·赫爾曼德爾"
    ]
   },
   "Charles Le Brun": {
@@ -345,10 +452,25 @@
     "查理斯·內格爾"
    ]
   },
+  "Charles Robert Leslie": {
+   "zh": [
+    "查爾斯·羅伯特·萊斯利"
+   ]
+  },
   "Charles Sheeler": {
    "zh": [
     "查爾斯·希勒",
     "查爾斯·席勒"
+   ]
+  },
+  "Charlotte Perriand": {
+   "zh": [
+    "夏洛特·佩里昂"
+   ]
+  },
+  "Christian Rohlfs": {
+   "zh": [
+    "克里斯蒂安·羅爾夫斯"
    ]
   },
   "Christopher Dresser": {
@@ -359,6 +481,11 @@
   "Cigoli": {
    "zh": [
     "奇哥利"
+   ]
+  },
+  "Claude Cahun": {
+   "zh": [
+    "克勞德·卡翁"
    ]
   },
   "Claude Lorrain": {
@@ -379,6 +506,11 @@
   "Cornelis Cort": {
    "zh": [
     "科內利斯·科特"
+   ]
+  },
+  "Cornelis Saftleven": {
+   "zh": [
+    "薩夫特萊文"
    ]
   },
   "Cy Twombly": {
@@ -472,6 +604,11 @@
     "桃瑞絲·沙爾塞朵"
    ]
   },
+  "Duncan Grant": {
+   "zh": [
+    "鄧肯·格蘭特"
+   ]
+  },
   "Eastman Johnson": {
    "zh": [
     "伊斯門·約翰遜"
@@ -486,12 +623,33 @@
     "葉德加爾·竇加"
    ]
   },
+  "Eduardo Chillida": {
+   "zh": [
+    "愛德華多·奇利達"
+   ]
+  },
+  "Edvard Munch": {
+   "zh": [
+    "愛德華·孟克",
+    "愛德華·蒙克"
+   ]
+  },
   "Edward Burne-Jones": {
    "zh": [
     "伯恩·瓊斯",
     "愛德華·伯恩-瓊斯",
     "愛德華·伯納-瓊斯",
     "般尼·鐘斯"
+   ]
+  },
+  "Edward Hopper": {
+   "zh": [
+    "愛德華·霍普"
+   ]
+  },
+  "Edward Poynter": {
+   "zh": [
+    "愛德華·波因特"
    ]
   },
   "El Greco": {
@@ -505,6 +663,11 @@
    "zh": [
     "埃爾薩·斯基亞帕雷利",
     "艾爾莎·夏帕瑞麗"
+   ]
+  },
+  "Emil Nolde": {
+   "zh": [
+    "埃米爾·諾爾德"
    ]
   },
   "Ernst Ludwig Kirchner": {
@@ -545,6 +708,11 @@
     "歐仁·格拉塞"
    ]
   },
+  "Everett Shinn": {
+   "zh": [
+    "埃弗裡特·希恩"
+   ]
+  },
   "Federico Barocci": {
    "zh": [
     "費德里科·巴羅奇"
@@ -575,6 +743,11 @@
   "Fernando Yáñez de la Almedina": {
    "zh": [
     "費爾南多·阿爾梅迪納"
+   ]
+  },
+  "Fernando Zóbel de Ayala y Montojo": {
+   "zh": [
+    "費爾南多·索韋爾"
    ]
   },
   "Filippino Lippi": {
@@ -615,6 +788,11 @@
   "Francesco Guardi": {
    "zh": [
     "弗朗切斯科·瓜爾迪"
+   ]
+  },
+  "Francesco Mochi": {
+   "zh": [
+    "弗朗切斯科·莫奇"
    ]
   },
   "Francesco Primaticcio": {
@@ -672,6 +850,11 @@
     "哈爾斯"
    ]
   },
+  "František Kupka": {
+   "zh": [
+    "弗朗齊歇克·庫普卡"
+   ]
+  },
   "Franz Xaver Messerschmidt": {
    "zh": [
     "法蘭茲·克薩佛·麥瑟史密特"
@@ -713,6 +896,12 @@
     "費利克斯·布拉克蒙"
    ]
   },
+  "Félix González-Torres": {
+   "zh": [
+    "菲力克斯·岡薩雷茲-託瑞斯",
+    "費利克斯·岡薩雷斯-託雷斯"
+   ]
+  },
   "Gao Fenghan": {
    "zh": [
     "丁巳殘人",
@@ -734,6 +923,11 @@
     "喬治·貝洛斯"
    ]
   },
+  "George Brecht": {
+   "zh": [
+    "喬治·布萊希特"
+   ]
+  },
   "George Edmund Street": {
    "zh": [
     "佐治·埃德蒙·斯特里特",
@@ -751,9 +945,36 @@
     "喬治·盧克斯"
    ]
   },
+  "George Romney": {
+   "zh": [
+    "喬治·羅姆尼"
+   ]
+  },
   "George Tooker": {
    "zh": [
     "喬治·圖克"
+   ]
+  },
+  "George Washington": {
+   "zh": [
+    "佐治·華盛頓",
+    "兀興騰",
+    "喬治·華盛頓",
+    "瓦乘敦",
+    "華盛頓"
+   ]
+  },
+  "Georges Braque": {
+   "zh": [
+    "喬治·布拉克"
+   ]
+  },
+  "Georges Seurat": {
+   "zh": [
+    "喬治-皮埃爾·秀拉",
+    "喬治·修拉",
+    "喬治·皮埃爾·秀拉",
+    "喬治·秀拉"
    ]
   },
   "Georges de La Tour": {
@@ -773,6 +994,11 @@
    "zh": [
     "傑拉爾·德·萊裡瑟",
     "熱拉爾·德·萊雷斯"
+   ]
+  },
+  "Gerhard Marcks": {
+   "zh": [
+    "格哈德·馬克斯"
    ]
   },
   "Gertrude Käsebier": {
@@ -802,6 +1028,21 @@
     "詹尼·範思哲"
    ]
   },
+  "Giorgio de Chirico": {
+   "zh": [
+    "喬治·德·基里科",
+    "喬治歐·德·奇裡訶",
+    "基裡訶",
+    "基里科",
+    "奇里科",
+    "德基裡柯"
+   ]
+  },
+  "Giovanni Antonio Guardi": {
+   "zh": [
+    "喬瓦尼·安東尼奧·瓜爾迪"
+   ]
+  },
   "Giovanni Battista Foggini": {
    "zh": [
     "福格尼"
@@ -810,6 +1051,12 @@
   "Giovanni Battista Gaulli": {
    "zh": [
     "喬凡尼·巴蒂斯塔·高裡"
+   ]
+  },
+  "Giovanni Battista Piranesi": {
+   "zh": [
+    "喬凡尼·巴提斯塔·皮拉奈奇",
+    "喬瓦尼·巴蒂斯塔·皮拉內西"
    ]
   },
   "Giovanni Battista Tiepolo": {
@@ -842,6 +1089,11 @@
     "喬凡尼·第·保祿",
     "喬瓦尼·迪·保羅",
     "喬萬尼·迪保羅"
+   ]
+  },
+  "Grant Wood": {
+   "zh": [
+    "格蘭特·伍德"
    ]
   },
   "Gregory Crewdson": {
@@ -890,6 +1142,11 @@
     "庫爾貝"
    ]
   },
+  "Hans Brosamer": {
+   "zh": [
+    "漢斯·布羅山"
+   ]
+  },
   "Hans Memling": {
    "zh": [
     "漢斯·梅姆林"
@@ -925,6 +1182,11 @@
     "馬諦斯"
    ]
   },
+  "Henri Parmentier": {
+   "zh": [
+    "亨利·帕爾芒捷"
+   ]
+  },
   "Henri de Toulouse-Lautrec": {
    "zh": [
     "亨利·德·圖盧茲-洛特雷克",
@@ -935,6 +1197,11 @@
     "土魯斯-勞特累克",
     "土魯斯-羅特列克",
     "羅特列克"
+   ]
+  },
+  "Henri-Edmond Cross": {
+   "zh": [
+    "亨利-埃德蒙·克羅斯"
    ]
   },
   "Henry Fuseli": {
@@ -951,9 +1218,20 @@
     "歐諾雷·多米耶"
    ]
   },
+  "Horace Vernet": {
+   "zh": [
+    "奧拉斯·韋爾內",
+    "烏哈斯·乃美"
+   ]
+  },
   "Huma Bhabha": {
    "zh": [
     "胡瑪·芭芭"
+   ]
+  },
+  "Humphry Repton": {
+   "zh": [
+    "漢弗裡·雷普頓"
    ]
   },
   "Imogen Cunningham": {
@@ -961,9 +1239,19 @@
     "伊莫金·坎寧安"
    ]
   },
+  "Isidore Pils": {
+   "zh": [
+    "伊西多爾·皮爾斯"
+   ]
+  },
   "Isoda Koryūsai": {
    "zh": [
     "礒田湖龍齋"
+   ]
+  },
+  "Ivan Albright": {
+   "zh": [
+    "依凡·阿爾布萊特"
    ]
   },
   "J. M. W. Turner": {
@@ -1000,10 +1288,21 @@
     "雅克·路易·大衛"
    ]
   },
+  "James McNeill Whistler": {
+   "zh": [
+    "詹姆斯·亞伯特·馬克尼爾·惠斯勒",
+    "詹姆斯·惠斯勒"
+   ]
+  },
   "James Stirling": {
    "zh": [
     "佔士·史特靈",
     "詹姆斯·斯特林"
+   ]
+  },
+  "Jan Saenredam": {
+   "zh": [
+    "揚·薩恩雷丹"
    ]
   },
   "Jasper Johns": {
@@ -1022,6 +1321,11 @@
     "尚·杜布菲",
     "讓·杜布菲",
     "讓·迪比費"
+   ]
+  },
+  "Jean Lurçat": {
+   "zh": [
+    "讓·呂爾薩"
    ]
   },
   "Jean Metzinger": {
@@ -1052,9 +1356,20 @@
     "讓·奧諾雷·弗拉戈納爾"
    ]
   },
+  "Jean-Louis Lemoyne": {
+   "zh": [
+    "讓-路易·勒穆瓦納"
+   ]
+  },
   "Jean-Marc Nattier": {
    "zh": [
     "讓-馬克·納捷"
+   ]
+  },
+  "Jeff Koons": {
+   "zh": [
+    "傑夫·昆斯",
+    "謝夫·昆斯"
    ]
   },
   "Jim Dine": {
@@ -1106,6 +1421,11 @@
     "約翰·康斯特布林"
    ]
   },
+  "John Gould": {
+   "zh": [
+    "約翰·古爾德"
+   ]
+  },
   "John Henry Twachtman": {
    "zh": [
     "約翰·亨利·特瓦克特曼"
@@ -1121,6 +1441,16 @@
    "zh": [
     "約翰·拉·法爾熱",
     "約翰拉法基"
+   ]
+  },
+  "John Marin": {
+   "zh": [
+    "約翰·馬林"
+   ]
+  },
+  "John Nash": {
+   "zh": [
+    "約翰·諾思科特·納什"
    ]
   },
   "John Russell Pope": {
@@ -1157,6 +1487,22 @@
     "若瑟·奧格斯特·克尼普"
    ]
   },
+  "Joseph Beuys": {
+   "zh": [
+    "約瑟·波伊斯",
+    "約瑟夫·博伊斯"
+   ]
+  },
+  "Joseph Paxton": {
+   "zh": [
+    "約瑟夫·帕克斯頓"
+   ]
+  },
+  "Joseph Stella": {
+   "zh": [
+    "約瑟夫·斯泰拉"
+   ]
+  },
   "José Guadalupe Posada": {
    "zh": [
     "何塞·瓜達盧佩·波薩達"
@@ -1185,6 +1531,11 @@
   "Jules Jacquemart": {
    "zh": [
     "朱爾·雅克馬爾"
+   ]
+  },
+  "Jules Olitski": {
+   "zh": [
+    "朱爾斯·奧列斯基"
    ]
   },
   "Julia Margaret Cameron": {
@@ -1225,12 +1576,22 @@
     "凱瑞·詹姆斯·馬歇爾"
    ]
   },
+  "Kitagawa Utamaro": {
+   "zh": [
+    "喜多川歌麿"
+   ]
+  },
   "Le Corbusier": {
    "zh": [
     "勒·柯布西耶",
     "勒·柯比意",
     "柯比意",
     "羅·柯必意"
+   ]
+  },
+  "Leonard Volk": {
+   "zh": [
+    "倫納德·沃克"
    ]
   },
   "Leonardo da Vinci": {
@@ -1255,6 +1616,11 @@
     "達芬奇"
    ]
   },
+  "Li Junyi": {
+   "zh": [
+    "李君毅"
+   ]
+  },
   "Lorenzo Lotto": {
    "zh": [
     "羅倫佐·洛託"
@@ -1265,6 +1631,11 @@
     "洛倫佐·莫納科",
     "洛倫佐摩納哥",
     "羅倫佐·摩那科"
+   ]
+  },
+  "Louis Cloquet": {
+   "zh": [
+    "路易·克洛凱"
    ]
   },
   "Louis Comfort Tiffany": {
@@ -1315,6 +1686,11 @@
     "路易斯·德·莫拉雷斯"
    ]
   },
+  "Lyonel Feininger": {
+   "zh": [
+    "萊昂內爾·費寧格"
+   ]
+  },
   "László Moholy-Nagy": {
    "zh": [
     "莫霍利-納吉·拉斯洛"
@@ -1325,9 +1701,27 @@
     "曼·雷"
    ]
   },
+  "Marc Chagall": {
+   "zh": [
+    "夏加爾",
+    "夏卡爾",
+    "馬克·夏加爾",
+    "馬克·夏卡爾"
+   ]
+  },
   "Marcantonio Raimondi": {
    "zh": [
     "馬爾坎託尼奧·雷夢迪"
+   ]
+  },
+  "Marcel Breuer": {
+   "zh": [
+    "布若伊",
+    "馬塞爾·布勞耶",
+    "馬塞爾·布羅伊爾",
+    "馬歇·布勞耶",
+    "馬歇爾·布魯耶",
+    "馬素·布勞耶"
    ]
   },
   "Marcel Broodthaers": {
@@ -1346,9 +1740,25 @@
     "馬賽爾·杜尚"
    ]
   },
+  "Marianne Brandt": {
+   "zh": [
+    "瑪麗安·勃蘭特"
+   ]
+  },
+  "Mark Rothko": {
+   "zh": [
+    "馬克·羅斯科",
+    "麥克·羅夫高"
+   ]
+  },
   "Mark di Suvero": {
    "zh": [
     "馬克·迪·蘇維羅"
+   ]
+  },
+  "Marlene Dumas": {
+   "zh": [
+    "瑪琳·杜馬斯"
    ]
   },
   "Marta Minujín": {
@@ -1380,6 +1790,30 @@
     "莫里斯·丹尼斯"
    ]
   },
+  "Max Beckmann": {
+   "zh": [
+    "馬克斯·貝克曼"
+   ]
+  },
+  "Max Liebermann": {
+   "zh": [
+    "馬克思·利伯曼",
+    "馬克斯·利伯曼"
+   ]
+  },
+  "Mel Bochner": {
+   "zh": [
+    "梅爾·波切內爾"
+   ]
+  },
+  "Michael Barrett": {
+   "zh": [
+    "伯·邁克",
+    "邁克爾·巴瑞特",
+    "麥可·巴瑞特",
+    "麥可·巴雷特 (攝影師)"
+   ]
+  },
   "Michal Rovner": {
    "zh": [
     "米哈爾·羅夫納"
@@ -1406,6 +1840,11 @@
    "zh": [
     "米哈伊·蒙卡奇",
     "蒙卡奇·米哈伊"
+   ]
+  },
+  "Minol Araki": {
+   "zh": [
+    "荒木 實"
    ]
   },
   "Moretto da Brescia": {
@@ -1440,6 +1879,11 @@
     "烏裡武魯"
    ]
   },
+  "Nobukazu Yōsai": {
+   "zh": [
+    "楊齋延一"
+   ]
+  },
   "Odilon Redon": {
    "zh": [
     "奧迪隆·雷東"
@@ -1448,6 +1892,11 @@
   "Okumura Masanobu": {
    "zh": [
     "奧村政信"
+   ]
+  },
+  "On Kawara": {
+   "zh": [
+    "河原溫"
    ]
   },
   "Orazio Gentileschi": {
@@ -1463,6 +1912,11 @@
   "Pablo Picasso": {
    "zh": [
     "畢卡索"
+   ]
+  },
+  "Paris Bordone": {
+   "zh": [
+    "巴里斯·博爾多內"
    ]
   },
   "Parmigianino": {
@@ -1555,6 +2009,11 @@
     "小彼得·布呂赫爾"
    ]
   },
+  "Pieter Post": {
+   "zh": [
+    "彼得·波斯特"
+   ]
+  },
   "Pietro Bernini": {
    "zh": [
     "彼得·貝尼尼"
@@ -1587,12 +2046,22 @@
     "拉蒙·卡薩斯·卡波"
    ]
   },
+  "Randolph Rogers": {
+   "zh": [
+    "魯道夫·羅傑斯"
+   ]
+  },
   "Raphael": {
    "zh": [
     "拉斐爾",
     "拉斐爾·桑齊奧",
     "拉斐爾·聖齊奧",
     "拉菲爾"
+   ]
+  },
+  "Reginald Marsh": {
+   "zh": [
+    "雷金納德·馬什"
    ]
   },
   "Rembrandt": {
@@ -1611,6 +2080,15 @@
    "zh": [
     "勒內·拉利克",
     "雷內·拉利克"
+   ]
+  },
+  "René Magritte": {
+   "zh": [
+    "若爾熱特·貝爾熱",
+    "賀內·馬格利特",
+    "雷內·弗朗索瓦·吉蘭·馬格利特",
+    "雷內·馬格利特",
+    "雷尼·馬格列特"
    ]
   },
   "Richard Hamilton": {
@@ -1636,6 +2114,11 @@
     "羅伯特·康平"
    ]
   },
+  "Robert Lapoujade": {
+   "zh": [
+    "羅伯特·拉布亞德"
+   ]
+  },
   "Robert Motherwell": {
    "zh": [
     "羅伯特·馬瑟韋爾"
@@ -1655,6 +2138,11 @@
     "羅伯特·文丘裡",
     "羅伯特·範裘莉",
     "羅拔·雲杜釐"
+   ]
+  },
+  "Roberto Matta": {
+   "zh": [
+    "羅貝託·馬塔"
    ]
   },
   "Rockwell Kent": {
@@ -1701,6 +2189,13 @@
     "薩盧阿·拉烏達·舒卡爾"
    ]
   },
+  "Salvador Dalí": {
+   "zh": [
+    "沙華多·達利",
+    "薩爾瓦多·達利",
+    "達利薩爾瓦多"
+   ]
+  },
   "Salvator Rosa": {
    "zh": [
     "薩爾瓦多·羅莎",
@@ -1745,10 +2240,25 @@
     "索菲·託伊伯-阿爾普"
    ]
   },
+  "Stanley William Hayter": {
+   "zh": [
+    "史丹利·威廉·海特"
+   ]
+  },
+  "Stefan Bryła": {
+   "zh": [
+    "斯特凡·布里瓦"
+   ]
+  },
   "Stephen Shore": {
    "zh": [
     "史提芬·梭亞",
     "斯蒂芬·沙爾"
+   ]
+  },
+  "Suzanne Duchamp": {
+   "zh": [
+    "蘇珊·杜尚"
    ]
   },
   "Suzuki Harunobu": {
@@ -1756,9 +2266,22 @@
     "鈴木春信"
    ]
   },
+  "Theodore Roszak": {
+   "zh": [
+    "西奧多·羅斯札克"
+   ]
+  },
   "Thomas Cole": {
    "zh": [
     "託馬斯·科爾"
+   ]
+  },
+  "Thomas Dewing": {
+   "zh": [
+    "托馬斯·威爾墨·杜因",
+    "托馬斯·結露",
+    "託馬斯·威爾墨·杜因",
+    "託馬斯·結露"
    ]
   },
   "Thomas Eakins": {
@@ -1803,7 +2326,8 @@
   },
   "Titian": {
    "zh": [
-    "提香"
+    "提香",
+    "提齊安諾·維伽略"
    ]
   },
   "Tom Wesselmann": {
@@ -1814,6 +2338,12 @@
   "Torii Kiyonaga": {
    "zh": [
     "鳥居清長"
+   ]
+  },
+  "Toyohara Chikanobu": {
+   "zh": [
+    "楊洲周延",
+    "橋本週延,"
    ]
   },
   "Tullio Lombardo": {
@@ -1872,6 +2402,12 @@
     "華特·克藍"
    ]
   },
+  "Walter Sickert": {
+   "zh": [
+    "沃爾特·西克爾特",
+    "沃爾特·西克特"
+   ]
+  },
   "Wassily Kandinsky": {
    "zh": [
     "康丁斯基",
@@ -1890,6 +2426,13 @@
     "文策斯勞斯·霍洛"
    ]
   },
+  "Willem de Kooning": {
+   "zh": [
+    "威廉·德·庫寧",
+    "威廉·德庫寧",
+    "威廉·迪冠寧"
+   ]
+  },
   "William Chambers": {
    "zh": [
     "威廉·錢伯斯"
@@ -1906,9 +2449,20 @@
     "威廉·阿道夫·布格羅"
    ]
   },
+  "Wilson Bentley": {
+   "zh": [
+    "威爾遜·班特利"
+   ]
+  },
   "Winslow Homer": {
    "zh": [
     "溫斯洛·霍默"
+   ]
+  },
+  "Wolf Vostell": {
+   "zh": [
+    "沃爾夫·福斯特爾",
+    "沃爾芙·弗斯帖爾"
    ]
   },
   "Yun Shouping": {
@@ -1962,9 +2516,20 @@
     "伊維斯·克萊因"
    ]
   },
+  "Yūsaku Kamekura": {
+   "zh": [
+    "亀倉雄策,",
+    "龜倉雄策"
+   ]
+  },
   "Édouard Baldus": {
    "zh": [
     "愛德華·巴爾杜斯"
+   ]
+  },
+  "Édouard Bertin": {
+   "zh": [
+    "愛德華·貝爾坦"
    ]
   },
   "Édouard Manet": {
@@ -1972,6 +2537,11 @@
     "愛德華·馬內",
     "愛德華·馬奈",
     "愛杜爾·馬奈"
+   ]
+  },
+  "Émile Bernard": {
+   "zh": [
+    "埃米爾·貝爾納"
    ]
   },
   "Étienne Carjat": {

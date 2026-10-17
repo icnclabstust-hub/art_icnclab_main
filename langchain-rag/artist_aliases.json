@@ -6,7 +6,8 @@
    "卡拉奇",
    "卡拉瓦喬",
    "拉斐爾"
-  ]
+  ],
+  "neo4j_names_refreshed": "2026-10-18（作者遷移後；人選與別名維持 2026-10-11 版）"
  },
  "artists": [
   {
@@ -296,7 +297,7 @@
     "Leonardo da Vinci",
     "Leonardo da Vinci (1452 - 1519)"
    ],
-   "neo4j_works": 15
+   "neo4j_works": 17
   },
   {
    "qid": "Q5592",
@@ -651,7 +652,7 @@
     "Raphael",
     "Raphael (Raffaello Sanzio or Santi)"
    ],
-   "neo4j_works": 9
+   "neo4j_works": 11
   },
   {
    "qid": "Q5598",
@@ -1855,12 +1856,13 @@
     }
    ],
    "neo4j_names": [
+    "Harmensz van Rijn Rembrandt",
     "Rembrandt",
     "Rembrandt (Rembrandt van Rijn)",
     "Rembrandt van Rijn",
     "Rembrandt van Rijn (Dutch"
    ],
-   "neo4j_works": 26
+   "neo4j_works": 28
   },
   {
    "qid": "Q296",
@@ -2016,7 +2018,7 @@
    "neo4j_names": [
     "Claude Monet"
    ],
-   "neo4j_works": 5
+   "neo4j_works": 6
   },
   {
    "qid": "Q5582",
@@ -2110,9 +2112,10 @@
     }
    ],
    "neo4j_names": [
+    "Vincent Van Gogh",
     "Vincent van Gogh"
    ],
-   "neo4j_works": 11
+   "neo4j_works": 13
   },
   {
    "qid": "Q5593",
@@ -2294,7 +2297,7 @@
     "Pablo Picasso\nSpanish",
     "Pablo Picasso (Spanish"
    ],
-   "neo4j_works": 19
+   "neo4j_works": 30
   },
   {
    "qid": "Q37562",
@@ -2607,7 +2610,7 @@
     "Nicolas Poussin",
     "Nicolas Poussin (French"
    ],
-   "neo4j_works": 18
+   "neo4j_works": 19
   },
   {
    "qid": "Q297",
@@ -5338,8 +5341,10 @@
      "tw": false
     }
    ],
-   "neo4j_names": [],
-   "neo4j_works": 0
+   "neo4j_names": [
+    "Titian (Tiziano Vecellio)"
+   ],
+   "neo4j_works": 1
   },
   {
    "qid": "Q160538",
@@ -7850,7 +7855,7 @@
     "Guido Reni",
     "Reni"
    ],
-   "neo4j_works": 20
+   "neo4j_works": 21
   },
   {
    "qid": "Q150679",
@@ -10417,7 +10422,7 @@
     "Francisco de Zurbarán",
     "Francisco de Zurbarán (Spanish"
    ],
-   "neo4j_works": 2
+   "neo4j_works": 3
   },
   {
    "qid": "Q192062",
@@ -13981,7 +13986,7 @@
     "Art Sinsabaugh",
     "Art Sinsabaugh\nAmerican"
    ],
-   "neo4j_works": 12
+   "neo4j_works": 13
   },
   {
    "qid": "Q363308",
@@ -14885,9 +14890,10 @@
     }
    ],
    "neo4j_names": [
-    "Dante Gabriel Rossetti"
+    "Dante Gabriel Rossetti",
+    "Rossetti"
    ],
-   "neo4j_works": 5
+   "neo4j_works": 6
   },
   {
    "qid": "Q78885",
