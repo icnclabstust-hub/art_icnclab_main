@@ -223,6 +223,12 @@ FIXED_SOURCE_INSTITUTIONS = {
     "harvard": "Harvard Art Museums",
     "masterpieces_curated": "Curated Masterpieces Collection",
     "google_books": "Google Books",
+    # 2026-10-18 D1（docs/designs/2026-10-18-graph-data-quality.md）：後加的四館漏列，
+    # 其作品沒有 HELD_BY；名稱與 graph_anchor.MUSEUMS_EXT 一致
+    "art_institute_chicago": "Art Institute of Chicago",
+    "cleveland_museum": "Cleveland Museum of Art",
+    "va_museum": "Victoria and Albert Museum",
+    "yale_university_art_gallery": "Yale University Art Gallery",
 }
 
 

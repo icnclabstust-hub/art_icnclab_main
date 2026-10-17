@@ -26,6 +26,7 @@ from pathlib import Path
 import chromadb
 from bge_m3_embedding import BGEM3EmbeddingFunction
 from chunking import build_chunk_records
+from ingest.artist_names import parse_artists
 from neo4j import GraphDatabase
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -155,8 +156,12 @@ def normalize_google_books(item: dict) -> dict:
 
 def normalize_harvard(item: dict) -> dict:
     people = item.get("people") or []
-    artist = ", ".join(
-        p.get("displayname", "") for p in people if isinstance(p, dict) and p.get("displayname")
+    # JS 爬蟲存 people[].name、API 原始欄位是 displayname（2026-10-18 E29：只讀 displayname
+    # 使 Harvard 作者全部空白）；多人以「 | 」分隔（逗號會被當成「姓, 名」，見 ingest.artist_names）
+    artist = " | ".join(
+        name
+        for p in people
+        if isinstance(p, dict) and (name := p.get("displayname") or p.get("name"))
     )
     return {
         "id": f"harvard_{item.get('harvardId') or item.get('id')}",
@@ -325,7 +330,7 @@ class Neo4jBatchWriter:
         row["source"] = source
         self.artwork_rows.append(row)
         if artwork.get("artist"):
-            for artist_name in [n.strip() for n in artwork["artist"].split(",") if n.strip()]:
+            for artist_name in parse_artists(source, artwork["artist"]):
                 self.artist_rows.append(
                     {
                         "artist_name": artist_name,

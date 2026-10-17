@@ -142,7 +142,8 @@ def test_neo4j_upsert_writes_artworks_and_split_artists():
     assert artwork_call[1]["rows"][0]["id"] == "harvard_1"
     assert artwork_call[1]["rows"][0]["source"] == "harvard"
     artist_call = next(c for c in calls if c[0].startswith("ARTIST_Q"))
-    assert [r["artist_name"] for r in artist_call[1]["rows"]] == ["Monet", "Claude Oscar"]
+    # 「姓, 名」合併為一人（E29：舊規則以逗號切成兩位畫家）
+    assert [r["artist_name"] for r in artist_call[1]["rows"]] == ["Claude Oscar Monet"]
 
 
 def test_neo4j_europeana_uses_the_creators_list_and_its_own_queries():
@@ -163,7 +164,7 @@ def test_neo4j_europeana_uses_the_creators_list_and_its_own_queries():
     queries = [c[0] for c in calls]
     assert not any(q.startswith(("ARTWORK_Q", "ARTIST_Q")) for q in queries)
     artist_rows = [r for c in calls for r in c[1].get("rows", []) if "artist_name" in r]
-    assert [r["artist_name"] for r in artist_rows] == ["Doe, Jane"]
+    assert [r["artist_name"] for r in artist_rows] == ["Jane Doe"]  # 與其他來源一致的名在前寫法
 
 
 def test_neo4j_soft_delete_marks_instead_of_deleting():
@@ -194,7 +195,7 @@ def test_neo4j_upsert_stamps_entity_and_relationship_lifecycle_fields():
     assert entity[1]["ids"] == ["harvard_4"]
     assert "REMOVE a.valid_to" in entity[2]
     add_rel = next(c for c in calls if "SET r.valid_from" in c[2])
-    assert add_rel[1]["rows"] == [{"artwork_id": "harvard_4", "names": ["Monet", "Claude"]}]
+    assert add_rel[1]["rows"] == [{"artwork_id": "harvard_4", "names": ["Claude Monet"]}]
     assert "REMOVE r.valid_to" in add_rel[2]
 
 

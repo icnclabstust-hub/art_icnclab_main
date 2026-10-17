@@ -18,6 +18,8 @@
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
+from ingest.artist_names import parse_artists
+
 from subscribers.base import Event
 from subscribers.chroma_sub import _final_state
 
@@ -196,11 +198,15 @@ class Queries:
         return cls(artwork=module._ARTWORK_UNWIND_QUERY, artist=module._ARTIST_UNWIND_QUERY)  # noqa: SLF001
 
 
-def _artist_names(artwork: dict) -> list[str]:
+def _artist_names(artwork: dict, source: str) -> list[str]:
+    """作者清單：依來源解析（ingest.artist_names；不再一律以逗號切開，E29）。"""
     creators = artwork.get("creators")
     if creators is not None:
-        return [c for c in creators if c]
-    return [n.strip() for n in (artwork.get("artist") or "").split(",") if n.strip()]
+        names: list[str] = []
+        for creator in creators:
+            names += [n for n in parse_artists(source, creator) if n not in names]
+        return names
+    return parse_artists(source, artwork.get("artist"))
 
 
 class Neo4jSubscriber:
@@ -238,7 +244,7 @@ class Neo4jSubscriber:
                 rows = [
                     {
                         "artwork_id": e.payload["external_id"],
-                        "names": _artist_names(e.payload["artwork"]),
+                        "names": _artist_names(e.payload["artwork"], e.payload["source"]),
                     }
                     for e in upserts
                 ]
@@ -259,7 +265,7 @@ class Neo4jSubscriber:
             artwork_rows.append({**artwork, "source": source})
             artist_rows.extend(
                 {"artist_name": name, "artwork_id": artwork["id"], "source": source}
-                for name in _artist_names(artwork)
+                for name in _artist_names(artwork, source)
             )
         session.run(artwork_query, rows=artwork_rows).consume()
         if artist_rows:
