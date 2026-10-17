@@ -2221,6 +2221,15 @@ async def _preload_generation_model(model: str) -> None:
 
 # K（檢索信心）評分器（規格 Q9；2026-10-14 試做，預設關閉）：開啟時只把 K 記入 metadata，不改回答
 K_SCORER = os.getenv("K_SCORER", "0") == "1"
+# K 打分用的問題：orig＝原問題（E6 校準方式）；concat＝原問題＋檢索譯文。
+# 中文譯名（林布蘭、裡韋拉）對不上來源的英文名，原問題會漏判（E24，2026-10-17）
+K_SCORE_QUERY = os.getenv("K_SCORE_QUERY", "orig")
+
+
+def _k_query(query: str, retrieval_query: str) -> str:
+    if K_SCORE_QUERY == "concat" and retrieval_query and retrieval_query != query:
+        return f"{query} {retrieval_query}"
+    return query
 
 
 @dataclass
@@ -2343,8 +2352,10 @@ async def _prepare_query(request: QueryRequest) -> _QueryContext:
 
     k_info = None
     if K_SCORER and sources:
-        try:  # CPU 推論放到執行緒，不阻塞事件迴圈；以原問題打分（同 E6 校準方式）
-            k_info = await asyncio.to_thread(k_scorer.score_k, request.query, sources)
+        try:  # CPU 推論放到執行緒，不阻塞事件迴圈
+            k_info = await asyncio.to_thread(
+                k_scorer.score_k, _k_query(request.query, retrieval_query), sources
+            )
         except Exception as e:
             logger.warning(f"⚠️ K 評分失敗: {e!r}")
 
