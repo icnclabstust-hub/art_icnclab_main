@@ -2003,20 +2003,31 @@ def _translation_model(llm_model: str | None) -> str:
 
 
 async def _warm_translation_model(model: str | None = None) -> None:
-    """請 Ollama 載入翻譯模型並常駐（不生成內容）；失敗只記 log。"""
+    """請 Ollama 載入翻譯模型並常駐；失敗只記 log。
+
+    送一題真實格式的翻譯提示詞（只生成 1 個 token）：只載入模型時，第一題真實查詢仍要在 CPU
+    上處理整段提示詞而超過逾時、退回詞典（2026-10-18 系統串接測試 8011 冷啟動第一題 3008 ms）。
+    """
     model = _translation_model(model)
+    hint = NAME_GUARD_RULE if QUERY_TRANSLATION_NAME_GUARD else ""
     try:
         await conn_manager.http_client.post(
             f"{QUERY_TRANSLATION_OLLAMA_URL or OLLAMA_BASE_URL}/api/generate",
             json={
                 "model": model,
+                "prompt": QUERY_TRANSLATION_PROMPT.format(hint=hint, query="林布蘭的作品"),
+                "stream": False,
+                "think": False,
                 "keep_alive": QUERY_TRANSLATION_KEEP_ALIVE,
                 # 預熱須與翻譯請求同一 num_gpu，否則先載進 GPU、翻譯時又以 CPU 重新載入
-                **(
-                    {"options": {"num_gpu": QUERY_TRANSLATION_NUM_GPU}}
-                    if QUERY_TRANSLATION_NUM_GPU is not None
-                    else {}
-                ),
+                "options": {
+                    "num_predict": 1,
+                    **(
+                        {"num_gpu": QUERY_TRANSLATION_NUM_GPU}
+                        if QUERY_TRANSLATION_NUM_GPU is not None
+                        else {}
+                    ),
+                },
             },
             timeout=120.0,
         )
