@@ -47,3 +47,14 @@ def test_fuzzy_anchor_threshold_95(monkeypatch):
     # 同音異字的譯名變體可找回（林布蘭 → 林布籣 為模擬錯字）
     hit = table.anchor("林布籣有哪些作品收藏在大都會？", "")
     assert hit.hit and hit.matched[0]["type"] == "fuzzy"
+
+
+def test_display_names_handle_mixed_simplified_characters():
+    """2026-10-18 8080 測試：模型寫「委拉斯開兹」（兹＝簡體）時也要換成台灣顯示名；其餘字元不動。"""
+    text = "《宮娥》是西班牙畫家 **迭戈·委拉斯開兹**（Diego Velázquez）的作品，这幅画很有名。"
+    out = display_names.normalize(text, "《宮娥》是哪位畫家的作品？")
+    assert "委拉斯奎茲" in out and "委拉斯開兹" not in out
+    assert "这幅画很有名" in out  # 不是人名的簡體字保留原樣（由介面層 OpenCC 處理）
+    # 提問中用的寫法（簡體或繁體）都不替換
+    q = "委拉斯开兹的《宮娥》描繪了什麼？"
+    assert "委拉斯開兹" in display_names.normalize("委拉斯開兹畫了宮娥。", q)
