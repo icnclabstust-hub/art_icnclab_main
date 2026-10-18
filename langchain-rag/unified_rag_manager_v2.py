@@ -2555,6 +2555,12 @@ MODEL_SUPPLEMENT_PROMPT = """你是藝術史助理。藝術史資料庫中沒有
 2. 不確定或有爭議之處要明說，不要編造人名、年代、出處
 3. 回答精簡、條理清楚
 問題：{query}"""
+# 直接依據層的指示：原寫法「每句以 [文檔 n] 標注出處」使 deepseek-r1 常只輸出「[文檔 1]」
+# 或照抄來源標籤（2026-10-19 E31：8011 重問 5 次中 2 次），改為完整句子＋句尾出處並附例句
+LAYER_DIRECT_INSTRUCTION = (
+    "\n（只根據參考資料，用完整的句子回答；在每一句的句尾加上出處，"
+    "例如「……完成於 1642 年。[文檔 1]」；資料沒有的內容不要寫。）"
+)
 LAYER_DIRECT_MIN = float(os.getenv("LAYER_DIRECT_MIN", "0.7"))
 LAYER_RELATED_MIN = float(os.getenv("LAYER_RELATED_MIN", "0.3"))
 
@@ -2585,14 +2591,16 @@ async def _layered_answer(ctx: _QueryContext) -> tuple[str, dict[str, Any]]:
     parts = []
     if direct:
         body = await ctx.strategy.generate(
-            ctx.request.query
-            + "\n（只根據參考資料回答；每句以 [文檔 n] 標注出處；資料沒有的內容不要寫。）",
+            ctx.request.query + LAYER_DIRECT_INSTRUCTION,
             direct,
             ctx.llm_model,
             temperature=ctx.temperature,
             max_tokens=ctx.max_tokens,
         )
-        parts.append("【直接依據】\n" + body.strip())
+        body = to_zh_tw(body.strip())
+        if display_names.enabled():  # 與 /query 整段回答相同的臺灣繁體與譯名處理
+            body = display_names.normalize(body, ctx.request.query)
+        parts.append("【直接依據】\n" + body)
     elif ANSWER_LAYERS_MODE == "merged":
         body = _FAKE_CITE.sub("", await _model_supplement(ctx)).strip()  # 補充層不得帶引用
         layers["model_supplement"] = True
