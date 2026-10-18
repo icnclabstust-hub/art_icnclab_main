@@ -1,0 +1,26 @@
+{
+ "_meta": {
+  "status": "DRAFT — 需人工審核；由 Claude 依館藏來源內容起草（使用者 2026-10-18 同意），未經標註者確認，不可作為正式評分依據",
+  "created": "2026-10-18",
+  "questions": "docs/golden-set/2026-10-01-baroque-questions.json（巴洛克黃金集 15 題）",
+  "basis": "事實題依 masterpieces_curated／met_museum 文件的 Date、Medium 欄位；關係題依 2026-10-09-relation-rule-relevant.json 的館藏作品（只列切題作品）；拒答題＝館藏沒有可直接回答的文件（2026-10-18 hybrid 前 3 筆檢索確認）",
+  "用途": "Ragas Answer Correctness、Semantic Similarity、LLM Context Recall／Precision 的 reference"
+ },
+ "answers": {
+  "1": {"reference": "林布蘭的《夜巡》（The Night Watch）完成於 1642 年，媒材是油彩畫布（oil on canvas）。", "sources": ["masterpiece：The Night Watch（Date 1642, Medium Oil on canvas）"]},
+  "2": {"reference": "維梅爾的《戴珍珠耳環的少女》（Girl with a Pearl Earring）大約創作於 1665 年，是油彩畫布作品。", "sources": ["masterpiece：Girl with a Pearl Earring（Date c. 1665, Medium Oil on canvas）"]},
+  "3": {"reference": "委拉斯奎茲的《宮娥》（Las Meninas）創作於 1656 年，是油彩畫布作品。", "sources": ["masterpiece：Las Meninas（Date 1656, Medium Oil on canvas）"]},
+  "4": {"reference": "卡拉瓦喬的《聖馬太蒙召》（The Calling of St Matthew）創作於 1599 至 1600 年間，是油彩畫布作品。", "sources": ["masterpiece：The Calling of St Matthew（Date 1599-1600, Medium Oil on canvas）"]},
+  "5": {"reference": "魯本斯的《下十字架》（The Descent from the Cross）完成於 1612 至 1614 年間，媒材是油彩木板（oil on panel）。", "sources": ["masterpiece：The Descent from the Cross（Date 1612-1614, Medium Oil on panel）"]},
+  "6": {"reference": "貝尼尼的《酒神祭：被孩童戲弄的牧神》（Bacchanal: A Faun Teased by Children）約作於 1616 至 1617 年，材質是大理石，收藏於大都會藝術博物館。", "sources": ["met_museum：Bacchanal: A Faun Teased by Children（ca. 1616–17, Marble）"]},
+  "7": {"reference": "資料庫中大都會藝術博物館收藏的維梅爾畫作包括《持魯特琴的年輕女子》（Young Woman with a Lute，約 1662–63）、《持水壺的年輕女子》（Young Woman with a Water Pitcher，約 1662）、《年輕女子習作》（Study of a Young Woman，約 1665–67）、《天主教信仰的寓意》（Allegory of the Catholic Faith，約 1670–72）、《沉睡的女僕》（A Maid Asleep，約 1656–57）與《閱讀的年輕女子》（A Young Woman Reading）。", "sources": ["met_437880", "met_437881", "met_437879", "met_437877", "relation-rule-relevant B7"]},
+  "8": {"reference": "資料庫中林布蘭的肖像畫包括《女子肖像》（Portrait of a Woman，1633）、《亞里斯多德與荷馬半身像》（Aristotle with a Bust of Homer，1653）、《花神》（Flora，約 1654）、《自畫像》（Self-Portrait，1660）、《戴頭巾的男子》（Man in a Turban，1632）、《赫曼·杜默肖像》（Herman Doomer，1640）、《戴金鏈的老人》（Old Man with a Gold Chain，1631）、《窗邊素描的自畫像》（Self-Portrait Drawing at a Window，1648）與《拍賣師》（Portrait of a Man, \"The Auctioneer\"，約 1658–62）等。", "sources": ["met_437390", "met_437394", "met_437398", "met_437397", "relation-rule-relevant B8"]},
+  "9": {"reference": "資料庫中委拉斯奎茲為西班牙王室成員所畫的肖像包括《西班牙國王腓力四世》（Philip IV, King of Spain，約 1624）、《西班牙公主瑪麗亞·特蕾莎》（María Teresa, Infanta of Spain，1651–54）、《西班牙王后奧地利的瑪麗安娜》（Mariana of Austria, Queen of Spain），以及描繪公主瑪格麗特與宮廷成員的《宮娥》（Las Meninas，1656）。", "sources": ["met_437874", "met_437871", "met_437870", "relation-rule-relevant B9"]},
+  "10": {"reference": "資料庫中普桑以古典神話為題材的作品包括《盲眼的獵戶座尋找初升的太陽》（Blind Orion Searching for the Rising Sun，1658）、《劫掠薩賓婦女》（The Abduction of the Sabine Women，約 1633–34）、《酒神祭》（Bacchanal，約 1635–36）與《米達斯在帕克托羅斯河源洗浴》（Midas Washing at the Source of the Pactolus，約 1627）。", "sources": ["met_437326", "met_437329", "relation-rule-relevant B10"]},
+  "11": {"reference": "資料庫中克勞德·洛蘭的風景畫作品包括《特洛伊婦女焚燒船隊》（The Trojan Women Setting Fire to Their Fleet，約 1643）、《珀爾修斯與珊瑚的起源》（Perseus and the Origin of Coral，約 1671）、《田園風景：羅馬平原》（Pastoral Landscape: The Roman Campagna，約 1639）、《拉克雷申察景色》（View of La Crescenza，1648–50）、《日出》（Sunrise）、《涉水》（The Ford）與《阿波羅與繆思的風景》（Landscape with Apollo and the Muses，1674）等。", "sources": ["met_435908", "met_459190", "met_435906", "met_336489", "relation-rule-relevant B11"]},
+  "12": {"reference": "資料庫中卡拉契家族的宗教題材作品包括《哀悼基督》（The Lamentation，約 1582）、《聖母加冕》（The Coronation of the Virgin，1595 年後）、《施洗約翰作見證》（Saint John the Baptist Bearing Witness，約 1600）、《基督的埋葬》（The Burial of Christ，1595）與《戴荊冠的基督》（Christ Crowned with Thorns，1606）。", "sources": ["met_438427", "met_435853", "met_435852", "met_438813", "relation-rule-relevant B12"]},
+  "13": {"reference": "資料庫中沒有阿特米西亞·真蒂萊斯基《朱蒂斯斬殺荷羅孚尼》的館藏資料，無法依館藏回答有哪些版本與收藏地點；檢索到的只有其他畫家以荷羅孚尼為題的作品。", "sources": ["refuse：2026-10-18 hybrid 前 3 筆無相關文件"]},
+  "14": {"reference": "資料庫中沒有博羅米尼設計的四噴泉聖卡羅教堂（San Carlo alle Quattro Fontane）的館藏資料，無法依館藏說明其平面設計特色。", "sources": ["refuse：2026-10-18 hybrid 前 3 筆無相關文件"]},
+  "15": {"reference": "資料庫中沒有貝尼尼《聖德蕾莎的狂喜》所在教堂與禮拜堂的館藏資料，無法依館藏回答。", "sources": ["refuse：2026-10-18 hybrid 前 3 筆無相關文件"]}
+ }
+}
