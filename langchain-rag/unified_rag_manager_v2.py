@@ -296,6 +296,29 @@ QUERY_TRANSLATION_REPEAT_PENALTY = float(_QT_REPEAT) if _QT_REPEAT.strip() else 
 # 米勒→整個漏掉）；詞典提示的英文人名沒出現在譯文就補在句尾（聖齊奧→Saint Zachary）。預設關閉
 QUERY_TRANSLATION_NAME_GUARD = os.getenv("QUERY_TRANSLATION_NAME_GUARD", "0") == "1"
 NAME_GUARD_RULE = "詞典未列出的人名保留中文原字，不要自行翻譯、改寫或省略。\n"
+# 回答語言（2026-10-18 8080 測試：生成提示詞沒有指定語言，qwen3:8b 回答幾乎每次夾簡體字，
+# 也使台灣譯名比對失敗）。預設關閉
+ANSWER_ZH_TW = os.getenv("ANSWER_ZH_TW", "0") == "1"
+ANSWER_ZH_TW_RULE = "請一律使用繁體中文（臺灣用語）回答，不要使用簡體字。\n"
+# 提示詞只能把簡體字降約 95%（30 題 87→4 字）；開啟時回答另經 OpenCC s2twp 轉臺灣繁體，
+# 與 Open WebUI pipe 相同設定。於台灣譯名替換之前套用（譯名表是繁體）
+_zh_tw = None
+
+
+def to_zh_tw(text: str) -> str:
+    """ANSWER_ZH_TW=1 時把回答轉為臺灣繁體（OpenCC s2twp）；未安裝 OpenCC 時原樣回傳。"""
+    global _zh_tw
+    if not ANSWER_ZH_TW or not text:
+        return text
+    if _zh_tw is None:
+        try:
+            from opencc import OpenCC  # noqa: PLC0415 -- 只在開關開啟時需要
+
+            _zh_tw = OpenCC("s2twp")
+        except ImportError:
+            logger.warning("⚠️ ANSWER_ZH_TW=1 但未安裝 OpenCC，回答不做簡轉繁")
+            _zh_tw = False
+    return _zh_tw.convert(text) if _zh_tw else text
 _QT_NUM_GPU = os.getenv("QUERY_TRANSLATION_NUM_GPU", "")
 QUERY_TRANSLATION_NUM_GPU = int(_QT_NUM_GPU) if _QT_NUM_GPU.strip() else None
 QUERY_TRANSLATION_PROMPT = """你是藝術史檢索系統的查詢翻譯器。
@@ -585,7 +608,7 @@ class RAGStrategy:
 請提供準確、詳細的回答。如果參考資料中沒有相關信息，請誠實說明。
 如果問題指定了某個博物館或收藏機構，而參考資料中沒有屬於該機構的作品：只能說「檢索結果中沒有找到」，
 不得斷言該機構沒有收藏，也不得把其他機構的作品歸給該機構。
-"""
+{ANSWER_ZH_TW_RULE if ANSWER_ZH_TW else ""}"""
 
 
 class VectorOnlyRAG(RAGStrategy):
@@ -2423,6 +2446,8 @@ async def _prepare_query(request: QueryRequest) -> _QueryContext:
     )
     if display_names.enabled():  # 開關影響回答文字，併入答案快取鍵
         answer_cache_key += ":dn"
+    if ANSWER_ZH_TW:
+        answer_cache_key += ":tw"
     return _QueryContext(
         request=request,
         start_time=start_time,
@@ -2631,6 +2656,7 @@ async def process_query(request: QueryRequest):
                 temperature=ctx.temperature,
                 max_tokens=ctx.max_tokens,
             )
+            answer = to_zh_tw(answer)
             if display_names.enabled():  # 畫家譯名統一為台灣顯示名（規格 Q1）
                 answer = display_names.normalize(answer, ctx.request.query)
             _store_answer(ctx, answer)
@@ -2714,7 +2740,7 @@ async def process_query_stream(request: QueryRequest):
         return round((datetime.now() - ctx.start_time).total_seconds() * 1000, 1)
 
     def checked(sentences: list[str]) -> list[str]:
-        out = [s for s in (sentence_hook(x, ctx.sources) for x in sentences) if s]
+        out = [to_zh_tw(s) for s in (sentence_hook(x, ctx.sources) for x in sentences) if s]
         if not display_names.enabled():
             return out
         return [display_names.normalize(s, ctx.request.query) for s in out]
