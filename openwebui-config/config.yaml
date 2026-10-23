@@ -91,7 +91,7 @@ models:
 rag:
   enabled: true
   default_strategy: "hybrid_balanced"
-  api_endpoint: "http://host.docker.internal:8002"
+  api_endpoint: "http://127.0.0.1:8002"
   timeout: 30
 
   strategies:
@@ -139,7 +139,7 @@ functions:
     - name: "analyze_artwork_style"
       display_name: "藝術風格分析"
       description: "分析藝術品的風格特徵和時期歸屬"
-      endpoint: "http://host.docker.internal:8002/query"
+      endpoint: "http://127.0.0.1:8002/query"
       method: "POST"
       headers:
         Content-Type: "application/json"
@@ -147,13 +147,13 @@ functions:
     - name: "find_similar_artworks"
       display_name: "相似作品搜尋"
       description: "找到風格或主題相似的藝術作品"
-      endpoint: "http://host.docker.internal:8002/query"
+      endpoint: "http://127.0.0.1:8002/query"
       method: "POST"
 
     - name: "artist_relationship_query"
       display_name: "藝術家關係查詢"
       description: "查詢藝術家之間的影響關係和歷史聯繫"
-      endpoint: "http://host.docker.internal:8002/query"
+      endpoint: "http://127.0.0.1:8002/query"
       method: "POST"
 
 prompts:

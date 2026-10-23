@@ -5,31 +5,48 @@
 整合 Ollama 模型和 Neo4j/ChromaDB
 """
 
+import asyncio
 import hashlib
 import json
 import logging
 import os
+import re
+import time
+import unicodedata
+import uuid
 from collections import OrderedDict
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 import chromadb
+import display_names
+import graph_anchor
 import httpx
+import k_scorer
 import uvicorn
 
 # ChromaDB 共用 embedding function（BGE-M3，取代預設的英文為主模型）
-from bge_m3_embedding import BGEM3EmbeddingFunction
-from fastapi import FastAPI, HTTPException
+from bge_m3_embedding import BGEM3EmbeddingFunction, embed_urls
+from citations import build_citations
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+from graph_query import DEFAULT_MIN_RELATIVE_SCORE, apply_relative_cutoff, build_lucene_query
+from guard_coarse import CoarseResult, check_answer
 
 # 導入多語言查詢翻譯器
 from multilingual_query_translator import MultilingualQueryTranslator
 from neo4j import GraphDatabase
 from pydantic import BaseModel
+from redis_cache import RedisQueryCache, connect_redis, is_refusal
+from retrieval_fusion import DEFAULT_RRF_K, rrf_fuse
 
 # 導入智能關鍵詞提取器
 from smart_keyword_extractor import SmartKeywordExtractor
+from streaming import SentenceSplitter, ThinkFilter, ndjson, sentence_hook, with_heartbeat
 
 # 配置日誌
 logging.basicConfig(
@@ -84,7 +101,14 @@ class QueryCache:
         self.stats["misses"] += 1
         return None
 
-    def set(self, query: str, strategy: str, max_results: int, data: list[dict[str, Any]]):
+    def set(
+        self,
+        query: str,
+        strategy: str,
+        max_results: int,
+        data: list[dict[str, Any]],
+        doc_ids: Any = (),  # 介面同 RedisQueryCache；記憶體版不做來源失效
+    ):
         """設置緩存結果"""
         key = self._make_key(query, strategy, max_results)
 
@@ -136,11 +160,42 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:8080",
         "http://127.0.0.1:8080",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ==================== 稽核日誌（Phase 0：唯讀觀察，不影響回應內容） ====================
+# 對應設計文件 docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md。
+# 目的：先為現行請求量觀察一個穩定的 event_id，供 Phase 2 起 catalog.sync_events／
+# Phase 3 起 eval.measurements 建立關聯時使用；本階段不寫入任何資料庫、不改變任何回應內容。
+audit_logger = logging.getLogger("rag_audit")
+
+
+@app.middleware("http")
+async def audit_log_middleware(request: Request, call_next):
+    """記錄每次請求的 event_id／路徑／耗時，僅供觀察，不影響回應（S-15：不記密碼/個資原文）。"""
+    event_id = str(uuid.uuid4())
+    started_at = time.monotonic()
+    response = await call_next(request)
+    duration_ms = round((time.monotonic() - started_at) * 1000, 1)
+    audit_logger.info(
+        json.dumps(
+            {
+                "event_id": event_id,
+                "path": request.url.path,
+                "method": request.method,
+                "status_code": response.status_code,
+                "duration_ms": duration_ms,
+            },
+            ensure_ascii=False,
+        )
+    )
+    return response
+
 
 # ==================== 配置加載 ====================
 
@@ -148,9 +203,14 @@ config_path = Path(__file__).parent / "rag_config.json"
 with open(config_path, encoding="utf-8") as f:
     RAG_CONFIG = json.load(f)
 
+# 密碼不放在命令列（同機任何使用者用 ps 都看得到）：由 ENV_FILE 指向的 .env 讀入；
+# 已存在的環境變數優先，所以啟動時明確指定的埠、位址不會被 .env 內的舊值蓋掉
+if os.getenv("ENV_FILE"):
+    load_dotenv(os.environ["ENV_FILE"], override=False)
+
 # 環境變數配置
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-# 原生 Neo4j（WSL 直接執行，非 Docker），使用標準埠 bolt:7687 / http:7474。
+# 原生 Neo4j（WSL 直接執行），使用標準埠 bolt:7687 / http:7474。
 # 2026-09-20 前曾改用 7688/7475，因 WSL 系統自帶的 neo4j.service 佔用標準埠；
 # 該系統服務已停用，標準埠歸本專案。詳見 docs/2026-09-20-port-consolidation.md
 NEO4J_URI = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687")
@@ -158,12 +218,12 @@ NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 if not NEO4J_PASSWORD:
     raise RuntimeError(
-        "缺少 NEO4J_PASSWORD 環境變數。請在啟動前設定，例如："
-        "NEO4J_PASSWORD=... python3 unified_rag_manager_v2.py"
+        "缺少 NEO4J_PASSWORD 環境變數。請以 ENV_FILE=<.env 路徑> 指定密碼檔，例如："
+        "ENV_FILE=/mnt/f/.../.env python3 unified_rag_manager_v2.py"
         "（Start-NativeServices.ps1 已內建設定，不需手動處理）"
     )
 CHROMADB_HOST = os.getenv("CHROMADB_HOST", "localhost")
-CHROMADB_PORT = int(os.getenv("CHROMADB_PORT", "8001"))
+CHROMADB_PORT = int(os.getenv("CHROMADB_PORT", "8000"))
 CHROMADB_COLLECTION = os.getenv("CHROMADB_COLLECTION", "art_history_bgem3")
 
 # 關閉思考鏈的模型前綴（逗號分隔）。qwen3 系列的 <think> 階段佔生成時間大宗
@@ -184,6 +244,113 @@ ES_URL = os.getenv("ES_URL", "https://localhost:9200")
 ES_USERNAME = os.getenv("ES_USERNAME", "elastic")
 ES_PASSWORD = os.getenv("ES_PASSWORD")
 ES_INDEX = "art_history_hybrid"
+
+# 系統級三路 RRF（規格 RET-01～07）：model_combination_id 未帶 @策略 時採用 DEFAULT_STRATEGY；
+# 各路各取 HYBRID_TOP_K 筆，融合後取請求的 max_results；HYBRID_ROUTES 可逐路關閉（RET-03）
+DEFAULT_STRATEGY = "hybrid"
+RRF_K = int(os.getenv("RRF_K", str(DEFAULT_RRF_K)))
+HYBRID_TOP_K = int(os.getenv("HYBRID_TOP_K", "20"))
+# 每份入選文件附幾個段落（預設 1＝舊行為；理論題長條目證據不足，2026-10-16 試驗）
+HYBRID_CHUNKS_PER_DOC = int(os.getenv("HYBRID_CHUNKS_PER_DOC", "1"))
+# 生成模型讀入長度上限（Ollama num_ctx；未設定＝模型預設）；送更多段落時需放寬
+_GEN_NUM_CTX = os.getenv("GENERATION_NUM_CTX", "")
+GENERATION_NUM_CTX = int(_GEN_NUM_CTX) if _GEN_NUM_CTX.strip() else None
+HYBRID_ROUTES = [
+    r.strip() for r in os.getenv("HYBRID_ROUTES", "vector,fulltext,graph").split(",") if r.strip()
+]
+# 系統圖譜路：低於該次最高分此比例的全文命中視為弱命中而捨棄
+GRAPH_MIN_RELATIVE_SCORE = float(
+    os.getenv("GRAPH_MIN_RELATIVE_SCORE", str(DEFAULT_MIN_RELATIVE_SCORE))
+)
+
+# 是否記錄使用者提問（規格 BIZ-03：法規告知 P0-2 未完成前維持關閉）
+BIZ_LOGGING = os.getenv("BIZ_LOGGING", "false").lower() == "true"
+
+# Phase 4 防護（GRD-06、GRD-08）：shadow＝粗篩只計算並寫入 eval.guard_shadow、不改變回答；
+# off＝完全不執行。門檻須先以影子資料＋黃金集校準（GRD-05），故尚無阻擋模式
+GUARD_MODE = os.getenv("GUARD_MODE", "shadow").lower()
+
+# 查詢翻譯（設計 docs/designs/2026-10-09-llm-query-translation.md）：llm_hinted＝詞典找出已知術語
+# 作為提示，再由 LLM 譯成英文檢索用查詢，生成仍用原問題；dictionary＝原本的詞典替換行為
+QUERY_TRANSLATION = os.getenv("QUERY_TRANSLATION", "llm_hinted").lower()
+# same＝用本次請求的生成模型翻譯：筆電 GPU 只有 8 GB，翻譯與生成用不同模型時每題都要換模型、
+# 冷啟動逾時而退回詞典（spike 2026-10-09 實測）。
+# /retrieve 沒有生成模型時用 QUERY_TRANSLATION_DEFAULT_MODEL
+QUERY_TRANSLATION_MODEL = os.getenv("QUERY_TRANSLATION_MODEL", "same")
+QUERY_TRANSLATION_DEFAULT_MODEL = os.getenv("QUERY_TRANSLATION_DEFAULT_MODEL", "llama3.1:8b")
+QUERY_TRANSLATION_TIMEOUT_SEC = float(os.getenv("QUERY_TRANSLATION_TIMEOUT_SEC", "3"))
+# Ollama 閒置 5 分鐘即卸載模型，冷啟動載入會超過逾時而退回詞典；延長常駐並在啟動時預熱
+QUERY_TRANSLATION_KEEP_ALIVE = os.getenv("QUERY_TRANSLATION_KEEP_ALIVE", "30m")
+# 翻譯模型使用的 GPU 層數（Ollama num_gpu）；0＝只用 CPU，與生成模型不搶 8 GB 顯存、換生成模型時
+# 不被卸載（第 2 層 A1 方案 1，2026-10-14 實驗）。未設定＝Ollama 預設（現行行為）
+# 翻譯可改由另一個 Ollama 提供（例如只用 CPU 的 11435）：GPU Ollama 換載生成模型時會卸載閒置模型，
+# 即使翻譯模型只用 CPU 也會被一併卸載（2026-10-14 E13 實測）
+QUERY_TRANSLATION_OLLAMA_URL = os.getenv("QUERY_TRANSLATION_OLLAMA_URL", "") or None
+# 翻譯長度上限與重複懲罰：1024 是為會先思考的 deepseek-r1 而設；小模型（qwen3:1.7b，思考關閉）
+# 偶爾陷入重複迴圈直到上限（10-14 試做 1：T13 39 秒），逾時後 Ollama 仍佔住 CPU 拖慢下一題。
+# 試做結果：200＋重複懲罰 1.15 → 30 題全在 3 秒內、術語 0.867～0.872。預設不變
+QUERY_TRANSLATION_NUM_PREDICT = int(os.getenv("QUERY_TRANSLATION_NUM_PREDICT", "1024"))
+_QT_REPEAT = os.getenv("QUERY_TRANSLATION_REPEAT_PENALTY", "")
+QUERY_TRANSLATION_REPEAT_PENALTY = float(_QT_REPEAT) if _QT_REPEAT.strip() else None
+# 人名防呆（E25，2026-10-17）：詞典沒列的人名要求保留中文原字（模型會亂猜：席勒→Schiller、
+# 米勒→整個漏掉）；詞典提示的英文人名沒出現在譯文就補在句尾（聖齊奧→Saint Zachary）。預設關閉
+QUERY_TRANSLATION_NAME_GUARD = os.getenv("QUERY_TRANSLATION_NAME_GUARD", "0") == "1"
+NAME_GUARD_RULE = "詞典未列出的人名保留中文原字，不要自行翻譯、改寫或省略。\n"
+# 回答語言（2026-10-18 8080 測試：生成提示詞沒有指定語言，qwen3:8b 回答幾乎每次夾簡體字，
+# 也使台灣譯名比對失敗）。預設關閉
+ANSWER_ZH_TW = os.getenv("ANSWER_ZH_TW", "0") == "1"
+ANSWER_ZH_TW_RULE = "請一律使用繁體中文（臺灣用語）回答，不要使用簡體字。\n"
+# 提示詞只能把簡體字降約 95%（30 題 87→4 字）；開啟時回答另經 OpenCC s2twp 轉臺灣繁體，
+# 與 Open WebUI pipe 相同設定。於台灣譯名替換之前套用（譯名表是繁體）
+_zh_tw = None
+
+
+def to_zh_tw(text: str) -> str:
+    """ANSWER_ZH_TW=1 時把回答轉為臺灣繁體（OpenCC s2twp）；未安裝 OpenCC 時原樣回傳。"""
+    global _zh_tw
+    if not ANSWER_ZH_TW or not text:
+        return text
+    if _zh_tw is None:
+        try:
+            from opencc import OpenCC  # noqa: PLC0415 -- 只在開關開啟時需要
+
+            _zh_tw = OpenCC("s2twp")
+        except ImportError:
+            logger.warning("⚠️ ANSWER_ZH_TW=1 但未安裝 OpenCC，回答不做簡轉繁")
+            _zh_tw = False
+    return _zh_tw.convert(text) if _zh_tw else text
+_QT_NUM_GPU = os.getenv("QUERY_TRANSLATION_NUM_GPU", "")
+QUERY_TRANSLATION_NUM_GPU = int(_QT_NUM_GPU) if _QT_NUM_GPU.strip() else None
+QUERY_TRANSLATION_PROMPT = """你是藝術史檢索系統的查詢翻譯器。
+把下列中文問題翻成英文，供英文藝術史資料庫檢索。
+規則：藝術家用通行英文全名；作品用通行英文標題；藝術史術語用英文學界慣用詞；
+問題中已出現的拉丁文、義大利文、德文術語（如 Kunstwollen、colorito、sfumato）原樣保留。
+{hint}只輸出英文翻譯，不要解釋。
+問題：{query}"""
+_translation_cache: dict[tuple[str, str], tuple[str, dict[str, Any]]] = {}
+# llama3.1:8b 常不理會「只輸出翻譯」，先加「Here is the translation (of the problem):」之類開場白，
+# 這些字會直接進入檢索（spike 實測「林布蘭的肖像畫」命中 5→1）；去掉開場白與外圍引號
+_TRANSLATION_PREAMBLE = re.compile(
+    r"^\s*(here\s+is|here's|translation)\b[^:：]{0,60}[:：]\s*", re.IGNORECASE
+)
+_TRANSLATION_CACHE_MAX = 512
+
+
+def _clean_translation(text: str) -> str:
+    """把 LLM 譯文整理成單行檢索字串：去思考段落、開場白、換行與外圍引號。
+
+    deepseek-r1 不理會 think=false，會把 ``<think>…</think>`` 直接寫在回應裡；思考被長度上限
+    截斷（沒有結束標記）時整段不可用，回傳空字串讓呼叫端退回詞典。
+    """
+    text = re.sub(r"<think>.*?</think>", " ", text, flags=re.DOTALL)
+    if "<think>" in text:
+        return ""
+    text = " ".join(text.split())
+    text = _TRANSLATION_PREAMBLE.sub("", text)
+    return text.strip("\"'「」“” ")
+
+
+GUARD_HARD_TIMEOUT_SEC = float(os.getenv("GUARD_HARD_TIMEOUT_SEC", "30"))  # GRD-06c 掛住保護
 
 # ==================== 請求/響應模型 ====================
 
@@ -210,6 +377,8 @@ class QueryResponse(BaseModel):
     retrieval_time_ms: float
     generation_time_ms: float
     metadata: dict[str, Any]
+    # 規格 GEN-02：每個回應必附引用；index 對應提示詞中的「[文檔 N]」
+    citations: list[dict[str, Any]] = []
 
 
 class HealthResponse(BaseModel):
@@ -310,6 +479,47 @@ keyword_extractor = None
 
 # 全局查詢緩存
 query_cache = None
+CACHE_BACKEND = os.getenv("CACHE_BACKEND", "redis").lower()
+RAG_CACHE_REDIS_URL = os.getenv("RAG_CACHE_REDIS_URL", "redis://localhost:6379/0")
+
+
+# Google Books 空殼移出證據（規格 Q11，2026-10-14 實驗開關，預設關閉）：58 筆 googlebooks 全為空殼
+# （去書目後 ≤25 字，description 只是出版社名），在 hybrid 前 5 名佔位。設為 googlebooks_ 啟用。
+EXCLUDE_EVIDENCE_PREFIXES = tuple(
+    p for p in os.getenv("EXCLUDE_EVIDENCE_PREFIXES", "").split(",") if p.strip()
+)
+_EXCLUDE_MARGIN = 5  # 啟用時多取幾筆，過濾後仍能補滿 max_results
+
+
+def _es_query(query: str) -> dict[str, Any]:
+    """BM25 查詢；開啟證據排除時在 ES 查詢層就排除（parent_id＝external_id 前綴），
+    避免空殼佔滿前幾名、事後過濾後不足 5 筆（2026-10-16 體檢：fulltext Recall@5 0.465→0.102）。"""
+    match = {"match": {"content": query}}
+    if not EXCLUDE_EVIDENCE_PREFIXES:
+        return match
+    return {"bool": {"must": [match], "must_not": _es_exclude_clauses()}}
+
+
+def _es_exclude_clauses() -> list[dict[str, Any]]:
+    return [{"prefix": {"parent_id": p}} for p in EXCLUDE_EVIDENCE_PREFIXES]
+
+
+def _evidence_only(sources: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
+    """移除被排除前綴的來源（空殼不作為證據），再截到 limit。"""
+    if not EXCLUDE_EVIDENCE_PREFIXES:
+        return sources
+    kept = [
+        d
+        for d, c in zip(sources, build_citations(sources), strict=True)
+        if not (c.get("external_id") or "").startswith(EXCLUDE_EVIDENCE_PREFIXES)
+    ]
+    return kept[:limit]
+
+
+def _source_doc_ids(sources: list[dict[str, Any]]) -> list[str]:
+    """快取項用到的來源 doc_id（RET-12 反向索引）。"""
+    return [c["doc_id"] for c in build_citations(sources) if c.get("doc_id")]
+
 
 # ==================== RAG 策略實現 ====================
 
@@ -350,6 +560,7 @@ class RAGStrategy:
                 "options": {
                     "temperature": temperature,
                     "num_predict": max_tokens,
+                    **({"num_ctx": GENERATION_NUM_CTX} if GENERATION_NUM_CTX else {}),
                 },
             }
             if _no_think(model_id):
@@ -395,7 +606,9 @@ class RAGStrategy:
 用戶問題：{query}
 
 請提供準確、詳細的回答。如果參考資料中沒有相關信息，請誠實說明。
-"""
+如果問題指定了某個博物館或收藏機構，而參考資料中沒有屬於該機構的作品：只能說「檢索結果中沒有找到」，
+不得斷言該機構沒有收藏，也不得把其他機構的作品歸給該機構。
+{ANSWER_ZH_TW_RULE if ANSWER_ZH_TW else ""}"""
 
 
 class VectorOnlyRAG(RAGStrategy):
@@ -429,7 +642,9 @@ class VectorOnlyRAG(RAGStrategy):
             documents = []
             if results and results["documents"]:
                 for i, doc in enumerate(results["documents"][0]):
-                    metadata = results["metadatas"][0][i] if results["metadatas"] else {}
+                    metadata = dict(results["metadatas"][0][i]) if results["metadatas"] else {}
+                    # chunk id 供系統級 RRF 對齊文件（舊資料可能缺 parent_id）
+                    metadata.setdefault("chunk_id", results["ids"][0][i])
                     distance = results["distances"][0][i] if results["distances"] else 0
 
                     documents.append(
@@ -464,17 +679,20 @@ class HybridESRAG(RAGStrategy):
         super().__init__("Hybrid Elasticsearch RAG", "BM25 全文檢索 + 向量 kNN，RRF 融合排序")
 
     async def _embed_query(self, query: str) -> list[float] | None:
-        try:
-            response = await conn_manager.http_client.post(
-                f"{OLLAMA_BASE_URL}/api/embed",
-                json={"model": "bge-m3:latest", "input": [query]},
-                timeout=30.0,
-            )
-            response.raise_for_status()
-            return response.json()["embeddings"][0]
-        except Exception as e:
-            logger.error(f"Hybrid ES RAG 查詢向量化失敗: {e}")
-            return None
+        # 獨立的嵌入 Ollama 沒啟動時退回主 Ollama（同 bge_m3_embedding）
+        urls = embed_urls()
+        for url in urls:
+            try:
+                response = await conn_manager.http_client.post(
+                    f"{url}/api/embed",
+                    json={"model": "bge-m3:latest", "input": [query]},
+                    timeout=30.0,
+                )
+                response.raise_for_status()
+                return response.json()["embeddings"][0]
+            except Exception as e:
+                logger.error(f"Hybrid ES RAG 查詢向量化失敗（{url}）: {e}")
+        return None
 
     async def _es_search(self, body: dict[str, Any]) -> list[dict[str, Any]]:
         response = await conn_manager.es_http_client.post(
@@ -499,7 +717,7 @@ class HybridESRAG(RAGStrategy):
         try:
             bm25_hits, knn_hits = [], []
             bm25_body = {
-                "query": {"match": {"content": query}},
+                "query": _es_query(query),
                 "size": candidate_pool,
                 "_source": ["content", "source", "title", "artist", "date"],
             }
@@ -509,6 +727,11 @@ class HybridESRAG(RAGStrategy):
                     "query_vector": query_vector,
                     "k": candidate_pool,
                     "num_candidates": candidate_pool * 4,
+                    **(
+                        {"filter": {"bool": {"must_not": _es_exclude_clauses()}}}
+                        if EXCLUDE_EVIDENCE_PREFIXES
+                        else {}
+                    ),
                 },
                 "size": candidate_pool,
                 "_source": ["content", "source", "title", "artist", "date"],
@@ -543,6 +766,7 @@ class HybridESRAG(RAGStrategy):
                         "artist": src.get("artist", ""),
                         "date": src.get("date", ""),
                         "source": src.get("source", ""),
+                        "chunk_id": doc_id,  # ES _id 即 chunk id，供引用對應 catalog
                     },
                     "score": rrf_scores[doc_id],
                     "source": src.get("source", "Elasticsearch Hybrid"),
@@ -551,6 +775,98 @@ class HybridESRAG(RAGStrategy):
 
         logger.info(f"Hybrid ES RAG 檢索返回 {len(documents)} 個結果（BM25+kNN RRF 融合）")
         return documents
+
+
+class FulltextESRAG(HybridESRAG):
+    """純全文檢索：Elasticsearch BM25（系統級 RRF 的全文路，RET-01 ``fulltext``）"""
+
+    def __init__(self):
+        RAGStrategy.__init__(self, "Fulltext ES RAG", "Elasticsearch BM25 全文檢索")
+
+    async def retrieve(self, query: str, max_results: int = 5) -> list[dict[str, Any]]:
+        if not ES_PASSWORD:
+            logger.warning("ES_PASSWORD 未設定，全文檢索無法使用，返回空結果")
+            return []
+        body = {
+            "query": _es_query(query),
+            "size": max_results,
+            "_source": ["content", "source", "title", "artist", "date", "parent_id"],
+        }
+        try:
+            hits = await self._es_search(body)
+        except Exception as e:
+            logger.error(f"全文檢索失敗: {e}")
+            return []
+
+        documents = []
+        for hit in hits:
+            src = hit["_source"]
+            documents.append(
+                {
+                    "content": src.get("content", ""),
+                    "metadata": {
+                        "title": src.get("title", ""),
+                        "artist": src.get("artist", ""),
+                        "date": src.get("date", ""),
+                        "source": src.get("source", ""),
+                        "parent_id": src.get("parent_id", ""),
+                        "chunk_id": hit["_id"],
+                    },
+                    "score": hit.get("_score") or 0.0,
+                    "source": src.get("source", "Elasticsearch"),
+                }
+            )
+        logger.info(f"全文檢索返回 {len(documents)} 個結果（BM25）")
+        return documents
+
+
+class SystemHybridRAG(RAGStrategy):
+    """系統級三路 RRF：向量＋全文＋圖並行檢索後以 RRF 融合（RET-01 ``hybrid``、RET-04～07）
+
+    不做重排（RET-05／06：先取得量測基準）。某一路失敗或未啟用時以其餘路融合，
+    ``metadata.fusion.ranks`` 可看出每份文件來自哪幾路。
+    """
+
+    def __init__(self, routes: dict[str, RAGStrategy]):
+        super().__init__("System Hybrid RAG", "向量＋全文＋圖三路檢索，系統級 RRF 融合")
+        self.routes = routes
+
+    async def retrieve(self, query: str, max_results: int = 5) -> list[dict[str, Any]]:
+        enabled = [r for r in HYBRID_ROUTES if r in self.routes]
+        results = await asyncio.gather(
+            *(
+                self.routes[r].retrieve(query, HYBRID_TOP_K, fallback=False)
+                if r == "graph" and isinstance(self.routes[r], SystemGraphRAG)
+                else self.routes[r].retrieve(query, HYBRID_TOP_K)
+                for r in enabled
+            ),
+            return_exceptions=True,
+        )
+        ranked: dict[str, list[dict[str, Any]]] = {}
+        for route, result in zip(enabled, results, strict=True):
+            if isinstance(result, BaseException):
+                logger.error(f"三路 RRF 的 {route} 路失敗，略過: {result}")
+                continue
+            ranked[route] = result
+
+        # 限制條件題（錨點模板 T2：畫家 × 館藏）命中時只採 graph 結果：其他兩路不會套用館藏條件，
+        # 融合後會擠掉符合條件的作品（spike 限制條件 F1：graph 0.970、hybrid 0.665，2026-10-11）
+        graph_docs = ranked.get("graph") or []
+        if graph_docs and all(
+            (d.get("metadata") or {}).get("graph_match") == "anchor:T2" for d in graph_docs
+        ):
+            logger.info(f"三路 RRF：限制條件題由 graph 錨點 T2 直接回傳 {len(graph_docs)} 筆")
+            return graph_docs[:max_results]
+        fused = rrf_fuse(ranked, k=RRF_K, top_n=max_results, chunks_per_doc=HYBRID_CHUNKS_PER_DOC)
+        counts = "／".join(f"{r} {len(docs)}" for r, docs in ranked.items())
+        logger.info(f"三路 RRF 融合返回 {len(fused)} 個結果（各路候選：{counts}）")
+        return fused
+
+
+# Neo4j 節點上僅供資料維護使用的欄位（軟到期／軟刪除時間戳），不放進提供給模型的文字
+_GRAPH_INTERNAL_KEYS = frozenset(
+    {"valid_from", "valid_to", "is_deleted", "deleted_at", "updated_at"}
+)
 
 
 class GraphOnlyRAG(RAGStrategy):
@@ -564,6 +880,15 @@ class GraphOnlyRAG(RAGStrategy):
         if not conn_manager.neo4j_driver:
             logger.warning("Neo4j 未連接，返回空結果")
             return []
+        # 方案 A 擴及舊策略（Graph RAG、Advanced、Agentic 皆經此類）：問題中認得出畫家時改用
+        # 錨點結果，避免下方 Lucene「~」模糊比對把 Nicolas Poussin 錯配成 Nicolas Castille
+        # （2026-10-13 模擬 F4）。認不出畫家時維持原行為——此時沒有可錯配的畫家，不會退步。
+        if GRAPH_RETRIEVAL == "anchor" and type(self) is GraphOnlyRAG:
+            anchored = await _SYSTEM_ROUTES["graph"]._anchor_retrieve(
+                query, max_results, fallback=False
+            )
+            if anchored:
+                return anchored
 
         try:
             # 查詢改寫/實體正規化：跟 AdvancedGraphRAG 一樣，先用術語詞典把中文人名/作品名
@@ -646,6 +971,7 @@ class GraphOnlyRAG(RAGStrategy):
                     WITH node as artist, score
                     LIMIT $limit
                     OPTIONAL MATCH (artist)-[r:CREATED]->(artwork:Artwork)
+                    WHERE r.valid_to IS NULL AND coalesce(artwork.is_deleted, false) = false
                     RETURN artist as n, score,
                            collect({rel: type(r), node: artwork}) as relationships
                     """
@@ -702,9 +1028,11 @@ class GraphOnlyRAG(RAGStrategy):
                     artwork_title_query = """
                     CALL db.index.fulltext.queryNodes('artwork_title_fulltext', $search_term)
                     YIELD node, score
+                    WHERE coalesce(node.is_deleted, false) = false
                     WITH node as artwork, score
                     LIMIT $limit
                     OPTIONAL MATCH (artwork)-[r]-(related)
+                    WHERE r.valid_to IS NULL AND coalesce(related.is_deleted, false) = false
                     RETURN artwork as n, score,
                            collect({rel: type(r), node: related}) as relationships
                     """
@@ -798,9 +1126,11 @@ class GraphOnlyRAG(RAGStrategy):
         node_name = node.get("title") or node.get("name", "未知")
         content = f"實體: {node_name}\n"
 
-        # 添加屬性 - 安全處理各種類型
+        # 添加屬性 - 安全處理各種類型；生命週期欄位與舊的單值 source（已由 sources 取代）
+        # 不是給模型看的內容，放進去只會增加雜訊，甚至讓過時的來源被當成事實引用
+        skip_keys = _GRAPH_INTERNAL_KEYS | ({"source"} if node.get("sources") else set())
         for key, value in node.items():
-            if key not in ["name", "title"] and value:
+            if key not in ["name", "title"] and key not in skip_keys and value:
                 # 安全序列化value
                 if isinstance(value, (list, tuple, dict)):
                     content += f"{key}: {str(value)}\n"
@@ -824,6 +1154,227 @@ class GraphOnlyRAG(RAGStrategy):
                     content += f"  - {rel_type} -> {rel_node}\n"
 
         return content
+
+
+_ARTWORK_BY_TITLE = """
+CALL db.index.fulltext.queryNodes('artwork_title_fulltext', $q) YIELD node, score
+WHERE coalesce(node.is_deleted, false) = false
+RETURN node AS artwork, score ORDER BY score DESC LIMIT $limit
+"""
+
+_ARTIST_BY_NAME = """
+CALL db.index.fulltext.queryNodes('artist_name_fulltext', $q) YIELD node, score
+RETURN elementId(node) AS artist_id, score ORDER BY score DESC LIMIT $limit
+"""
+
+_ARTWORKS_OF_ARTISTS = """
+UNWIND $artists AS a
+MATCH (x:Artist)-[c:CREATED]->(artwork:Artwork)
+WHERE elementId(x) = a.artist_id AND c.valid_to IS NULL
+  AND coalesce(artwork.is_deleted, false) = false
+WITH artwork, max(a.score) AS score
+RETURN artwork, score ORDER BY score DESC LIMIT $limit
+"""
+
+_ARTWORK_RELATIONSHIPS = """
+MATCH (artwork:Artwork) WHERE elementId(artwork) = $artwork_id
+OPTIONAL MATCH (artwork)-[r]-(related)
+WHERE r.valid_to IS NULL AND coalesce(related.is_deleted, false) = false
+RETURN collect({rel: type(r), node: related}) AS relationships
+"""
+
+
+def _node_metadata(node) -> dict[str, Any]:
+    """Neo4j 節點屬性轉成可序列化的 metadata。"""
+    metadata: dict[str, Any] = {}
+    for key, value in node.items():
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            metadata[key] = value
+        elif hasattr(value, "isoformat"):
+            metadata[key] = value.isoformat()
+        else:
+            metadata[key] = str(value)
+    return metadata
+
+
+# 圖譜檢索修復方案 A（2026-10-13 老師核可上線）：anchor＝畫家錨點＋模板＋退回（預設）；
+# legacy＝舊版關鍵詞模糊比對，僅作回滾（設計
+# docs/designs/2026-10-11-graph-retrieval-anchor.md）
+GRAPH_RETRIEVAL = os.getenv("GRAPH_RETRIEVAL", "anchor")
+# 錨點查無時，非事實題（關係／理論）的退回路由（規格 Q2，2026-10-14 實驗開關）：
+# 預設 fulltext（現行行為）；可設 vector 或 hybrid 比較理論題
+GRAPH_FALLBACK_NONFACT = os.getenv("GRAPH_FALLBACK_NONFACT", "fulltext")
+if GRAPH_FALLBACK_NONFACT not in ("fulltext", "vector", "hybrid"):
+    raise ValueError(
+        f"GRAPH_FALLBACK_NONFACT 只能是 fulltext／vector／hybrid：{GRAPH_FALLBACK_NONFACT}"
+    )
+_alias_table = None
+
+
+def _graph_alias_table():
+    global _alias_table
+    if _alias_table is None:
+        _alias_table = graph_anchor.AliasTable()
+    return _alias_table
+
+
+class SystemGraphRAG(GraphOnlyRAG):
+    """系統圖譜路（RET-01 ``graph``）：只回傳 Artwork，讓 RRF 能以文件 id 與另外兩路對齊
+
+    與舊 ``graph_only`` 的差異（2026-10-01，舊策略保留作對照組）：
+    1. 先查作品標題，再由藝術家展開其作品；不回傳 Artist 節點本身（沒有文件 id）
+    2. 不做模糊比對，多字詞以片語查詢，所有關鍵詞一次查詢
+    3. 以相對分數門檻 ``GRAPH_MIN_RELATIVE_SCORE`` 濾掉弱命中
+    """
+
+    def __init__(self):
+        RAGStrategy.__init__(self, "System Graph RAG", "作品標題＋藝術家展開作品的圖譜檢索")
+
+    def _search_terms(self, query: str) -> list[str]:
+        normalized = query
+        if query_translator:
+            try:
+                normalized, _ = query_translator.translate_terms(query)
+            except Exception as e:
+                logger.warning(f"實體正規化失敗: {e}")
+        if keyword_extractor:
+            terms, _ = keyword_extractor.extract_keywords(
+                normalized, max_keywords=5, min_word_length=3
+            )
+            if terms:
+                return terms
+        import re  # noqa: PLC0415 -- 僅關鍵詞抽取器不可用時的後備
+
+        return re.findall(r"[a-zA-Z]{3,}", normalized) or [normalized]
+
+    async def retrieve(
+        self, query: str, max_results: int = 5, fallback: bool = True
+    ) -> list[dict[str, Any]]:
+        if not conn_manager.neo4j_driver:
+            logger.warning("Neo4j 未連接，返回空結果")
+            return []
+        if GRAPH_RETRIEVAL == "anchor":
+            return await self._anchor_retrieve(query, max_results, fallback)
+        lucene = build_lucene_query(self._search_terms(query))
+        if not lucene:
+            return []
+
+        try:
+            with conn_manager.neo4j_driver.session() as session:
+                # 作品保留原始 Record（.data() 會把節點轉成 dict，失去 element_id）
+                titled = apply_relative_cutoff(
+                    list(session.run(_ARTWORK_BY_TITLE, q=lucene, limit=max_results)),
+                    GRAPH_MIN_RELATIVE_SCORE,
+                )
+                artists = apply_relative_cutoff(
+                    session.run(_ARTIST_BY_NAME, q=lucene, limit=max_results).data(),
+                    GRAPH_MIN_RELATIVE_SCORE,
+                )
+                by_artist = (
+                    list(session.run(_ARTWORKS_OF_ARTISTS, artists=artists, limit=max_results))
+                    if artists
+                    else []
+                )
+
+                documents: list[dict[str, Any]] = []
+                seen: set[str] = set()
+                for row, via in [(r, "title") for r in titled] + [(r, "artist") for r in by_artist]:
+                    artwork = row["artwork"]
+                    key = artwork.get("id") or artwork.get("title")
+                    if not key or key in seen:
+                        continue
+                    seen.add(key)
+                    relationships = session.run(
+                        _ARTWORK_RELATIONSHIPS, artwork_id=artwork.element_id
+                    ).single()["relationships"]
+                    metadata = _node_metadata(artwork)
+                    metadata["graph_match"] = via
+                    documents.append(
+                        {
+                            "content": self._format_graph_node(artwork, relationships),
+                            "metadata": metadata,
+                            "score": float(row["score"]),
+                            "source": "Neo4j Knowledge Graph (Artwork)",
+                        }
+                    )
+                    if len(documents) >= max_results:
+                        break
+        except Exception as e:
+            logger.error(f"系統圖譜檢索失敗: {e}")
+            return []
+
+        logger.info(
+            f"系統圖譜檢索返回 {len(documents)} 個結果"
+            f"（標題命中 {len(titled)}、藝術家 {len(artists)} 位展開 {len(by_artist)} 件）"
+        )
+        return documents
+
+    async def _anchor_retrieve(
+        self, query: str, max_results: int, fallback: bool
+    ) -> list[dict[str, Any]]:
+        """方案 A：錨點（M2）→ 模板 T1／T2（M3）→ 查無或 0 列時依題型退回（M4）→ 日誌（M5）。"""
+        original = graph_anchor.ORIGINAL_QUERY.get()
+        anchor = _graph_alias_table().anchor(original, query)
+        template, params = graph_anchor.choose_template(original, query)
+        log = {
+            "original": original,
+            "retrieval_query": query,
+            "anchors": anchor.matched,
+            "artist_nodes": len(anchor.names),
+            "template": template if anchor.hit else None,
+            "params": params if anchor.hit else {},
+        }
+        records: list = []
+        if anchor.hit:
+            cypher = graph_anchor.cypher_for(template, params)
+            try:
+                with conn_manager.neo4j_driver.session() as session:
+                    records = list(session.run(cypher, names=anchor.names, **params))
+                    ranked = graph_anchor.rank_artworks(records, query, max_results)
+                    documents = []
+                    for score, row in ranked:
+                        artwork = row["artwork"]
+                        relationships = session.run(
+                            _ARTWORK_RELATIONSHIPS, artwork_id=artwork.element_id
+                        ).single()["relationships"]
+                        metadata = _node_metadata(artwork)
+                        metadata["graph_match"] = f"anchor:{template}"
+                        documents.append(
+                            {
+                                "content": self._format_graph_node(artwork, relationships),
+                                "metadata": metadata,
+                                "score": float(score),
+                                "source": "Neo4j Knowledge Graph (Artwork)",
+                            }
+                        )
+            except Exception as e:
+                logger.error(f"錨點圖譜檢索失敗: {e}")
+                records, documents = [], []
+            log["rows"] = len(records)
+            if documents:
+                log.update(fallback=None, returned=[d["metadata"].get("id") for d in documents])
+                graph_anchor.write_log(log)
+                return documents
+        else:
+            log["rows"] = 0
+        route = (
+            "vector" if graph_anchor.question_type(original) == "fact" else GRAPH_FALLBACK_NONFACT
+        )
+        if not fallback:  # 呼叫端自行處理（三路融合已含 vector／fulltext；舊策略走原流程）
+            log.update(fallback="none(caller)", returned=[])
+            graph_anchor.write_log(log)
+            return []
+        # hybrid 內部呼叫 graph 時帶 fallback=False，不會遞迴
+        documents = await RAG_STRATEGIES[route].retrieve(query, max_results)
+        for d in documents:
+            d.setdefault("metadata", {})["graph_fallback"] = route
+        log.update(
+            fallback=route,
+            reason="abstain" if not anchor.hit else "zero_rows",
+            returned=[(d.get("metadata") or {}).get("id") for d in documents],
+        )
+        graph_anchor.write_log(log)
+        return documents
 
 
 class AdvancedGraphRAG(RAGStrategy):
@@ -882,11 +1433,12 @@ class AdvancedGraphRAG(RAGStrategy):
                     CALL db.index.fulltext.queryNodes('artist_name_fulltext', $search_term)
                     YIELD node AS artist, score
                     WITH artist, score LIMIT $limit
-                    OPTIONAL MATCH (artist)-[:CREATED]->(artwork:Artwork)
+                    OPTIONAL MATCH (artist)-[c:CREATED]->(artwork:Artwork)
+                    WHERE c.valid_to IS NULL AND coalesce(artwork.is_deleted, false) = false
                     WITH artist, score, collect(DISTINCT artwork) as artworks
                     UNWIND (CASE WHEN size(artworks) = 0 THEN [null] ELSE artworks END) as aw
                     OPTIONAL MATCH (aw)-[r2]->(ext)
-                    WHERE aw IS NULL OR type(r2) IN $ext_types
+                    WHERE aw IS NULL OR (type(r2) IN $ext_types AND r2.valid_to IS NULL)
                     RETURN artist AS n, score, 'Artist' as node_type,
                            collect(DISTINCT CASE WHEN aw IS NOT NULL
                                THEN {rel: 'CREATED', node: aw} END) as hop1,
@@ -907,10 +1459,12 @@ class AdvancedGraphRAG(RAGStrategy):
                     artwork_query = """
                     CALL db.index.fulltext.queryNodes('artwork_title_fulltext', $search_term)
                     YIELD node AS artwork, score
+                    WHERE coalesce(artwork.is_deleted, false) = false
                     WITH artwork, score LIMIT $limit
-                    OPTIONAL MATCH (artist:Artist)-[:CREATED]->(artwork)
+                    OPTIONAL MATCH (artist:Artist)-[c:CREATED]->(artwork)
+                    WHERE c.valid_to IS NULL
                     OPTIONAL MATCH (artwork)-[r2]->(ext)
-                    WHERE r2 IS NULL OR type(r2) IN $ext_types
+                    WHERE r2 IS NULL OR (type(r2) IN $ext_types AND r2.valid_to IS NULL)
                     RETURN artwork AS n, score, 'Artwork' as node_type,
                            collect(DISTINCT CASE WHEN artist IS NOT NULL
                                THEN {rel: 'CREATED_BY', node: artist} END) as hop1,
@@ -1271,8 +1825,19 @@ class NaiveRAG(RAGStrategy):
 
 # RAG 策略註冊表
 _graph_only_strategy = GraphOnlyRAG()
+_vector_strategy = VectorOnlyRAG()
+
+# 系統級三路檢索（RET-01）：與下方舊策略並存，舊 id 待黃金集基準比較後再另行移除
+# （2026-10-01 使用者選定方案 A，見 docs/decision-log.md）
+_SYSTEM_ROUTES: dict[str, RAGStrategy] = {
+    "vector": _vector_strategy,
+    "fulltext": FulltextESRAG(),
+    "graph": SystemGraphRAG(),
+}
 
 RAG_STRATEGIES = {
+    **_SYSTEM_ROUTES,
+    "hybrid": SystemHybridRAG(_SYSTEM_ROUTES),
     "vector_only": VectorOnlyRAG(),
     "hybrid_es_rag": HybridESRAG(),
     "graph_only": _graph_only_strategy,
@@ -1303,27 +1868,46 @@ async def startup_event():
     try:
         query_translator = MultilingualQueryTranslator()
         logger.info("✅ 多語言查詢翻譯器已初始化")
+        if QUERY_TRANSLATION == "llm_hinted":
+            _schedule_translation_warmup()
     except Exception as e:
         logger.warning(f"⚠️ 多語言翻譯器初始化失敗: {e}，將繼續使用原始查詢")
         query_translator = None
 
+    if K_SCORER:  # 預先載入 K 評分器（首次載入約 6 秒，不要算在第一位使用者頭上）
+        task = asyncio.create_task(asyncio.to_thread(k_scorer.warmup))
+        _background_tasks.add(task)
+        task.add_done_callback(_background_tasks.discard)
+
     # 初始化智能關鍵詞提取器
     try:
-        keyword_extractor = SmartKeywordExtractor(translator=query_translator, log_queries=True)
+        # 查詢日誌含使用者提問原文，與 biz 紀錄同受 BIZ_LOGGING 管制（規格 BIZ-03，預設關閉）
+        keyword_extractor = SmartKeywordExtractor(
+            translator=query_translator, log_queries=BIZ_LOGGING
+        )
         logger.info("✅ 智能關鍵詞提取器已初始化")
     except Exception as e:
         logger.warning(f"⚠️ 關鍵詞提取器初始化失敗: {e}，將使用基礎提取")
         keyword_extractor = None
 
-    # 初始化查詢緩存
-    try:
-        cache_size = int(os.getenv("QUERY_CACHE_SIZE", "1000"))
-        cache_ttl = int(os.getenv("QUERY_CACHE_TTL", "3600"))
-        query_cache = QueryCache(max_size=cache_size, ttl_seconds=cache_ttl)
-        logger.info(f"✅ 查詢緩存已初始化 (大小: {cache_size}, TTL: {cache_ttl}秒)")
-    except Exception as e:
-        logger.warning(f"⚠️ 查詢緩存初始化失敗: {e}")
-        query_cache = None
+    # 初始化查詢緩存：預設 Redis（RET-11，決策 B10 一般鍵值快取）；連不上時退回程序內快取
+    cache_size = int(os.getenv("QUERY_CACHE_SIZE", "1000"))
+    cache_ttl = int(os.getenv("QUERY_CACHE_TTL", "3600"))
+    query_cache = None
+    if CACHE_BACKEND == "redis":
+        try:
+            client = connect_redis(RAG_CACHE_REDIS_URL, os.getenv("REDIS_PASSWORD"))
+            query_cache = RedisQueryCache(client, ttl_seconds=cache_ttl)
+            logger.info(f"✅ 查詢緩存：Redis {RAG_CACHE_REDIS_URL}（TTL: {cache_ttl}秒）")
+        except Exception as e:
+            logger.warning(f"⚠️ Redis 快取無法使用（{e}），退回程序內快取")
+    if query_cache is None:
+        try:
+            query_cache = QueryCache(max_size=cache_size, ttl_seconds=cache_ttl)
+            logger.info(f"✅ 查詢緩存：程序內 (大小: {cache_size}, TTL: {cache_ttl}秒)")
+        except Exception as e:
+            logger.warning(f"⚠️ 查詢緩存初始化失敗: {e}")
+            query_cache = None
 
     logger.info("✅ RAG 管理器服務已就緒")
 
@@ -1401,42 +1985,339 @@ async def clear_cache():
         return {"success": False, "message": "Cache not enabled"}
 
 
+def _read_open_alerts() -> list[dict[str, Any]]:
+    from ingest.alerts import open_alerts  # noqa: PLC0415 -- 延遲載入，DB 問題不影響服務啟動
+    from ingest.db import connect  # noqa: PLC0415
+
+    with connect() as conn:
+        alerts = open_alerts(conn)
+    for alert in alerts:
+        alert["delta_pct"] = float(alert["delta_pct"])
+    return alerts
+
+
+@app.get("/api/v1/eval/alerts")
+async def list_open_alerts():
+    """未處理告警（規格 EVL-12、API §11 ``/eval/alerts``），critical 在前"""
+    try:
+        alerts = await asyncio.to_thread(_read_open_alerts)
+    except Exception as e:
+        logger.error(f"讀取告警失敗: {e}")
+        raise HTTPException(status_code=503, detail="無法讀取 eval.alerts") from e
+    return {"alerts": alerts, "total": len(alerts)}
+
+
+def _route_for_source_filter(
+    rag_strategy: str, strategy: RAGStrategy, source_filter: str | None
+) -> tuple[str, RAGStrategy]:
+    """只有向量策略支援 source_filter；帶了過濾條件就改走 vector，避免條件被默默忽略。"""
+    if source_filter and not isinstance(strategy, VectorOnlyRAG):
+        logger.info(f"source_filter={source_filter}：策略 {rag_strategy} 不支援，改走 vector")
+        return "vector", RAG_STRATEGIES["vector"]
+    return rag_strategy, strategy
+
+
+def _translation_model(llm_model: str | None) -> str:
+    """翻譯用的模型：same 時用生成模型（未知模型改用預設），否則用設定值。"""
+    if QUERY_TRANSLATION_MODEL != "same":
+        return QUERY_TRANSLATION_MODEL
+    known = RAG_CONFIG.get("llm_models", {})
+    return llm_model if llm_model in known else QUERY_TRANSLATION_DEFAULT_MODEL
+
+
+async def _warm_translation_model(model: str | None = None) -> None:
+    """請 Ollama 載入翻譯模型並常駐；失敗只記 log。
+
+    送一題真實格式的翻譯提示詞（只生成 1 個 token）：只載入模型時，第一題真實查詢仍要在 CPU
+    上處理整段提示詞而超過逾時、退回詞典（2026-10-18 系統串接測試 8011 冷啟動第一題 3008 ms）。
+    """
+    model = _translation_model(model)
+    hint = NAME_GUARD_RULE if QUERY_TRANSLATION_NAME_GUARD else ""
+    try:
+        await conn_manager.http_client.post(
+            f"{QUERY_TRANSLATION_OLLAMA_URL or OLLAMA_BASE_URL}/api/generate",
+            json={
+                "model": model,
+                "prompt": QUERY_TRANSLATION_PROMPT.format(hint=hint, query="林布蘭的作品"),
+                "stream": False,
+                "think": False,
+                "keep_alive": QUERY_TRANSLATION_KEEP_ALIVE,
+                # 預熱須與翻譯請求同一 num_gpu，否則先載進 GPU、翻譯時又以 CPU 重新載入
+                "options": {
+                    "num_predict": 1,
+                    **(
+                        {"num_gpu": QUERY_TRANSLATION_NUM_GPU}
+                        if QUERY_TRANSLATION_NUM_GPU is not None
+                        else {}
+                    ),
+                },
+            },
+            timeout=120.0,
+        )
+        logger.info(f"✅ 翻譯模型 {model} 已預熱")
+    except Exception as e:
+        logger.warning(f"⚠️ 翻譯模型預熱失敗: {e!r}")
+
+
+def _schedule_translation_warmup(model: str | None = None) -> None:
+    task = asyncio.create_task(_warm_translation_model(model))
+    _background_tasks.add(task)
+    task.add_done_callback(_background_tasks.discard)
+
+
+def _fold(text: str) -> str:
+    return "".join(
+        c for c in unicodedata.normalize("NFKD", text) if not unicodedata.combining(c)
+    ).lower()
+
+
+def _append_missing_names(text: str, found_terms: list[str]) -> tuple[str, list[str]]:
+    """詞典提示的人名（英文）沒出現在譯文就補在句尾；回傳 (譯文, 補上的人名)。"""
+    persons = getattr(query_translator, "person_terms", set())
+    missing = []
+    for term in found_terms:
+        en = term.split(" -> ", 1)[-1]
+        if en in persons and _fold(en) not in _fold(text) and en not in missing:
+            missing.append(en)
+    return (f"{text} ({', '.join(missing)})" if missing else text), missing
+
+
+async def translate_for_retrieval(
+    query: str, llm_model: str | None = None
+) -> tuple[str, dict[str, Any] | None]:
+    """產生檢索用查詢；英文問題原樣使用。
+
+    Returns:
+        (檢索用查詢, 翻譯資訊)；未翻譯時資訊為 None。``llm_hinted`` 模式下 LLM 失敗或逾時
+        退回詞典結果（method=fallback），不影響回答。
+    """
+    if not query_translator:
+        return query, None
+    model = _translation_model(llm_model)
+    if (model, query) in _translation_cache:
+        return _translation_cache[(model, query)]
+    start = time.monotonic()
+    result = query_translator.translate_query(query)
+    if result["detected_language"] == "en":
+        return query, None
+    dictionary_query = result["translated_query"] if result["found_terms"] else query
+    info: dict[str, Any] = {
+        "original_query": query,
+        "detected_language": result["detected_language"],
+        "found_terms": result["found_terms"],
+    }
+    retrieval_query, method = dictionary_query, "dictionary"
+    if QUERY_TRANSLATION == "llm_hinted":
+        hint = (
+            "已知術語對照（請採用）：" + "；".join(result["found_terms"]) + "\n"
+            if result["found_terms"]
+            else ""
+        )
+        if QUERY_TRANSLATION_NAME_GUARD:
+            hint += NAME_GUARD_RULE
+        try:
+            response = await conn_manager.http_client.post(
+                f"{QUERY_TRANSLATION_OLLAMA_URL or OLLAMA_BASE_URL}/api/generate",
+                json={
+                    "model": model,
+                    "prompt": QUERY_TRANSLATION_PROMPT.format(hint=hint, query=query[:500]),
+                    "stream": False,
+                    "think": False,
+                    # 會先思考的模型（deepseek-r1）思考也算在長度內，300 會被截斷
+                    "options": {
+                        "temperature": 0,
+                        "num_predict": QUERY_TRANSLATION_NUM_PREDICT,
+                        **(
+                            {"repeat_penalty": QUERY_TRANSLATION_REPEAT_PENALTY}
+                            if QUERY_TRANSLATION_REPEAT_PENALTY is not None
+                            else {}
+                        ),
+                        **(
+                            {"num_gpu": QUERY_TRANSLATION_NUM_GPU}
+                            if QUERY_TRANSLATION_NUM_GPU is not None
+                            else {}
+                        ),
+                    },
+                    "keep_alive": QUERY_TRANSLATION_KEEP_ALIVE,
+                },
+                timeout=QUERY_TRANSLATION_TIMEOUT_SEC,
+            )
+            response.raise_for_status()
+            text = _clean_translation(response.json().get("response", ""))
+            if text and QUERY_TRANSLATION_NAME_GUARD:
+                text, info["names_appended"] = _append_missing_names(text, result["found_terms"])
+            if text:
+                retrieval_query, method = text, "llm_hinted"
+            else:
+                method = "fallback"
+        except Exception as e:
+            logger.warning(f"⚠️ LLM 查詢翻譯失敗，退回詞典: {e!r}")
+            method = "fallback"
+            _schedule_translation_warmup(model)  # 多半是冷啟動：背景載入模型，下一題就能用
+    info.update(
+        retrieval_query=retrieval_query,
+        method=method,
+        model=model,
+        ms=round((time.monotonic() - start) * 1000, 1),
+    )
+    if method != "fallback":  # 暫時性失敗不快取，下次再試 LLM
+        if len(_translation_cache) >= _TRANSLATION_CACHE_MAX:
+            _translation_cache.pop(next(iter(_translation_cache)))
+        _translation_cache[(model, query)] = (retrieval_query, info)
+    return retrieval_query, info
+
+
 @app.post("/api/v1/retrieve")
 async def process_retrieve_only(request: QueryRequest):
     """僅檢索、不生成答案 —— 用於事後回填評測用的原文片段（Faithfulness 計算）"""
     rag_strategy = request.model_combination_id.split("@")[-1]
+    if "@" not in request.model_combination_id and rag_strategy not in RAG_STRATEGIES:
+        rag_strategy = DEFAULT_STRATEGY  # 只給模型名稱時採預設策略（RET-02）
     strategy = RAG_STRATEGIES.get(rag_strategy)
     if not strategy:
         raise HTTPException(status_code=404, detail=f"未找到 RAG 策略: {rag_strategy}")
+    rag_strategy, strategy = _route_for_source_filter(rag_strategy, strategy, request.source_filter)
 
-    query_text = request.query
-    if query_translator:
-        try:
-            translation_result = query_translator.translate_query(request.query)
-            if (
-                translation_result["detected_language"] != "en"
-                and translation_result["found_terms"]
-            ):
-                query_text = translation_result["translated_query"]
-        except Exception as e:
-            logger.warning(f"⚠️ 查詢翻譯失敗: {e}，使用原始查詢")
-
-    if isinstance(strategy, VectorOnlyRAG):
-        sources = await strategy.retrieve(
-            query_text, request.max_results, source_filter=request.source_filter
+    graph_anchor.ORIGINAL_QUERY.set(request.query)  # 圖譜錨點比對中文別名用
+    try:
+        query_text, _ = await translate_for_retrieval(
+            request.query, request.model_combination_id.split("@")[0]
         )
+    except Exception as e:
+        logger.warning(f"⚠️ 查詢翻譯失敗: {e}，使用原始查詢")
+        query_text = request.query
+
+    fetch = request.max_results + (_EXCLUDE_MARGIN if EXCLUDE_EVIDENCE_PREFIXES else 0)
+    if isinstance(strategy, VectorOnlyRAG):
+        sources = await strategy.retrieve(query_text, fetch, source_filter=request.source_filter)
     else:
-        sources = await strategy.retrieve(query_text, request.max_results)
+        sources = await strategy.retrieve(query_text, fetch)
+    sources = _evidence_only(sources, request.max_results)
 
-    return {"sources": sources}
+    return {"sources": sources, "citations": build_citations(sources)}
 
 
-@app.post("/api/v1/query", response_model=QueryResponse)
-async def process_query(request: QueryRequest):
-    """處理查詢請求"""
+async def _run_coarse_guard(
+    answer: str, sources: list[dict[str, Any]]
+) -> tuple[str, CoarseResult | None, float]:
+    """執行同步粗篩，回傳 (gate_status, 結果, 耗時 ms)。
+
+    gate_status 為 ok／hang／crash（GRD-06c／06d）。
+    """
+    start = time.monotonic()
+    texts = [str(doc.get("content", "")) for doc in sources]
+    try:
+        result = await asyncio.wait_for(
+            asyncio.to_thread(check_answer, answer, texts), timeout=GUARD_HARD_TIMEOUT_SEC
+        )
+        status = "ok"
+    except TimeoutError:
+        logger.error(f"粗篩逾 {GUARD_HARD_TIMEOUT_SEC} 秒未完成（gate_hang）")
+        result, status = None, "hang"
+    except Exception as e:
+        logger.error(f"粗篩失敗（gate_crash）: {e}")
+        result, status = None, "crash"
+    return status, result, (time.monotonic() - start) * 1000
+
+
+def _write_guard_shadow(row: dict[str, Any]) -> None:
+    """寫入 eval.guard_shadow；失敗只記 log，不影響已送出的回答。"""
+    try:
+        from guard_store import (
+            record_guard_shadow,  # noqa: PLC0415 -- 延遲載入，DB 問題不影響服務啟動
+        )
+        from ingest.db import connect  # noqa: PLC0415
+
+        with connect() as conn:
+            record_guard_shadow(conn, row)
+    except Exception as e:
+        logger.error(f"影子紀錄寫入失敗: {e}")
+
+
+# 背景寫入工作的參照，避免 task 被回收
+_background_tasks: set[asyncio.Task] = set()
+
+
+# 生成模型並行預載（串流設計 docs/designs/2026-10-14-streaming-response.md §3.4）：收到請求即請
+# GPU Ollama 載入生成模型，與翻譯、檢索同時進行，換載模型時省 1.5～2 秒。預設關閉
+GENERATION_PRELOAD = os.getenv("GENERATION_PRELOAD", "0") == "1"
+
+
+# 換模型時主動卸載（使用者 2026-10-15）：收到請求即查 GPU Ollama 已載入的模型，
+# 與本次不同者先卸載（keep_alive=0），再載入本次模型；與翻譯、檢索並行，新模型可完整放進 GPU。
+# 只作用於 GPU Ollama（OLLAMA_BASE_URL）。進行中請求是否受影響見 E20 實測。預設關閉
+GENERATION_SWITCH_UNLOAD = os.getenv("GENERATION_SWITCH_UNLOAD", "0") == "1"
+_switch_lock = asyncio.Lock()
+
+
+async def _switch_generation_model(model: str) -> None:
+    """卸載 GPU Ollama 上其他生成模型，再載入 model；失敗只記 log。"""
+    async with _switch_lock:  # 同時多個請求換模型時依序處理，避免互相卸載
+        try:
+            ps = await conn_manager.http_client.get(f"{OLLAMA_BASE_URL}/api/ps", timeout=5.0)
+            loaded = [m.get("name") for m in ps.json().get("models", [])]
+            for other in loaded:
+                if other and other != model:
+                    await conn_manager.http_client.post(
+                        f"{OLLAMA_BASE_URL}/api/generate",
+                        json={"model": other, "keep_alive": 0},
+                        timeout=60.0,
+                    )
+                    logger.info(f"🔁 換模型：卸載 {other} → 載入 {model}")
+        except Exception as e:
+            logger.warning(f"⚠️ 卸載其他生成模型失敗: {e!r}")
+    await _preload_generation_model(model)
+
+
+async def _preload_generation_model(model: str) -> None:
+    """只載入模型、不生成；失敗只記 log（生成時 Ollama 仍會自行載入）。"""
+    try:
+        await conn_manager.http_client.post(
+            f"{OLLAMA_BASE_URL}/api/generate", json={"model": model}, timeout=120.0
+        )
+    except Exception as e:
+        logger.warning(f"⚠️ 生成模型預載失敗: {e!r}")
+
+
+# K（檢索信心）評分器（規格 Q9；2026-10-14 試做，預設關閉）：開啟時只把 K 記入 metadata，不改回答
+K_SCORER = os.getenv("K_SCORER", "0") == "1"
+# K 打分用的問題：orig＝原問題（E6 校準方式）；concat＝原問題＋檢索譯文。
+# 中文譯名（林布蘭、裡韋拉）對不上來源的英文名，原問題會漏判（E24，2026-10-17）
+K_SCORE_QUERY = os.getenv("K_SCORE_QUERY", "orig")
+
+
+def _k_query(query: str, retrieval_query: str) -> str:
+    if K_SCORE_QUERY == "concat" and retrieval_query and retrieval_query != query:
+        return f"{query} {retrieval_query}"
+    return query
+
+
+@dataclass
+class _QueryContext:
+    """/query 與 /query/stream 共用的生成前狀態。"""
+
+    request: QueryRequest
+    start_time: datetime
+    llm_model: str
+    rag_strategy: str
+    strategy: "RAGStrategy"
+    translation_info: dict[str, Any] | None
+    sources: list[dict[str, Any]]
+    cache_hit: bool
+    retrieval_time: float
+    temperature: float
+    max_tokens: int
+    answer_cache_key: str
+    k_info: dict[str, Any] | None = None
+
+
+async def _prepare_query(request: QueryRequest) -> _QueryContext:
+    """解析模型組合、翻譯、檢索（含快取）、決定生成參數與答案快取鍵。"""
     start_time = datetime.now()
 
-    # 解析模型組合 ID
+    # 解析模型組合 ID；只給模型名稱（不帶 @策略）時採預設策略（RET-02）
+    if "@" not in request.model_combination_id:
+        request.model_combination_id = f"{request.model_combination_id}@{DEFAULT_STRATEGY}"
     try:
         llm_model, rag_strategy = request.model_combination_id.split("@")
     except ValueError as e:
@@ -1452,36 +2333,26 @@ async def process_query(request: QueryRequest):
     strategy = RAG_STRATEGIES.get(rag_strategy)
     if not strategy:
         raise HTTPException(status_code=404, detail=f"未找到 RAG 策略: {rag_strategy}")
+    rag_strategy, strategy = _route_for_source_filter(rag_strategy, strategy, request.source_filter)
 
-    # 多語言查詢翻譯
-    original_query = request.query
-    translation_info = None
+    if GENERATION_SWITCH_UNLOAD or GENERATION_PRELOAD:
+        job = _switch_generation_model if GENERATION_SWITCH_UNLOAD else _preload_generation_model
+        task = asyncio.create_task(job(llm_model))
+        _background_tasks.add(task)
+        task.add_done_callback(_background_tasks.discard)
 
-    if query_translator:
-        try:
-            translation_result = query_translator.translate_query(request.query)
-            translated_query = translation_result["translated_query"]
-
-            # 如果檢測到非英文且進行了翻譯，使用翻譯後的查詢
-            if (
-                translation_result["detected_language"] != "en"
-                and translation_result["found_terms"]
-            ):
-                n_terms = len(translation_result["found_terms"])
-                logger.info(
-                    f"🌐 查詢翻譯: '{original_query}' -> '{translated_query}' "
-                    f"({translation_result['detected_language']}, {n_terms} 個術語)"
-                )
-                request.query = translated_query
-                translation_info = {
-                    "original_query": original_query,
-                    "translated_query": translated_query,
-                    "detected_language": translation_result["detected_language"],
-                    "found_terms": translation_result["found_terms"],
-                    "translation_method": translation_result["translation_method"],
-                }
-        except Exception as e:
-            logger.warning(f"⚠️ 查詢翻譯失敗: {e}，使用原始查詢")
+    graph_anchor.ORIGINAL_QUERY.set(request.query)  # 圖譜錨點比對中文別名用
+    # 多語言查詢翻譯：llm_hinted 只把譯文用於檢索，生成仍用原問題；dictionary 維持原行為
+    # （譯文同時用於檢索與生成）
+    try:
+        retrieval_query, translation_info = await translate_for_retrieval(request.query, llm_model)
+    except Exception as e:
+        logger.warning(f"⚠️ 查詢翻譯失敗: {e}，使用原始查詢")
+        retrieval_query, translation_info = request.query, None
+    if translation_info:
+        logger.info(f"🌐 查詢翻譯（{translation_info['method']}）完成，{translation_info['ms']} ms")
+        if QUERY_TRANSLATION == "dictionary":
+            request.query = retrieval_query
 
     # 檢索階段
     retrieval_start = datetime.now()
@@ -1491,26 +2362,44 @@ async def process_query(request: QueryRequest):
     cache_strategy_key = (
         f"{rag_strategy}:{request.source_filter}" if request.source_filter else rag_strategy
     )
+    if EXCLUDE_EVIDENCE_PREFIXES:  # 開關影響檢索結果，併入快取鍵
+        cache_strategy_key += ":ex=" + ",".join(EXCLUDE_EVIDENCE_PREFIXES)
+    if GRAPH_FALLBACK_NONFACT != "fulltext":
+        cache_strategy_key += ":gf=" + GRAPH_FALLBACK_NONFACT
 
     async def _retrieve():
+        fetch = request.max_results + (_EXCLUDE_MARGIN if EXCLUDE_EVIDENCE_PREFIXES else 0)
         if isinstance(strategy, VectorOnlyRAG):
-            return await strategy.retrieve(
-                request.query, request.max_results, source_filter=request.source_filter
+            docs = await strategy.retrieve(
+                retrieval_query, fetch, source_filter=request.source_filter
             )
-        return await strategy.retrieve(request.query, request.max_results)
+        else:
+            docs = await strategy.retrieve(retrieval_query, fetch)
+        # 三路融合每份文件可附多段（HYBRID_CHUNKS_PER_DOC）：上限依段落數放大
+        per_doc = HYBRID_CHUNKS_PER_DOC if isinstance(strategy, SystemHybridRAG) else 1
+        return _evidence_only(docs, request.max_results * per_doc)
 
     try:
         # 嘗試從緩存獲取
         if query_cache:
-            cached_sources = query_cache.get(request.query, cache_strategy_key, request.max_results)
+            cached_sources = query_cache.get(
+                retrieval_query, cache_strategy_key, request.max_results
+            )
             if cached_sources is not None:
                 sources = cached_sources
                 cache_hit = True
             else:
                 # 緩存未命中，執行檢索
                 sources = await _retrieve()
-                # 保存到緩存
-                query_cache.set(request.query, cache_strategy_key, request.max_results, sources)
+                # 保存到緩存（空結果不快取，RET-13；記下 doc_id 供來源變動失效，RET-12）
+                if sources:
+                    query_cache.set(
+                        retrieval_query,
+                        cache_strategy_key,
+                        request.max_results,
+                        sources,
+                        doc_ids=_source_doc_ids(sources),
+                    )
         else:
             # 緩存未啟用
             sources = await _retrieve()
@@ -1521,87 +2410,416 @@ async def process_query(request: QueryRequest):
 
     retrieval_time = (datetime.now() - retrieval_start).total_seconds() * 1000
 
+    k_info = None
+    if K_SCORER and sources:
+        try:  # CPU 推論放到執行緒，不阻塞事件迴圈
+            k_info = await asyncio.to_thread(
+                k_scorer.score_k, _k_query(request.query, retrieval_query), sources
+            )
+        except Exception as e:
+            logger.warning(f"⚠️ K 評分失敗: {e!r}")
+
+    # 獲取模型參數；如果沒有指定，從配置中獲取默認值
+    temperature = request.temperature
+    max_tokens = request.max_tokens
+    if temperature is None or max_tokens is None:
+        for combo in RAG_CONFIG.get("model_combinations", []):
+            if combo["id"] == request.model_combination_id:
+                if temperature is None:
+                    temperature = combo["params"].get("temperature", 0.1)
+                if max_tokens is None:
+                    max_tokens = combo["params"].get("max_tokens", 2048)
+                break
+
+    # 部署層可設全域生成長度上限（RAG_MAX_TOKENS_CAP）：實測回應時間與答案
+    # 長度近乎線性（~60 字/s），課堂情境用上限換速度；0 或未設定表示不設限
+    cap = int(os.getenv("RAG_MAX_TOKENS_CAP", "0"))
+    if cap > 0 and max_tokens:
+        max_tokens = min(max_tokens, cap)
+
+    # 答案層快取：原本只快取檢索結果，但檢索僅 ~0.04s、生成要 10s+，
+    # 快取蓋在不痛的地方——同題重問照樣付全額生成時間。答案 key 需含
+    # 會影響輸出的全部參數（組合、溫度、長度上限、來源過濾）。
+    answer_cache_key = (
+        f"ans:{request.model_combination_id}:{temperature}:{max_tokens}:"
+        f"{request.source_filter or ''}"
+    )
+    if display_names.enabled():  # 開關影響回答文字，併入答案快取鍵
+        answer_cache_key += ":dn"
+    if ANSWER_ZH_TW:
+        answer_cache_key += ":tw"
+    return _QueryContext(
+        request=request,
+        start_time=start_time,
+        llm_model=llm_model,
+        rag_strategy=rag_strategy,
+        strategy=strategy,
+        translation_info=translation_info,
+        sources=sources,
+        cache_hit=cache_hit,
+        retrieval_time=retrieval_time,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        answer_cache_key=answer_cache_key,
+        k_info=k_info,
+    )
+
+
+def _cached_answer(ctx: _QueryContext) -> str | None:
+    if not query_cache:
+        return None
+    return query_cache.get(ctx.request.query, ctx.answer_cache_key, ctx.request.max_results)
+
+
+def _store_answer(ctx: _QueryContext, answer: str) -> None:
+    if query_cache and ctx.sources and not is_refusal(answer):  # 拒答不進快取（RET-13）
+        query_cache.set(
+            ctx.request.query,
+            ctx.answer_cache_key,
+            ctx.request.max_results,
+            answer,
+            doc_ids=_source_doc_ids(ctx.sources),
+        )
+
+
+async def _finish_query(
+    ctx: _QueryContext, answer: str
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """生成完成後：守門員影子模式與回應 metadata（兩個端點共用）。"""
+    citations = build_citations(ctx.sources)
+
+    # 防護影子模式（GRD-06、GRD-08）：只計算與記錄，回答內容不變
+    guard_info = None
+    if GUARD_MODE == "shadow":
+        gate_status, coarse, guard_ms = await _run_coarse_guard(answer, ctx.sources)
+        scores = coarse.summary() if coarse else {}
+        guard_info = {"mode": "shadow", "gate_status": gate_status, "guard_ms": guard_ms, **scores}
+        task = asyncio.create_task(
+            asyncio.to_thread(
+                _write_guard_shadow,
+                {
+                    "route_id": ctx.rag_strategy,
+                    "model": ctx.llm_model,
+                    "gate_status": gate_status,
+                    "guard_ms": round(guard_ms, 3),
+                    **scores,
+                    "cited_doc_ids": [c["doc_id"] for c in citations if c["doc_id"]],
+                    "cache_hit": ctx.cache_hit,
+                },
+            )
+        )
+        _background_tasks.add(task)
+        task.add_done_callback(_background_tasks.discard)
+
+    total_time = (datetime.now() - ctx.start_time).total_seconds() * 1000
+
+    # 構建響應
+    metadata = {
+        "total_time_ms": total_time,
+        "num_sources": len(ctx.sources),
+        "query_length": len(ctx.request.query),
+        "answer_length": len(answer),
+        "cache_hit": ctx.cache_hit,
+    }
+    if guard_info:
+        metadata["guard"] = guard_info
+        metadata["timings"] = {"guard": guard_info["guard_ms"]}  # GRD-06a
+
+    # 如果有翻譯信息，添加到元數據
+    if ctx.translation_info:
+        metadata["translation"] = ctx.translation_info
+    if ctx.k_info:
+        metadata["k"] = ctx.k_info
+
+    logger.info(
+        f"查詢完成: {ctx.request.query[:50]}... | "
+        f"模型: {ctx.llm_model} | 策略: {ctx.rag_strategy} | "
+        f"總時間: {total_time:.0f}ms"
+    )
+    return metadata, citations
+
+
+# 三層回答（規格 Q8：直接依據／相關資料／無法回答；2026-10-14 試做，預設關閉，需 K_SCORER=1）：
+# 每筆來源以 K 校準機率分層；只把「直接依據」交給模型並要求逐句引用，「相關資料」由程式列出、
+# 不經模型；沒有直接依據時不呼叫模型。門檻為替代量尺下的暫定值
+ANSWER_LAYERS = os.getenv("ANSWER_LAYERS", "0") == "1"
+# merged＝合併版（使用者 2026-10-16）：沒有直接依據時改為「模型補充說明（未經來源驗證）」，
+# 不直接拒答；refuse＝無法回答（10-15 試做版）
+ANSWER_LAYERS_MODE = os.getenv("ANSWER_LAYERS_MODE", "merged")
+_FAKE_CITE = re.compile(
+    r"[\[［【(（]\s*(文檔|文件|來源|資料|Document|Source)\s*\d+[^\]］】)）]*[\]］】)）]"
+)
+MODEL_SUPPLEMENT_PROMPT = """你是藝術史助理。藝術史資料庫中沒有可以直接回答下列問題的館藏資料。
+請以你的知識回答，並遵守：
+1. 不要假裝引用資料庫或任何文件，不要寫「[文檔 n]」「根據參考資料」之類的字樣
+2. 不確定或有爭議之處要明說，不要編造人名、年代、出處
+3. 回答精簡、條理清楚
+問題：{query}"""
+# 直接依據層的指示：原寫法「每句以 [文檔 n] 標注出處」使 deepseek-r1 常只輸出「[文檔 1]」
+# 或照抄來源標籤（2026-10-19 E31：8011 重問 5 次中 2 次），改為完整句子＋句尾出處並附例句
+LAYER_DIRECT_INSTRUCTION = (
+    "\n（只根據參考資料，用完整的句子回答；在每一句的句尾加上出處，"
+    "例如「……完成於 1642 年。[文檔 1]」；資料沒有的內容不要寫。）"
+)
+LAYER_DIRECT_MIN = float(os.getenv("LAYER_DIRECT_MIN", "0.7"))
+LAYER_RELATED_MIN = float(os.getenv("LAYER_RELATED_MIN", "0.3"))
+
+
+def _split_layers(ctx: _QueryContext) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """依每筆來源的 K 校準機率分成直接依據與相關資料（分數高者在前）。"""
+    scores = (ctx.k_info or {}).get("scores") or []
+    ranked = sorted(zip(scores, ctx.sources, strict=False), key=lambda t: -t[0])
+    direct = [s for sc, s in ranked if k_scorer.calibrate(sc) >= LAYER_DIRECT_MIN]
+    related = [
+        s for sc, s in ranked if LAYER_RELATED_MIN <= k_scorer.calibrate(sc) < LAYER_DIRECT_MIN
+    ]
+    return direct, related
+
+
+def _related_text(related: list[dict[str, Any]]) -> str:
+    lines = []
+    for i, s in enumerate(related, 1):
+        md = s.get("metadata") or {}
+        title = md.get("title") or md.get("name") or "未知"
+        lines.append(f"{i}. {title}" + (f"［{md['source']}］" if md.get("source") else ""))
+    return "\n".join(lines)
+
+
+async def _layered_answer(ctx: _QueryContext) -> tuple[str, dict[str, Any]]:
+    direct, related = _split_layers(ctx)
+    layers = {"direct": len(direct), "related": len(related), "answered": bool(direct)}
+    parts = []
+    if direct:
+        body = await ctx.strategy.generate(
+            ctx.request.query + LAYER_DIRECT_INSTRUCTION,
+            direct,
+            ctx.llm_model,
+            temperature=ctx.temperature,
+            max_tokens=ctx.max_tokens,
+        )
+        body = to_zh_tw(body.strip())
+        if display_names.enabled():  # 與 /query 整段回答相同的臺灣繁體與譯名處理
+            body = display_names.normalize(body, ctx.request.query)
+        parts.append("【直接依據】\n" + body)
+    elif ANSWER_LAYERS_MODE == "merged":
+        body = _FAKE_CITE.sub("", await _model_supplement(ctx)).strip()  # 補充層不得帶引用
+        layers["model_supplement"] = True
+        parts.append(
+            "【館藏無法直接回答】\n以下為模型補充說明，**未經資料庫來源驗證**，請自行查證：\n"
+            + body
+        )
+    else:
+        parts.append("【無法回答】\n館藏中沒有可以直接回答這個問題的資料。")
+    if related:
+        parts.append("【相關資料】（可能有幫助，但不足以直接回答）\n" + _related_text(related))
+    return "\n\n".join(parts), layers
+
+
+async def _model_supplement(ctx: _QueryContext) -> str:
+    """合併版第三層：不給來源、由模型以自身知識回答（標示未經驗證）。"""
+    payload = {
+        "model": ctx.llm_model,
+        "prompt": MODEL_SUPPLEMENT_PROMPT.format(query=ctx.request.query),
+        "stream": False,
+        "options": {"temperature": ctx.temperature, "num_predict": ctx.max_tokens},
+    }
+    if _no_think(ctx.llm_model):
+        payload["think"] = False
+    try:
+        response = await conn_manager.http_client.post(
+            f"{OLLAMA_BASE_URL}/api/generate", json=payload, timeout=900.0
+        )
+        response.raise_for_status()
+        return _strip_think(response.json().get("response", ""))
+    except Exception as e:
+        logger.error(f"模型補充層生成失敗: {e}")
+        return "（模型補充說明暫時無法產生）"
+
+
+def _strip_think(text: str) -> str:
+    """去掉 deepseek-r1 寫進回應的思考段落（未閉合者整段丟棄）。"""
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
+    return text.split("<think>")[0]
+
+
+@app.post("/api/v1/query", response_model=QueryResponse)
+async def process_query(request: QueryRequest):
+    """處理查詢請求"""
+    ctx = await _prepare_query(request)
+
     # 生成階段
     generation_start = datetime.now()
     try:
-        # 獲取模型參數
-        temperature = request.temperature
-        max_tokens = request.max_tokens
-
-        # 如果沒有指定，從配置中獲取默認值
-        if temperature is None or max_tokens is None:
-            for combo in RAG_CONFIG.get("model_combinations", []):
-                if combo["id"] == request.model_combination_id:
-                    if temperature is None:
-                        temperature = combo["params"].get("temperature", 0.1)
-                    if max_tokens is None:
-                        max_tokens = combo["params"].get("max_tokens", 2048)
-                    break
-
-        # 部署層可設全域生成長度上限（RAG_MAX_TOKENS_CAP）：實測回應時間與答案
-        # 長度近乎線性（~60 字/s），課堂情境用上限換速度；0 或未設定表示不設限
-        cap = int(os.getenv("RAG_MAX_TOKENS_CAP", "0"))
-        if cap > 0 and max_tokens:
-            max_tokens = min(max_tokens, cap)
-
-        # 答案層快取：原本只快取檢索結果，但檢索僅 ~0.04s、生成要 10s+，
-        # 快取蓋在不痛的地方——同題重問照樣付全額生成時間。答案 key 需含
-        # 會影響輸出的全部參數（組合、溫度、長度上限、來源過濾）。
-        answer_cache_key = (
-            f"ans:{request.model_combination_id}:{temperature}:{max_tokens}:"
-            f"{request.source_filter or ''}"
-        )
-        cached_answer = (
-            query_cache.get(request.query, answer_cache_key, request.max_results)
-            if query_cache
-            else None
-        )
-        if cached_answer is not None:
-            answer = cached_answer
-            cache_hit = True
+        answer = None if ANSWER_LAYERS else _cached_answer(ctx)
+        layers = None
+        if answer is not None:
+            ctx.cache_hit = True
+        elif ANSWER_LAYERS and ctx.k_info:
+            answer, layers = await _layered_answer(ctx)
         else:
-            answer = await strategy.generate(
-                request.query, sources, llm_model, temperature=temperature, max_tokens=max_tokens
+            answer = await ctx.strategy.generate(
+                ctx.request.query,
+                ctx.sources,
+                ctx.llm_model,
+                temperature=ctx.temperature,
+                max_tokens=ctx.max_tokens,
             )
-            if query_cache:
-                query_cache.set(request.query, answer_cache_key, request.max_results, answer)
+            answer = to_zh_tw(answer)
+            if display_names.enabled():  # 畫家譯名統一為台灣顯示名（規格 Q1）
+                answer = display_names.normalize(answer, ctx.request.query)
+            _store_answer(ctx, answer)
     except Exception as e:
         logger.error(f"生成失敗: {e}")
         raise HTTPException(status_code=500, detail=f"生成失敗: {str(e)}") from e
     generation_time = (datetime.now() - generation_start).total_seconds() * 1000
 
-    total_time = (datetime.now() - start_time).total_seconds() * 1000
-
-    # 構建響應
-    metadata = {
-        "total_time_ms": total_time,
-        "num_sources": len(sources),
-        "query_length": len(request.query),
-        "answer_length": len(answer),
-        "cache_hit": cache_hit,
-    }
-
-    # 如果有翻譯信息，添加到元數據
-    if translation_info:
-        metadata["translation"] = translation_info
-
-    response = QueryResponse(
+    metadata, citations = await _finish_query(ctx, answer)
+    if layers:
+        metadata["layers"] = layers
+    return QueryResponse(
         answer=answer,
-        sources=sources if request.include_sources else [],
-        model_used=llm_model,
-        rag_strategy=rag_strategy,
-        retrieval_time_ms=retrieval_time,
+        sources=ctx.sources if request.include_sources else [],
+        model_used=ctx.llm_model,
+        rag_strategy=ctx.rag_strategy,
+        retrieval_time_ms=ctx.retrieval_time,
         generation_time_ms=generation_time,
         metadata=metadata,
+        citations=citations,
     )
 
-    logger.info(
-        f"查詢完成: {request.query[:50]}... | "
-        f"模型: {llm_model} | 策略: {rag_strategy} | "
-        f"總時間: {total_time:.0f}ms"
-    )
 
-    return response
+async def _stream_generate(ctx: _QueryContext):
+    """逐段產生模型輸出 (種類, 文字)：種類 "text"＝回答、"think"＝Ollama thinking 欄位的思考內容
+    （gemma4 等）。策略自訂 generate 時退回整段生成（不串流但結果相同）。"""
+    strategy = ctx.strategy
+    if type(strategy).generate is not RAGStrategy.generate:
+        yield (
+            "text",
+            await strategy.generate(
+                ctx.request.query,
+                ctx.sources,
+                ctx.llm_model,
+                temperature=ctx.temperature,
+                max_tokens=ctx.max_tokens,
+            ),
+        )
+        return
+    prompt = strategy._build_prompt(ctx.request.query, strategy._format_context(ctx.sources))
+    payload = {
+        "model": ctx.llm_model,
+        "prompt": prompt,
+        "stream": True,
+        "options": {
+            "temperature": ctx.temperature,
+            "num_predict": ctx.max_tokens,
+            **({"num_ctx": GENERATION_NUM_CTX} if GENERATION_NUM_CTX else {}),
+        },
+    }
+    if _no_think(ctx.llm_model):
+        payload["think"] = False
+    async with conn_manager.http_client.stream(
+        "POST", f"{OLLAMA_BASE_URL}/api/generate", json=payload, timeout=900.0
+    ) as response:
+        if response.status_code != 200:
+            detail = (await response.aread()).decode("utf-8", "replace")[:300]
+            raise RuntimeError(f"Ollama 生成失敗: {response.status_code} {detail}")
+        async for line in response.aiter_lines():
+            if not line.strip():
+                continue
+            chunk = json.loads(line)
+            if chunk.get("thinking"):
+                yield "think", chunk["thinking"]
+            if chunk.get("response"):
+                yield "text", chunk["response"]
+            if chunk.get("done"):
+                break
+
+
+@app.post("/api/v1/query/stream")
+async def process_query_stream(request: QueryRequest):
+    """串流版 /query（NDJSON：meta →（waiting／thinking…）→ delta… → done；錯誤時 error）。
+
+    設計：docs/designs/2026-10-14-streaming-response.md。每句經 sentence_hook 再送出
+    （預留守門員攔截 #15、分層回答 #12）；答案快取與守門員影子模式在生成結束後處理。
+    """
+    ctx = await _prepare_query(request)
+
+    def elapsed_ms() -> float:
+        return round((datetime.now() - ctx.start_time).total_seconds() * 1000, 1)
+
+    def checked(sentences: list[str]) -> list[str]:
+        out = [to_zh_tw(s) for s in (sentence_hook(x, ctx.sources) for x in sentences) if s]
+        if not display_names.enabled():
+            return out
+        return [display_names.normalize(s, ctx.request.query) for s in out]
+
+    async def events():
+        yield ndjson(
+            {
+                "type": "meta",
+                "model_used": ctx.llm_model,
+                "rag_strategy": ctx.rag_strategy,
+                "sources": ctx.sources if request.include_sources else [],
+                "citations": build_citations(ctx.sources),
+                "translation": ctx.translation_info,
+                "retrieval_time_ms": ctx.retrieval_time,
+                "k": ctx.k_info,
+            }
+        )
+        generation_start = datetime.now()
+        first_ms = None
+        parts: list[str] = []
+        try:
+            cached = _cached_answer(ctx)
+            if cached is not None:
+                ctx.cache_hit = True
+                first_ms = elapsed_ms()
+                parts.append(cached)
+                yield ndjson({"type": "delta", "text": cached})
+            else:
+                think, splitter = ThinkFilter(), SentenceSplitter()
+                last_thinking = 0.0
+                async for kind, piece in with_heartbeat(_stream_generate(ctx)):
+                    if kind == "waiting":  # 模型載入中、尚無任何輸出
+                        yield ndjson({"type": "waiting", "elapsed_ms": elapsed_ms()})
+                        continue
+                    visible = think.feed(piece) if kind == "text" else ""
+                    # 思考中（thinking 欄位或 <think> 段）：每 3 秒最多送一次，讓前端顯示進度
+                    if (kind == "think" or think.in_think) and first_ms is None:
+                        now = time.monotonic()
+                        if now - last_thinking >= 3:
+                            last_thinking = now
+                            yield ndjson({"type": "thinking", "elapsed_ms": elapsed_ms()})
+                    for sentence in checked(splitter.feed(visible)):
+                        first_ms = first_ms if first_ms is not None else elapsed_ms()
+                        parts.append(sentence)
+                        yield ndjson({"type": "delta", "text": sentence})
+                tail = splitter.feed(think.finish())
+                last = splitter.flush()
+                for sentence in checked(tail + ([last] if last else [])):
+                    first_ms = first_ms if first_ms is not None else elapsed_ms()
+                    parts.append(sentence)
+                    yield ndjson({"type": "delta", "text": sentence})
+                _store_answer(ctx, "".join(parts))
+        except Exception as e:
+            logger.error(f"串流生成失敗: {e}")
+            yield ndjson({"type": "error", "detail": str(e)})
+            return
+        answer = "".join(parts)
+        generation_time = (datetime.now() - generation_start).total_seconds() * 1000
+        metadata, _ = await _finish_query(ctx, answer)
+        metadata["first_sentence_ms"] = first_ms
+        yield ndjson(
+            {
+                "type": "done",
+                "answer": answer,
+                "retrieval_time_ms": ctx.retrieval_time,
+                "generation_time_ms": generation_time,
+                "metadata": metadata,
+            }
+        )
+
+    return StreamingResponse(events(), media_type="application/x-ndjson")
 
 
 @app.get("/")
@@ -1625,7 +2843,7 @@ async def root():
 # ==================== 主程序 ====================
 
 if __name__ == "__main__":
-    port = int(os.getenv("RAG_MANAGER_PORT", "8007"))
+    port = int(os.getenv("RAG_MANAGER_PORT", "8001"))
 
     logger.info(f"🚀 啟動 RAG 管理器服務於端口 {port}")
     logger.info(f"   Ollama: {OLLAMA_BASE_URL}")

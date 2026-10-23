@@ -28,12 +28,12 @@
 
 | 埠 | 擁有者 | 設定變數 | 依據 | 狀態 |
 |---|---|---|---|---|
-| **7687** | **Neo4j（專案，bolt）** | `NEO4J_URI` | 2026-09-20 由 7688 遷入標準埠，見 `2026-09-20-port-consolidation.md` | 待機器端套用 |
-| **7474** | **Neo4j（專案，HTTP）** | — | 同上 | 待機器端套用 |
+| **7687** | **Neo4j（專案，bolt）** | `NEO4J_URI` | 2026-09-20 由 7688 遷入標準埠；2026-09-21 改綁 `127.0.0.1`（`-Djava.net.preferIPv4Stack=true`），Windows Neo4j Browser 仍可連，見 `docs/reports/2026-09-21-neo4j-status.md` | ✅ 已套用並驗證 |
+| **7474** | **Neo4j（專案，HTTP）** | — | 同上 | ✅ 已套用並驗證 |
 | ~~7688 / 7475~~ | ~~Neo4j 替代埠~~ | — | **已廢除**（2026-09-20）。`doctor.sh` 仍檢查此兩埠，用以偵測舊實例是否沒停乾淨 | 應為未佔用 |
 | ~~7687 / 7474~~（系統實例） | WSL 系統自帶的 `neo4j.service` | — | 與專案無關，已決定 `systemctl disable --now` 以釋放標準埠 | 待停用 |
 | **8000** | **ChromaDB** | `CHROMADB_PORT` | `Start-NativeServices.ps1` 啟動 `chroma run --port 8000` 並傳入 `CHROMADB_PORT=8000`；`diagnose.py:32` | 使用中 |
-| 8007 | rag-manager-v2 | `RAG_MANAGER_PORT` | `unified_rag_manager_v2.py:1626`；`diagnose.py:33` | 使用中 |
+| **8001** | **rag-manager-v2** | `RAG_MANAGER_PORT` | **2026-09-23 更正**：本表原記 8007（本行最後更新 2026-09-20，早於埠號整併）。`.env.example`、`unified_rag_manager_v2.py` 的預設值、且實際監聽中的埠皆為 **8001**（多次以 `curl http://127.0.0.1:8001/health` 驗證），未見任何服務綁在 8007。以此行為準，8007 視為已更正的舊記載 | ✅ 使用中，已驗證 |
 | **8080** | **Open WebUI** | — | `Start-NativeServices.ps1` 啟動 `open-webui serve --port 8080`；`diagnose.py:34`；使用者決定確認保留 | 使用中 |
 | **8002** | **ml-service** (gunicorn/CUDA) | `ML_SERVICE_URL` | **由 8080 遷出**，見 §3 | 待遷移 |
 | 8010 | create_graphrag_models.py | （硬編碼，應外部化） | 調查報告發現5 | 待修正 |
@@ -77,8 +77,6 @@
 | ChromaDB | 「pip 套件已裝，**未查到常駐服務程序**，現況不明」 | 本來就該是常駐服務（`chroma run --path /home/user/native-chromadb/data --port 8000`），只是查證當下沒在跑 |
 | OpenWebUI | 「❌ **完全未安裝、未找到任何進程或套件**」 | **已安裝**，在 venv 內：`/home/user/openwebui-venv/bin/open-webui`，資料目錄 `/home/user/openwebui-data`。因為不是系統套件、查證當下也沒在跑，所以 `which` 與 `systemctl` 都查不到 |
 
-另：`Start-NativeServices.ps1` 檔頭註明「系統已完全不使用 Docker（**2026-07-28** 移除）」，
-早於 2026-08-29 的那份遷移設計文件。該文件確實是事後補寫且未更新現況。
 
 ## 3. ml-service 遷移必須同步修改的引用點
 
@@ -123,14 +121,8 @@ ml-service 原本也綁 8080（`ml-service/start.sh:138`），衝突，須遷至
 
 ### `cuda-ml-service` 主機名已無法解析
 `src/config/mlConfig.js:4`、`src/api/routes/mlRoutes.js:7` 的預設值 `http://cuda-ml-service:8080`
-是 docker-compose 服務名。Docker 已於 2026-07-28 移除，**此主機名在原生環境下無法解析**。
+是舊服務名，**此主機名在原生環境下無法解析**。
 `.env` 未設 `ML_SERVICE_URL` 時，Node 後端連不到 ml-service。
-
-### `host.docker.internal` 亦已失效（2026-09-20 修正）
-
-`.env.example:25` 與 `openwebui-config/functions.py:12` 原本使用
-`http://host.docker.internal:11434`。`host.docker.internal` 是 Docker 提供的 DNS 名稱，
-Docker 已於 2026-07-28 移除，原生環境無法解析。兩處已改為 `http://127.0.0.1:11434`。
 
 （注意：`NEO4J_URI` 的舊 7688 預設值**不屬於此類**——它在當時是正確的，
 理由見 §2；該埠已於 2026-09-20 整併至標準埠 7687。）

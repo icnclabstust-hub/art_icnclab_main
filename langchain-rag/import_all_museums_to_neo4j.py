@@ -26,12 +26,13 @@ from pathlib import Path
 import chromadb
 from bge_m3_embedding import BGEM3EmbeddingFunction
 from chunking import build_chunk_records
+from ingest.artist_names import parse_artists
 from neo4j import GraphDatabase
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# 原生 Neo4j（WSL 直接執行，非 Docker），使用標準埠 bolt:7687 / http:7474。
+# 原生 Neo4j（WSL 直接執行），使用標準埠 bolt:7687 / http:7474。
 # 2026-09-20 前曾改用 7688/7475，因 WSL 系統自帶的 neo4j.service 佔用標準埠；
 # 該系統服務已停用，標準埠歸本專案。詳見 docs/2026-09-20-port-consolidation.md
 NEO4J_URI = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687")
@@ -41,8 +42,28 @@ if not NEO4J_PASSWORD:
     raise RuntimeError(
         "缺少 NEO4J_PASSWORD 環境變數。請在啟動前設定，例如："
         "NEO4J_PASSWORD=... python3 import_all_museums_to_neo4j.py"
-        "（daily_crawl_and_sync.sh 已內建設定，不需手動處理）"
+        "（正常情況不需要手動執行本腳本，見下方 main() 的停用說明）"
     )
+
+# 2026-09-23：本腳本的 main()（直接執行）會繞過 PostgreSQL catalog/outbox 直寫
+# Neo4j/ChromaDB，破壞「catalog 為唯一真相源」的前提，且不會被 `ingest verify`
+# 的一致性稽核發現。正常情況一律使用新架構管線：`python3 -m ingest run --source <來源>`。
+# 只有被 import 使用 NORMALIZERS/build_document_text 等成員（ingest/legacy.py 的攝取層
+# 用法）不受影響——這個檢查只在 main() 實際被呼叫時執行，import 本模組不會觸發。
+# 詳見 docs/decision-log.md 2026-09-23「清除舊版每日流程腳本」條目。
+_LEGACY_BYPASS_ENV = "ALLOW_LEGACY_DIRECT_WRITE"
+_LEGACY_BYPASS_VALUE = "yes-i-know-this-bypasses-outbox"
+
+
+def _require_direct_execution_opt_in():
+    if os.environ.get(_LEGACY_BYPASS_ENV) != _LEGACY_BYPASS_VALUE:
+        raise SystemExit(
+            "❌ 已停用直接執行：本腳本會繞過 PostgreSQL catalog/outbox 直寫 "
+            "Neo4j/ChromaDB。正常情況請改用：python3 -m ingest run --source <來源>\n"
+            "   詳見 docs/decision-log.md 2026-09-23「清除舊版每日流程腳本」條目。\n"
+            f"   若清楚後果、確實需要直接執行，設定環境變數 "
+            f"{_LEGACY_BYPASS_ENV}={_LEGACY_BYPASS_VALUE} 後再試一次。"
+        )
 DATA_DIR = Path(os.getenv("DATA_RAW_DIR", str(Path(__file__).parent.parent / "data" / "raw")))
 CHROMADB_HOST = os.getenv("CHROMADB_HOST", "localhost")
 CHROMADB_PORT = int(os.getenv("CHROMADB_PORT", "8000"))
@@ -66,7 +87,6 @@ SOURCE_PATTERNS = {
     "art_institute_chicago": [r"^art_institute_chicago_crawled_.*\.json$"],
     "va_museum": [r"^va_museum_crawled_.*\.json$"],
     "cleveland_museum": [r"^cleveland_museum_crawled_.*\.json$"],
-    "yale_university_art_gallery": [r"^yale_university_art_gallery_crawled_.*\.json$"],
 }
 
 
@@ -136,8 +156,12 @@ def normalize_google_books(item: dict) -> dict:
 
 def normalize_harvard(item: dict) -> dict:
     people = item.get("people") or []
-    artist = ", ".join(
-        p.get("displayname", "") for p in people if isinstance(p, dict) and p.get("displayname")
+    # JS 爬蟲存 people[].name、API 原始欄位是 displayname（2026-10-18 E29：只讀 displayname
+    # 使 Harvard 作者全部空白）；多人以「 | 」分隔（逗號會被當成「姓, 名」，見 ingest.artist_names）
+    artist = " | ".join(
+        name
+        for p in people
+        if isinstance(p, dict) and (name := p.get("displayname") or p.get("name"))
     )
     return {
         "id": f"harvard_{item.get('harvardId') or item.get('id')}",
@@ -249,21 +273,6 @@ def normalize_cleveland_museum(item: dict) -> dict:
     }
 
 
-def normalize_yale_university_art_gallery(item: dict) -> dict:
-    return {
-        "id": f"yale_{item.get('id')}",
-        "title": safe_str(item.get("title"), 500) or "Untitled",
-        "artist": safe_str(item.get("artist"), 200),
-        "date": safe_str(item.get("date"), 100),
-        "medium": safe_str(item.get("medium"), 300),
-        "culture": safe_str(item.get("culture"), 200),
-        "period": "",
-        "department": safe_str(item.get("department"), 200),
-        "description": safe_str(item.get("description"), 1000),
-        "url": safe_str(item.get("objectURL")),
-    }
-
-
 NORMALIZERS = {
     "google_books": normalize_google_books,
     "harvard": normalize_harvard,
@@ -273,7 +282,6 @@ NORMALIZERS = {
     "art_institute_chicago": normalize_art_institute_chicago,
     "va_museum": normalize_va_museum,
     "cleveland_museum": normalize_cleveland_museum,
-    "yale_university_art_gallery": normalize_yale_university_art_gallery,
 }
 
 
@@ -322,7 +330,7 @@ class Neo4jBatchWriter:
         row["source"] = source
         self.artwork_rows.append(row)
         if artwork.get("artist"):
-            for artist_name in [n.strip() for n in artwork["artist"].split(",") if n.strip()]:
+            for artist_name in parse_artists(source, artwork["artist"]):
                 self.artist_rows.append(
                     {
                         "artist_name": artist_name,
@@ -460,6 +468,8 @@ def ensure_fulltext_indexes(session):
 
 
 def main():
+    _require_direct_execution_opt_in()
+
     import argparse
 
     parser = argparse.ArgumentParser()

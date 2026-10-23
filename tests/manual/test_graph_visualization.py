@@ -252,7 +252,7 @@ class GraphVisualizationTester:
         if not self.test_neo4j_connection():
             print("\n❌ Neo4j 未運行,測試中止")
             print("\n💡 請先啟動 Neo4j:")
-            print("   docker-compose up -d neo4j")
+            print("   powershell scripts/Start-NativeServices.ps1")
             return
 
         # 測試2: 數據庫內容

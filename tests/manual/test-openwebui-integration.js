@@ -112,7 +112,7 @@ class OpenWebUIIntegrationTester {
             return true;
         } catch (error) {
             console.log(`\n❌ OpenWebUI 無法訪問: ${error.message}`);
-            console.log(`   確保已啟動: docker-compose -f docker-compose.openwebui.yml up -d`);
+            console.log(`   確保 Open WebUI 已啟動：powershell scripts/Start-NativeServices.ps1`);
             this.results.openwebui.failed++;
             return false;
         }

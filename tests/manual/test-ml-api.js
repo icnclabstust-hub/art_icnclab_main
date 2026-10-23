@@ -200,7 +200,6 @@ async function testMLAPI() {
   console.log('\n📝 下一步建議:');
   console.log('1. ✅ API擴展已完成 - ML路由已成功整合到主應用');
   console.log('2. 🔧 部署CUDA ML服務容器以實現完整功能');
-  console.log('3. 🐳 使用Docker Compose啟動完整的ML訓練環境');
   console.log('4. 🎯 配置實際的訓練資料和模型參數');
 
   return results;

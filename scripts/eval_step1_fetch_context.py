@@ -8,7 +8,7 @@ from pathlib import Path
 
 import requests
 
-RAG_MANAGER_URL = "http://localhost:8007"
+RAG_MANAGER_URL = "http://localhost:8001"
 OUTPUT_ROOT = Path("/mnt/c/Users/user/Desktop/驗證")
 CONTEXT_CACHE_FILE = OUTPUT_ROOT / "數據資料" / "retrieval_context_cache.json"
 

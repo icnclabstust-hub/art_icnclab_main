@@ -1,0 +1,21 @@
+{
+  "snapshot_at": "2026-10-07T18:35:33+08",
+  "documents": 4523,
+  "chunks": 6270,
+  "by_source": {
+    "art_institute_chicago": 298,
+    "cleveland_museum": 325,
+    "europeana": 987,
+    "google_books": 58,
+    "harvard": 290,
+    "masterpieces_curated": 15,
+    "met_museum": 1329,
+    "specialized_art": 897,
+    "va_museum": 310,
+    "wikipedia_pilot": 14
+  },
+  "fingerprint_md5": "16d0d8deea74bd5fe59018a82d69b045",
+  "max_updated_at": "2026-10-07T03:31:52+00",
+  "commit_sha": "6db4eed63bf280a3f5f16ed8040434c0d777dc10",
+  "_說明": "黃金集與基準的語料凍結點（路線圖 R2）。基準量測時比對此快照，記錄語料漂移；夜間攝取不暫停。"
+}

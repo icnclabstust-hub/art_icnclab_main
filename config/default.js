@@ -21,7 +21,7 @@ module.exports = {
     port: 5432,
     database: 'art_history_db',
     username: 'postgres',
-    password: 'password',
+    password: process.env.DB_PASSWORD,
     poolSize: 10,
     connectionTimeout: 10000,
     queryTimeout: 5000,
@@ -187,7 +187,7 @@ module.exports = {
     },
     enableHelmet: true,
     jwt: {
-      secret: process.env.JWT_SECRET || 'art-history-database-super-secret-jwt-key-2024-ml-integration',
+      secret: process.env.JWT_SECRET,
       expiresIn: process.env.JWT_EXPIRES_IN || '24h',
       algorithm: 'HS256'
     }

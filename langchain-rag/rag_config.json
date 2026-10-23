@@ -32,29 +32,13 @@
       "temperature_default": 0.15,
       "description": "專注推理，邏輯思維優秀"
     },
-    "gpt-oss:20b": {
-      "name": "GPT-OSS 20B",
-      "display_name": "🤖 GPT-OSS 20B",
+    "qwen3:14b": {
+      "name": "Qwen 3 14B",
+      "display_name": "🔮 Qwen 3 14B",
       "provider": "ollama",
-      "context_length": 131072,
+      "context_length": 32768,
       "temperature_default": 0.1,
-      "description": "開源GPT模型，20B參數，強大的語言理解能力"
-    },
-    "deepseek-r1:32b": {
-      "name": "DeepSeek-R1 32B",
-      "display_name": "🧠 DeepSeek-R1 32B",
-      "provider": "ollama",
-      "context_length": 32768,
-      "temperature_default": 0.15,
-      "description": "DeepSeek-R1 大型版本，推理能力更強"
-    },
-    "qwen3:30b": {
-      "name": "Qwen 3 30B",
-      "display_name": "🔮 Qwen 3 30B",
-      "provider": "ollama",
-      "context_length": 32768,
-      "temperature_default": 0.2,
-      "description": "Qwen 3 MoE 大型版本"
+      "description": "Qwen 3 中型版本（系統路由評估與模型補充層候選；只開放於 Open WebUI 系統路由選單）"
     }
   },
   "embedding_models": {
@@ -62,7 +46,7 @@
       "name": "Nomic Embed Text",
       "display_name": "📊 Nomic Embed Text",
       "provider": "ollama",
-      "base_url": "http://ollama:11434",
+      "base_url": "http://127.0.0.1:11434",
       "dimension": 768,
       "description": "高質量文本嵌入模型"
     },
@@ -70,7 +54,7 @@
       "name": "MxBai Embed Large",
       "display_name": "📊 MxBai Embed Large",
       "provider": "ollama",
-      "base_url": "http://ollama:11434",
+      "base_url": "http://127.0.0.1:11434",
       "dimension": 1024,
       "description": "大型嵌入模型，更高精度",
       "enabled": false
@@ -142,39 +126,33 @@
       "display_name": "🕸️🤖 Agentic Graph RAG",
       "emoji": "🕸️🤖",
       "description": "LLM規劃查詢策略、多輪自我評估的圖譜檢索"
+    },
+    "vector": {
+      "name": "Vector",
+      "display_name": "🔍 向量（系統路由）",
+      "emoji": "🔍",
+      "description": "系統路由：ChromaDB 稠密向量檢索（RET-01）"
+    },
+    "fulltext": {
+      "name": "Fulltext",
+      "display_name": "📝 全文（系統路由）",
+      "emoji": "📝",
+      "description": "系統路由：Elasticsearch BM25 全文檢索（RET-01）"
+    },
+    "graph": {
+      "name": "Graph",
+      "display_name": "🕸️ 圖（系統路由）",
+      "emoji": "🕸️",
+      "description": "系統路由：Neo4j 圖譜檢索，作品標題＋藝術家展開作品，只回傳作品（RET-01）"
+    },
+    "hybrid": {
+      "name": "Hybrid",
+      "display_name": "🔀 三路融合（系統路由，預設）",
+      "emoji": "🔀",
+      "description": "系統路由：向量＋全文＋圖三路檢索，系統級 RRF 融合（RET-01～07）"
     }
   },
   "model_combinations": [
-    {
-      "id": "llama3.1:8b@vector_only",
-      "name": "🦙 Llama 3.1 8B + 🔍 向量RAG",
-      "display_name": "🔍 Llama 3.1 8B + Vector Only RAG",
-      "description": "通用能力強，指令遵循優秀 + 純向量語義檢索",
-      "llm_model": "llama3.1:8b",
-      "rag_strategy": "vector_only",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "Llama 3.1 8B",
-          "display_name": "🦙 Llama 3.1 8B",
-          "provider": "ollama",
-          "context_length": 131072,
-          "temperature_default": 0.1,
-          "description": "通用能力強，指令遵循優秀"
-        },
-        "rag": {
-          "name": "Vector Only RAG",
-          "display_name": "🔍 向量RAG",
-          "emoji": "🔍",
-          "description": "純向量語義檢索"
-        }
-      },
-      "params": {
-        "temperature": 0.1,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
     {
       "id": "llama3.1:8b@graph_only",
       "name": "🦙 Llama 3.1 8B + 🕸️ 圖譜RAG",
@@ -266,36 +244,6 @@
       }
     },
     {
-      "id": "llama3.1:8b@self_rag",
-      "name": "🦙 Llama 3.1 8B + 🔄 Self RAG",
-      "display_name": "🔄 Llama 3.1 8B + Self RAG",
-      "description": "通用能力強，指令遵循優秀 + 自我反思迭代",
-      "llm_model": "llama3.1:8b",
-      "rag_strategy": "self_rag",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "Llama 3.1 8B",
-          "display_name": "🦙 Llama 3.1 8B",
-          "provider": "ollama",
-          "context_length": 131072,
-          "temperature_default": 0.1,
-          "description": "通用能力強，指令遵循優秀"
-        },
-        "rag": {
-          "name": "Self RAG",
-          "display_name": "🔄 Self RAG",
-          "emoji": "🔄",
-          "description": "自我反思迭代"
-        }
-      },
-      "params": {
-        "temperature": 0.1,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
       "id": "llama3.1:8b@naive_rag",
       "name": "🦙 Llama 3.1 8B + 📝 Naive RAG",
       "display_name": "📝 Llama 3.1 8B + Naive RAG",
@@ -321,36 +269,6 @@
       },
       "params": {
         "temperature": 0.1,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
-      "id": "deepseek-r1:8b@vector_only",
-      "name": "🧠 DeepSeek-R1 8B + 🔍 向量RAG",
-      "display_name": "🔍 DeepSeek-R1 8B + Vector Only RAG",
-      "description": "專注推理，邏輯思維優秀 + 純向量語義檢索",
-      "llm_model": "deepseek-r1:8b",
-      "rag_strategy": "vector_only",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "DeepSeek-R1 8B",
-          "display_name": "🧠 DeepSeek-R1 8B",
-          "provider": "ollama",
-          "context_length": 32768,
-          "temperature_default": 0.15,
-          "description": "專注推理，邏輯思維優秀"
-        },
-        "rag": {
-          "name": "Vector Only RAG",
-          "display_name": "🔍 向量RAG",
-          "emoji": "🔍",
-          "description": "純向量語義檢索"
-        }
-      },
-      "params": {
-        "temperature": 0.15,
         "max_tokens": 2048,
         "use_rag": true
       }
@@ -437,36 +355,6 @@
           "display_name": "🤖 Agentic RAG",
           "emoji": "🤖",
           "description": "智能代理推理"
-        }
-      },
-      "params": {
-        "temperature": 0.15,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
-      "id": "deepseek-r1:8b@self_rag",
-      "name": "🧠 DeepSeek-R1 8B + 🔄 Self RAG",
-      "display_name": "🔄 DeepSeek-R1 8B + Self RAG",
-      "description": "專注推理，邏輯思維優秀 + 自我反思迭代",
-      "llm_model": "deepseek-r1:8b",
-      "rag_strategy": "self_rag",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "DeepSeek-R1 8B",
-          "display_name": "🧠 DeepSeek-R1 8B",
-          "provider": "ollama",
-          "context_length": 32768,
-          "temperature_default": 0.15,
-          "description": "專注推理，邏輯思維優秀"
-        },
-        "rag": {
-          "name": "Self RAG",
-          "display_name": "🔄 Self RAG",
-          "emoji": "🔄",
-          "description": "自我反思迭代"
         }
       },
       "params": {
@@ -626,66 +514,6 @@
       }
     },
     {
-      "id": "gemma4:12b@hybrid_es_rag",
-      "name": "💎 Gemma 4 12B + 🔀 Hybrid ES RAG",
-      "display_name": "🔀 Gemma 4 12B + Hybrid ES RAG",
-      "description": "Gemma 4系列，平衡性能 + BM25/向量融合檢索",
-      "llm_model": "gemma4:12b",
-      "rag_strategy": "hybrid_es_rag",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "Gemma 4 12B",
-          "display_name": "💎 Gemma 4 12B",
-          "provider": "ollama",
-          "context_length": 8192,
-          "temperature_default": 0.25,
-          "description": "Gemma 4系列，平衡性能"
-        },
-        "rag": {
-          "name": "Hybrid Elasticsearch RAG",
-          "display_name": "🔀 Hybrid ES RAG",
-          "emoji": "🔀",
-          "description": "BM25 全文檢索 + 向量 kNN，RRF 融合排序"
-        }
-      },
-      "params": {
-        "temperature": 0.25,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
-      "id": "qwen3:8b@vector_only",
-      "name": "🔮 Qwen 3 8B + 🔍 向量RAG",
-      "display_name": "🔍 Qwen 3 8B + Vector Only RAG",
-      "description": "Qwen 3系列，性能提升 + 純向量語義檢索",
-      "llm_model": "qwen3:8b",
-      "rag_strategy": "vector_only",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "Qwen 3 8B",
-          "display_name": "🔮 Qwen 3 8B",
-          "provider": "ollama",
-          "context_length": 32768,
-          "temperature_default": 0.2,
-          "description": "Qwen 3系列，性能提升"
-        },
-        "rag": {
-          "name": "Vector Only RAG",
-          "display_name": "🔍 向量RAG",
-          "emoji": "🔍",
-          "description": "純向量語義檢索"
-        }
-      },
-      "params": {
-        "temperature": 0.2,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
       "id": "qwen3:8b@graph_only",
       "name": "🔮 Qwen 3 8B + 🕸️ 圖譜RAG",
       "display_name": "🕸️ Qwen 3 8B + Graph Only RAG",
@@ -776,36 +604,6 @@
       }
     },
     {
-      "id": "qwen3:8b@self_rag",
-      "name": "🔮 Qwen 3 8B + 🔄 Self RAG",
-      "display_name": "🔄 Qwen 3 8B + Self RAG",
-      "description": "Qwen 3系列，性能提升 + 自我反思迭代",
-      "llm_model": "qwen3:8b",
-      "rag_strategy": "self_rag",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "Qwen 3 8B",
-          "display_name": "🔮 Qwen 3 8B",
-          "provider": "ollama",
-          "context_length": 32768,
-          "temperature_default": 0.2,
-          "description": "Qwen 3系列，性能提升"
-        },
-        "rag": {
-          "name": "Self RAG",
-          "display_name": "🔄 Self RAG",
-          "emoji": "🔄",
-          "description": "自我反思迭代"
-        }
-      },
-      "params": {
-        "temperature": 0.2,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
       "id": "qwen3:8b@naive_rag",
       "name": "🔮 Qwen 3 8B + 📝 Naive RAG",
       "display_name": "📝 Qwen 3 8B + Naive RAG",
@@ -834,380 +632,22 @@
         "max_tokens": 2048,
         "use_rag": true
       }
-    },
-    {
-      "id": "qwen3:8b@naive_graph_rag",
-      "name": "🔮 Qwen 3 8B + 🕸️📝 Naive Graph RAG",
-      "display_name": "🕸️📝 Qwen 3 8B + Naive Graph RAG",
-      "description": "Qwen 3系列，性能提升 + 基礎圖譜檢索",
-      "llm_model": "qwen3:8b",
-      "rag_strategy": "naive_graph_rag",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "Qwen 3 8B",
-          "display_name": "🔮 Qwen 3 8B",
-          "provider": "ollama",
-          "context_length": 32768,
-          "temperature_default": 0.2,
-          "description": "Qwen 3系列，性能提升"
-        },
-        "rag": {
-          "name": "Naive Graph RAG",
-          "display_name": "🕸️📝 Naive Graph RAG",
-          "emoji": "🕸️📝",
-          "description": "基礎圖譜檢索：關鍵詞比對 + 單跳關係展開"
-        }
-      },
-      "params": {
-        "temperature": 0.2,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
-      "id": "qwen3:8b@advanced_graph_rag",
-      "name": "🔮 Qwen 3 8B + 🕸️🎯 Advanced Graph RAG",
-      "display_name": "🕸️🎯 Qwen 3 8B + Advanced Graph RAG",
-      "description": "Qwen 3系列，性能提升 + 查詢改寫與多跳圖檢索",
-      "llm_model": "qwen3:8b",
-      "rag_strategy": "advanced_graph_rag",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "Qwen 3 8B",
-          "display_name": "🔮 Qwen 3 8B",
-          "provider": "ollama",
-          "context_length": 32768,
-          "temperature_default": 0.2,
-          "description": "Qwen 3系列，性能提升"
-        },
-        "rag": {
-          "name": "Advanced Graph RAG",
-          "display_name": "🕸️🎯 Advanced Graph RAG",
-          "emoji": "🕸️🎯",
-          "description": "查詢改寫、多跳圖檢索(2-hop)與子圖重排序"
-        }
-      },
-      "params": {
-        "temperature": 0.2,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
-      "id": "qwen3:8b@agentic_graph_rag",
-      "name": "🔮 Qwen 3 8B + 🕸️🤖 Agentic Graph RAG",
-      "display_name": "🕸️🤖 Qwen 3 8B + Agentic Graph RAG",
-      "description": "Qwen 3系列，性能提升 + LLM規劃多輪圖譜檢索",
-      "llm_model": "qwen3:8b",
-      "rag_strategy": "agentic_graph_rag",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "Qwen 3 8B",
-          "display_name": "🔮 Qwen 3 8B",
-          "provider": "ollama",
-          "context_length": 32768,
-          "temperature_default": 0.2,
-          "description": "Qwen 3系列，性能提升"
-        },
-        "rag": {
-          "name": "Agentic Graph RAG",
-          "display_name": "🕸️🤖 Agentic Graph RAG",
-          "emoji": "🕸️🤖",
-          "description": "LLM規劃查詢策略、多輪自我評估的圖譜檢索"
-        }
-      },
-      "params": {
-        "temperature": 0.2,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
-      "id": "gpt-oss:20b@vector_only",
-      "name": "🤖 GPT-OSS 20B + 🔍 向量RAG",
-      "display_name": "🔍 GPT-OSS 20B + Vector Only RAG",
-      "description": "開源GPT模型，20B參數，強大的語言理解能力 + 純向量語義檢索",
-      "llm_model": "gpt-oss:20b",
-      "rag_strategy": "vector_only",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "GPT-OSS 20B",
-          "display_name": "🤖 GPT-OSS 20B",
-          "provider": "ollama",
-          "context_length": 131072,
-          "temperature_default": 0.1,
-          "description": "開源GPT模型，20B參數，強大的語言理解能力"
-        },
-        "rag": {
-          "name": "Vector Only RAG",
-          "display_name": "🔍 向量RAG",
-          "emoji": "🔍",
-          "description": "純向量語義檢索"
-        }
-      },
-      "params": {
-        "temperature": 0.1,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
-      "id": "gpt-oss:20b@graph_only",
-      "name": "🤖 GPT-OSS 20B + 🕸️ 圖譜RAG",
-      "display_name": "🕸️ GPT-OSS 20B + Graph Only RAG",
-      "description": "開源GPT模型，20B參數，強大的語言理解能力 + 知識圖譜檢索",
-      "llm_model": "gpt-oss:20b",
-      "rag_strategy": "graph_only",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "GPT-OSS 20B",
-          "display_name": "🤖 GPT-OSS 20B",
-          "provider": "ollama",
-          "context_length": 131072,
-          "temperature_default": 0.1,
-          "description": "開源GPT模型，20B參數，強大的語言理解能力"
-        },
-        "rag": {
-          "name": "Graph Only RAG",
-          "display_name": "🕸️ 圖譜RAG",
-          "emoji": "🕸️",
-          "description": "知識圖譜檢索"
-        }
-      },
-      "params": {
-        "temperature": 0.1,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
-      "id": "gpt-oss:20b@advanced_rag",
-      "name": "🤖 GPT-OSS 20B + 🎯 Advanced RAG",
-      "display_name": "🎯 GPT-OSS 20B + Advanced RAG",
-      "description": "開源GPT模型，20B參數，強大的語言理解能力 + 多級檢索重排",
-      "llm_model": "gpt-oss:20b",
-      "rag_strategy": "advanced_rag",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "GPT-OSS 20B",
-          "display_name": "🤖 GPT-OSS 20B",
-          "provider": "ollama",
-          "context_length": 131072,
-          "temperature_default": 0.1,
-          "description": "開源GPT模型，20B參數，強大的語言理解能力"
-        },
-        "rag": {
-          "name": "Advanced RAG",
-          "display_name": "🎯 Advanced RAG",
-          "emoji": "🎯",
-          "description": "多級檢索重排"
-        }
-      },
-      "params": {
-        "temperature": 0.1,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
-      "id": "gpt-oss:20b@agentic_rag",
-      "name": "🤖 GPT-OSS 20B + 🤖 Agentic RAG",
-      "display_name": "🤖 GPT-OSS 20B + Agentic RAG",
-      "description": "開源GPT模型，20B參數，強大的語言理解能力 + 智能代理推理",
-      "llm_model": "gpt-oss:20b",
-      "rag_strategy": "agentic_rag",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "GPT-OSS 20B",
-          "display_name": "🤖 GPT-OSS 20B",
-          "provider": "ollama",
-          "context_length": 131072,
-          "temperature_default": 0.1,
-          "description": "開源GPT模型，20B參數，強大的語言理解能力"
-        },
-        "rag": {
-          "name": "Agentic RAG",
-          "display_name": "🤖 Agentic RAG",
-          "emoji": "🤖",
-          "description": "智能代理推理"
-        }
-      },
-      "params": {
-        "temperature": 0.1,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
-      "id": "gpt-oss:20b@self_rag",
-      "name": "🤖 GPT-OSS 20B + 🔄 Self RAG",
-      "display_name": "🔄 GPT-OSS 20B + Self RAG",
-      "description": "開源GPT模型，20B參數，強大的語言理解能力 + 自我反思迭代",
-      "llm_model": "gpt-oss:20b",
-      "rag_strategy": "self_rag",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "GPT-OSS 20B",
-          "display_name": "🤖 GPT-OSS 20B",
-          "provider": "ollama",
-          "context_length": 131072,
-          "temperature_default": 0.1,
-          "description": "開源GPT模型，20B參數，強大的語言理解能力"
-        },
-        "rag": {
-          "name": "Self RAG",
-          "display_name": "🔄 Self RAG",
-          "emoji": "🔄",
-          "description": "自我反思迭代"
-        }
-      },
-      "params": {
-        "temperature": 0.1,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
-      "id": "gpt-oss:20b@naive_rag",
-      "name": "🤖 GPT-OSS 20B + 📝 Naive RAG",
-      "display_name": "📝 GPT-OSS 20B + Naive RAG",
-      "description": "開源GPT模型，20B參數，強大的語言理解能力 + 基礎檢索生成",
-      "llm_model": "gpt-oss:20b",
-      "rag_strategy": "naive_rag",
-      "enabled": true,
-      "meta": {
-        "llm": {
-          "name": "GPT-OSS 20B",
-          "display_name": "🤖 GPT-OSS 20B",
-          "provider": "ollama",
-          "context_length": 131072,
-          "temperature_default": 0.1,
-          "description": "開源GPT模型，20B參數，強大的語言理解能力"
-        },
-        "rag": {
-          "name": "Naive RAG",
-          "display_name": "📝 Naive RAG",
-          "emoji": "📝",
-          "description": "基礎檢索生成"
-        }
-      },
-      "params": {
-        "temperature": 0.1,
-        "max_tokens": 2048,
-        "use_rag": true
-      }
-    },
-    {
-      "id": "deepseek-r1:32b@naive_rag",
-      "name": "🧠 DeepSeek-R1 32B + 📝 Naive RAG",
-      "display_name": "📝 DeepSeek-R1 32B + Naive RAG",
-      "description": "DeepSeek-R1 大型版本，推理能力更強 + 基礎檢索生成",
-      "llm_model": "deepseek-r1:32b",
-      "rag_strategy": "naive_rag",
-      "enabled": true,
-      "meta": { "llm": { "name": "DeepSeek-R1 32B", "display_name": "🧠 DeepSeek-R1 32B", "provider": "ollama", "context_length": 32768, "temperature_default": 0.15, "description": "DeepSeek-R1 大型版本，推理能力更強" }, "rag": { "name": "Naive RAG", "display_name": "📝 Naive RAG", "emoji": "📝", "description": "基礎檢索生成" } },
-      "params": { "temperature": 0.15, "max_tokens": 2048, "use_rag": true }
-    },
-    {
-      "id": "deepseek-r1:32b@advanced_rag",
-      "name": "🧠 DeepSeek-R1 32B + 🎯 Advanced RAG",
-      "display_name": "🎯 DeepSeek-R1 32B + Advanced RAG",
-      "description": "DeepSeek-R1 大型版本，推理能力更強 + 多級檢索重排",
-      "llm_model": "deepseek-r1:32b",
-      "rag_strategy": "advanced_rag",
-      "enabled": true,
-      "meta": { "llm": { "name": "DeepSeek-R1 32B", "display_name": "🧠 DeepSeek-R1 32B", "provider": "ollama", "context_length": 32768, "temperature_default": 0.15, "description": "DeepSeek-R1 大型版本，推理能力更強" }, "rag": { "name": "Advanced RAG", "display_name": "🎯 Advanced RAG", "emoji": "🎯", "description": "多級檢索重排" } },
-      "params": { "temperature": 0.15, "max_tokens": 2048, "use_rag": true }
-    },
-    {
-      "id": "deepseek-r1:32b@graph_only",
-      "name": "🧠 DeepSeek-R1 32B + 🕸️ 圖譜RAG",
-      "display_name": "🕸️ DeepSeek-R1 32B + Graph Only RAG",
-      "description": "DeepSeek-R1 大型版本，推理能力更強 + 知識圖譜檢索",
-      "llm_model": "deepseek-r1:32b",
-      "rag_strategy": "graph_only",
-      "enabled": true,
-      "meta": { "llm": { "name": "DeepSeek-R1 32B", "display_name": "🧠 DeepSeek-R1 32B", "provider": "ollama", "context_length": 32768, "temperature_default": 0.15, "description": "DeepSeek-R1 大型版本，推理能力更強" }, "rag": { "name": "Graph Only RAG", "display_name": "🕸️ 圖譜RAG", "emoji": "🕸️", "description": "知識圖譜檢索" } },
-      "params": { "temperature": 0.15, "max_tokens": 2048, "use_rag": true }
-    },
-    {
-      "id": "deepseek-r1:32b@agentic_rag",
-      "name": "🧠 DeepSeek-R1 32B + 🤖 Agentic RAG",
-      "display_name": "🤖 DeepSeek-R1 32B + Agentic RAG",
-      "description": "DeepSeek-R1 大型版本，推理能力更強 + 智能代理推理",
-      "llm_model": "deepseek-r1:32b",
-      "rag_strategy": "agentic_rag",
-      "enabled": true,
-      "meta": { "llm": { "name": "DeepSeek-R1 32B", "display_name": "🧠 DeepSeek-R1 32B", "provider": "ollama", "context_length": 32768, "temperature_default": 0.15, "description": "DeepSeek-R1 大型版本，推理能力更強" }, "rag": { "name": "Agentic RAG", "display_name": "🤖 Agentic RAG", "emoji": "🤖", "description": "智能代理推理" } },
-      "params": { "temperature": 0.15, "max_tokens": 2048, "use_rag": true }
-    },
-    {
-      "id": "qwen3:30b@naive_rag",
-      "name": "🔮 Qwen 3 30B + 📝 Naive RAG",
-      "display_name": "📝 Qwen 3 30B + Naive RAG",
-      "description": "Qwen 3 MoE 大型版本 + 基礎檢索生成",
-      "llm_model": "qwen3:30b",
-      "rag_strategy": "naive_rag",
-      "enabled": true,
-      "meta": { "llm": { "name": "Qwen 3 30B", "display_name": "🔮 Qwen 3 30B", "provider": "ollama", "context_length": 32768, "temperature_default": 0.2, "description": "Qwen 3 MoE 大型版本" }, "rag": { "name": "Naive RAG", "display_name": "📝 Naive RAG", "emoji": "📝", "description": "基礎檢索生成" } },
-      "params": { "temperature": 0.2, "max_tokens": 2048, "use_rag": true }
-    },
-    {
-      "id": "qwen3:30b@advanced_rag",
-      "name": "🔮 Qwen 3 30B + 🎯 Advanced RAG",
-      "display_name": "🎯 Qwen 3 30B + Advanced RAG",
-      "description": "Qwen 3 MoE 大型版本 + 多級檢索重排",
-      "llm_model": "qwen3:30b",
-      "rag_strategy": "advanced_rag",
-      "enabled": true,
-      "meta": { "llm": { "name": "Qwen 3 30B", "display_name": "🔮 Qwen 3 30B", "provider": "ollama", "context_length": 32768, "temperature_default": 0.2, "description": "Qwen 3 MoE 大型版本" }, "rag": { "name": "Advanced RAG", "display_name": "🎯 Advanced RAG", "emoji": "🎯", "description": "多級檢索重排" } },
-      "params": { "temperature": 0.2, "max_tokens": 2048, "use_rag": true }
-    },
-    {
-      "id": "qwen3:30b@graph_only",
-      "name": "🔮 Qwen 3 30B + 🕸️ 圖譜RAG",
-      "display_name": "🕸️ Qwen 3 30B + Graph Only RAG",
-      "description": "Qwen 3 MoE 大型版本 + 知識圖譜檢索",
-      "llm_model": "qwen3:30b",
-      "rag_strategy": "graph_only",
-      "enabled": true,
-      "meta": { "llm": { "name": "Qwen 3 30B", "display_name": "🔮 Qwen 3 30B", "provider": "ollama", "context_length": 32768, "temperature_default": 0.2, "description": "Qwen 3 MoE 大型版本" }, "rag": { "name": "Graph Only RAG", "display_name": "🕸️ 圖譜RAG", "emoji": "🕸️", "description": "知識圖譜檢索" } },
-      "params": { "temperature": 0.2, "max_tokens": 2048, "use_rag": true }
-    },
-    {
-      "id": "qwen3:30b@agentic_rag",
-      "name": "🔮 Qwen 3 30B + 🤖 Agentic RAG",
-      "display_name": "🤖 Qwen 3 30B + Agentic RAG",
-      "description": "Qwen 3 MoE 大型版本 + 智能代理推理",
-      "llm_model": "qwen3:30b",
-      "rag_strategy": "agentic_rag",
-      "enabled": true,
-      "meta": { "llm": { "name": "Qwen 3 30B", "display_name": "🔮 Qwen 3 30B", "provider": "ollama", "context_length": 32768, "temperature_default": 0.2, "description": "Qwen 3 MoE 大型版本" }, "rag": { "name": "Agentic RAG", "display_name": "🤖 Agentic RAG", "emoji": "🤖", "description": "智能代理推理" } },
-      "params": { "temperature": 0.2, "max_tokens": 2048, "use_rag": true }
     }
   ],
   "database_config": {
     "neo4j": {
-      "uri": "bolt://neo4j:7687",
+      "uri": "bolt://127.0.0.1:7687",
       "user": "neo4j",
       "password": "CHANGE_ME_NEO4J_PASSWORD",
       "database": "neo4j"
     },
     "chromadb": {
-      "host": "chromadb",
+      "host": "127.0.0.1",
       "port": 8000,
       "collection_name": "art_history"
     },
     "postgres": {
-      "host": "postgres",
+      "host": "127.0.0.1",
       "port": 5432,
       "database": "art_history_db",
       "user": "art_user",
@@ -1216,7 +656,7 @@
   },
   "api_config": {
     "host": "127.0.0.1",
-    "port": 8007,
+    "port": 8001,
     "cors_origins": [
       "*"
     ],

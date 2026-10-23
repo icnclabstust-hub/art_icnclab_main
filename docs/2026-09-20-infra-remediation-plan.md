@@ -256,8 +256,7 @@ Redis、Ollama 並存下，啟動瞬間要到那麼多會失敗。若確認為 O
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://cuda-ml-service:8080';
 ```
 
-`cuda-ml-service` 是 **docker-compose 的服務名**。Docker 已於本次查證確認**完全移除**（發現4），
-該主機名在原生環境下**無法解析**。所以只要 `.env` 未設 `ML_SERVICE_URL`，
+`cuda-ml-service` 是舊服務名，在原生環境下**無法解析**。所以只要 `.env` 未設 `ML_SERVICE_URL`，
 Node 後端就連不到 ml-service。
 
 這與 §2.1 的 `NEO4J_URI` 預設 7688 是**同一種 bug**：設定缺漏時安靜地用錯的預設值繼續跑。
@@ -270,13 +269,6 @@ pip 套件已裝但無常駐程序，而 `unified_rag_manager_v2.py:251` 用的�
 `chromadb.HttpClient(host, port=8001)`——**HttpClient 需要一個常駐 server**。
 現況是「程式碼要求 server 模式、環境沒有 server」。需決定改用嵌入式模式（`PersistentClient`）
 或補啟 `chroma run --port 8001` 為 systemd 服務。
-
-### 3.4 發現4 的文件問題
-
-2026-08-29 的 migration 設計文件狀態已失真（假設 Docker 仍在使用，實際已完全移除，
-且原生化範圍超出原清單——多了 PostgreSQL 18 與 Redis）。
-建議：**不要修補該文件**，把它標記為 superseded，用 Phase 1～3 的實測結果重寫一份現況文件。
-修補一份前提已經不成立的文件，成本高於重寫，而且改完還是沒有簽核紀錄。
 
 ## 4. 建議執行順序（含相依性）
 

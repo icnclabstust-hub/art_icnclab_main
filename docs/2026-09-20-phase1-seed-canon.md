@@ -49,7 +49,7 @@ HEAD 最新且獨有 `ad7eb6c`（requirements 加 UTF-8 BOM，修復 Windows cp9
 
 ### 1.3 兩項附帶確認
 
-- **三個 git 候選都沒有 `docs/designs/`。** 8/29 的 Docker 遷移文件、今日兩份架構設計文件、
+- **三個 git 候選都沒有 `docs/designs/`。** 今日兩份架構設計文件、
   以及調查報告本身，**只存在於快照**。調查報告擔心的「變更只是紙上存在」屬實，
   這些會在 STEP 3 完整撈回。
 - **精整版沒有 `db_backups/`**（存檔版有 4 檔走 Git LFS：`neo4j_data.tar.gz`、
@@ -206,9 +206,8 @@ git status --porcelain           # ← 這就是快照相對正本的獨有內�
 預期會落在第三種，且至少包含：
 
 ```
-docs/designs/2026-08-29-remove-docker-native-migration.md
-docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness.md
-docs/designs/2026-09-20-target-architecture-consistency-eval-faithfulness-assessment.md
+docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness.md
+docs/designs/2026-09-11-target-architecture-consistency-eval-faithfulness-assessment.md
 docs/reports/2026-09-20-infra-findings-report.md
 CLAUDE.md / CODE_REVIEW_STANDARD.md / CODING_STYLE.md
 ```

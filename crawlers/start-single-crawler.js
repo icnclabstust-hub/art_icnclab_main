@@ -2,12 +2,15 @@
 /**
  * 紐約大都會博物館 (MET) API 爬蟲
  * 系統性地依「部門 (Department)」涵蓋 MET 全館收藏，取代原本只有 3 個固定關鍵字的做法
- * 不需要 API Key，不依賴 Docker
+ * 不需要 API Key
  */
 
 const axios = require('axios');
 const fs = require('fs/promises');
 const path = require('path');
+
+// 自我識別 UA：不偽裝成瀏覽器，供對方辨識來源與聯絡窗口（沿用 Yale 爬蟲當初的做法，見 decision-log 2026-09-21）
+const REQUEST_HEADERS = { 'User-Agent': 'art-history-research (+mailto:icnclab.stust@gmail.com)' };
 
 class SimpleMETCrawler {
     constructor() {
@@ -15,6 +18,10 @@ class SimpleMETCrawler {
         this.outputDir = path.join(__dirname, 'data', 'raw', 'met_museum');
         this.collectedData = [];
         this.perDepartmentLimit = 15; // 每個部門最多收集幾件，避免單次爬蟲耗時過長/觸發限流
+    }
+
+    async delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     async ensureOutputDir() {
@@ -27,7 +34,7 @@ class SimpleMETCrawler {
 
     async getDepartments() {
         try {
-            const response = await axios.get(`${this.baseUrl}/departments`, { timeout: 15000 });
+            const response = await axios.get(`${this.baseUrl}/departments`, { timeout: 15000, headers: REQUEST_HEADERS });
             const departments = response.data?.departments || [];
             console.log(`🏛️ 取得 ${departments.length} 個 MET 部門`);
             return departments;
@@ -40,8 +47,9 @@ class SimpleMETCrawler {
     async searchDepartment(departmentId, departmentName, limit) {
         try {
             console.log(`🔍 搜尋部門: ${departmentName} (ID: ${departmentId})`);
-            const searchUrl = `${this.baseUrl}/search?departmentId=${departmentId}&hasImages=true&q=art`;
-            const response = await axios.get(searchUrl, { timeout: 30000 });
+            // v1/search 已於 2026-10-01 停用（回 410），改用分頁的 v1.1/search
+            const searchUrl = `${this.baseUrl}.1/search?departmentId=${departmentId}&hasImages=true&q=art&limit=${limit}`;
+            const response = await axios.get(searchUrl, { timeout: 30000, headers: REQUEST_HEADERS });
 
             if (!response.data || !response.data.objectIDs) {
                 console.log(`   ⚠️ "${departmentName}" 沒有找到作品`);
@@ -60,7 +68,7 @@ class SimpleMETCrawler {
     async getArtworkDetails(objectID) {
         try {
             const detailUrl = `${this.baseUrl}/objects/${objectID}`;
-            const response = await axios.get(detailUrl, { timeout: 10000 });
+            const response = await axios.get(detailUrl, { timeout: 10000, headers: REQUEST_HEADERS });
 
             if (!response.data || !response.data.objectID) {
                 return null;
@@ -109,6 +117,9 @@ class SimpleMETCrawler {
         for (const dept of departments) {
             console.log(`\n📚 處理部門: "${dept.displayName}"`);
 
+            // 部門搜尋本身原本完全沒有節流（詳情頁才有），連續 27 個部門會連續發出搜尋請求，
+            // 疑為 2026-09-23 大量「搜尋部門失敗 403」的成因；補上與詳情頁一致的請求間隔
+            await this.delay(1000);
             const objectIDs = await this.searchDepartment(dept.departmentId, dept.displayName, this.perDepartmentLimit);
 
             if (objectIDs.length === 0) {
@@ -140,10 +151,10 @@ class SimpleMETCrawler {
     async crawlByFallbackQueries(queries = ['Renaissance painting', 'Impressionist painting', 'Modern sculpture']) {
         for (const query of queries) {
             console.log(`\n📚 處理查詢: "${query}"`);
-            const searchUrl = `${this.baseUrl}/search?hasImages=true&q=${encodeURIComponent(query)}`;
+            const searchUrl = `${this.baseUrl}.1/search?hasImages=true&q=${encodeURIComponent(query)}&limit=20`;
             let objectIDs = [];
             try {
-                const response = await axios.get(searchUrl, { timeout: 30000 });
+                const response = await axios.get(searchUrl, { timeout: 30000, headers: REQUEST_HEADERS });
                 objectIDs = (response.data?.objectIDs || []).slice(0, 20);
             } catch (error) {
                 console.error('❌ 搜尋失敗:', error.message);

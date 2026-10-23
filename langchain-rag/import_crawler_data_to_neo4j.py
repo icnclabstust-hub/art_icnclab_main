@@ -6,6 +6,7 @@ Neo4j爬蟲數據導入工具
 
 import json
 import logging
+import os
 import sys
 import time
 from pathlib import Path
@@ -17,6 +18,25 @@ try:
 except ImportError:
     print("❌ 需要安裝neo4j驅動: pip install neo4j")
     sys.exit(1)
+
+# 2026-09-24：本檔案完全沒被專案其他任何地方 import（審視「系統是否全面採用
+# 新架構」時發現的孤兒檔案），直接執行 main() 會繞過 PostgreSQL catalog/outbox
+# 直寫 Neo4j，破壞「catalog 為唯一真相源」的前提，且不會被 `ingest verify` 的
+# 一致性稽核發現。正常情況一律使用新架構管線：`python3 -m ingest run --source <來源>`。
+# 詳見 docs/decision-log.md 2026-09-23「清除舊版每日流程腳本」條目（同一類處理）。
+_LEGACY_BYPASS_ENV = "ALLOW_LEGACY_DIRECT_WRITE"
+_LEGACY_BYPASS_VALUE = "yes-i-know-this-bypasses-outbox"
+
+
+def _require_direct_execution_opt_in():
+    if os.environ.get(_LEGACY_BYPASS_ENV) != _LEGACY_BYPASS_VALUE:
+        raise SystemExit(
+            "❌ 已停用直接執行：本腳本會繞過 PostgreSQL catalog/outbox 直寫 "
+            "Neo4j。正常情況請改用：python3 -m ingest run --source <來源>\n"
+            "   詳見 docs/decision-log.md 2026-09-23「清除舊版每日流程腳本」條目。\n"
+            f"   若清楚後果、確實需要直接執行，設定環境變數 "
+            f"{_LEGACY_BYPASS_ENV}={_LEGACY_BYPASS_VALUE} 後再試一次。"
+        )
 
 
 class Neo4jCrawlerDataImporter:
@@ -461,6 +481,8 @@ class Neo4jCrawlerDataImporter:
 
 def main():
     """主函數"""
+    _require_direct_execution_opt_in()
+
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
     print("🚀 Neo4j爬蟲數據導入工具")

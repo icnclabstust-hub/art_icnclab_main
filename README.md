@@ -74,14 +74,15 @@ npm run dev
 
 ```
 art_icnclab/
-├── src/                    # Node API（Express）與 Python agent 系統
-├── agents/                 # 4 個 AI Agent 實作
 ├── crawlers/               # 各博物館爬蟲與啟動器
 ├── langchain-rag/          # RAG 核心（Neo4j + ChromaDB + Ollama，主服務 unified_rag_manager_v2.py）
 ├── openwebui-pipes/        # OpenWebUI 整合 pipes
 ├── scripts/                # 維運腳本（scripts/ops/ 含部署、資料管線）
-├── tests/                  # jest 單元測試；tests/manual/ 為手動整合腳本
-├── docs/                   # 設計文件模板（GD 流程）
+├── tests/                  # tests/python/ 為現行 pytest；tests/manual/ 為手動整合腳本
+├── docs/                   # 設計文件模板（GD 流程）、決策日記（decision-log.md）
+├── archive/legacy-node-system/  # 已封存：第一代 Node API（Express）／4 個 Agent／
+│                                 # Python agent＋RL 系統，2026-09-24 確認非現行系統
+│                                 # 使用後移入，詳見該目錄 README 與 decision-log
 └── config/                 # Node 端設定與 schema
 ```
 

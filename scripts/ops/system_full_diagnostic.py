@@ -5,6 +5,7 @@
 """
 
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime
@@ -38,43 +39,17 @@ class SystemDiagnostic:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    def check_docker_containers(self):
-        """檢查所有Docker容器"""
-        print("📦 檢查Docker容器...")
-
-        cmd = "docker ps -a --filter 'name=art-history' --format '{{.Names}}\t{{.Status}}'"
-        result = self.run_command(cmd, "Docker容器狀態")
-
-        if result["success"]:
-            containers = result["stdout"].strip().split("\n")
-            healthy = 0
-            total = len(containers)
-
-            for container in containers:
-                if container:
-                    name, status = container.split("\t", 1)
-                    is_healthy = "Up" in status and "healthy" in status
-                    if is_healthy:
-                        healthy += 1
-
-            self.add_check(
-                "Docker容器健康檢查",
-                "pass" if healthy == total else "warning",
-                f"{healthy}/{total} 容器健康",
-                {"containers": containers},
-            )
-        else:
-            self.add_check("Docker容器健康檢查", "fail", "無法獲取容器狀態", result)
-
     def check_neo4j_data(self):
         """檢查Neo4j數據"""
         print("🕸️ 檢查Neo4j知識圖譜...")
 
-        # 嘗試不同的密碼
-        passwords = ["password", "neo4j", "art_history_2024", "arthistory2024"]
+        # 密碼只取自環境變數 NEO4J_PASSWORD，由 cypher-shell 自行讀取，不猜測、不放進命令列
+        if not os.getenv("NEO4J_PASSWORD"):
+            self.add_check("Neo4j數據檢查", "fail", "未設定 NEO4J_PASSWORD 環境變數")
+            return
 
-        for pwd in passwords:
-            cmd = f'docker exec art-history-neo4j cypher-shell -u neo4j -p {pwd} "MATCH (n) RETURN count(n) as total_nodes LIMIT 1"'
+        for _ in range(1):
+            cmd = f'cypher-shell -a bolt://127.0.0.1:7687 -u neo4j "MATCH (n) RETURN count(n) as total_nodes LIMIT 1"'
             result = self.run_command(cmd, "Neo4j節點統計")
 
             if result["success"]:
@@ -86,11 +61,11 @@ class SystemDiagnostic:
                             "Neo4j數據檢查",
                             "pass" if int(count) > 0 else "warning",
                             f"知識圖譜包含 {count} 個節點",
-                            {"password": pwd},
+                            {"uri": "bolt://127.0.0.1:7687"},
                         )
 
                         # 檢查關係數量
-                        cmd2 = f'docker exec art-history-neo4j cypher-shell -u neo4j -p {pwd} "MATCH ()-[r]->() RETURN count(r) as total_relationships LIMIT 1"'
+                        cmd2 = f'cypher-shell -a bolt://127.0.0.1:7687 -u neo4j "MATCH ()-[r]->() RETURN count(r) as total_relationships LIMIT 1"'
                         result2 = self.run_command(cmd2, "Neo4j關係統計")
                         if result2["success"]:
                             rel_count = result2["stdout"].strip().split("\n")[1].strip()
@@ -107,7 +82,7 @@ class SystemDiagnostic:
         """檢查ChromaDB"""
         print("🔍 檢查ChromaDB向量資料庫...")
 
-        cmd = "curl -s http://localhost:8001/api/v1/heartbeat"
+        cmd = "curl -s http://localhost:8000/api/v1/heartbeat"
         result = self.run_command(cmd, "ChromaDB健康檢查")
 
         if "Unimplemented" in result["stdout"]:
@@ -127,7 +102,7 @@ class SystemDiagnostic:
         """檢查Ollama模型"""
         print("🤖 檢查Ollama模型...")
 
-        cmd = "docker exec art-history-ollama ollama list"
+        cmd = "ollama list"
         result = self.run_command(cmd, "Ollama模型列表")
 
         if result["success"]:
@@ -147,7 +122,7 @@ class SystemDiagnostic:
         """檢查RAG Manager"""
         print("⚙️ 檢查RAG Manager...")
 
-        cmd = "curl -s http://localhost:8007/health"
+        cmd = "curl -s http://localhost:8001/health"
         result = self.run_command(cmd, "RAG Manager健康檢查")
 
         if result["success"]:
@@ -256,7 +231,6 @@ class SystemDiagnostic:
         print("時間:", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         print("=" * 60)
 
-        self.check_docker_containers()
         self.check_neo4j_data()
         self.check_chromadb()
         self.check_ollama_models()

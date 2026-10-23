@@ -1,0 +1,1223 @@
+{
+  "next_actions": [
+    "3-1",
+    "3-2",
+    "3-3",
+    "3-4"
+  ],
+  "requirements": [
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "BIZ-01",
+      "line": 393,
+      "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
+      "title": "biz schema"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "BIZ-02",
+      "line": 394,
+      "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
+      "status_glyph": "❌",
+      "status_raw": "❌ **前置需求**",
+      "title": "使用者身分傳遞"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "BIZ-03",
+      "line": 395,
+      "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
+      "status_glyph": "❌",
+      "status_raw": "❌ 鎖定關閉",
+      "title": "開關"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "BIZ-04",
+      "line": 396,
+      "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "資料庫保存期限"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "BIZ-04a",
+      "line": 397,
+      "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
+      "status_glyph": "✔",
+      "status_raw": "✔ 已定案",
+      "title": "歸檔保存期限"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "BIZ-04b",
+      "line": 398,
+      "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "用語一致性"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "BIZ-05",
+      "line": 399,
+      "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
+      "status_glyph": "⏸",
+      "status_raw": "⏸ 暫緩",
+      "title": "法規告知"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "BIZ-06",
+      "line": 400,
+      "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
+      "status_glyph": "✅",
+      "status_raw": "✅ 已豁免",
+      "title": "核可紀錄"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "BIZ-07",
+      "line": 401,
+      "section": "9. 對話記錄與隱私規格（決策 A3–A6）",
+      "status_glyph": "❌",
+      "status_raw": "❌ 另案",
+      "title": "存取控制"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-01",
+      "line": 221,
+      "section": "4.1 一致性模型",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "唯一真相源"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-02",
+      "line": 222,
+      "section": "4.1 一致性模型",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "變更傳播"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-03",
+      "line": 223,
+      "section": "4.1 一致性模型",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "投遞語意"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-04",
+      "line": 224,
+      "section": "4.1 一致性模型",
+      "status_glyph": "✅",
+      "status_raw": "✅ 已實跑",
+      "title": "一致性驗證"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-05",
+      "line": 225,
+      "section": "4.1 一致性模型",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "週期性稽核"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-10",
+      "line": 231,
+      "section": "4.2 各庫職責與規格",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "ChromaDB"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-11",
+      "line": 232,
+      "section": "4.2 各庫職責與規格",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "Elasticsearch"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-12",
+      "line": 233,
+      "section": "4.2 各庫職責與規格",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "Neo4j"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-13",
+      "line": 234,
+      "section": "4.2 各庫職責與規格",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "Neo4j"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-14",
+      "line": 235,
+      "section": "4.2 各庫職責與規格",
+      "status_glyph": "✅",
+      "status_raw": "✅ 已驗證還原／⚠️ 分片規格待實作",
+      "title": "Neo4j"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-15",
+      "line": 236,
+      "section": "4.2 各庫職責與規格",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "全庫"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-15a",
+      "line": 237,
+      "section": "4.2 各庫職責與規格",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "全庫"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-16",
+      "line": 238,
+      "section": "4.2 各庫職責與規格",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "全庫"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-17",
+      "line": 239,
+      "section": "4.2 各庫職責與規格",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "全庫"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-20",
+      "line": 247,
+      "section": "4.3 軟到期與保留",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "軟到期"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-21",
+      "line": 248,
+      "section": "4.3 軟到期與保留",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "保留期"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-22",
+      "line": 249,
+      "section": "4.3 軟到期與保留",
+      "status_glyph": "✅",
+      "status_raw": "✅ 已實跑",
+      "title": "過時 chunk 清除"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-30",
+      "line": 255,
+      "section": "4.4 嵌入模型版本標註（決策 B11：**做**）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "ingest 時記錄向量由哪個模型產生"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-31",
+      "line": 256,
+      "section": "4.4 嵌入模型版本標註（決策 B11：**做**）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "納入 `ingest verify`"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "DAT-32",
+      "line": 257,
+      "section": "4.4 嵌入模型版本標註（決策 B11：**做**）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "換模型的處理"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-01",
+      "line": 356,
+      "section": "8.1 黃金測試集（決策 A1）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "規模與基準"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-02",
+      "line": 357,
+      "section": "8.1 黃金測試集（決策 A1）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "標註者"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-03",
+      "line": 358,
+      "section": "8.1 黃金測試集（決策 A1）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "標註格式"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-04",
+      "line": 359,
+      "section": "8.1 黃金測試集（決策 A1）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "儲存"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-05",
+      "line": 365,
+      "section": "8.2 量測（決策 A2）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "召回率粒度"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-06",
+      "line": 366,
+      "section": "8.2 量測（決策 A2）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "四段量測"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-07",
+      "line": 367,
+      "section": "8.2 量測（決策 A2）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "儲存"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-08",
+      "line": 368,
+      "section": "8.2 量測（決策 A2）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "基準與回歸"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-10",
+      "line": 374,
+      "section": "8.3 告警（決策 B12）",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
+      "title": "`eval.alerts` 為唯一告警出口"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-11",
+      "line": 375,
+      "section": "8.3 告警（決策 B12）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "稽核擴充"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-12",
+      "line": 376,
+      "section": "8.3 告警（決策 B12）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "告警須被看到"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-15",
+      "line": 382,
+      "section": "8.4 拒答複審（決策 B6）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "拒答佇列"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-15a",
+      "line": 383,
+      "section": "8.4 拒答複審（決策 B6）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "拒答佇列不得繞過 `BIZLOGGING`"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-16",
+      "line": 384,
+      "section": "8.4 拒答複審（決策 B6）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "複審頻率"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "EVL-17",
+      "line": 385,
+      "section": "8.4 拒答複審（決策 B6）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "複審輸出"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GEN-01",
+      "line": 343,
+      "section": "7. 生成層規格（L6）",
+      "status_glyph": "✅",
+      "status_raw": "✅／⚠️",
+      "title": "生成引擎"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GEN-02",
+      "line": 344,
+      "section": "7. 生成層規格（L6）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "回應必含引用"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GEN-03",
+      "line": 345,
+      "section": "7. 生成層規格（L6）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "風險標記"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GEN-04",
+      "line": 346,
+      "section": "7. 生成層規格（L6）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "無來源不生成"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-01",
+      "line": 310,
+      "section": "6.1 證據判定與拒答",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "無檢索支撐時的政策"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-02",
+      "line": 311,
+      "section": "6.1 證據判定與拒答",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "可信度 K 的定義"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-03",
+      "line": 312,
+      "section": "6.1 證據判定與拒答",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "模糊檢索補救"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-04",
+      "line": 313,
+      "section": "6.1 證據判定與拒答",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "拒答回應格式"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-05",
+      "line": 314,
+      "section": "6.1 證據判定與拒答",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "門檻校準方式"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-06",
+      "line": 320,
+      "section": "6.2 忠實度守門（決策 B4）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "同步粗篩"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-06a",
+      "line": 321,
+      "section": "6.2 忠實度守門（決策 B4）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "300 ms 的地位"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-06b",
+      "line": 322,
+      "section": "6.2 忠實度守門（決策 B4）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "粗篩的實作邊界"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-06c",
+      "line": 323,
+      "section": "6.2 忠實度守門（決策 B4）",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
+      "title": "掛住保護硬上限"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-06d",
+      "line": 324,
+      "section": "6.2 忠實度守門（決策 B4）",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
+      "title": "掛住與崩潰須可分辨"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-07",
+      "line": 325,
+      "section": "6.2 忠實度守門（決策 B4）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "非同步精篩"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-08",
+      "line": 326,
+      "section": "6.2 忠實度守門（決策 B4）",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
+      "title": "影子模式"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-09",
+      "line": 332,
+      "section": "6.3 失效行為（決策 B3）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "防護元件出錯時"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "GRD-10",
+      "line": 333,
+      "section": "6.3 失效行為（決策 B3）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "`gateerror` 的可觀測性"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "OPS-01",
+      "line": 530,
+      "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "更換 Elasticsearch 密碼"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "OPS-02",
+      "line": 531,
+      "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "確認移除 Yale 後的第一次完整夜間流程"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "OPS-03",
+      "line": 532,
+      "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "將 `phase0-docs-and-tidy` 併入 `main`（不經 PR，本地 `merge --no-ff` 後推送）"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "OPS-04",
+      "line": 533,
+      "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "清理 `.env` 過時項目"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "OPS-05",
+      "line": 534,
+      "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "`querylogs` 執行期 log 被 git 追蹤"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "OPS-06",
+      "line": 535,
+      "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "V&A 157／302 件缺豐富關係"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "OPS-07",
+      "line": 536,
+      "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
+      "title": "Elasticsearch 重啟迴圈"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "OPS-08",
+      "line": 537,
+      "section": "14. 維運待辦（不屬於決策，但阻擋驗收）",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "ml-service、`creategraphragmodels.py` 埠號整併機器端套用"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-01",
+      "line": 269,
+      "section": "5.1 Router",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "策略選擇"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-02",
+      "line": 270,
+      "section": "5.1 Router",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "預設策略"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-03",
+      "line": 271,
+      "section": "5.1 Router",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "逐步啟用"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-04",
+      "line": 277,
+      "section": "5.2 融合與重排",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "RRF 融合"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-05",
+      "line": 278,
+      "section": "5.2 融合與重排",
+      "status_glyph": "⚠️",
+      "status_raw": "⚠️",
+      "title": "實作順序"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-06",
+      "line": 279,
+      "section": "5.2 融合與重排",
+      "status_glyph": "❌",
+      "status_raw": "❌",
+      "title": "Reranker"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-07",
+      "line": 281,
+      "section": "5.2 融合與重排",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "候選數"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-08",
+      "line": 287,
+      "section": "5.3 外部補充（決策 B13）",
+      "status_glyph": "❌",
+      "status_raw": "❌ 不實作",
+      "title": "Google Books 後置補充"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-09",
+      "line": 280,
+      "section": "5.2 融合與重排",
+      "status_glyph": "✅",
+      "status_raw": "✅ 2026-10-09（設計 `docs/designs/2026-10-09-llm-query-translation.md`）",
+      "title": "查詢翻譯"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-10",
+      "line": 293,
+      "section": "5.4 快取（決策 B10）",
+      "status_glyph": "✅",
+      "status_raw": "✅ 已取代",
+      "title": "現況"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-11",
+      "line": 294,
+      "section": "5.4 快取（決策 B10）",
+      "status_glyph": "✅",
+      "status_raw": "✅ 2026-10-13（`redis_cache.py`）",
+      "title": "目標"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-12",
+      "line": 295,
+      "section": "5.4 快取（決策 B10）",
+      "status_glyph": "✅",
+      "status_raw": "✅ 2026-10-13（`subscribers run --target cache`，夜間流程）",
+      "title": "失效"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "RET-13",
+      "line": 296,
+      "section": "5.4 快取（決策 B10）",
+      "status_glyph": "✅",
+      "status_raw": "✅ 2026-10-13（拒答句型與空結果不寫入）",
+      "title": "不快取拒答"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "SYS-01",
+      "line": 177,
+      "section": "3.1 現況基準（as-is，2026-09-23）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "服務啟動機制"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "SYS-02",
+      "line": 178,
+      "section": "3.1 現況基準（as-is，2026-09-23）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "不使用 Docker"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "SYS-03",
+      "line": 179,
+      "section": "3.1 現況基準（as-is，2026-09-23）",
+      "status_glyph": "✅",
+      "status_raw": "✅",
+      "title": "不使用 systemd 管理專案服務"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "SYS-04",
+      "line": 180,
+      "section": "3.1 現況基準（as-is，2026-09-23）",
+      "status_glyph": "❌",
+      "status_raw": "❌ 缺陷",
+      "title": "服務監管"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "SYS-05",
+      "line": 181,
+      "section": "3.1 現況基準（as-is，2026-09-23）",
+      "status_glyph": "✅",
+      "status_raw": "✅ **不是缺陷**（見文末更正記錄）",
+      "title": "執行期目錄"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "SYS-06",
+      "line": 182,
+      "section": "3.1 現況基準（as-is，2026-09-23）",
+      "status_glyph": "❌",
+      "status_raw": "❌ 缺陷",
+      "title": "API 存取控制"
+    },
+    {
+      "file": "2026-09-23-system-spec-srs.md",
+      "id": "SYS-07",
+      "line": 183,
+      "section": "3.1 現況基準（as-is，2026-09-23）",
+      "status_glyph": "❌",
+      "status_raw": "❌ 缺陷",
+      "title": "設定載入"
+    }
+  ],
+  "source": {
+    "flow": {
+      "path": "docs\\2026-09-23-system-flow-steps.md",
+      "sha256": "8f7a1956c2b563fbe86a4743b65132fb53cb5b25a869f4b46981bb714ca975a2"
+    },
+    "srs": {
+      "path": "docs\\2026-09-23-system-spec-srs.md",
+      "sha256": "cac6ba68eb27e89f3954eac92c73569f5fbbda573fd1b462151e0e3f672852f3"
+    }
+  },
+  "stats": {
+    "requirements": 90,
+    "requirements_done": 42,
+    "requirements_todo": 39,
+    "steps": 27
+  },
+  "steps": [
+    {
+      "action": "指派黃金測試集標註人選",
+      "blocked_by": [],
+      "depends_on": [],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "P0-1",
+      "kind": "task",
+      "line": 56,
+      "section": "1.1 Phase 0：前置解卡",
+      "state": "closed"
+    },
+    {
+      "action": "確認適用法規、告知文字，以及是否需研究倫理審查",
+      "blocked_by": [],
+      "depends_on": [],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "P0-2",
+      "kind": "task",
+      "line": 57,
+      "section": "1.1 Phase 0：前置解卡",
+      "state": "deferred"
+    },
+    {
+      "action": "依 P0-2 結論確認 `biz.messages` 保存期限",
+      "blocked_by": [
+        "P0-2"
+      ],
+      "depends_on": [
+        "P0-2"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "P0-3",
+      "kind": "task",
+      "line": 58,
+      "section": "1.1 Phase 0：前置解卡",
+      "state": "blocked"
+    },
+    {
+      "action": "Approver 核可 Tier B 實作，補簽 GD 評估表 §九",
+      "blocked_by": [],
+      "depends_on": [],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "P0-4",
+      "kind": "task",
+      "line": 59,
+      "section": "1.1 Phase 0：前置解卡",
+      "state": "closed"
+    },
+    {
+      "action": "指派拒答佇列每週複審人選",
+      "blocked_by": [],
+      "depends_on": [],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "P0-5",
+      "kind": "task",
+      "line": 60,
+      "section": "1.1 Phase 0：前置解卡",
+      "state": "closed"
+    },
+    {
+      "action": "決定執行期目錄處理方式並執行",
+      "blocked_by": [],
+      "depends_on": [],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "P0-6",
+      "kind": "task",
+      "line": 61,
+      "section": "1.1 Phase 0：前置解卡",
+      "state": "closed"
+    },
+    {
+      "action": "`BIZLOGGING` 保持 關閉",
+      "blocked_by": [],
+      "depends_on": [],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "3-1",
+      "kind": "task",
+      "line": 79,
+      "section": "1.2 Phase 3：對話記錄與召回率評測",
+      "state": "ready"
+    },
+    {
+      "action": "修改 pipe，將使用者身分（或匿名代號）傳至後端",
+      "blocked_by": [],
+      "depends_on": [],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "3-2",
+      "kind": "task",
+      "line": 80,
+      "section": "1.2 Phase 3：對話記錄與召回率評測",
+      "state": "ready"
+    },
+    {
+      "action": "建立 `eval.goldenset` 並完成標註",
+      "blocked_by": [],
+      "depends_on": [
+        "P0-1"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "3-3",
+      "kind": "task",
+      "line": 81,
+      "section": "1.2 Phase 3：對話記錄與召回率評測",
+      "state": "ready"
+    },
+    {
+      "action": "實作四段量測，寫入 `eval.measurements`",
+      "blocked_by": [],
+      "depends_on": [],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "3-4",
+      "kind": "task",
+      "line": 82,
+      "section": "1.2 Phase 3：對話記錄與召回率評測",
+      "state": "ready"
+    },
+    {
+      "action": "以現況系統跑一次，取得基準值",
+      "blocked_by": [
+        "3-3",
+        "3-4"
+      ],
+      "depends_on": [
+        "3-3",
+        "3-4"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "3-5",
+      "kind": "task",
+      "line": 83,
+      "section": "1.2 Phase 3：對話記錄與召回率評測",
+      "state": "blocked"
+    },
+    {
+      "action": "實作 `biz.messages` 保存期限與歸檔",
+      "blocked_by": [
+        "P0-2"
+      ],
+      "depends_on": [
+        "P0-2"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "3-6",
+      "kind": "task",
+      "line": 84,
+      "section": "1.2 Phase 3：對話記錄與召回率評測",
+      "state": "deferred"
+    },
+    {
+      "action": "上線告知文字",
+      "blocked_by": [
+        "P0-2"
+      ],
+      "depends_on": [
+        "P0-2"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "3-7",
+      "kind": "task",
+      "line": 85,
+      "section": "1.2 Phase 3：對話記錄與召回率評測",
+      "state": "deferred"
+    },
+    {
+      "action": "開啟 `BIZLOGGING`",
+      "blocked_by": [
+        "P0-2"
+      ],
+      "depends_on": [
+        "P0-2"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "3-8",
+      "kind": "task",
+      "line": 86,
+      "section": "1.2 Phase 3：對話記錄與召回率評測",
+      "state": "deferred"
+    },
+    {
+      "action": "將量測納入夜間流程（流程 D）",
+      "blocked_by": [
+        "3-4"
+      ],
+      "depends_on": [
+        "3-4"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "3-9",
+      "kind": "task",
+      "line": 87,
+      "section": "1.2 Phase 3：對話記錄與召回率評測",
+      "state": "blocked"
+    },
+    {
+      "action": "實作證據判定、模糊檢索補救、K 分數計算，全部設為影子模式",
+      "blocked_by": [
+        "3-5",
+        "3-9"
+      ],
+      "depends_on": [
+        "3-5",
+        "3-9"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "4-1",
+      "kind": "task",
+      "line": 105,
+      "section": "1.3 Phase 4：證據、拒答與忠實度",
+      "state": "blocked"
+    },
+    {
+      "action": "累積影子資料（建議 ≥ 2 週或 ≥ 500 次查詢，取先到者）",
+      "blocked_by": [
+        "4-1"
+      ],
+      "depends_on": [
+        "4-1"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "4-2",
+      "kind": "task",
+      "line": 106,
+      "section": "1.3 Phase 4：證據、拒答與忠實度",
+      "state": "blocked"
+    },
+    {
+      "action": "以黃金集校準門檻，驗證 `K > 0.7` 是否為適當切點",
+      "blocked_by": [
+        "4-2"
+      ],
+      "depends_on": [
+        "4-2"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "4-3",
+      "kind": "task",
+      "line": 107,
+      "section": "1.3 Phase 4：證據、拒答與忠實度",
+      "state": "blocked"
+    },
+    {
+      "action": "實作 `gateerror` 拒答路徑與 1% critical 告警；`gatehang` 與 `gatecrash` 分開記錄",
+      "blocked_by": [
+        "4-3"
+      ],
+      "depends_on": [
+        "4-3"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "4-4",
+      "kind": "task",
+      "line": 108,
+      "section": "1.3 Phase 4：證據、拒答與忠實度",
+      "state": "blocked"
+    },
+    {
+      "action": "實作拒答佇列",
+      "blocked_by": [
+        "4-4"
+      ],
+      "depends_on": [
+        "4-4"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "4-5",
+      "kind": "task",
+      "line": 109,
+      "section": "1.3 Phase 4：證據、拒答與忠實度",
+      "state": "blocked"
+    },
+    {
+      "action": "實作同步粗篩（無品質逾時，僅 30 秒掛住保護）與非同步專用 NLI 模型精篩。粗篩只做本地字面比對，不得呼叫模型",
+      "blocked_by": [
+        "4-4"
+      ],
+      "depends_on": [
+        "4-4"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "4-6",
+      "kind": "task",
+      "line": 110,
+      "section": "1.3 Phase 4：證據、拒答與忠實度",
+      "state": "blocked"
+    },
+    {
+      "action": "分路由逐步啟用阻擋：先 `vector`，再 `fulltext`，最後 `graph`",
+      "blocked_by": [
+        "4-6"
+      ],
+      "depends_on": [
+        "4-6"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "4-7",
+      "kind": "task",
+      "line": 111,
+      "section": "1.3 Phase 4：證據、拒答與忠實度",
+      "state": "blocked"
+    },
+    {
+      "action": "實作 Router（依請求指定策略，預設 `hybrid`）",
+      "blocked_by": [
+        "4-7"
+      ],
+      "depends_on": [
+        "4-7"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "5-1",
+      "kind": "task",
+      "line": 125,
+      "section": "1.4 Phase 5：Router、融合與重排",
+      "state": "blocked"
+    },
+    {
+      "action": "實作系統級 RRF（`k` 預設 60）",
+      "blocked_by": [
+        "5-1"
+      ],
+      "depends_on": [
+        "5-1"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "5-2",
+      "kind": "task",
+      "line": 126,
+      "section": "1.4 Phase 5：Router、融合與重排",
+      "state": "blocked"
+    },
+    {
+      "action": "量測 RRF 效果",
+      "blocked_by": [
+        "5-2"
+      ],
+      "depends_on": [
+        "5-2"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "5-3",
+      "kind": "task",
+      "line": 127,
+      "section": "1.4 Phase 5：Router、融合與重排",
+      "state": "blocked"
+    },
+    {
+      "action": "依 5-3 結果決定是否加入輕量重排（非 cross-encoder）",
+      "blocked_by": [
+        "5-3"
+      ],
+      "depends_on": [
+        "5-3"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "5-4",
+      "kind": "task",
+      "line": 128,
+      "section": "1.4 Phase 5：Router、融合與重排",
+      "state": "blocked"
+    },
+    {
+      "action": "依 5-3 結果決定是否調整 Router 各路權重",
+      "blocked_by": [
+        "5-3"
+      ],
+      "depends_on": [
+        "5-3"
+      ],
+      "file": "2026-09-23-system-flow-steps.md",
+      "id": "5-5",
+      "kind": "task",
+      "line": 129,
+      "section": "1.4 Phase 5：Router、融合與重排",
+      "state": "blocked"
+    }
+  ],
+  "validation": {
+    "checks_implemented": [
+      "C1",
+      "C2",
+      "C8",
+      "C11"
+    ],
+    "errors": [],
+    "ok": true
+  }
+}

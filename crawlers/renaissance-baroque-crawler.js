@@ -8,6 +8,9 @@ const axios = require('axios');
 const fs = require('fs/promises');
 const path = require('path');
 
+// 自我識別 UA：不偽裝成瀏覽器，供對方辨識來源與聯絡窗口（沿用 Yale 爬蟲當初的做法，見 decision-log 2026-09-21）
+const REQUEST_HEADERS = { 'User-Agent': 'art-history-research (+mailto:icnclab.stust@gmail.com)' };
+
 class RenaissanceBaroqueCrawler {
     constructor() {
         this.baseUrl = 'https://collectionapi.metmuseum.org/public/collection/v1';
@@ -56,8 +59,9 @@ class RenaissanceBaroqueCrawler {
     async searchByQuery(query, limit = 30) {
         try {
             console.log(`🔍 搜尋: "${query}"`);
-            const searchUrl = `${this.baseUrl}/search?hasImages=true&q=${encodeURIComponent(query)}`;
-            const response = await axios.get(searchUrl, { timeout: 30000 });
+            // v1/search 已於 2026-10-01 停用（回 410），改用分頁的 v1.1/search
+            const searchUrl = `${this.baseUrl}.1/search?hasImages=true&q=${encodeURIComponent(query)}&limit=${limit}`;
+            const response = await axios.get(searchUrl, { timeout: 30000, headers: REQUEST_HEADERS });
 
             if (!response.data || !response.data.objectIDs) {
                 console.log(`   ❌ "${query}" 沒有找到結果`);
@@ -76,8 +80,8 @@ class RenaissanceBaroqueCrawler {
     async searchByArtist(artistName, limit = 15) {
         try {
             console.log(`👨‍🎨 搜尋藝術家: "${artistName}"`);
-            const searchUrl = `${this.baseUrl}/search?hasImages=true&artistOrCulture=true&q=${encodeURIComponent(artistName)}`;
-            const response = await axios.get(searchUrl, { timeout: 30000 });
+            const searchUrl = `${this.baseUrl}.1/search?hasImages=true&artistOrCulture=true&q=${encodeURIComponent(artistName)}&limit=${limit}`;
+            const response = await axios.get(searchUrl, { timeout: 30000, headers: REQUEST_HEADERS });
 
             if (!response.data || !response.data.objectIDs) {
                 console.log(`   ❌ 藝術家 "${artistName}" 沒有找到作品`);
@@ -96,7 +100,7 @@ class RenaissanceBaroqueCrawler {
     async getArtworkDetails(objectID) {
         try {
             const detailUrl = `${this.baseUrl}/objects/${objectID}`;
-            const response = await axios.get(detailUrl, { timeout: 10000 });
+            const response = await axios.get(detailUrl, { timeout: 10000, headers: REQUEST_HEADERS });
 
             if (!response.data || !response.data.objectID) {
                 return null;

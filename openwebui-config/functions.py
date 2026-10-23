@@ -8,8 +8,7 @@ import requests
 
 class RagStrategyHandler:
     def __init__(self):
-        self.rag_api_url = "http://host.docker.internal:8002"
-        # Docker 已於 2026-07-28 移除；host.docker.internal 在原生環境無法解析
+        self.rag_api_url = "http://127.0.0.1:8002"
         self.ollama_api_url = "http://127.0.0.1:11434"
 
     def parse_model_id(self, model_id: str) -> tuple:

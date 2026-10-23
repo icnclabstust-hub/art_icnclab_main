@@ -8,7 +8,7 @@ const axios = require('axios');
 
 class RAGIntegrationTester {
     constructor() {
-        this.ragManagerUrl = process.env.RAG_MANAGER_URL || 'http://localhost:8007';
+        this.ragManagerUrl = process.env.RAG_MANAGER_URL || 'http://localhost:8001';
         this.testQueries = [
             {
                 query: '文藝復興時期的藝術特點',

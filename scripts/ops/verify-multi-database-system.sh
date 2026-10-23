@@ -76,7 +76,7 @@ echo ""
 test_service "Neo4j" "http://localhost:7474" "圖資料庫服務"
 
 # 2. ChromaDB
-test_service "ChromaDB" "http://localhost:8001/api/v1/heartbeat" "向量資料庫服務"
+test_service "ChromaDB" "http://localhost:8000/api/v1/heartbeat" "向量資料庫服務"
 
 # 3. Ollama
 test_service "Ollama" "http://localhost:11434" "嵌入模型服務"
@@ -199,7 +199,7 @@ fi
 # ChromaDB 集合檢查
 echo -e "${BLUE}檢查 ChromaDB 集合...${NC}"
 TESTS_TOTAL=$((TESTS_TOTAL + 1))
-chroma_response=$(curl -s "http://localhost:8001/api/v2/tenants/default_tenant/databases/default_database/collections/aa7a55a2-924e-41b0-a0f7-9b5c031477a4" \
+chroma_response=$(curl -s "http://localhost:8000/api/v2/tenants/default_tenant/databases/default_database/collections/aa7a55a2-924e-41b0-a0f7-9b5c031477a4" \
     2>/dev/null)
 
 if echo "$chroma_response" | grep -q "art_history"; then
@@ -286,7 +286,7 @@ if [ $failed_tests -eq 0 ]; then
     echo "========================================="
     echo ""
     echo "✅ Neo4j: 運行中 (端口 7474)"
-    echo "✅ ChromaDB: 運行中 (端口 8001)"
+    echo "✅ ChromaDB: 運行中 (端口 8000)"
     echo "✅ Ollama: 運行中 (端口 11434)"
     echo "✅ 多資料庫 RAG 服務器: 運行中 (端口 8010)"
     echo "✅ OpenWebUI: 運行中 (端口 8080)"
@@ -317,7 +317,7 @@ else
     echo "常用診斷命令："
     echo "  - 檢查多資料庫服務器日誌: tail -f multi-database-rag-server.log"
     echo "  - 檢查進程: ps aux | grep -E 'neo4j|chroma|ollama|node'"
-    echo "  - 檢查端口: netstat -tulpn | grep -E '7474|8001|8008|8010|11434'"
+    echo "  - 檢查端口: netstat -tulpn | grep -E '7474|8000|8008|8010|11434'"
     echo ""
     exit 1
 fi

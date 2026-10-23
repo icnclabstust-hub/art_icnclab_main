@@ -1,22 +1,31 @@
 ﻿# 一鍵啟動整套系統：全部原生執行於 WSL（Neo4j / ChromaDB / rag-manager-v2 / Open WebUI）
-# 系統已完全不使用 Docker（2026-07-28 移除）
 # 可重複執行：每個服務都會先檢查是否已經在跑，不會重複啟動
 
 $ErrorActionPreference = "Continue"
-$ProjectDir = "c:\Users\user\Desktop\藝術史資料庫\art-history-database"
+# 專案根目錄由腳本位置推算；WSL 內對應路徑為 /mnt/<磁碟機小寫>/...
+$ProjectDir = Split-Path -Parent $PSScriptRoot
+$WslProjectDir = "/mnt/" + $ProjectDir.Substring(0, 1).ToLower() + ($ProjectDir.Substring(2) -replace "\\", "/")
+# .env 預設在專案根目錄（現行位置 F:\art_icnclab-main\art_icnclab-main\.env）；若放在別處，以環境變數 ART_ENV_FILE 指定
+$EnvFile = if ($env:ART_ENV_FILE) { $env:ART_ENV_FILE } else { Join-Path $ProjectDir ".env" }
 $LogDir = Join-Path $ProjectDir "logs\startup"
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 $LogFile = Join-Path $LogDir ("start_{0}.log" -f (Get-Date -Format "yyyy-MM-ddTHH-mm-ss"))
 
-# 從 .env 讀取密碼，不寫死在腳本裡避免密碼進 git
-function Get-EnvValue($key) {
-    $envPath = Join-Path $ProjectDir ".env"
-    $line = Get-Content $envPath | Where-Object { $_ -match "^$key=" } | Select-Object -First 1
-    if ($line) { return ($line -split "=", 2)[1] }
-    return $null
+# Open WebUI 對外埠：優先用架構圖的 8080；若 Windows 把它保留給 Hyper-V/WinNAT（瀏覽器的 localhost 連不到），
+# 退回 3000。保留範圍會隨系統重開機變動，所以每次啟動時判斷（netsh interface ipv4 show excludedportrange protocol=tcp）。
+function Get-WebUiPort {
+    $preferred = 8080
+    $fallback = 3000
+    foreach ($line in (netsh interface ipv4 show excludedportrange protocol=tcp)) {
+        if ($line -match '^\s*(\d+)\s+(\d+)') {
+            if ($preferred -ge [int]$Matches[1] -and $preferred -le [int]$Matches[2]) { return $fallback }
+        }
+    }
+    return $preferred
 }
-$Neo4jPassword = Get-EnvValue "NEO4J_PASSWORD"
-$EsPassword = Get-EnvValue "ES_PASSWORD"
+$WebUiPort = Get-WebUiPort
+# 密碼不經過命令列（ps 看得到）：只把 .env 的 WSL 路徑交給後端，由後端自己讀
+$WslEnvFile = "/mnt/" + $EnvFile.Substring(0, 1).ToLower() + ($EnvFile.Substring(2) -replace "\\", "/")
 
 function Write-Log($msg) {
     $line = "[{0}] {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $msg
@@ -24,24 +33,12 @@ function Write-Log($msg) {
     Add-Content -Path $LogFile -Value $line
 }
 
-function Test-TcpConnect($hostname, $port) {
-    try {
-        $client = New-Object System.Net.Sockets.TcpClient
-        $connectTask = $client.ConnectAsync($hostname, $port)
-        $completed = $connectTask.Wait(3000)
-        $result = $completed -and $client.Connected
-        $client.Close()
-        return $result
-    } catch {
-        return $false
-    }
-}
-
 function Test-Port($port) {
-    # 只要能建立 TCP 連線就算服務有在跑；用 Invoke-WebRequest 檢查 HTTP 狀態碼會誤判
-    # （例如 ChromaDB 新版對根目錄 "/" 回應 404，會被 Invoke-WebRequest 當成例外，誤判成「服務沒在跑」）
-    # WSL 環境下 Windows 對 127.0.0.1 / localhost（常解析成 ::1）的埠轉發偶爾只有其中一個能通，兩個都測，任一成功就算通過
-    return (Test-TcpConnect "127.0.0.1" $port) -or (Test-TcpConnect "localhost" $port)
+    # 在 WSL 內檢查（服務都跑在 WSL）。不從 Windows 連 localhost：Windows 把 TCP 7937-8340 等範圍保留給
+    # Hyper-V/WinNAT（netsh interface ipv4 show excludedportrange protocol=tcp），8000/8001/8080 落在其中，
+    # WSL 無法轉發到 Windows 的 localhost，從 Windows 測永遠失敗，會誤判成服務沒在跑而重複啟動。
+    $null = & wsl.exe -d Ubuntu-22.04 -- bash -c "(echo > /dev/tcp/127.0.0.1/$port) 2>/dev/null"
+    return ($LASTEXITCODE -eq 0)
 }
 
 function Start-WslBackground($bashCommand) {
@@ -75,28 +72,49 @@ if (Test-Port 8000) {
     if (Test-Port 8000) { Write-Log "✅ ChromaDB 啟動成功" } else { Write-Log "⚠️ ChromaDB 啟動後仍無回應，請檢查 /tmp/chromadb.log" }
 }
 
-# 3. rag-manager-v2（原生 WSL，依賴 Neo4j/ChromaDB，:8007）
-Write-Log "檢查 rag-manager-v2 (port 8007)..."
-if (Test-Port 8007) {
+# 2.5 只用 CPU 的第二個 Ollama（:11435），放查詢翻譯小模型與 bge-m3，不受 GPU 換載生成模型影響
+#     （2026-10-14 E13／E14；評估表 docs/designs/2026-10-14-cpu-ollama-split-experiment.md）
+#     只在 .env 設定改用 11435 時啟動；只比對設定名稱，不讀取值。沒啟動時後端自動退回主 Ollama／詞典
+$useCpuOllama = (Test-Path $EnvFile) -and [bool](Select-String -Path $EnvFile -Pattern '^(EMBED_OLLAMA_URL|QUERY_TRANSLATION_OLLAMA_URL)=.*:11435' -Quiet)
+if ($useCpuOllama) {
+    Write-Log "檢查 CPU Ollama (port 11435)..."
+    if (Test-Port 11435) {
+        Write-Log "✅ CPU Ollama 已在運作"
+    } else {
+        Write-Log "啟動 CPU Ollama..."
+        $cpuOllamaCmd = "env CUDA_VISIBLE_DEVICES= OLLAMA_HOST=127.0.0.1:11435 OLLAMA_MODELS=/usr/share/ollama/.ollama/models OLLAMA_NOPRUNE=1 OLLAMA_KEEP_ALIVE=-1 OLLAMA_MAX_LOADED_MODELS=2 OLLAMA_NUM_PARALLEL=2 /usr/local/bin/ollama serve > /tmp/ollama_cpu_11435.log 2>&1"
+        Start-WslBackground $cpuOllamaCmd
+        Start-Sleep -Seconds 5
+        if (Test-Port 11435) { Write-Log "✅ CPU Ollama 啟動成功" } else { Write-Log "⚠️ CPU Ollama 啟動後仍無回應，請檢查 /tmp/ollama_cpu_11435.log（後端會退回主 Ollama）" }
+    }
+    # 預載並常駐（已載入時立即返回）
+    $null = & wsl.exe -d Ubuntu-22.04 -- bash -c "curl -s -m 120 http://127.0.0.1:11435/api/generate -d '{\`"model\`":\`"qwen3:1.7b\`",\`"keep_alive\`":\`"8760h\`"}' >/dev/null; curl -s -m 120 http://127.0.0.1:11435/api/embed -d '{\`"model\`":\`"bge-m3:latest\`",\`"input\`":[\`"x\`"],\`"keep_alive\`":\`"8760h\`"}' >/dev/null"
+    Write-Log "CPU Ollama 已預載 qwen3:1.7b、bge-m3"
+}
+
+# 3. rag-manager-v2（原生 WSL，依賴 Neo4j/ChromaDB，:8001）
+Write-Log "檢查 rag-manager-v2 (port 8001)..."
+if (Test-Port 8001) {
     Write-Log "✅ rag-manager-v2 已在運作"
 } else {
     Write-Log "啟動 rag-manager-v2..."
-    $ragCmd = "cd '/mnt/c/Users/user/Desktop/藝術史資料庫/art-history-database/langchain-rag' && NEO4J_URI=bolt://127.0.0.1:7687 NEO4J_PASSWORD=$Neo4jPassword CHROMADB_PORT=8000 ES_PASSWORD=$EsPassword python3 unified_rag_manager_v2.py > /tmp/rag_manager_v2.log 2>&1"
+    $ragCmd = "cd '$WslProjectDir/langchain-rag' && ENV_FILE='$WslEnvFile' NEO4J_URI=bolt://127.0.0.1:7687 CHROMADB_PORT=8000 python3 unified_rag_manager_v2.py > /tmp/rag_manager_v2.log 2>&1"
     Start-WslBackground $ragCmd
     Start-Sleep -Seconds 8
-    if (Test-Port 8007) { Write-Log "✅ rag-manager-v2 啟動成功" } else { Write-Log "⚠️ rag-manager-v2 啟動後仍無回應，請檢查 /tmp/rag_manager_v2.log" }
+    if (Test-Port 8001) { Write-Log "✅ rag-manager-v2 啟動成功" } else { Write-Log "⚠️ rag-manager-v2 啟動後仍無回應，請檢查 /tmp/rag_manager_v2.log" }
 }
 
-# 4. Open WebUI（原生 WSL，:8080）
-Write-Log "檢查 Open WebUI (port 8080)..."
-if (Test-Port 8080) {
+# 4. Open WebUI（原生 WSL），埠由 Get-WebUiPort 決定
+Write-Log "Open WebUI 使用埠 $WebUiPort（8080 若被 Windows 保留則退回 3000）"
+Write-Log "檢查 Open WebUI (port $WebUiPort)..."
+if (Test-Port $WebUiPort) {
     Write-Log "✅ Open WebUI 已在運作"
 } else {
     Write-Log "啟動 Open WebUI..."
-    $webuiCmd = "cd /home/user && DATA_DIR=/home/user/openwebui-data OLLAMA_BASE_URL=http://localhost:11434 /home/user/openwebui-venv/bin/open-webui serve --port 8080 > /tmp/openwebui.log 2>&1"
+    $webuiCmd = "cd /home/user && DATA_DIR=/home/user/openwebui-data OLLAMA_BASE_URL=http://localhost:11434 /home/user/openwebui-venv/bin/open-webui serve --port $WebUiPort > /tmp/openwebui.log 2>&1"
     Start-WslBackground $webuiCmd
     Start-Sleep -Seconds 10
-    if (Test-Port 8080) { Write-Log "✅ Open WebUI 啟動成功" } else { Write-Log "⚠️ Open WebUI 啟動後仍無回應，請檢查 /tmp/openwebui.log" }
+    if (Test-Port $WebUiPort) { Write-Log "✅ Open WebUI 啟動成功" } else { Write-Log "⚠️ Open WebUI 啟動後仍無回應，請檢查 /tmp/openwebui.log" }
 }
 
 Write-Log "=== 啟動流程結束 ==="

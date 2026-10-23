@@ -56,7 +56,7 @@ def test_neo4j_connection():
     except Exception as e:
         print(f"❌ 無法連接到 Neo4j: {str(e)}")
         print("\n💡 請確保 Neo4j 正在運行:")
-        print("   docker-compose up -d neo4j")
+        print("   powershell scripts/Start-NativeServices.ps1")
         return False
 
     print("✅ Neo4j 連接測試完成\n")
@@ -231,7 +231,7 @@ def run_all_tests():
     if not test_neo4j_connection():
         print("\n❌ Neo4j 連接失敗,停止後續測試")
         print("\n💡 請先啟動 Neo4j:")
-        print("   docker-compose up -d neo4j")
+        print("   powershell scripts/Start-NativeServices.ps1")
         return
 
     # 測試 3: 圖譜查詢

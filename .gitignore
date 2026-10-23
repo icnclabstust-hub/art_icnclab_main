@@ -17,6 +17,8 @@ yarn-error.log*
 logs/
 *.log
 logs/*
+# 關鍵詞抽取日誌含使用者提問原文，不進版控（規格 OPS-05、BIZ-03）
+langchain-rag/query_logs/
 
 # Runtime data
 pids
@@ -46,8 +48,6 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# Docker
-.dockerignore
 
 # IDE
 .vscode/
@@ -66,6 +66,7 @@ Thumbs.db
 
 # Data directories (exclude actual data but keep structure)
 data/raw/*
+crawlers/data/
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
@@ -92,8 +93,6 @@ temp/
 .transformers_cache/
 .huggingface/
 
-# Docker volumes
-docker-volumes/
 
 # Python
 __pycache__/

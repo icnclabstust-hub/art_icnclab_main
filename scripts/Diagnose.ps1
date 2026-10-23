@@ -7,9 +7,12 @@ param(
     [string]$ErrorText = ""
 )
 
+# 由本腳本位置推算 WSL 路徑（同 Start-NativeServices.ps1），專案搬家不必改這裡
+$WslScript = "/mnt/" + $PSScriptRoot.Substring(0, 1).ToLower() + ($PSScriptRoot.Substring(2) -replace "\\", "/") + "/diagnose.py"
+
 if ($ErrorText) {
-    $ErrorText | wsl -d Ubuntu-22.04 -- python3 "/mnt/c/Users/user/Desktop/藝術史資料庫/art-history-database/scripts/diagnose.py"
+    $ErrorText | wsl -d Ubuntu-22.04 -- python3 $WslScript
 } else {
-    wsl -d Ubuntu-22.04 -- python3 "/mnt/c/Users/user/Desktop/藝術史資料庫/art-history-database/scripts/diagnose.py"
+    wsl -d Ubuntu-22.04 -- python3 $WslScript
 }
 

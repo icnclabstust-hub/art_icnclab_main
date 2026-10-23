@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://art-icnclab.local/spec.schema.json",
+  "title": "art_icnclab RAG 系統規格（機器可讀版本）",
+  "description": "由 scripts/spec-export.py 自 docs/*-system-spec-srs.md 與 docs/*-system-flow-steps.md 產生，唯讀衍生物。",
+  "type": "object",
+  "required": ["source", "stats", "next_actions", "requirements", "steps", "validation"],
+  "additionalProperties": false,
+  "properties": {
+    "source": {
+      "type": "object",
+      "required": ["srs", "flow"],
+      "additionalProperties": false,
+      "properties": {
+        "srs": { "$ref": "#/$defs/sourceFile" },
+        "flow": { "$ref": "#/$defs/sourceFile" }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "required": ["requirements", "steps", "requirements_done", "requirements_todo"],
+      "additionalProperties": false,
+      "properties": {
+        "requirements": { "type": "integer", "minimum": 0 },
+        "steps": { "type": "integer", "minimum": 0 },
+        "requirements_done": { "type": "integer", "minimum": 0 },
+        "requirements_todo": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "next_actions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "kind=task 且 state=ready 的步驟編號"
+    },
+    "requirements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/requirement" }
+    },
+    "steps": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/step" }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["checks_implemented", "errors", "ok"],
+      "additionalProperties": false,
+      "properties": {
+        "checks_implemented": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["C1", "C2", "C8", "C11"] }
+        },
+        "errors": { "type": "array", "items": { "type": "string" } },
+        "ok": { "type": "boolean" }
+      }
+    }
+  },
+  "$defs": {
+    "sourceFile": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "required": ["id", "title", "status_glyph", "status_raw", "file", "line", "section"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Z][A-Z0-9]{0,7}-\\d+[a-z]?$" },
+        "title": { "type": "string" },
+        "status_glyph": {
+          "type": ["string", "null"],
+          "enum": ["✅", "⚠️", "❌", "⏸", "✔", "TBD", null]
+        },
+        "status_raw": { "type": "string" },
+        "file": { "type": "string" },
+        "line": { "type": "integer", "minimum": 1 },
+        "section": { "type": "string" }
+      }
+    },
+    "step": {
+      "type": "object",
+      "required": ["id", "action", "kind", "depends_on", "blocked_by", "state", "file", "line", "section"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "action": { "type": "string" },
+        "kind": { "type": "string", "enum": ["task", "procedure"] },
+        "depends_on": { "type": "array", "items": { "type": "string" } },
+        "blocked_by": { "type": "array", "items": { "type": "string" } },
+        "state": { "type": "string", "enum": ["ready", "blocked", "deferred", "closed"] },
+        "file": { "type": "string" },
+        "line": { "type": "integer", "minimum": 1 },
+        "section": { "type": "string" }
+      }
+    }
+  }
+}

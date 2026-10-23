@@ -34,7 +34,7 @@ from neo4j import GraphDatabase
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-NEO4J_URI = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687")  # 原生 Neo4j（WSL 直接執行，非 Docker），標準埠
+NEO4J_URI = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687")  # 原生 Neo4j（WSL 直接執行），標準埠
 NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 if not NEO4J_PASSWORD:
@@ -42,7 +42,8 @@ if not NEO4J_PASSWORD:
         "缺少 NEO4J_PASSWORD 環境變數。請在啟動前設定，例如："
         "NEO4J_PASSWORD=... python3 classify_art_history_graph.py"
     )
-TERMS_FILE = Path(__file__).parent.parent / "../art_history_terms_dictionary.json"
+DEFAULT_TERMS_FILE = Path(__file__).parent / "art_history_terms_dictionary.json"
+TERMS_FILE = Path(os.getenv("TERMS_FILE", str(DEFAULT_TERMS_FILE)))
 
 # 示範/測試節點的標籤（舊 enhanced_graph_builder.py 產生，內容跟真實爬蟲資料無關）
 DEMO_LABELS = [
@@ -222,6 +223,12 @@ FIXED_SOURCE_INSTITUTIONS = {
     "harvard": "Harvard Art Museums",
     "masterpieces_curated": "Curated Masterpieces Collection",
     "google_books": "Google Books",
+    # 2026-10-18 D1（docs/designs/2026-10-18-graph-data-quality.md）：後加的四館漏列，
+    # 其作品沒有 HELD_BY；名稱與 graph_anchor.MUSEUMS_EXT 一致
+    "art_institute_chicago": "Art Institute of Chicago",
+    "cleveland_museum": "Cleveland Museum of Art",
+    "va_museum": "Victoria and Albert Museum",
+    "yale_university_art_gallery": "Yale University Art Gallery",
 }
 
 

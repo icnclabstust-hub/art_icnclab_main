@@ -6,10 +6,22 @@
 
 import json
 import logging
+import os
 import re
+from collections import Counter
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
+
+# 名字裡少見、但常緊接在人名後面的字：不當作「名字還沒完」的訊號
+_NOT_NAME_CHARS = set("的與和及跟同在是有之等為對於把被如")
+_NAME_DOTS = re.compile(r"(?<=[一-鿿])[.．・•‧･](?=[一-鿿])")
+
+
+def normalize_name_dots(text: str) -> str:
+    """中文名字中間的點統一為「·」（「喬凡尼．貝里尼」→「喬凡尼·貝里尼」，E25）；逐字替換、長度不變。"""
+    return _NAME_DOTS.sub("·", text)
 
 
 class MultilingualQueryTranslator:
@@ -46,6 +58,36 @@ class MultilingualQueryTranslator:
             logger.warning(f"⚠️ 無法載入術語字典: {e}，使用空字典")
             self.dictionary = {}
 
+        # 擴充詞典（scripts/build_term_dictionary.py：Wikidata 畫家／機構＋Getty AAT，
+        # 2026-10-13 故障點 F1）。
+        # 放在前面、原詞典放後面，建索引時原詞典的同名詞條覆寫擴充詞條（原詞典優先，不改既有翻譯）
+        extended_path = Path(
+            os.getenv("QUERY_TERMS_EXTENDED", Path(__file__).with_name("art_terms_extended.json"))
+        )
+        if extended_path.exists():
+            try:
+                extended = json.loads(extended_path.read_text(encoding="utf-8"))
+                extended = {k: v for k, v in extended.items() if not k.startswith("_")}
+                self.dictionary = {**extended, **self.dictionary}
+                logger.info(f"✅ 載入擴充術語字典: {extended_path}")
+            except Exception as e:
+                logger.warning(f"⚠️ 無法載入擴充術語字典: {e}，只用原詞典")
+
+        # 額外詞典（逗號分隔路徑；scripts/build_artist_terms.py 的圖譜畫家中文名，E25 2026-10-17）：
+        # 優先序最低，不覆寫原詞典與擴充詞典；未設定＝不載入（現行行為）。
+        # 設定時一併把名字中間點統一為「·」再比對（見 normalize_name_dots）
+        extras = [p.strip() for p in os.getenv("QUERY_TERMS_EXTRA", "").split(",") if p.strip()]
+        self._norm = normalize_name_dots if extras else (lambda text: text)
+        self._extras = bool(extras)
+        for extra in extras:
+            try:
+                data = json.loads(Path(extra).read_text(encoding="utf-8"))
+                data = {k: v for k, v in data.items() if not k.startswith("_")}
+                self.dictionary = {**data, **self.dictionary}
+                logger.info(f"✅ 載入額外術語字典: {extra}")
+            except Exception as e:
+                logger.warning(f"⚠️ 無法載入額外術語字典 {extra}: {e}")
+
         # 建立反向查詢索引（多語言 -> 英文）
         self.term_index = self._build_term_index()
 
@@ -57,25 +99,64 @@ class MultilingualQueryTranslator:
         }
 
     def _build_term_index(self) -> dict[str, str]:
-        """建立術語索引：多語言詞彙 -> 英文關鍵詞"""
+        """建立術語索引：多語言詞彙 -> 英文關鍵詞；另記錄每個詞條出自哪些語言"""
         index = {}
+        self.term_langs: dict[str, set[str]] = {}
+        # 人名詞條的英文（分類名含 artist）：譯後檢查用（QUERY_TRANSLATION_NAME_GUARD）
+        self.person_terms: set[str] = set()
+        name_chars: Counter[str] = Counter()
 
         for category, terms in self.dictionary.items():
             for english_key, translations in terms.items():
+                if "artist" in category:
+                    self.person_terms.add(english_key)
                 # 英文本身也加入索引
                 index[english_key.lower()] = english_key
+                self.term_langs.setdefault(english_key.lower(), set()).add("en")
 
                 # 遍歷所有語言的翻譯
                 if isinstance(translations, dict):
                     for lang, term_list in translations.items():
-                        if isinstance(term_list, list):
-                            for term in term_list:
-                                index[term.lower()] = english_key
-                        elif isinstance(term_list, str):
-                            index[term_list.lower()] = english_key
+                        for term in term_list if isinstance(term_list, list) else [term_list]:
+                            if isinstance(term, str):
+                                term = self._norm(term).lower()
+                                index[term] = english_key
+                                self.term_langs.setdefault(term, set()).add(lang)
+                                if "artist" in category:
+                                    name_chars.update(term)
+
+        # 外文人名的常用譯字（出現 ≥ 3 次）：姓氏詞條後面接這些字，多半是更長名字的一部分
+        # （「聖羅倫」切開「聖羅倫佐」、「沃爾夫」切開「沃爾夫林」，E27）
+        self.name_chars = {
+            c for c, n in name_chars.items() if n >= 3 and "一" <= c <= "鿿"
+        } - _NOT_NAME_CHARS
 
         logger.info(f"✅ 建立術語索引: {len(index)} 個詞條")
         return index
+
+    def _match_allowed(self, text: str, pos: int, term: str, lang: str) -> bool:
+        """排除三種誤中：日文專用詞套在中文查詢（「影」→ shadow 切開「影響」）、
+        拉丁字母詞出現在更長的字裡（color 切開 colorito）、單一漢字出現在複合詞裡
+        （「光」切開「光學」、「銅」把「銅版畫」譯成 bronze）"""
+        if self.term_langs.get(term) == {"ja"} and lang != "ja":
+            return False
+        before = text[pos - 1] if pos > 0 else ""
+        after = text[pos + len(term)] if pos + len(term) < len(text) else ""
+        if term.isascii():
+            return not (before.isascii() and before.isalnum()) and not (
+                after.isascii() and after.isalnum()
+            )
+        if len(term) == 1:
+            cjk = self.language_patterns["zh"]
+            return not cjk.match(before) and not cjk.match(after)
+        if self._extras and before == "·" and self.term_index.get(term) in self.person_terms:
+            # 人名緊接在「·」後面＝別人全名的後半段（「亞當·拉斐爾」不是拉斐爾，E30）
+            return False
+        if self.term_langs.get(term) == {"zh_surname"}:
+            # 只有姓氏的詞條（scripts/build_artist_terms.py --famous）：前面是「·」或後面接譯名
+            # 常用字時，是另一個較長名字的一部分
+            return before != "·" and after not in self.name_chars
+        return True
 
     def detect_language(self, text: str) -> str:
         """檢測文本的主要語言
@@ -91,10 +172,11 @@ class MultilingualQueryTranslator:
         has_japanese = bool(self.language_patterns["ja"].search(text))
         has_korean = bool(self.language_patterns["ko"].search(text))
 
-        if has_chinese:
-            return "zh"
-        elif has_japanese:
+        # 日文也含漢字，先看假名；中文查詢不會有假名
+        if has_japanese:
             return "ja"
+        elif has_chinese:
+            return "zh"
         elif has_korean:
             return "ko"
         elif text.isascii():
@@ -111,8 +193,9 @@ class MultilingualQueryTranslator:
         Returns:
             (翻譯後的查詢, 識別的術語列表)
         """
-        # 將查詢轉為小寫以匹配索引
-        query_lower = query.lower()
+        # 將查詢轉為小寫以匹配索引；名字中間點統一為「·」（逐字替換，位置不變）
+        query_lower = self._norm(query).lower()
+        lang = self.detect_language(query)
 
         # 按詞彙長度排序（先匹配長詞彙）
         sorted_terms = sorted(self.term_index.keys(), key=len, reverse=True)
@@ -130,8 +213,10 @@ class MultilingualQueryTranslator:
                     if pos == -1:
                         break
 
-                    # 檢查是否與已找到的替換位置重疊
-                    if not any(pos <= p < pos + len(term) for p in replaced_positions):
+                    # 檢查是否與已找到的替換位置重疊，以及是否為誤中（見 _match_allowed）
+                    if not any(
+                        pos <= p < pos + len(term) for p in replaced_positions
+                    ) and self._match_allowed(query_lower, pos, term, lang):
                         # 獲取英文對應詞
                         english_term = self.term_index[term]
                         original_term = query[pos : pos + len(term)]
@@ -160,11 +245,16 @@ class MultilingualQueryTranslator:
         found_terms = []
 
         for repl in replacements:
-            translated_query = (
-                translated_query[: repl["pos"]]
-                + repl["replacement"]
-                + translated_query[repl["pos"] + repl["length"] :]
-            )
+            before = translated_query[: repl["pos"]]
+            after = translated_query[repl["pos"] + repl["length"] :]
+            # 英文替換詞緊貼另一個英數字時補空白，否則「風景畫作品」會變成
+            # landscapeartwork，全文檢索當成一個不存在的字
+            replacement = repl["replacement"]
+            if before and before[-1].isascii() and before[-1].isalnum():
+                replacement = " " + replacement
+            if after and after[0].isascii() and after[0].isalnum():
+                replacement = replacement + " "
+            translated_query = before + replacement + after
             found_terms.append(f"{repl['original']} -> {repl['replacement']}")
 
         # 反轉 found_terms 以保持原始順序

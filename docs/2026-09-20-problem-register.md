@@ -28,7 +28,7 @@
 
 | # | 問題 | 狀態 | 依據 | 解決方法 | 誰執行 |
 |---|---|---|---|---|---|
-| C3 | `cuda-ml-service:8080` 主機名無法解析（docker-compose 服務名，Docker 已於 2026-07-28 移除） | 已確診 | `src/config/mlConfig.js:4`、`src/api/routes/mlRoutes.js:7` | 改為必填環境變數，缺漏即啟動失敗 | 可由 AI 改 |
+| C3 | `cuda-ml-service:8080` 主機名無法解析（舊服務名） | 已確診 | `src/config/mlConfig.js:4`、`src/api/routes/mlRoutes.js:7` | 改為必填環境變數，缺漏即啟動失敗 | 可由 AI 改 |
 | C4 | `CHROMADB_PORT` 程式碼預設 8001，實際執行為 8000 | 已確診 | `unified_rag_manager_v2.py:164` vs `Start-NativeServices.ps1`、`diagnose.py:32` | 預設值改 8000，或改為必填 | 可由 AI 改 |
 | C2 | `.env.example:23` 的 `RAG_API_PORT` 是死變數，無程式碼讀取（程式讀 `RAG_MANAGER_PORT`） | 已確診 | 全庫 grep | 自 `.env.example` 刪除 | 可由 AI 改 |
 | C5 | `create_graphrag_models.py` 硬編碼 8010 | 已確診 | 調查報告發現5 | 外部化為環境變數 | 可由 AI 改 |
@@ -40,7 +40,6 @@
 
 | # | 問題 | 狀態 | 解決方法 |
 |---|---|---|---|
-| D1 | `2026-08-29-remove-docker-native-migration.md` 前提已失真（Docker 實際 **2026-07-28** 移除，且原生化範圍超出原清單） | 已確診 | 標記 superseded，用實測結果重寫，不要修補 |
 | D2 | 調查報告發現4 有兩列錯誤：ChromaDB「未查到常駐服務」、OpenWebUI「完全未安裝」 | 已確診 | 兩者都是「當下沒在跑」而非「不存在」；OpenWebUI 裝在 `/home/user/openwebui-venv/`。更正已記於 `ports.md` §2 |
 | D3 | 無任何文件記載「這套系統實際上怎麼啟動」 | **已解決** | `ports.md` §0 已補上 |
 

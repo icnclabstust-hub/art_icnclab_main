@@ -24,7 +24,7 @@ from neo4j import GraphDatabase
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# 原生 Neo4j（WSL 直接執行，非 Docker），使用標準埠 bolt:7687 / http:7474。
+# 原生 Neo4j（WSL 直接執行），使用標準埠 bolt:7687 / http:7474。
 # 2026-09-20 前曾改用 7688/7475，因 WSL 系統自帶的 neo4j.service 佔用標準埠；
 # 該系統服務已停用，標準埠歸本專案。詳見 docs/2026-09-20-port-consolidation.md
 NEO4J_URI = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687")
@@ -34,8 +34,28 @@ if not NEO4J_PASSWORD:
     raise RuntimeError(
         "缺少 NEO4J_PASSWORD 環境變數。請在啟動前設定，例如："
         "NEO4J_PASSWORD=... python3 sync_europeana_to_databases.py"
-        "（daily_crawl_and_sync.sh 已內建設定，不需手動處理）"
+        "（正常情況不需要手動執行本腳本，見下方 main() 的停用說明）"
     )
+
+# 2026-09-23：本腳本的 main()（直接執行）會繞過 PostgreSQL catalog/outbox 直寫
+# Neo4j/ChromaDB，破壞「catalog 為唯一真相源」的前提，且不會被 `ingest verify`
+# 的一致性稽核發現。正常情況一律使用新架構管線：`python3 -m ingest run --source europeana`。
+# 本檔案未被新架構的任何模組 import，純粹保留原始 Cypher 邏輯供之後參考。
+# 詳見 docs/decision-log.md 2026-09-23「清除舊版每日流程腳本」條目。
+_LEGACY_BYPASS_ENV = "ALLOW_LEGACY_DIRECT_WRITE"
+_LEGACY_BYPASS_VALUE = "yes-i-know-this-bypasses-outbox"
+
+
+def _require_direct_execution_opt_in():
+    if os.environ.get(_LEGACY_BYPASS_ENV) != _LEGACY_BYPASS_VALUE:
+        raise SystemExit(
+            "❌ 已停用直接執行：本腳本會繞過 PostgreSQL catalog/outbox 直寫 "
+            "Neo4j/ChromaDB。正常情況請改用：python3 -m ingest run --source europeana\n"
+            "   詳見 docs/decision-log.md 2026-09-23「清除舊版每日流程腳本」條目。\n"
+            f"   若清楚後果、確實需要直接執行，設定環境變數 "
+            f"{_LEGACY_BYPASS_ENV}={_LEGACY_BYPASS_VALUE} 後再試一次。"
+        )
+
 CHROMADB_HOST = os.getenv("CHROMADB_HOST", "localhost")
 CHROMADB_PORT = int(os.getenv("CHROMADB_PORT", "8000"))
 DATA_DIR = Path(os.getenv("DATA_RAW_DIR", str(Path(__file__).parent.parent / "data" / "raw")))
@@ -64,6 +84,8 @@ def safe_date(value):
 
 
 def main():
+    _require_direct_execution_opt_in()
+
     latest_file = find_latest_europeana_file()
     logger.info(f"🗂️  使用最新檔案: {latest_file.name}")
 

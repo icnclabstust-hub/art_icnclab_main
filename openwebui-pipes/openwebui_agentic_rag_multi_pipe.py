@@ -13,15 +13,11 @@ _opencc = OpenCC("s2twp")
 
 RAG_STRATEGY = "agentic_rag"
 
+# 選單排序：依實測回答速度由快到慢（2026-10-09 量測）
 LLM_MODELS = {
     "llama3-1-8b": ("llama3.1:8b", "Llama 3.1 8B"),
-    "deepseek-r1-8b": ("deepseek-r1:8b", "DeepSeek-R1 8B"),
     "qwen3-8b": ("qwen3:8b", "Qwen3 8B"),
-    # 20B 以上暫時下架（2026-08-18 拍板：課堂以 8B/12B 為主；模型仍在 Ollama，
-    # 重新上架解除下列註解即可）
-    # "deepseek-r1-32b": ("deepseek-r1:32b", "DeepSeek-R1 32B"),
-    # "qwen3-30b": ("qwen3:30b", "Qwen3 30B"),
-    # "gpt-oss-20b": ("gpt-oss:20b", "GPT-OSS 20B"),
+    "deepseek-r1-8b": ("deepseek-r1:8b", "DeepSeek-R1 8B"),
     "gemma4-12b": ("gemma4:12b", "Gemma 4 12B"),
 }
 
@@ -29,7 +25,7 @@ LLM_MODELS = {
 class Pipe:
     class Valves(BaseModel):
         RAG_MANAGER_URL: str = Field(
-            default="http://localhost:8007",
+            default="http://localhost:8001",
             description="rag-manager-v2 服務位址",
         )
         MAX_RESULTS: int = Field(default=5, description="檢索文件數上限")
@@ -45,7 +41,7 @@ class Pipe:
 
     def pipes(self):
         return [
-            {"id": sub_id, "name": f"{llm_name} + Agentic RAG"}
+            {"id": sub_id, "name": f"Agentic RAG｜{llm_name}"}
             for sub_id, (llm_tag, llm_name) in LLM_MODELS.items()
         ]
 
